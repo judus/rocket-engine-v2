@@ -681,6 +681,10 @@ implementation approval.
 
 ### Hi3D v3 fitted instruments
 
+The Hi3D preview uses unrestricted numeric camera-position fields. Range inputs
+would clamp the flight state at their slider endpoints and create invisible
+walls; cockpit fit sliders remain bounded independently.
+
 `webgl-cockpit-hi3d.html` adds five unlit, depth-tested inserts without changing
 its GLB or bezel artwork. `Hi3dCockpitDisplays.ts` fits the facade in preview
 units before the shared width/height/Y/Z tuning, so the inserts inherit the
