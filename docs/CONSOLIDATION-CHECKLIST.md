@@ -135,7 +135,7 @@ Every sketch is an idea, not an approved API or instruction to implement it verb
 Source: QUALITY-002, Steve 652/653/654 and Sprite proposal 657. Peer packages own
 implementation; their proposals await bounded review/agreement, not automatic dispatch.
 
-- [ ] Rocket: add a reproducible built-in Node V8 coverage command, retained report,
+- [x] Rocket: add a reproducible built-in Node V8 coverage command, retained report,
       explicit reusable-source/module accounting and sensible line/branch/function
       baselines in the required gate.
 - [ ] Review Rocket-Workers’ equivalent tooling correction against its own module
@@ -143,10 +143,10 @@ implementation; their proposals await bounded review/agreement, not automatic di
 - [ ] Review Sprite’s Q2 proposal: expected-module checks, text/machine reports,
       missing/incomplete/test-failure handling and unrounded baseline/branch ratchet;
       no redundant unit runs or changes to accepted archives/pins.
-- [ ] Verify the gates reject intentional regressions/missing reports/modules.
+- [x] Verify Rocket’s gate rejects intentional regressions/missing reports/modules.
       Do not chase 100% by touching lines. Browser loaders, native Canvas/worker
       behavior and shader execution need appropriate independent evidence.
-- [ ] Decide separately whether automatic local/CI invocation is wanted. Existing
+- [x] Local invocation is included in `npm run check`; CI remains unassigned. Existing
       `npm run check` is a local gate; hosted CI is not a prerequisite imposed here.
 
 Audit percentages are snapshot evidence, not current acceptance thresholds. Steve’s

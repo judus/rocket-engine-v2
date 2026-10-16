@@ -65,3 +65,9 @@ asteroids: movement, context loss/restore, one canvas after recreation, cleaned
 presentation count 1 and GL error 0. Imported Sprite proof: 230 assertions across
 10 cycles with 30 released Canvas sources. These are focused browser observations,
 not a cross-device acceptance claim.
+
+## Quality tooling
+
+Local V8 coverage now runs once in `npm run check`, with retained machine/text reports,
+explicit module inventory, per-module floors and missing/regression checks. 446 tests
+pass. See COVERAGE.md for measurement limits and baseline policy.

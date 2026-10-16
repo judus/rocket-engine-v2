@@ -6,3 +6,5 @@ dist/
 .agents/
 .env
 .env.*
+
+coverage/

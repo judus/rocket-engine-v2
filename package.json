@@ -57,10 +57,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "npm run build && node --test --test-isolation=none dist/tests/*.test.js",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm test",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run coverage",
     "start": "npm run build && python3 -m http.server 8092 --bind 127.0.0.1",
     "dev": "tsc -p tsconfig.build.json --watch",
-    "proof:journal": "npm run build && node dist/examples/journal/proof.js"
+    "proof:journal": "npm run build && node dist/examples/journal/proof.js",
+    "coverage": "npm run build && node --experimental-test-coverage --test-coverage-include=\"dist/src/**/*.js\" --test --test-isolation=none --test-reporter=./dist/scripts/coverage-gate.js dist/tests/*.test.js"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "1.32.1",

@@ -1,0 +1,384 @@
+{
+  "excluded": {
+    "Service.js": "Type-only interface; emitted empty module",
+    "types.js": "Type-only interfaces; emitted empty module",
+    "mcp/contracts.js": "Type-only interfaces; emitted empty module"
+  },
+  "modules": {
+    "3d/CanvasRenderer3D.js": {
+      "coveredLinePercent": 61.31818181818181,
+      "coveredBranchPercent": 89.5,
+      "coveredFunctionPercent": 74.5
+    },
+    "3d/collectFaces.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "3d/DirectionalShadow.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 96.2741935483871,
+      "coveredFunctionPercent": 99.5
+    },
+    "3d/EnvironmentMap.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 92.74324324324324,
+      "coveredFunctionPercent": 99.5
+    },
+    "3d/GlbContainer.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 66.16666666666666,
+      "coveredFunctionPercent": 99.5
+    },
+    "3d/GlbModel.js": {
+      "coveredLinePercent": 98.81972789115646,
+      "coveredBranchPercent": 76.84375,
+      "coveredFunctionPercent": 97.45918367346938
+    },
+    "3d/index.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "3d/Lighting3D.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 93.25,
+      "coveredFunctionPercent": 99.5
+    },
+    "3d/Matrix4.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 85.21428571428571,
+      "coveredFunctionPercent": 99.5
+    },
+    "3d/Mesh3D.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 91.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "3d/Node3D.js": {
+      "coveredLinePercent": 96.76027397260275,
+      "coveredBranchPercent": 92.60344827586206,
+      "coveredFunctionPercent": 90.4090909090909
+    },
+    "3d/NormalMatrix.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 81.31818181818183,
+      "coveredFunctionPercent": 99.5
+    },
+    "3d/PerspectiveCamera.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 97.0609756097561,
+      "coveredFunctionPercent": 99.5
+    },
+    "3d/PolygonNormal.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "3d/SoftwareDepthRenderer3D.js": {
+      "coveredLinePercent": 95.56299212598425,
+      "coveredBranchPercent": 95.05555555555556,
+      "coveredFunctionPercent": 89.5
+    },
+    "3d/SolidFaces.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 89.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "3d/TextureImage.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 92.60344827586206,
+      "coveredFunctionPercent": 99.5
+    },
+    "3d/Transform3D.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "AssetPool.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 93.61764705882352
+    },
+    "Assets.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "Camera2D.js": {
+      "coveredLinePercent": 92.14705882352942,
+      "coveredBranchPercent": 84.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "Cameras.js": {
+      "coveredLinePercent": 98.25,
+      "coveredBranchPercent": 91.92424242424242,
+      "coveredFunctionPercent": 94.5
+    },
+    "FixedClock.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "index.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "Input.js": {
+      "coveredLinePercent": 91.05555555555556,
+      "coveredBranchPercent": 81.93243243243244,
+      "coveredFunctionPercent": 90.4090909090909
+    },
+    "journal/contracts.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "journal/index.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "journal/Journal.js": {
+      "coveredLinePercent": 97.64241486068111,
+      "coveredBranchPercent": 79.16101694915254,
+      "coveredFunctionPercent": 95.79629629629629
+    },
+    "journal/mcp.js": {
+      "coveredLinePercent": 97.45918367346938,
+      "coveredBranchPercent": 82.83333333333334,
+      "coveredFunctionPercent": 99.5
+    },
+    "journal/MemoryJournalStore.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 89.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "journal/sqlite.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 84.79411764705883,
+      "coveredFunctionPercent": 99.5
+    },
+    "journal/value.js": {
+      "coveredLinePercent": 97.98484848484848,
+      "coveredBranchPercent": 87.0,
+      "coveredFunctionPercent": 99.5
+    },
+    "mcp/index.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "mcp/McpService.js": {
+      "coveredLinePercent": 94.4367088607595,
+      "coveredBranchPercent": 74.07627118644068,
+      "coveredFunctionPercent": 95.92857142857143
+    },
+    "navigation/contracts.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "navigation/DirectMovement.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 90.4090909090909,
+      "coveredFunctionPercent": 99.5
+    },
+    "navigation/GridNavigator.js": {
+      "coveredLinePercent": 96.76027397260275,
+      "coveredBranchPercent": 94.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "navigation/GridTraversal.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 94.73809523809523,
+      "coveredFunctionPercent": 99.5
+    },
+    "navigation/index.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "navigation/Movement.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 94.8125,
+      "coveredFunctionPercent": 99.5
+    },
+    "Node2D.js": {
+      "coveredLinePercent": 99.04954954954955,
+      "coveredBranchPercent": 91.72222222222223,
+      "coveredFunctionPercent": 99.5
+    },
+    "PerformanceMonitor.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "physics/matter.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 90.89784946236558,
+      "coveredFunctionPercent": 99.5
+    },
+    "physics/removeNativeBody.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "Presentation.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 92.83333333333333,
+      "coveredFunctionPercent": 99.5
+    },
+    "ResourceScope.js": {
+      "coveredLinePercent": 93.78571428571428,
+      "coveredBranchPercent": 87.73529411764706,
+      "coveredFunctionPercent": 99.5
+    },
+    "Rocket.js": {
+      "coveredLinePercent": 97.32082324455206,
+      "coveredBranchPercent": 91.57920792079209,
+      "coveredFunctionPercent": 93.04838709677419
+    },
+    "Scene2D.js": {
+      "coveredLinePercent": 97.34946236559139,
+      "coveredBranchPercent": 79.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "SpatialIndex.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 92.55555555555556,
+      "coveredFunctionPercent": 99.5
+    },
+    "sprites/index.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "sprites/Sprite2D.js": {
+      "coveredLinePercent": 90.26923076923077,
+      "coveredBranchPercent": 75.86363636363637,
+      "coveredFunctionPercent": 91.16666666666666
+    },
+    "synchronous.js": {
+      "coveredLinePercent": 91.16666666666666,
+      "coveredBranchPercent": 86.16666666666667,
+      "coveredFunctionPercent": 99.5
+    },
+    "ui/ChatBox.js": {
+      "coveredLinePercent": 90.44650205761316,
+      "coveredBranchPercent": 87.0,
+      "coveredFunctionPercent": 80.75
+    },
+    "ui/index.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "ui/Panel.js": {
+      "coveredLinePercent": 69.9119850187266,
+      "coveredBranchPercent": 79.5,
+      "coveredFunctionPercent": 68.46551724137932
+    },
+    "View.js": {
+      "coveredLinePercent": 97.69004524886877,
+      "coveredBranchPercent": 82.03968253968253,
+      "coveredFunctionPercent": 99.5
+    },
+    "webgl/BloomPass.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 89.64084507042254,
+      "coveredFunctionPercent": 99.5
+    },
+    "webgl/BloomPipeline.js": {
+      "coveredLinePercent": 38.785714285714285,
+      "coveredBranchPercent": 49.5,
+      "coveredFunctionPercent": 0
+    },
+    "webgl/CanvasTexture.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "webgl/ColorRenderer.js": {
+      "coveredLinePercent": 96.59897610921502,
+      "coveredBranchPercent": 85.48726114649682,
+      "coveredFunctionPercent": 95.5
+    },
+    "webgl/EnvironmentStore.js": {
+      "coveredLinePercent": 95.96017699115043,
+      "coveredBranchPercent": 90.4090909090909,
+      "coveredFunctionPercent": 92.83333333333333
+    },
+    "webgl/GlbLoader.js": {
+      "coveredLinePercent": 13.785714285714285,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 0
+    },
+    "webgl/GpuTimer.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 92.0,
+      "coveredFunctionPercent": 99.5
+    },
+    "webgl/index.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "webgl/LightingShader.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "webgl/LightUniforms.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 90.80434782608695,
+      "coveredFunctionPercent": 99.5
+    },
+    "webgl/MaterialShader.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "webgl/MeshRenderer3D.js": {
+      "coveredLinePercent": 98.73371647509579,
+      "coveredBranchPercent": 94.70958083832335,
+      "coveredFunctionPercent": 94.23684210526315
+    },
+    "webgl/RenderTarget.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 95.05555555555556,
+      "coveredFunctionPercent": 99.5
+    },
+    "webgl/ShadowPass.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 81.75806451612904,
+      "coveredFunctionPercent": 99.5
+    },
+    "webgl/ShadowShader.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 66.16666666666666,
+      "coveredFunctionPercent": 99.5
+    },
+    "webgl/TextureLoader.js": {
+      "coveredLinePercent": 15.289473684210526,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 0
+    },
+    "webgl/TextureStore.js": {
+      "coveredLinePercent": 97.70359281437125,
+      "coveredBranchPercent": 92.94262295081968,
+      "coveredFunctionPercent": 99.5
+    },
+    "webgl/WebGLAssets.js": {
+      "coveredLinePercent": 56.64285714285714,
+      "coveredBranchPercent": 49.5,
+      "coveredFunctionPercent": 0
+    },
+    "webgl/WebGLSurface.js": {
+      "coveredLinePercent": 95.28313253012048,
+      "coveredBranchPercent": 62.0,
+      "coveredFunctionPercent": 87.73529411764706
+    }
+  }
+}
