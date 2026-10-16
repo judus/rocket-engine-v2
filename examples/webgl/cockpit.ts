@@ -297,7 +297,7 @@ async function start() {
     const controls = ids.map((id) =>
       document.querySelector<HTMLInputElement>(`#${id}`)!,
     );
-    const defaults = [1, 1, 0, 0];
+    const defaults = controls.map((control) => Number(control.defaultValue));
     const storageKey = `rocket:cockpit-tuning:${modelUrl}`;
     const savedStatus = document.querySelector('#cockpit-tuning-status')!;
     try {

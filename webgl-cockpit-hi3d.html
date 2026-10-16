@@ -22,11 +22,9 @@
         existing cockpit viewport: 199,352 triangles, 106,911 vertices, three
         embedded 1024² textures and an 11.3 MiB prepared GLB. The source
         geometry, materials and embedded proportion corrections are preserved.
-        Uniform scene scaling matches the previous preview's eight-unit width
-        and centers the model at eye height for comparison. The default pilot
-        camera is a quarter scene unit behind the tightly fitted dashboard view,
-        with the same eye height and field of view. Use WASD, drag and the
-        camera controls to explore.
+        The default fit uses Julien's tuned proportions: 80% width, 93% height,
+        Y offset +0.03 and Z offset −0.44 scene units. The pilot camera stays at
+        Y 1.48, Z −3.37. Use the Cockpit fit sliders below to adjust further.
       </p>
       <section aria-labelledby="performance-title">
         <h2 id="performance-title">Performance</h2>
@@ -129,10 +127,10 @@
               min="0.5"
               max="1.8"
               step="0.01"
-              value="1"
+              value="0.8"
             />
             <output id="cockpit-width-value" for="cockpit-width"
-              >1.00×</output
+              >0.80×</output
             ></label
           >
           <label
@@ -143,10 +141,10 @@
               min="0.5"
               max="1.8"
               step="0.01"
-              value="1"
+              value="0.93"
             />
             <output id="cockpit-height-value" for="cockpit-height"
-              >1.00×</output
+              >0.93×</output
             ></label
           >
           <label
@@ -157,9 +155,9 @@
               min="-3"
               max="3"
               step="0.01"
-              value="0"
+              value="0.03"
             />
-            <output id="cockpit-y-value" for="cockpit-y">0.00 U</output></label
+            <output id="cockpit-y-value" for="cockpit-y">0.03 U</output></label
           >
           <label
             >Cockpit Z
@@ -169,9 +167,9 @@
               min="-3"
               max="3"
               step="0.01"
-              value="0"
+              value="-0.44"
             />
-            <output id="cockpit-z-value" for="cockpit-z">0.00 U</output></label
+            <output id="cockpit-z-value" for="cockpit-z">-0.44 U</output></label
           >
           <button id="cockpit-tuning-reset">Reset cockpit fit</button>
         </div>
