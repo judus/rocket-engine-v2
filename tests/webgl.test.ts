@@ -1214,3 +1214,36 @@ void test('bloom compile and framebuffer allocation failures clean up without ac
     f.calls.filter((c) => c.name === 'deleteTexture').length,
   );
 });
+
+void test('clear color is configurable per frame and validated before clearing', () => {
+  const f = fixture(),
+    renderer = new WebGLColorRenderer(f.gl);
+  renderer.drawFrame([], true, { lights: [], clearColor: [0, 0, 0] });
+  assert.deepEqual(
+    f.calls.filter((c) => c.name === 'clearColor').at(-1)!.args,
+    [0, 0, 0, 1],
+  );
+  assert.throws(
+    () => renderer.drawFrame([], true, { lights: [], clearColor: [NaN, 0, 0] }),
+    /Clear color/,
+  );
+  renderer.drawFrame([]);
+  assert.deepEqual(
+    f.calls.filter((c) => c.name === 'clearColor').at(-1)!.args,
+    [0.035, 0.06, 0.095, 1],
+  );
+  renderer.dispose();
+  const sceneRenderer = new WebGLMeshRenderer3D(f.gl);
+  sceneRenderer.render(
+    new Node3D('empty black scene'),
+    new PerspectiveCamera(),
+    64,
+    64,
+    { clearColor: [0, 0, 0] },
+  );
+  assert.deepEqual(
+    f.calls.filter((c) => c.name === 'clearColor').at(-1)!.args,
+    [0, 0, 0, 1],
+  );
+  sceneRenderer.dispose();
+});

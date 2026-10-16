@@ -1,3 +1,4 @@
+import { distantSun } from '../space/DistantSun.js';
 import { maxGpuLights } from '../../src/webgl/LightUniforms.js';
 import { hi3dCockpitLamps } from './Hi3dCockpitLamps.js';
 import { hi3dDisplayTuning, hi3dLampSizeTuning } from './Hi3dDisplayTuning.js';
@@ -271,6 +272,8 @@ async function start() {
     grid.receivesShadow = false;
   }
   root.add(grid);
+  const sun = hi3dDisplays ? distantSun() : undefined;
+  if (sun) root.add(sun.node);
   // World content is a sibling of the pilot rig, never a cockpit child.
   const worldShadows = hi3dDisplays && !!shadowsEnabled;
   let field = asteroidWorld
@@ -507,6 +510,14 @@ async function start() {
   } else {
     assembly.add(placement);
   }
+  document.querySelector('#face-sun')?.addEventListener(
+    'click',
+    () => {
+      cameraYaw.value = shadowInput('light-yaw').value;
+      cameraPitch.value = shadowInput('light-elevation').value;
+    },
+    { signal },
+  );
   const shadowFit = shadowsEnabled ? cockpitShadowFit(assembly) : undefined;
   const reticle = instruments && !hi3dDisplays ? cockpitReticle() : undefined;
   if (reticle) assembly.add(reticle);
@@ -760,6 +771,7 @@ async function start() {
         : hi3dDisplays
           ? { x: -0.6, y: 0.35, z: -0.72 }
           : { x: -0.5, y: 1, z: -0.6 };
+      sun?.update({ x: camera.x, y: camera.y, z: camera.z }, lightDirection);
       let shadow: DirectionalShadow3D | undefined;
       let shadowExtent = 0;
       if (shadowFit) {
@@ -858,6 +870,7 @@ async function start() {
           depthTest: depthTest.checked,
           reverseOrder: reverseOrder.checked,
           lights,
+          ...(hi3dDisplays ? { clearColor: [0, 0, 0] as const } : {}),
           ...(shadow
             ? { shadow, shadowDebug: shadowInput('shadow-debug').checked }
             : {}),

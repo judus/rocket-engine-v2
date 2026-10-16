@@ -465,6 +465,7 @@ export class WebGLColorRenderer {
     depthTest = true,
     lighting: {
       readonly target?: WebGLRenderTarget;
+      readonly clearColor?: readonly [number, number, number];
       readonly lights: readonly Light3D[];
       readonly enabled?: boolean;
       readonly cameraPosition?: Vec3;
@@ -478,6 +479,14 @@ export class WebGLColorRenderer {
     } = { lights: [] },
   ): number {
     this.#live();
+    const clearColor = lighting.clearColor ?? [0.035, 0.06, 0.095];
+    if (
+      clearColor.length !== 3 ||
+      !clearColor.every((v) => Number.isFinite(v) && v >= 0 && v <= 1)
+    )
+      throw new RangeError(
+        'Clear color must contain three finite channels in 0..1',
+      );
     lighting.target?.assertContext(this.gl);
     if (lighting.target && depthTest && !lighting.target.hasDepth)
       throw new Error('Depth testing requires a depth render target');
@@ -594,7 +603,7 @@ export class WebGLColorRenderer {
     gl.disable(gl.RASTERIZER_DISCARD);
     gl.disable(gl.POLYGON_OFFSET_FILL);
     gl.colorMask(true, true, true, true);
-    gl.clearColor(0.035, 0.06, 0.095, 1);
+    gl.clearColor(clearColor[0]!, clearColor[1]!, clearColor[2]!, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.useProgram(this.#program);
     if (uniforms) {

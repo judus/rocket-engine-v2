@@ -174,6 +174,7 @@ export class WebGLMeshRenderer3D {
     height: number,
     options: {
       readonly target?: WebGLRenderTarget;
+      readonly clearColor?: readonly [number, number, number];
       readonly depthTest?: boolean;
       readonly reverseOrder?: boolean;
       readonly lights?: readonly Light3D[];
@@ -334,6 +335,7 @@ export class WebGLMeshRenderer3D {
       options.depthTest ?? true,
       {
         ...(options.target ? { target: options.target } : {}),
+        ...(options.clearColor ? { clearColor: options.clearColor } : {}),
         lights: options.lights ?? [],
         enabled: options.lightingEnabled ?? true,
         cameraPosition: { x: camera.x, y: camera.y, z: camera.z },

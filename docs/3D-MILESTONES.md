@@ -863,3 +863,29 @@ asteroids. Browser: 98 caster draws / 211652 triangles, 8K allocation succeeds,
 shadows off gives zero depth draws, and no console errors. 8K was left active for
 Julien's experiment; local sample averaged 1.942 ms GPU with 9.366 ms peak and
 124 callback FPS. This moving-view sample is not a controlled hardware benchmark.
+
+### Visible sun and black space
+
+Hi3D clears the scene to black through an explicit per-frame clearColor option;
+other demos retain their original blue clear color. The option is forwarded by
+the mesh renderer and validated before GPU state changes.
+
+The visible sun is a 64-triangle unlit disc with a 64x64 limb-darkened texture.
+Its direction is the same vector used by the directional light and sun shadows.
+A camera-relative 450-unit proxy keeps its angular size and direction constant
+under translation, within the existing 600-unit far plane. Ordinary depth testing
+lets cockpit geometry and nearer asteroids cover it, and it receives the existing
+bloom. It adds one scene draw and no shadow draw, clock or external asset. This is
+a finite-demo distant-scenery proxy, not a physical stellar body or general sky
+pipeline. Its nominal angular diameter is about one degree.
+
+Face the sun copies the light yaw/elevation to the camera without moving the ship
+position; the starting light direction otherwise lies behind the pilot. Empty
+space beyond the finite asteroid field remains empty. Dust, stars, nebulae and
+additional postprocessing remain outside this slice.
+
+Validation: 498 tests and coverage pass, including clear-color forwarding/defaults
+and sun alignment, rotation, translation invariance and shadow exclusion. Browser
+inspection confirms a visible blooming sun centered by the shortcut, black empty
+space, retained cockpit presentation and no console errors. Browser screenshot:
+/tmp/rocket-hi3d-visible-sun.png. The preview was left facing the sun with 8K shadows.
