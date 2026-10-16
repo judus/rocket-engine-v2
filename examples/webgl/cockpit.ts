@@ -168,8 +168,8 @@ async function start() {
           up = keys('KeyE') - keys('KeyQ');
         const yaw = (Number(cameraYaw.value) * Math.PI) / 180,
           pitch = (Number(cameraPitch.value) * Math.PI) / 180;
-        const speed = asteroidWorld ? 8 : 3;
-        const boost = asteroidWorld ? 30 : 12;
+        const speed = hi3dDisplays ? 80 : asteroidWorld ? 8 : 3;
+        const boost = hi3dDisplays ? 300 : asteroidWorld ? 30 : 12;
         const targetSpeed =
           (keys('ShiftLeft') || keys('ShiftRight') ? boost : speed) /
           (Math.hypot(forward, right, up) || 1);
