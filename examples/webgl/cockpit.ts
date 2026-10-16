@@ -550,8 +550,10 @@ async function start() {
     { signal },
   );
   const shadowFit = shadowsEnabled ? cockpitShadowFit(assembly) : undefined;
-  const reticle = instruments && !hi3dDisplays ? cockpitReticle() : undefined;
-  if (reticle) assembly.add(reticle);
+  const reticle = instruments
+    ? cockpitReticle(hi3dDisplays ? 'hi3d' : 'classic')
+    : undefined;
+  if (reticle && !hi3dDisplays) assembly.add(reticle);
   const preset = instance.cameras[0];
   const position = preset
     ? matrixPoint(preset.node.worldMatrix(), { x: 0, y: 0, z: 0 })
@@ -572,6 +574,14 @@ async function start() {
     ),
     fov: preset?.yfov ?? Math.PI / 3,
   };
+  if (reticle && hi3dDisplays) {
+    // Rigid ship reference, independent of the model's nonuniform fit and cosmetic sway.
+    reticle.transform = {
+      ...reticle.transform,
+      position: { x: home.x, y: home.y + 0.4, z: home.z + 4 },
+    };
+    rig.add(reticle);
+  }
   // Home camera inverse: rigid orientation transpose plus inverse translation.
   const pose = (x: number, y: number, z: number, yaw: number, pitch: number) =>
     transformMatrix({

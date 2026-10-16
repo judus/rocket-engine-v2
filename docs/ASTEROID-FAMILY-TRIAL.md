@@ -85,3 +85,13 @@ Investigation deferred at Julien's request. Resume with a reproducible moving
 viewpoint and isolate shadows, normal mapping and material response separately;
 check filtering, depth precision and shadow-volume stability as hypotheses.
 Keep the current rendering settings until that investigation is resumed.
+
+## Turquoise flight reticle
+
+The Hi3D cockpit uses Julien's sketch: a thin outer circle, four interrupted
+inner arcs with paired radial ticks, a small centre ring/cross and dot. Colour
+is the same `#86ead6` as the instruments. The reticle is ordinary unlit geometry
+under the rigid pilot rig, independent of nonuniform model fitting and cosmetic
+cockpit sway. It neither casts nor receives shadows; existing bloom can glow
+around it. The turquoise flight-reticle checkbox controls visibility. This is
+a visual flight reference only; target selection/locking is not implemented.
