@@ -174,8 +174,13 @@ async function start() {
             dt,
             (movement.ax * Math.cos(yaw) - movement.az * Math.sin(yaw)) /
               referenceAcceleration,
-            movement.ay / referenceAcceleration,
-            (movement.ax * Math.sin(yaw) + movement.az * Math.cos(yaw)) /
+            (-movement.ax * Math.sin(yaw) * Math.sin(pitch) +
+              movement.ay * Math.cos(pitch) -
+              movement.az * Math.cos(yaw) * Math.sin(pitch)) /
+              referenceAcceleration,
+            (movement.ax * Math.sin(yaw) * Math.cos(pitch) +
+              movement.ay * Math.sin(pitch) +
+              movement.az * Math.cos(yaw) * Math.cos(pitch)) /
               referenceAcceleration,
           );
         } else motion.reset();
@@ -610,12 +615,12 @@ async function start() {
         position: {
           x: motion.x,
           y: motion.y,
-          z: 0,
+          z: motion.z,
         },
       };
       const motionStatus = document.querySelector('#cockpit-motion-status');
       if (motionStatus)
-        motionStatus.textContent = `${motionEnabled?.checked && pilot.checked ? 'Active' : 'Off'} · offset ${motion.x.toFixed(2)}, ${motion.y.toFixed(2)} U · speed ${flight.speed.toFixed(2)} U/s · cosmetic response; no collisions`;
+        motionStatus.textContent = `${motionEnabled?.checked && pilot.checked ? 'Active' : 'Off'} · offset X ${motion.x.toFixed(2)}, Y ${motion.y.toFixed(2)}, Z ${motion.z.toFixed(2)} U · speed ${flight.speed.toFixed(2)} U/s · cosmetic response; no collisions`;
       const rotation = (Number(angle.value) * Math.PI) / 180 + phase;
       assembly.transform = {
         ...assembly.transform,
