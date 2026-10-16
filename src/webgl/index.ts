@@ -15,3 +15,8 @@ export { updateTextureFromCanvas } from './CanvasTexture.js';
 export { WebGLRenderTarget } from './RenderTarget.js';
 export { WebGLBloomPass } from './BloomPass.js';
 export type { BloomOptions } from './BloomPass.js';
+
+export { WebGLSurface } from './WebGLSurface.js';
+export type { ContextResource, ContextLease } from './WebGLSurface.js';
+export { WebGLAssets } from './WebGLAssets.js';
+export { WebGLBloomPipeline } from './BloomPipeline.js';

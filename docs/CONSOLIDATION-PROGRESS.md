@@ -49,7 +49,19 @@ Actual sprite-pack validation is left aside: no pack was selected for this task.
 
 - Import WORKERS-001 fix when upstream reports it ready (requested in Rocket-Workers
   #668); proceed independently while it is prepared.
-- Extract reusable WebGL lifecycle/input/asset/render-composition facilities and
-  migrate real consumers. Refresh current docs and record intentionally deferred work.
 - Create separate experimental ergonomics branch; document implemented API and
   evaluation, post Markdown links to Rocket-Engine and ask Steve to review.
+
+## Reusable extraction
+
+Implemented WebGLSurface generation/lifetime ownership; InputTarget binding shared
+by Canvas and WebGL; generic AssetPool extracted from Assets; WebGLAssets model and
+texture leases; optional WebGLBloomPipeline. Migrated cockpit host and asteroid
+scene; image consumers reuse the pool through the existing API. Kept rendering,
+scene, domain and presentation policy separate. See CONSOLIDATION-API.md.
+
+Full extraction check: 445 tests plus strict typecheck/lint/format/build. Native cockpit
+asteroids: movement, context loss/restore, one canvas after recreation, cleaned
+presentation count 1 and GL error 0. Imported Sprite proof: 230 assertions across
+10 cycles with 30 released Canvas sources. These are focused browser observations,
+not a cross-device acceptance claim.

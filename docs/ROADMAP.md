@@ -1,6 +1,10 @@
 # Roadmap
 
-Current status: 2026-10-14. This document distinguishes delivered Rocket capabilities,
+Historical integration snapshot: 2026-10-14. Current execution is tracked in
+[Consolidation progress](CONSOLIDATION-PROGRESS.md) and [the current API](CONSOLIDATION-API.md).
+The 2026-10-16 priority is bugs, Workshop/Sprite imports, engine consolidation, then
+an isolated API ergonomics experiment. Packaging/acceptance/compatibility projects
+are excluded from this pass. This document distinguishes delivered Rocket capabilities,
 accepted upstream packages and work still awaiting integration. The latest completed
 Rocket gate has 318 passing tests plus TypeScript, lint, formatting and build checks.
 No delivery dates or implementation estimates are committed.

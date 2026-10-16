@@ -1,5 +1,11 @@
 # Open questions and implementation gates
 
+Historical design questions are retained below for context. Fixed timing, input
+edge domains, runtime error/stop policy and resource ownership now have implemented
+contracts in RUNTIME.md, FIXED-TIMING.md and CONSOLIDATION-API.md. Current work and
+deferred decisions are tracked in CONSOLIDATION-PROGRESS.md; these older lists do
+not automatically reopen completed work or authorize every experiment.
+
 The documents preserve discussion, not a frozen specification. Resolve questions at the stage where a concrete example can answer them.
 
 ## Initial runtime choices

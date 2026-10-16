@@ -1,8 +1,8 @@
 import { Rocket, Scene2D } from '../../src/index.js';
 import { PerspectiveCamera } from '../../src/3d/index.js';
 import { WebGLMeshRenderer3D, WebGLGpuTimer } from '../../src/webgl/index.js';
-import { exploreControls } from '../webgl/ExploreControls.js';
-import { viewportResolution } from '../webgl/ViewportResolution.js';
+import { explorationInput } from '../webgl/ExplorationInput.js';
+import { WebGLSurface } from '../../src/webgl/index.js';
 import { asteroidField } from './AsteroidField.js';
 
 const host = document.querySelector<HTMLElement>('#gpu-view')!;
@@ -27,26 +27,44 @@ async function start() {
     },
   });
   app = application;
-  const canvas = document.createElement('canvas');
-  canvas.style.display = 'block';
-  canvas.style.width = '100%';
-  canvas.style.aspectRatio = '16 / 9';
-  canvas.setAttribute(
-    'aria-label',
-    'Seeded asteroid field. Focus to fly with WASD, Q/E and arrow keys; drag to look.',
+  const scene = application.scene(
+    new Scene2D({
+      update(dt) {
+        if (lost) return;
+        keys.update();
+        look(
+          (keys('ArrowRight') - keys('ArrowLeft')) * dt,
+          (keys('ArrowDown') - keys('ArrowUp')) * dt,
+        );
+        const forward =
+          keys('KeyW') - keys('KeyS') + Number(input('cruise').checked);
+        const right = keys('KeyD') - keys('KeyA'),
+          up = keys('KeyE') - keys('KeyQ');
+        const distance =
+          ((keys('ShiftLeft') || keys('ShiftRight') ? 30 : 8) * dt) /
+          Math.max(1, Math.hypot(forward, right, up));
+        camera.x +=
+          (Math.sin(camera.yaw) * Math.cos(camera.pitch) * forward +
+            Math.cos(camera.yaw) * right) *
+          distance;
+        camera.y += (Math.sin(camera.pitch) * forward + up) * distance;
+        camera.z +=
+          (Math.cos(camera.yaw) * Math.cos(camera.pitch) * forward -
+            Math.sin(camera.yaw) * right) *
+          distance;
+      },
+    }),
   );
-  host.append(canvas);
-  const gl = canvas.getContext('webgl2', {
-    alpha: false,
-    antialias: true,
-    depth: true,
+  const surface = new WebGLSurface({
+    target: host,
+    scene,
+    label:
+      'Seeded asteroid field. Focus to fly with WASD, Q/E and arrow keys; drag to look.',
+    onError: (error) => {
+      status.value = String(error);
+    },
   });
-  if (!gl) {
-    canvas.remove();
-    status.value = 'WebGL2 unavailable.';
-    restart.disabled = false;
-    return;
-  }
+  const { canvas, gl } = surface;
   const events = new AbortController(),
     signal = events.signal;
   const camera = new PerspectiveCamera();
@@ -64,7 +82,7 @@ async function start() {
     camera.yaw += dx;
     camera.pitch = Math.max(-1.5, Math.min(1.5, camera.pitch - dy));
   };
-  const keys = exploreControls(canvas, signal, look, home);
+  const keys = explorationInput(application, scene, surface, look, home);
   let root = asteroidField(2126);
   input('seed').value = '2126';
   input('count').value = '96';
@@ -74,8 +92,6 @@ async function start() {
     timer: WebGLGpuTimer | undefined,
     lost = false;
   const extension = gl.getExtension('WEBGL_lose_context');
-  const viewportLimits = gl.getParameter(gl.MAX_VIEWPORT_DIMS) as Int32Array;
-  const maxBuffer = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE) as number;
   const antialias = gl.getContextAttributes()?.antialias ?? false;
   const initialize = () => {
     renderer?.dispose();
@@ -139,52 +155,16 @@ async function start() {
       lost = false;
       button('restore-context').disabled = true;
       button('lose-context').disabled = !extension;
-      initialize();
     },
     { signal },
-  );
-  const scene = application.scene(
-    new Scene2D({
-      update(dt) {
-        if (lost) return;
-        look(
-          (keys('ArrowRight') - keys('ArrowLeft')) * dt,
-          (keys('ArrowDown') - keys('ArrowUp')) * dt,
-        );
-        const forward =
-          keys('KeyW') - keys('KeyS') + Number(input('cruise').checked);
-        const right = keys('KeyD') - keys('KeyA'),
-          up = keys('KeyE') - keys('KeyQ');
-        const distance =
-          ((keys('ShiftLeft') || keys('ShiftRight') ? 30 : 8) * dt) /
-          Math.max(1, Math.hypot(forward, right, up));
-        camera.x +=
-          (Math.sin(camera.yaw) * Math.cos(camera.pitch) * forward +
-            Math.cos(camera.yaw) * right) *
-          distance;
-        camera.y += (Math.sin(camera.pitch) * forward + up) * distance;
-        camera.z +=
-          (Math.cos(camera.yaw) * Math.cos(camera.pitch) * forward -
-            Math.sin(camera.yaw) * right) *
-          distance;
-      },
-    }),
   );
   let nextReadout = 0;
   application.presentation({
     scene,
     render() {
       if (lost || gl.isContextLost() || !renderer) return;
-      const size = viewportResolution(
-        host.clientWidth,
-        (host.clientWidth * 9) / 16,
-        window.devicePixelRatio || 1,
-        Number(input('resolution').value),
-        Math.min(viewportLimits[0]!, maxBuffer),
-        Math.min(viewportLimits[1]!, maxBuffer),
-      );
-      if (canvas.width !== size.width) canvas.width = size.width;
-      if (canvas.height !== size.height) canvas.height = size.height;
+      surface.resize(Number(input('resolution').value));
+      const size = { limited: surface.limited };
       timer?.poll();
       const measuring = timer?.begin();
       let result;
@@ -257,16 +237,22 @@ async function start() {
     },
     dispose() {
       events.abort();
-      renderer?.dispose();
-      renderer = undefined;
-      timer?.dispose();
-      timer = undefined;
-      canvas.remove();
-      extension?.loseContext();
+      surface.dispose();
       retired++;
     },
   });
-  initialize();
+  surface.manage(() => {
+    initialize();
+    return {
+      value: gl,
+      dispose(): undefined {
+        renderer?.dispose();
+        renderer = undefined;
+        timer?.dispose();
+        timer = undefined;
+      },
+    };
+  });
   await application.start();
   restart.disabled = false;
 }

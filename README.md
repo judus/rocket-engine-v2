@@ -1,6 +1,6 @@
 # Rocket Engine v2 — design workspace
 
-Runtime foundation implemented 2026-10-11. TypeScript sources emitting native JavaScript modules, Canvas 2D, plain-object scenes, optional nodes/behaviors, services/input, shared images and multiple views. No Git repository initialization or migration of existing projects has been performed.
+Current consolidation: 2026-10-16. Runtime timing/lifecycle and reported UI/journal/CPU-geometry/streaming bugs are fixed; Workshop 2.4.0 and Sprite 0.3.0 are imported locally. Reusable WebGL lifetime, shared input/asset ownership and optional bloom composition are documented in [Consolidated API](docs/CONSOLIDATION-API.md). See [progress](docs/CONSOLIDATION-PROGRESS.md) and [the checklist](docs/CONSOLIDATION-CHECKLIST.md). Local Git tracks work; no remote publishing is configured here.
 
 Rocket v2 is a multipurpose JavaScript canvas engine: start with ordinary update/draw callbacks, then add views, composition, input, assets, maps, or physics when useful. Pure code authoring is the intended workflow; no GUI/editor is planned.
 
@@ -17,7 +17,7 @@ npm run check
 
 The example shows two reusable articulated arms through two cameras, plus a separate time-driven animation. Click or tab into either view: Space toggles motion, WASD/arrows move the selected arm, and dragging a base selects and moves it. Replace an arm to exercise subtree cleanup. Shared-scene overlays include FPS and update/render CPU costs. The arm bases share one loaded PNG; “Test image error” exercises failed startup and “Restart example” recovers. Read the [asset API](docs/ASSETS.md), [services and input API](docs/SERVICES-INPUT.md), [nodes and behaviors API](docs/NODES.md), [implemented runtime API](docs/RUNTIME.md) and [foundation review](docs/FOUNDATION-REVIEW.md). Node 24 and Python 3 were used for local verification; the core browser runtime has no package dependencies; the optional physics service uses Matter.js. Development uses TypeScript, type-aware ESLint and Prettier; see [tooling](docs/TOOLING.md).
 
-`npm run check` runs strict type checking, lint, formatting verification, then builds and runs the 202 tests against emitted JavaScript. `npm run format` applies formatting. For development, leave `npm start` serving and run `npm run dev` in another terminal to rebuild on edits; refresh the browser after a rebuild.
+`npm run check` runs strict type checking, lint, formatting verification, then builds and runs the current test suite against emitted JavaScript. `npm run format` applies formatting. For development, leave `npm start` serving and run `npm run dev` in another terminal to rebuild on edits; refresh the browser after a rebuild.
 
 The [tile-board demo](http://127.0.0.1:8092/tiles.html) is a second consumer: one larger finite signed tile store, shared bounded terrain caches, a reusable presentation node, two editor cameras and click-to-edit input, plus an independent activity-counter canvas reading the same board. Closing the detail view preserves edits and the world view; resetting exercises full cleanup. Cache overlays show rebuilds, evictions, FPS and estimated RGBA storage. See [the checkpoint and findings](docs/TILE-BOARD.md) and [cache contracts](docs/TILE-CACHE.md).
 
@@ -48,7 +48,7 @@ The separate [procedural terrain demo](http://127.0.0.1:8092/terrain.html) rebui
 - **Experiment:** optional later work; not a prerequisite for a usable engine.
 - **Open:** no settled contract yet.
 
-The first runtime/view slice is implemented. Later APIs remain proposals; do not implement the entire future world architecture as scaffolding for a rectangle.
+The runtime, 2D/3D rendering and bounded integrations are implemented. Unimplemented sketches remain proposals; do not implement the entire future world architecture as scaffolding for a rectangle.
 
 ## Existing projects
 

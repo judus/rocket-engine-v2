@@ -1,5 +1,14 @@
-import type { Frame, FixedFrame, Point, Scene } from './types.js';
 import type { View } from './View.js';
+import type { Frame, FixedFrame, Point, Scene } from './types.js';
+import type { Cleanup } from './ResourceScope.js';
+
+export interface InputTarget {
+  readonly canvas: HTMLCanvasElement;
+  readonly scene: Scene | null;
+  readonly disposed: boolean;
+  clientToWorld(point: Point): Point;
+  own<T extends Cleanup>(resource: T): T;
+}
 
 export type Bindings = Record<string, string | readonly string[]>;
 export interface PointerState {
@@ -30,8 +39,8 @@ export class InputScope<A extends string> {
     pressed: (action: A): boolean => this.#fixedPressed.has(action),
     released: (action: A): boolean => this.#fixedReleased.has(action),
   });
-  #views = new Set<ViewInput>();
-  #keyboardOwner: ViewInput | null = null;
+  #views = new Set<ViewInput<InputTarget>>();
+  #keyboardOwner: ViewInput<InputTarget> | null = null;
   #disposed = false;
   #enabled: () => boolean;
   #onDispose: () => void;
@@ -71,10 +80,10 @@ export class InputScope<A extends string> {
   released(action: A): boolean {
     return this.#released.has(action);
   }
-  get views(): readonly ViewInput[] {
+  get views(): readonly ViewInput<InputTarget>[] {
     return [...this.#views];
   }
-  bind(view: View): ViewInput {
+  bind<T extends InputTarget>(view: T): ViewInput<T> {
     if (this.#disposed) throw new Error('Input scope is disposed');
     if (view.disposed || view.scene !== this.scene)
       throw new Error('Bind a live view of this scope scene');
@@ -103,7 +112,11 @@ export class InputScope<A extends string> {
       this.#bindings.get(action)?.some((code) => this.#keys.has(code)) ?? false
     );
   }
-  #key(owner: ViewInput, event: KeyboardEvent, down: boolean): void {
+  #key(
+    owner: ViewInput<InputTarget>,
+    event: KeyboardEvent,
+    down: boolean,
+  ): void {
     if (
       !this.#enabled() ||
       (down &&
@@ -219,8 +232,8 @@ export class InputScope<A extends string> {
 }
 
 /** A view-owned primary pointer and canvas keyboard routing. */
-export class ViewInput {
-  readonly view: View;
+export class ViewInput<T extends InputTarget = View> {
+  readonly view: T;
   #resources: (() => void)[] = [];
   #pointer: PointerState = emptyPointer();
   #fixedPointer: PointerState = emptyPointer();
@@ -232,14 +245,18 @@ export class ViewInput {
   #pressed = false;
   #released = false;
   #disposed = false;
-  #onDispose: (binding: ViewInput) => void;
+  #onDispose: (binding: ViewInput<InputTarget>) => void;
 
   constructor(
-    view: View,
+    view: T,
     enabled: () => boolean,
-    key: (binding: ViewInput, event: KeyboardEvent, down: boolean) => void,
-    blur: (binding: ViewInput) => void,
-    onDispose: (binding: ViewInput) => void,
+    key: (
+      binding: ViewInput<InputTarget>,
+      event: KeyboardEvent,
+      down: boolean,
+    ) => void,
+    blur: (binding: ViewInput<InputTarget>) => void,
+    onDispose: (binding: ViewInput<InputTarget>) => void,
   ) {
     this.view = view;
     this.#onDispose = onDispose;

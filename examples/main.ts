@@ -1,5 +1,11 @@
 import { Rocket, Scene2D, Input, Assets } from '../src/index.js';
-import type { Frame, Point, InputScope, ViewInput } from '../src/index.js';
+import type {
+  Frame,
+  Point,
+  InputScope,
+  ViewInput,
+  InputTarget,
+} from '../src/index.js';
 import type { View } from '../src/View.js';
 import type { Arm } from './createArm.js';
 import { createArm } from './createArm.js';
@@ -38,7 +44,10 @@ async function createExample(missingImage = false) {
   let marker: Point | null = null;
   let selected = 0;
   let moving = true;
-  let dragging: { binding: ViewInput; offset: Point } | null = null;
+  let dragging: {
+    binding: ViewInput<InputTarget>;
+    offset: Point;
+  } | null = null;
   const application = new Rocket({
     performance: true,
     onError(error) {

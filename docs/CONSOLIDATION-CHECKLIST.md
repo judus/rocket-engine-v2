@@ -30,24 +30,24 @@ Source: Steve’s timing request 643 and CORE-001 follow-up 644. Steve relays Ju
 bounded v2 timing/lifecycle request; retain its exact scope. Leave legacy
 `rocket-engine/Timer.js` untouched.
 
-- [ ] Reproduce stop during the final `beforeUpdate` service: prevent a stopped frame
+- [x] Reproduce stop during the final `beforeUpdate` service: prevent a stopped frame
       from repopulating the fixed accumulator and leaking remainder into resume.
-- [ ] Decouple the presentation cap from service/input/update/fixed processing on
+- [x] Decouple the presentation cap from service/input/update/fixed processing on
       admitted RAF callbacks. Preserve one scheduler and bounded overload handling.
-- [ ] Specify frame/update/render elapsed-time semantics, monitor populations,
+- [x] Specify frame/update/render elapsed-time semantics, monitor populations,
       actual render cadence and cap-change behavior. A correct average cap does not
       guarantee uniform presentation spacing on a mismatched refresh rate.
-- [ ] Add adversarial tests for stop/resume/dispose from every hook phase, catch-up
+- [x] Add adversarial tests for stop/resume/dispose from every hook phase, catch-up
       interruption, repeated starts/stops, exceptions, one RAF chain, clean resume
       baseline, hidden time and retained timing totals.
-- [ ] Exercise 60/120/144/165/240 Hz feeds, caps 1/5/10/30, non-divisor/fractional
+- [x] Exercise 60/120/144/165/240 Hz feeds, caps 1/5/10/30, non-divisor/fractional
       caps, changes, jitter, stalls and zero-origin timestamps. Healthy 60 Hz input
       must preserve 600 fixed ticks per 10 seconds at low render caps; never remove
       the bounded overload policy to force that result.
 - [x] CORE-001: reserve the shared disposal completion before user teardown can
       re-enter; repeated/reentrant dispose must return the same completion and
       clean each owned scene once, preserving cleanup-error reporting.
-- [ ] Report exact changed files/fingerprints, timing contract, tests and native
+- [x] Report exact changed files/fingerprints, timing contract, tests and native
       browser limits for Steve’s independent review.
 
 ## 2. Other concrete correctness findings
@@ -55,23 +55,22 @@ bounded v2 timing/lifecycle request; retain its exact scope. Leave legacy
 Source: Steve 646–647. These are reported counterexamples, not a proposed rewrite.
 Reproduce each against the current source before its focused correction.
 
-- [ ] CORE-002, ChatBox: reject/refresh a displayed choice whose revision has changed
+- [x] CORE-002, ChatBox: reject/refresh a displayed choice whose revision has changed
       before dispatch, even when its ID is reused. Evaluate expected-revision or
       immutable-ID contracts for delayed commands; domain authority still validates.
-- [ ] CORE-003, MemoryJournalStore: avoid cloning all accepted history on every
+- [x] CORE-003, MemoryJournalStore: avoid cloning all accepted history on every
       append. Stage/validate/clone new records and index source/event identity,
       preserving batch atomicity and copied immutable read boundaries.
-- [ ] CORE-004, CPU 3D culling: support valid convex polygons whose first three
+- [x] CORE-004, CPU 3D culling: support valid convex polygons whose first three
       vertices are collinear. Align normal/culling semantics and test both CPU
       pipelines; no wholesale renderer rewrite.
-- [ ] CORE-005, ChunkStream: prevent synchronous abort listeners from resurrecting
+- [x] CORE-005, ChunkStream: prevent synchronous abort listeners from resurrecting
       disposed state or overwriting newer nested demand with an old reconciliation.
       Cover both dispose and replacement-demand reentrancy while preserving physical
       occupancy for noncooperative jobs until settlement.
 
-Current verification: Rocket.ts, FixedClock.ts, ChatBox.ts, MemoryJournalStore.ts,
-SolidFaces.ts and ChunkStream.ts hashes still match Steve’s reported snapshots.
-This confirms source identity; it does not substitute for reproducing the failures.
+Completed bug reproductions and corrections are recorded in CONSOLIDATION-PROGRESS.md.
+The original snapshot evidence below is historical, not the current source identity.
 Evidence: `/home/maduser/Documents/Codex/2026-10-13/new-chat/work/timer-review/`
 and `work/core-review-20261015/` under that same Steve workspace.
 
@@ -80,21 +79,21 @@ and `work/core-review-20261015/` under that same Steve workspace.
 Source: Rocket’s six-part assessment in this conversation; investigate concrete
 consumers and agree small contracts before implementation.
 
-- [ ] Extract WebGL presentation ownership: canvas/context creation, sizing/DPR,
+- [x] Extract WebGL presentation ownership: canvas/context creation, sizing/DPR,
       context loss/restoration, retained CPU data and complete cleanup. Preserve the
       low-level Presentation escape hatch and avoid a second frame loop.
-- [ ] Make focus/action scopes, keyboard clearing and pointer capture usable across
+- [x] Make focus/action scopes, keyboard clearing and pointer capture usable across
       Canvas and WebGL presentations; replace example-only infrastructure where it
       duplicates an engine responsibility.
-- [ ] Define consistent acquisition/sharing/cancellation/retry ownership for texture
+- [x] Define consistent acquisition/sharing/cancellation/retry ownership for texture
       and GLB assets, building on image leases. Keep CPU assets separate from
       context-owned GPU caches and restoration.
-- [ ] Design a small optional render composition path for scene, cabin shadow pass,
+- [x] Design a small optional render composition path for scene, cabin shadow pass,
       offscreen target and bloom. Simple drawing must remain simple; cockpit layout,
       instruments and asteroid generation stay example-owned.
-- [ ] Audit repeated demo plumbing and dependency boundaries before deciding what
+- [x] Audit repeated demo plumbing and dependency boundaries before deciding what
       belongs in a service, system, ordinary object or example helper.
-- [ ] Refresh README, roadmap, open questions and API docs to distinguish delivered,
+- [x] Refresh README, roadmap, open questions and API docs to distinguish delivered,
       experimental, proposed and deferred work; remove stale counts/status claims.
 - [ ] Test real installed-package consumers through public exports for a minimal
       animation, interactive 2D scene and loaded 3D scene; no copying infrastructure
@@ -162,18 +161,18 @@ framework is implied by the coverage gap.
       return without awaiting/admitting it. Review overridden-catch/reentrancy cases,
       exact archive identity, strict gates and native regression before accepting.
       No Rocket pin change until independently verified; upstream owns the patch.
-- [ ] Sprite L1 (660/661/663): review delivered synchronized-layer candidate 0.3.0,
+- [x] Sprite L1 (660/661/663): review delivered synchronized-layer candidate 0.3.0,
       API/validation and ownership; one master timeline, immutable mappings/order,
       no image/clock/gameplay ownership. The old wait request was explicitly
       overridden by Julien upstream: do not reset that approval or call it unstarted.
-- [ ] Correlate Sprite’s latest archive SHA256
+- [x] Correlate Sprite’s latest archive SHA256
       `c7a86853270bc50d61c72c4d797b1f49ac5fc8e653724e5bd8a3373ea99d59a4`
       at demo-fix commit d25c539 with its reported unchanged runtime. The earlier
       230-assertion packed proof belongs to digest f794364…; do not transfer that
       claim to the new digest without appropriate verification.
-- [ ] Review the corrected Show weapon demo (visibility on every step, distinct from
-      animated ordering), actual-package smoke and cleanup evidence. Keep Rocket’s
-      accepted 0.2.1 pin and legacy baselines until a separate consumer upgrade gate.
+- [x] Review the corrected Show weapon demo (visibility on every step, distinct from
+      animated ordering), actual-package smoke and cleanup evidence. Rocket now imports 0.3.0; the legacy alias remains. The copied native proof
+      passed 230 assertions against this exact installed archive.
 - [ ] Consider actual sprite-pack validation before any further layer abstraction or
       Rocket integration; neither is automatically assigned by this checklist.
 

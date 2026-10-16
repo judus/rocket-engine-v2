@@ -321,8 +321,18 @@ async function recreate(measure = false) {
         for (const binding of controls.views) {
           if (!benchmark && binding.pointer.pressed && binding.pointer.world) {
             selected = {
-              x: Math.floor(binding.pointer.world.x / pixels(binding.view)),
-              y: Math.floor(binding.pointer.world.y / pixels(binding.view)),
+              x: Math.floor(
+                binding.pointer.world.x /
+                  pixels(
+                    entries.find((entry) => entry.view === binding.view)!.view,
+                  ),
+              ),
+              y: Math.floor(
+                binding.pointer.world.y /
+                  pixels(
+                    entries.find((entry) => entry.view === binding.view)!.view,
+                  ),
+              ),
             };
             stream.cycle(selected);
           }

@@ -14,7 +14,13 @@ export type { Scene2DOptions } from './Scene2D.js';
 export type { RocketOptions, SceneOptions } from './Rocket.js';
 export type { ViewOptions } from './View.js';
 export { Input } from './Input.js';
-export type { InputScope, ViewInput, PointerState, Bindings } from './Input.js';
+export type {
+  InputScope,
+  ViewInput,
+  PointerState,
+  Bindings,
+  InputTarget,
+} from './Input.js';
 export type { Service, ServiceType } from './Service.js';
 export type { Cleanup } from './ResourceScope.js';
 export { Assets } from './Assets.js';
@@ -26,3 +32,5 @@ export type { Bounds2D, SpatialEntry } from './SpatialIndex.js';
 
 export { Presentation } from './Presentation.js';
 export type { PresentationOptions } from './Presentation.js';
+export { AssetPool } from './AssetPool.js';
+export type { AssetLease } from './AssetPool.js';

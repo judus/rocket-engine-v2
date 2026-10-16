@@ -1,9 +1,11 @@
 import { cockpitAsteroidField } from '../space/CockpitAsteroidField.js';
 import { cockpitScreenLights } from './CockpitScreenLights.js';
-import { WebGLBloomPass, WebGLRenderTarget } from '../../src/webgl/index.js';
+import type {
+  WebGLBloomPass,
+  WebGLRenderTarget,
+} from '../../src/webgl/index.js';
 import type { BloomOptions } from '../../src/webgl/index.js';
 import { cockpitReticle } from './CockpitReticle.js';
-import { viewportResolution } from './ViewportResolution.js';
 import { attachCockpitDisplays } from './CockpitDisplays.js';
 import { cockpitInstruments } from './CockpitInstruments.js';
 import { cockpitShadowFit } from './CockpitShadowFit.js';
@@ -11,14 +13,18 @@ import { directionalShadowMatrix } from '../../src/3d/index.js';
 import type { DirectionalShadow3D } from '../../src/3d/index.js';
 import { studioEnvironment, previewEnvironment } from './StudioEnvironment.js';
 import { referenceGrid } from './ReferenceGrid.js';
-import { exploreControls } from './ExploreControls.js';
+import { explorationInput } from './ExplorationInput.js';
+import {
+  WebGLSurface,
+  WebGLAssets,
+  WebGLBloomPipeline,
+} from '../../src/webgl/index.js';
 import {
   transformMatrix,
   multiplyMatrices,
   identityMatrix,
 } from '../../src/3d/index.js';
 import { normalMapProbe } from './NormalMapProbe.js';
-import { loadTexturedGlb } from '../../src/webgl/index.js';
 import type { Light3D } from '../../src/3d/index.js';
 import { Rocket, Scene2D } from '../../src/index.js';
 import { WebGLMeshRenderer3D, WebGLGpuTimer } from '../../src/webgl/index.js';
@@ -83,6 +89,7 @@ const shadowInput = (id: string) =>
 const ambientDefault = environment ? '0.02' : '0.08';
 const directionalDefault = shadowsEnabled ? '1.4' : environment ? '0.35' : '1';
 const pointDefault = shadowsEnabled ? '0' : environment ? '6' : '12';
+const assets = new WebGLAssets();
 let app: Rocket | undefined,
   retired = 0;
 async function start() {
@@ -96,25 +103,89 @@ async function start() {
     },
   });
   app = application;
-  const canvas = document.createElement('canvas');
-  canvas.setAttribute(
-    'aria-label',
-    `GPU lighting: ${modelLabel} with source base-color, packed material and normal maps. Click to focus. WASD moves, Q/E changes height, Shift speeds up, drag or arrows turn, R returns to the pilot seat.`,
+  const scene = application.scene(
+    new Scene2D({
+      update(dt) {
+        keys.update();
+        look(
+          (keys('ArrowRight') - keys('ArrowLeft')) * dt,
+          (keys('ArrowDown') - keys('ArrowUp')) * dt,
+        );
+        const previousPosition = [
+          Number(cameraX.value),
+          Number(cameraY.value),
+          Number(cameraZ.value),
+        ] as const;
+        const forward =
+            keys('KeyW') -
+            keys('KeyS') +
+            Number(asteroidWorld && fieldControl('cruise').checked),
+          right = keys('KeyD') - keys('KeyA'),
+          up = keys('KeyE') - keys('KeyQ');
+        const yaw = (Number(cameraYaw.value) * Math.PI) / 180,
+          pitch = (Number(cameraPitch.value) * Math.PI) / 180;
+        const speed = asteroidWorld ? 8 : 3;
+        const boost = asteroidWorld ? 30 : 12;
+        const distance =
+          ((keys('ShiftLeft') || keys('ShiftRight') ? boost : speed) * dt) /
+          (Math.hypot(forward, right, up) || 1);
+        cameraX.value = String(
+          Number(cameraX.value) +
+            (Math.sin(yaw) * Math.cos(pitch) * forward +
+              Math.cos(yaw) * right) *
+              distance,
+        );
+        cameraY.value = String(
+          Number(cameraY.value) + (Math.sin(pitch) * forward + up) * distance,
+        );
+        cameraZ.value = String(
+          Number(cameraZ.value) +
+            (Math.cos(yaw) * Math.cos(pitch) * forward -
+              Math.sin(yaw) * right) *
+              distance,
+        );
+        const navigationSpeed =
+          dt > 0
+            ? Math.hypot(
+                Number(cameraX.value) - previousPosition[0],
+                Number(cameraY.value) - previousPosition[1],
+                Number(cameraZ.value) - previousPosition[2],
+              ) / dt
+            : 0;
+        if (screenPower) instruments?.setPowered(screenPower.checked);
+        instruments?.update(
+          dt,
+          instrumentRunning!.checked,
+          Number(instrumentRate!.value),
+          {
+            x: Number(cameraX.value),
+            y: Number(cameraY.value),
+            z: Number(cameraZ.value),
+            yaw: Number(cameraYaw.value),
+            pitch: Number(cameraPitch.value),
+            speed: navigationSpeed,
+          },
+        );
+        const instrumentStatus = document.querySelector<HTMLOutputElement>(
+          '#instruments-status',
+        );
+        if (instrumentStatus && instruments)
+          instrumentStatus.value = `Five live displays · ${instrumentRate!.value} Hz · ${instruments.draws} draws per display · local ${Number(cameraX.value).toFixed(1)}, ${Number(cameraY.value).toFixed(1)}, ${Number(cameraZ.value).toFixed(1)} U · heading ${(((Number(cameraYaw.value) % 360) + 360) % 360).toFixed(1)}° / pitch ${Number(cameraPitch.value).toFixed(1)}° · ${navigationSpeed.toFixed(1)} U/s · ${pilot.checked ? 'pilot navigation' : 'free camera'}`;
+        if (animate.checked) phase = (phase + dt * 0.5) % (Math.PI * 2);
+        if (orbitLight.checked)
+          lightPhase = (lightPhase + dt * 0.6) % (Math.PI * 2);
+      },
+    }),
   );
-  canvas.style.display = 'block';
-  host.append(canvas);
-  const gl = canvas.getContext('webgl2', {
-    alpha: false,
-    antialias: true,
-    depth: true,
+  const surface = new WebGLSurface({
+    target: host,
+    scene,
+    label: `GPU lighting: ${modelLabel}. Click to focus. WASD moves, Q/E changes height, Shift speeds up, drag or arrows turn, R returns home.`,
+    onError: (error) => {
+      status.value = String(error);
+    },
   });
-  if (!gl) {
-    canvas.remove();
-    status.value =
-      'WebGL2 is unavailable in this browser. Earlier Canvas demos remain usable.';
-    restart.disabled = false;
-    return;
-  }
+  const { canvas, gl } = surface;
   const events = new AbortController(),
     signal = events.signal;
   window.addEventListener('pagehide', () => events.abort(), {
@@ -160,18 +231,20 @@ async function start() {
   root.add(rig);
   rig.add(assembly);
   let model;
+  let modelLease: Awaited<ReturnType<WebGLAssets['acquireModel']>> | undefined;
   try {
-    model = await loadTexturedGlb(modelUrl, { signal });
+    modelLease = await assets.acquireModel(modelUrl, { signal });
+    model = modelLease.value;
   } catch (error) {
     events.abort();
-    canvas.remove();
-    extensionCleanup(gl);
+    surface.dispose();
     await application.dispose();
     throw error;
   }
   if (app !== application || signal.aborted) {
     events.abort();
-    canvas.remove();
+    modelLease?.dispose();
+    surface.dispose();
     return;
   }
   const instance = model.instantiate();
@@ -309,16 +382,10 @@ async function start() {
   const antialias = gl.getContextAttributes()?.antialias ?? false;
   const renderScale =
     document.querySelector<HTMLInputElement>('#render-scale')!;
-  const viewportLimit = gl.getParameter(gl.MAX_VIEWPORT_DIMS) as Int32Array;
-  const bufferLimit = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE) as number;
-  const textureLimit = bloomEnabled
-    ? (gl.getParameter(gl.MAX_TEXTURE_SIZE) as number)
-    : bufferLimit;
-  const maxWidth = Math.min(viewportLimit[0]!, bufferLimit, textureLimit);
-  const maxHeight = Math.min(viewportLimit[1]!, bufferLimit, textureLimit);
   let renderer: WebGLMeshRenderer3D | undefined,
     bloom: WebGLBloomPass | undefined,
     sceneTarget: WebGLRenderTarget | undefined,
+    pipeline: WebGLBloomPipeline | undefined,
     timer: WebGLGpuTimer | undefined,
     lost = false,
     phase = 0,
@@ -331,8 +398,8 @@ async function start() {
   diagnostics.value =
     'Pixel readback runs only when requested, outside performance comparisons.';
   const retirePostProcess = () => {
-    bloom?.dispose();
-    sceneTarget?.dispose();
+    pipeline?.dispose();
+    pipeline = undefined;
     bloom = undefined;
     sceneTarget = undefined;
   };
@@ -354,8 +421,9 @@ async function start() {
       });
       renderer = next;
       if (bloomEnabled) {
-        sceneTarget = new WebGLRenderTarget(gl, 1, 1);
-        bloom = new WebGLBloomPass(gl);
+        pipeline = new WebGLBloomPipeline(gl);
+        sceneTarget = pipeline.target;
+        bloom = pipeline.bloom;
       }
       status.value = `WebGL2 mesh renderer ready · cleaned presentations ${retired}`;
     } catch (error) {
@@ -365,11 +433,6 @@ async function start() {
       status.value = String(error);
     }
   };
-  const resize = new ResizeObserver(() => {
-    width = Math.max(1, host.clientWidth);
-    height = Math.max(1, Math.round((width * 9) / 16));
-  });
-  resize.observe(host);
   const look = (dx: number, dy: number) => {
     cameraYaw.value = String(
       ((Number(cameraYaw.value) + (dx * 180) / Math.PI + 540) % 360) - 180,
@@ -381,81 +444,8 @@ async function start() {
       ),
     );
   };
-  const keys = exploreControls(canvas, signal, look, () =>
+  const keys = explorationInput(application, scene, surface, look, () =>
     document.querySelector<HTMLButtonElement>('#reset-triangle')!.click(),
-  );
-  const scene = application.scene(
-    new Scene2D({
-      update(dt) {
-        look(
-          (keys('ArrowRight') - keys('ArrowLeft')) * dt,
-          (keys('ArrowDown') - keys('ArrowUp')) * dt,
-        );
-        const previousPosition = [
-          Number(cameraX.value),
-          Number(cameraY.value),
-          Number(cameraZ.value),
-        ] as const;
-        const forward =
-            keys('KeyW') -
-            keys('KeyS') +
-            Number(asteroidWorld && fieldControl('cruise').checked),
-          right = keys('KeyD') - keys('KeyA'),
-          up = keys('KeyE') - keys('KeyQ');
-        const yaw = (Number(cameraYaw.value) * Math.PI) / 180,
-          pitch = (Number(cameraPitch.value) * Math.PI) / 180;
-        const speed = asteroidWorld ? 8 : 3;
-        const boost = asteroidWorld ? 30 : 12;
-        const distance =
-          ((keys('ShiftLeft') || keys('ShiftRight') ? boost : speed) * dt) /
-          (Math.hypot(forward, right, up) || 1);
-        cameraX.value = String(
-          Number(cameraX.value) +
-            (Math.sin(yaw) * Math.cos(pitch) * forward +
-              Math.cos(yaw) * right) *
-              distance,
-        );
-        cameraY.value = String(
-          Number(cameraY.value) + (Math.sin(pitch) * forward + up) * distance,
-        );
-        cameraZ.value = String(
-          Number(cameraZ.value) +
-            (Math.cos(yaw) * Math.cos(pitch) * forward -
-              Math.sin(yaw) * right) *
-              distance,
-        );
-        const navigationSpeed =
-          dt > 0
-            ? Math.hypot(
-                Number(cameraX.value) - previousPosition[0],
-                Number(cameraY.value) - previousPosition[1],
-                Number(cameraZ.value) - previousPosition[2],
-              ) / dt
-            : 0;
-        if (screenPower) instruments?.setPowered(screenPower.checked);
-        instruments?.update(
-          dt,
-          instrumentRunning!.checked,
-          Number(instrumentRate!.value),
-          {
-            x: Number(cameraX.value),
-            y: Number(cameraY.value),
-            z: Number(cameraZ.value),
-            yaw: Number(cameraYaw.value),
-            pitch: Number(cameraPitch.value),
-            speed: navigationSpeed,
-          },
-        );
-        const instrumentStatus = document.querySelector<HTMLOutputElement>(
-          '#instruments-status',
-        );
-        if (instrumentStatus && instruments)
-          instrumentStatus.value = `Five live displays · ${instrumentRate!.value} Hz · ${instruments.draws} draws per display · local ${Number(cameraX.value).toFixed(1)}, ${Number(cameraY.value).toFixed(1)}, ${Number(cameraZ.value).toFixed(1)} U · heading ${(((Number(cameraYaw.value) % 360) + 360) % 360).toFixed(1)}° / pitch ${Number(cameraPitch.value).toFixed(1)}° · ${navigationSpeed.toFixed(1)} U/s · ${pilot.checked ? 'pilot navigation' : 'free camera'}`;
-        if (animate.checked) phase = (phase + dt * 0.5) % (Math.PI * 2);
-        if (orbitLight.checked)
-          lightPhase = (lightPhase + dt * 0.6) % (Math.PI * 2);
-      },
-    }),
   );
   application.presentation({
     scene,
@@ -465,24 +455,14 @@ async function start() {
       // Read DPR each frame so moving between monitors needs no new renderer.
       const ratio = window.devicePixelRatio || 1;
       const resolutionScale = Number(renderScale.value) / 100;
-      const resolution = viewportResolution(
-        width,
-        height,
-        ratio,
-        resolutionScale,
-        maxWidth,
-        maxHeight,
-      );
-      const w = resolution.width,
-        h = resolution.height;
+      surface.resize(resolutionScale);
+      width = surface.width;
+      height = surface.height;
+      const w = canvas.width,
+        h = canvas.height;
+      const resolution = { limited: surface.limited };
       document.querySelector<HTMLOutputElement>('#render-scale-value')!.value =
         `${renderScale.value}%`;
-      for (const target of [canvas]) {
-        if (target.width !== w) target.width = w;
-        if (target.height !== h) target.height = h;
-        target.style.width = `${width}px`;
-        target.style.height = `${height}px`;
-      }
       const rotation = (Number(angle.value) * Math.PI) / 180 + phase;
       assembly.transform = {
         ...assembly.transform,
@@ -622,7 +602,7 @@ async function start() {
           materialDebug: channel.value as
             'none' | 'occlusion' | 'roughness' | 'metallic',
         });
-      const presentBloom = () => {
+      const presentBloom = (draw = true) => {
         if (!bloom || !sceneTarget) return;
         const diagnostic =
           normalDebug.checked ||
@@ -630,14 +610,15 @@ async function start() {
           (shadowsEnabled && shadowInput('shadow-debug').checked);
         const view = document.querySelector<HTMLSelectElement>('#bloom-view')!
           .value as NonNullable<BloomOptions['view']>;
-        bloom.render(sceneTarget, {
-          threshold: Number(bloomInput('bloom-threshold').value),
-          strength: bloomEnabled!.checked
-            ? Number(bloomInput('bloom-strength').value)
-            : 0,
-          radius: Number(bloomInput('bloom-radius').value),
-          view: diagnostic ? 'scene' : view,
-        });
+        if (draw)
+          bloom.render(sceneTarget, {
+            threshold: Number(bloomInput('bloom-threshold').value),
+            strength: bloomEnabled!.checked
+              ? Number(bloomInput('bloom-strength').value)
+              : 0,
+            radius: Number(bloomInput('bloom-radius').value),
+            view: diagnostic ? 'scene' : view,
+          });
         for (const name of ['threshold', 'strength', 'radius'])
           document.querySelector<HTMLOutputElement>(
             `#bloom-${name}-value`,
@@ -649,8 +630,26 @@ async function start() {
       timer?.poll();
       const measuring = !sample && (timer?.begin() ?? false);
       try {
-        const result = renderScene();
-        presentBloom();
+        let result;
+        if (pipeline) {
+          const diagnostic =
+            normalDebug.checked ||
+            channel.value !== 'none' ||
+            (shadowsEnabled && shadowInput('shadow-debug').checked);
+          result = pipeline.render(w, h, () => renderScene(), {
+            threshold: Number(bloomInput('bloom-threshold').value),
+            strength: bloomEnabled!.checked
+              ? Number(bloomInput('bloom-strength').value)
+              : 0,
+            radius: Number(bloomInput('bloom-radius').value),
+            view: diagnostic
+              ? 'scene'
+              : (document.querySelector<HTMLSelectElement>('#bloom-view')!
+                  .value as NonNullable<BloomOptions['view']>),
+          });
+          // presentBloom updates the existing diagnostics below; avoid a second GPU pass.
+          presentBloom(false);
+        } else result = renderScene();
         if (environment) {
           const envStats = renderer.environmentStats!;
           document.querySelector('#environment-status')!.textContent =
@@ -709,14 +708,9 @@ async function start() {
       }
     },
     dispose() {
-      retirePostProcess();
-      timer?.dispose();
       events.abort();
-      resize.disconnect();
-      renderer?.dispose();
-      renderer = undefined;
-      canvas.remove();
-      extension?.loseContext();
+      modelLease?.dispose();
+      surface.dispose();
       retired++;
     },
   });
@@ -748,7 +742,6 @@ async function start() {
       lost = false;
       restore.disabled = true;
       lose.disabled = !extension;
-      initialize();
     },
     { signal },
   );
@@ -818,7 +811,19 @@ async function start() {
           document.querySelector<HTMLButtonElement>('#reset-triangle')!.click(),
         { signal },
       );
-  initialize();
+  surface.manage(() => {
+    initialize();
+    return {
+      value: gl,
+      dispose(): undefined {
+        retirePostProcess();
+        timer?.dispose();
+        timer = undefined;
+        renderer?.dispose();
+        renderer = undefined;
+      },
+    };
+  });
   await application.start();
   restart.disabled = false;
 }
@@ -832,6 +837,7 @@ window.addEventListener(
   'pagehide',
   () => {
     void app?.dispose();
+    assets.dispose();
   },
   { once: true },
 );
@@ -839,7 +845,3 @@ await start().catch((error) => {
   status.value = String(error);
   restart.disabled = false;
 });
-
-function extensionCleanup(gl: WebGL2RenderingContext) {
-  gl.getExtension('WEBGL_lose_context')?.loseContext();
-}
