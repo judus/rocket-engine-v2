@@ -46,8 +46,9 @@ export function hi3dCockpitLamps() {
       x: -2.844,
       y: 3.365,
       z: -0.375,
-      width: 0.194,
-      height: 0.081,
+      // About +8 × +4 CSS pixels at the tuned 60-degree pilot view.
+      width: 0.244,
+      height: 0.103,
     },
     {
       name: 'overhead-right',
@@ -62,8 +63,9 @@ export function hi3dCockpitLamps() {
       x: 0,
       y: 0.163,
       z: -0.48,
-      width: 0.146,
-      height: 0.096,
+      // About +4 × +2 CSS pixels at the same pilot view.
+      width: 0.172,
+      height: 0.107,
     },
     {
       name: 'right-console',
