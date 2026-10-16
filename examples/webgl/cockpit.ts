@@ -1,3 +1,4 @@
+import { CockpitMotion } from './CockpitMotion.js';
 import { cockpitAsteroidField } from '../space/CockpitAsteroidField.js';
 import { cockpitScreenLights } from './CockpitScreenLights.js';
 import type {
@@ -116,6 +117,9 @@ async function start() {
     },
   });
   app = application;
+  const motion = new CockpitMotion();
+  const motionEnabled =
+    document.querySelector<HTMLInputElement>('#cockpit-motion');
   const scene = application.scene(
     new Scene2D({
       update(dt) {
@@ -135,6 +139,9 @@ async function start() {
             Number(asteroidWorld && fieldControl('cruise').checked),
           right = keys('KeyD') - keys('KeyA'),
           up = keys('KeyE') - keys('KeyQ');
+        if (motionEnabled?.checked && pilot.checked)
+          motion.update(dt, right, up, forward);
+        else motion.reset();
         const yaw = (Number(cameraYaw.value) * Math.PI) / 180,
           pitch = (Number(cameraPitch.value) * Math.PI) / 180;
         const speed = asteroidWorld ? 8 : 3;
@@ -242,7 +249,9 @@ async function start() {
     );
   }
   root.add(rig);
-  rig.add(assembly);
+  const motionRoot = new Node3D('cosmetic cockpit motion');
+  rig.add(motionRoot);
+  motionRoot.add(assembly);
   let model;
   let modelLease: Awaited<ReturnType<WebGLAssets['acquireModel']>> | undefined;
   try {
@@ -548,6 +557,7 @@ async function start() {
     }
   };
   const look = (dx: number, dy: number) => {
+    if (motionEnabled?.checked && pilot.checked) motion.kick(-dx * 90, dy * 90);
     cameraYaw.value = String(
       ((Number(cameraYaw.value) + (dx * 180) / Math.PI + 540) % 360) - 180,
     );
@@ -577,6 +587,20 @@ async function start() {
       const resolution = { limited: surface.limited };
       document.querySelector<HTMLOutputElement>('#render-scale-value')!.value =
         `${renderScale.value}%`;
+      const pixelsToWorld =
+        (2 * Math.abs(home.z) * Math.tan(home.fov / 2)) /
+        Math.max(1, canvas.clientHeight);
+      motionRoot.transform = {
+        ...motionRoot.transform,
+        position: {
+          x: motion.x * pixelsToWorld,
+          y: motion.y * pixelsToWorld,
+          z: 0,
+        },
+      };
+      const motionStatus = document.querySelector('#cockpit-motion-status');
+      if (motionStatus)
+        motionStatus.textContent = `${motionEnabled?.checked && pilot.checked ? 'Active' : 'Off'} · offset ${motion.x.toFixed(2)}, ${motion.y.toFixed(2)} px · cosmetic only; no collisions`;
       const rotation = (Number(angle.value) * Math.PI) / 180 + phase;
       assembly.transform = {
         ...assembly.transform,
@@ -861,6 +885,14 @@ async function start() {
   );
   lose.disabled = !extension;
   restore.disabled = true;
+  document.querySelector('#cockpit-motion-bump')?.addEventListener(
+    'click',
+    () => {
+      if (motionEnabled?.checked && pilot.checked) motion.kick(20, -25);
+    },
+    { signal },
+  );
+  motionEnabled?.addEventListener('change', () => motion.reset(), { signal });
   lose.addEventListener('click', () => extension?.loseContext(), { signal });
   restore.addEventListener('click', () => extension?.restoreContext(), {
     signal,
@@ -875,6 +907,7 @@ async function start() {
   document.querySelector('#reset-triangle')!.addEventListener(
     'click',
     () => {
+      motion.reset();
       pilot.checked = true;
       if (asteroidWorld) fieldControl('cruise').checked = false;
       rig.matrix = identityMatrix;
