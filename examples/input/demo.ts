@@ -1,4 +1,9 @@
-import type { ActionMapping, InputButton } from '../../src/index.js';
+import type {
+  ActionMapping,
+  InputButton,
+  VirtualCorner,
+  VirtualController,
+} from '../../src/index.js';
 import {
   Rocket,
   Scene2D,
@@ -8,7 +13,7 @@ import {
   platformerInput,
   beltScrollerInput,
   flightInput,
-  virtualInputLayouts,
+  virtualCornerLayouts,
 } from '../../src/index.js';
 import {
   CanvasRenderer3D,
@@ -41,6 +46,10 @@ const button = (id: string) =>
   document.querySelector<HTMLButtonElement>(`#${id}`)!;
 const touchMode = document.querySelector<HTMLInputElement>('#touch-mode')!;
 touchMode.checked = window.matchMedia('(pointer: coarse)').matches;
+const padMode = document.querySelector<HTMLSelectElement>('#touch-pad-mode')!;
+const touchColor = document.querySelector<HTMLInputElement>('#touch-color')!;
+const touchOpacity =
+  document.querySelector<HTMLInputElement>('#touch-opacity')!;
 const captureMode = document.querySelector<HTMLInputElement>('#capture-mode')!;
 const ui = document.querySelector<HTMLElement>('#ui-panel')!;
 const status = document.querySelector<HTMLOutputElement>('#demo-status')!;
@@ -438,25 +447,45 @@ async function start() {
         ? 'pointer-lock'
         : 'focus',
   });
+  const virtualControllers: VirtualController[] = [];
+  const theme = () => ({
+    color: touchColor.value,
+    opacity: Number(touchOpacity.value),
+  });
   if (touchMode.checked) {
     const layout =
-      virtualInputLayouts[
-        document.body.dataset.inputDemo as keyof typeof virtualInputLayouts
+      virtualCornerLayouts[
+        document.body.dataset.inputDemo as keyof typeof virtualCornerLayouts
       ];
     const deck = document.createElement('div');
-    deck.className = `demo-touch-deck${layout.sticks.length > 1 ? ' dual-stick' : ''}`;
+    deck.className = 'demo-touch-deck';
     const left = document.createElement('div'),
-      right = document.createElement('div'),
-      actions = document.createElement('div');
+      right = document.createElement('div');
     left.className = 'demo-touch-left';
     right.className = 'demo-touch-right';
-    actions.className = 'demo-touch-actions';
-    deck.append(left, actions, right);
+    deck.append(left, right);
     document.querySelector<HTMLElement>('#input-viewport')!.append(deck);
-    controls.virtual({ target: left, sticks: [layout.sticks[0]!] });
-    if (layout.sticks[1])
-      controls.virtual({ target: right, sticks: [layout.sticks[1]] });
-    controls.virtual({ target: actions, buttons: layout.buttons });
+    const pad = (corner: VirtualCorner): VirtualCorner =>
+      corner.pad && padMode.value !== 'preset'
+        ? {
+            ...corner,
+            pad: { ...corner.pad, mode: padMode.value as 'analog' | 'digital' },
+          }
+        : corner;
+    virtualControllers.push(
+      controls.virtual({
+        target: left,
+        corner: pad(layout.left),
+        theme: theme(),
+      }),
+    );
+    virtualControllers.push(
+      controls.virtual({
+        target: right,
+        corner: pad(layout.right),
+        theme: theme(),
+      }),
+    );
     view.own({
       dispose: () => {
         deck.remove();
@@ -470,6 +499,11 @@ async function start() {
     return undefined;
   });
   const signal = eventController.signal;
+  const styleControls = () => {
+    for (const controller of virtualControllers) controller.setTheme(theme());
+  };
+  touchColor.addEventListener('input', styleControls, { signal });
+  touchOpacity.addEventListener('input', styleControls, { signal });
   const close = () => {
     ui.hidden = true;
     controls.setEnabled(true);
@@ -514,6 +548,9 @@ async function start() {
   button('restart').disabled = false;
 }
 button('restart').addEventListener('click', () => {
+  void start();
+});
+padMode.addEventListener('change', () => {
   void start();
 });
 touchMode.addEventListener('change', () => {

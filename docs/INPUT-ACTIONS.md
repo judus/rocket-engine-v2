@@ -259,3 +259,53 @@ Automated verification uses simultaneous pointer IDs, dead zones, diagonal
 normalization, held-source composition, short taps and cancellation/cleanup tests.
 Desktop browser checks cover actual drag/button routing and responsive layouts;
 physical multi-touch phone/tablet testing remains separate from those checks.
+
+### Analog, digital and corner presets
+
+A pad's `mode` is `'analog'` by default or `'digital'` for a D-pad. Both use the
+same X/Y action names. Digital directions emit exactly -1, 0 or +1; diagonals
+may emit both axes, like keyboard arrows, and the game's movement controller
+normalizes them. Analog travel retains proportional magnitude. Unmapped D-pad
+axes are dimmed and emit no action (e.g. vertical directions in a platformer).
+
+`virtualCornerLayouts` provides mirrored presets for the five input examples.
+Single-pad games start with a D-pad on the left and a primary button block on the
+right. First-person/flight start with two analog pads and button groups above and
+on their inner edges. The game can copy/change those data objects, or use
+`createVirtualCornerPreset(virtualInputLayouts.flight, 'digital')` as a starting point.
+
+```ts
+const preset = virtualCornerLayouts.platformer;
+const left = controls.virtual({
+  target: leftContainer,
+  corner: preset.left,
+  theme: { color: '#ffffff', opacity: 0.75, size: 128 },
+});
+const right = controls.virtual({
+  target: rightContainer,
+  corner: preset.right,
+});
+left.setTheme({ color: '#a4e6db', opacity: 0.5 }); // partial, live update
+```
+
+A `corner` has `side: 'left' | 'right'`, and exactly one central `pad` or `face`
+button group. `above` and `inside` accept arrays of button groups: add more groups
+to stack them. Each group has `buttons`, an optional accessible `label`, and
+`columns` (1–4). `inside` defaults to one column, `above`/`face` to two. Mirroring
+moves the inner column, while the upper groups remain over the main pad/block.
+Plain mounts can also use `groups` without any corner layout. Every region still
+uses independent action sources, so one release/disposal cannot steal another's
+held action.
+
+The default appearance is neutral translucent white. `theme.color`,
+`theme.opacity` (0–1) and `theme.size` (64–256 CSS pixels) provide simple changes.
+The equivalent CSS variables are `--virtual-color`, `--virtual-opacity`,
+`--virtual-size` and `--virtual-button-size`. Opacity applies to the whole control;
+pad/button surfaces also have a faint translucent fill. CSS classes are public
+styling hooks: replace the stylesheet or compose your own DOM/device adapter with
+`controls.source()` when a preset is insufficient.
+
+The input demos offer Pad (Preset/Analog/D-pad), Tint and Opacity controls. Pad
+changes recreate the demo to cancel old gestures; tint/opacity update in place.
+Tests cover analog/digital distinction, direction changes/dead zone, multiple
+stacked groups, mirror metadata, live theme updates and all preset/action pairs.

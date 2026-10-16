@@ -67,37 +67,27 @@ th {
 }
 
 .demo-touch-deck {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
   gap: 8px;
-  padding: 10px;
-  background: #102332;
+  padding: 12px;
+  background: #081420;
 }
-.demo-touch-deck.dual-stick {
-  grid-template-columns: 1fr 2fr 1fr;
+.demo-touch-deck > div {
+  min-width: 0;
 }
-.demo-touch-deck .rocket-virtual-controls {
-  border: 0;
-  padding: 4px;
+.demo-touch-deck .rocket-virtual-corner {
+  --virtual-size: 128px;
 }
-.demo-touch-right:empty {
-  display: none;
-}
-@media (max-width: 480px) {
-  .demo-touch-deck.dual-stick {
-    grid-template-columns: 1fr 1fr;
+@media (max-width: 600px) {
+  .demo-touch-deck {
+    padding: 6px;
+    gap: 4px;
   }
-  .dual-stick .demo-touch-left {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .dual-stick .demo-touch-right {
-    grid-column: 2;
-    grid-row: 1;
-  }
-  .dual-stick .demo-touch-actions {
-    grid-column: 1 / -1;
-    grid-row: 2;
+  .demo-touch-deck .rocket-virtual-corner {
+    --virtual-size: 96px;
+    --virtual-button-size: 40px;
+    gap: 4px;
   }
 }

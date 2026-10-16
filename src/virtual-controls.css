@@ -1,90 +1,207 @@
+/* Override these variables, use setTheme(), or replace the stylesheet entirely. */
 .rocket-virtual-controls {
+  --virtual-color: #fff;
+  --virtual-opacity: 0.75;
+  --virtual-size: 128px;
+  --virtual-button-size: 48px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-around;
-  gap: 12px;
-  padding: 12px max(12px, env(safe-area-inset-right)) 12px
-    max(12px, env(safe-area-inset-left));
-  background: #102332;
-  color: #c4e6df;
-  border-top: 1px solid #456474;
+  gap: 8px;
+  padding: 8px;
+  color: var(--virtual-color);
+  opacity: var(--virtual-opacity);
+  background: transparent;
   -webkit-user-select: none;
   user-select: none;
 }
 .rocket-virtual-stick {
   position: relative;
-  flex: 0 0 112px;
-  width: 112px;
-  height: 112px;
-  border: 1px solid #68978d;
+  flex: 0 0 var(--virtual-size);
+  width: var(--virtual-size);
+  height: var(--virtual-size);
+  box-sizing: border-box;
+  border: 2px solid currentColor;
   border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    #2b4c5e 0 18%,
-    #142b3b 19% 65%,
-    #264454 66%
-  );
+  background: color-mix(in srgb, var(--virtual-color) 7%, transparent);
   touch-action: none;
 }
 .rocket-virtual-thumb {
   position: absolute;
-  width: 32px;
-  height: 32px;
-  left: calc(50% - 16px);
-  top: calc(50% - 16px);
+  width: 26%;
+  height: 26%;
+  left: 37%;
+  top: 37%;
+  box-sizing: border-box;
   border-radius: 50%;
-  background: #80dbbd;
+  border: 2px solid currentColor;
+  background: color-mix(in srgb, var(--virtual-color) 16%, transparent);
   pointer-events: none;
+}
+.rocket-virtual-thumb::after {
+  content: '';
+  position: absolute;
+  inset: 30%;
+  border-radius: 50%;
+  background: currentColor;
 }
 .rocket-virtual-label {
   position: absolute;
-  bottom: 8px;
+  bottom: 5px;
   width: 100%;
   text-align: center;
   font:
-    12px system-ui,
+    10px system-ui,
     sans-serif;
   pointer-events: none;
+}
+.rocket-virtual-dpad {
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  border: 0;
+  border-radius: 12px;
+  background: none;
+}
+.rocket-dpad-key {
+  display: grid;
+  place-items: center;
+  font:
+    16px system-ui,
+    sans-serif;
+  border: 1px solid currentColor;
+  background: color-mix(in srgb, var(--virtual-color) 9%, transparent);
+  pointer-events: none;
+}
+.rocket-dpad-up {
+  grid-area: 1 / 2;
+  border-radius: 8px 8px 0 0;
+}
+.rocket-dpad-right {
+  grid-area: 2 / 3;
+  border-radius: 0 8px 8px 0;
+}
+.rocket-dpad-down {
+  grid-area: 3 / 2;
+  border-radius: 0 0 8px 8px;
+}
+.rocket-dpad-left {
+  grid-area: 2 / 1;
+  border-radius: 8px 0 0 8px;
+}
+.rocket-dpad-center {
+  grid-area: 2 / 2;
+  border: none;
+}
+.rocket-virtual-dpad .rocket-virtual-label {
+  bottom: -15px;
+}
+.rocket-virtual-dpad[data-x='1'] .rocket-dpad-right,
+.rocket-virtual-dpad[data-x='-1'] .rocket-dpad-left,
+.rocket-virtual-dpad[data-y='1'] .rocket-dpad-up,
+.rocket-virtual-dpad[data-y='-1'] .rocket-dpad-down {
+  background: color-mix(in srgb, var(--virtual-color) 45%, transparent);
 }
 .rocket-virtual-buttons {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
   gap: 6px;
   flex: 1 1 160px;
   max-width: 380px;
 }
 .rocket-virtual-buttons button {
-  min-width: 64px;
-  min-height: 48px;
+  min-width: 44px;
+  min-height: 44px;
   margin: 0;
-  padding: 6px 10px;
-  border: 1px solid #68978d;
+  padding: 5px 8px;
+  border: 1px solid currentColor;
   border-radius: 10px;
-  background: #223e50;
-  color: #def9ec;
+  background: color-mix(in srgb, var(--virtual-color) 7%, transparent);
+  color: inherit;
   font:
-    14px system-ui,
+    12px system-ui,
     sans-serif;
   touch-action: none;
 }
 .rocket-virtual-buttons button[aria-pressed='true'] {
-  background: #80dbbd;
-  color: #081420;
+  background: color-mix(in srgb, var(--virtual-color) 40%, transparent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--virtual-color) 25%, transparent);
 }
 .rocket-virtual-buttons button:focus-visible {
-  outline: 2px solid #ffc077;
-  outline-offset: 2px;
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
 }
-@media (max-width: 480px) {
-  .rocket-virtual-stick {
-    flex-basis: 96px;
-    width: 96px;
-    height: 96px;
-  }
-  .rocket-virtual-buttons {
-    flex-basis: 100%;
-    max-width: none;
-  }
+.rocket-virtual-button-group {
+  display: grid;
+  grid-template-columns: repeat(var(--virtual-columns, 2), minmax(0, 1fr));
+  border: 1px solid currentColor;
+  border-radius: 12px;
+  padding: 5px;
+  box-sizing: border-box;
+  max-width: none;
+}
+.rocket-virtual-corner {
+  display: grid;
+  grid-template-columns: var(--virtual-size) auto;
+  grid-template-rows: auto var(--virtual-size);
+  align-items: stretch;
+  padding: 4px 4px 18px;
+}
+.rocket-virtual-corner[data-side='right'] {
+  grid-template-columns: auto var(--virtual-size);
+}
+.rocket-virtual-above {
+  grid-row: 1;
+  grid-column: 1;
+}
+.rocket-virtual-face {
+  grid-row: 2;
+  grid-column: 1;
+}
+.rocket-virtual-inside {
+  grid-row: 2;
+  grid-column: 2;
+}
+.rocket-virtual-corner[data-side='right'] .rocket-virtual-above,
+.rocket-virtual-corner[data-side='right'] .rocket-virtual-face {
+  grid-column: 2;
+}
+.rocket-virtual-corner[data-side='right'] .rocket-virtual-inside {
+  grid-column: 1;
+}
+.rocket-virtual-above,
+.rocket-virtual-inside {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rocket-virtual-above:empty,
+.rocket-virtual-inside:empty {
+  display: none;
+}
+.rocket-virtual-corner .rocket-virtual-buttons {
+  flex: 1;
+}
+.rocket-virtual-face > .rocket-virtual-buttons {
+  height: 100%;
+}
+.rocket-virtual-corner .rocket-virtual-buttons button {
+  width: var(--virtual-button-size);
+  height: var(--virtual-button-size);
+  min-width: 0;
+  min-height: 0;
+  padding: 2px;
+  justify-self: center;
+  border-radius: 50%;
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+
+.rocket-virtual-dpad[data-has-x='false'] .rocket-dpad-left,
+.rocket-virtual-dpad[data-has-x='false'] .rocket-dpad-right,
+.rocket-virtual-dpad[data-has-y='false'] .rocket-dpad-up,
+.rocket-virtual-dpad[data-has-y='false'] .rocket-dpad-down {
+  opacity: 0.2;
 }

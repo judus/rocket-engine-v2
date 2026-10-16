@@ -42,6 +42,9 @@ export { ActionSource } from './ActionSource.js';
 export { VirtualController } from './VirtualController.js';
 export type {
   VirtualLayout,
+  VirtualCorner,
+  VirtualTheme,
+  VirtualButtonGroup,
   VirtualStick,
   VirtualButton,
   VirtualControllerOptions,
@@ -61,6 +64,8 @@ export {
   beltScrollerInput,
   flightInput,
   virtualInputLayouts,
+  virtualCornerLayouts,
+  createVirtualCornerPreset,
 } from './InputPresets.js';
 export type {
   InputModifier,

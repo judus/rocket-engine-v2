@@ -1,4 +1,4 @@
-import type { VirtualLayout } from './VirtualController.js';
+import type { VirtualLayout, VirtualCorner } from './VirtualController.js';
 import type { InputPreset } from './ActionContext.js';
 /** Bindings and action semantics only; movement/physics remain game-owned. */
 export const firstPersonInput: InputPreset = {
@@ -193,3 +193,81 @@ export const virtualInputLayouts = {
     ],
   },
 } satisfies Record<string, VirtualLayout>;
+
+/** A compact starting point; override its pads/groups or mount your own components. */
+export function createVirtualCornerPreset(
+  layout: VirtualLayout,
+  mode: 'analog' | 'digital' = 'analog',
+): { left: VirtualCorner; right: VirtualCorner } {
+  const first = layout.sticks?.[0];
+  if (!first) throw new Error('Corner preset needs a movement pad');
+  const buttons = layout.buttons ?? [],
+    second = layout.sticks?.[1];
+  return {
+    left: {
+      side: 'left',
+      pad: { ...first, mode },
+      above: [
+        {
+          label: 'Left upper actions',
+          buttons: buttons.slice(0, second ? 2 : 1),
+          columns: second ? 2 : 1,
+        },
+      ],
+      inside: second
+        ? [
+            {
+              label: 'Left inner actions',
+              buttons: buttons.slice(2, 4),
+              columns: 1,
+            },
+          ]
+        : [],
+    },
+    right: second
+      ? {
+          side: 'right',
+          pad: { ...second, mode },
+          above: [
+            {
+              label: 'Right upper actions',
+              buttons: buttons.slice(4, 6),
+              columns: 2,
+            },
+          ],
+          inside: [
+            {
+              label: 'Right inner actions',
+              buttons: buttons.slice(6),
+              columns: 1,
+            },
+          ],
+        }
+      : {
+          side: 'right',
+          face: {
+            label: 'Primary actions',
+            buttons: buttons.slice(1),
+            columns: 2,
+          },
+        },
+  };
+}
+export const virtualCornerLayouts = {
+  'first-person': createVirtualCornerPreset(
+    virtualInputLayouts['first-person'],
+  ),
+  'top-down': createVirtualCornerPreset(
+    virtualInputLayouts['top-down'],
+    'digital',
+  ),
+  platformer: createVirtualCornerPreset(
+    virtualInputLayouts.platformer,
+    'digital',
+  ),
+  'belt-scroller': createVirtualCornerPreset(
+    virtualInputLayouts['belt-scroller'],
+    'digital',
+  ),
+  flight: createVirtualCornerPreset(virtualInputLayouts.flight),
+};

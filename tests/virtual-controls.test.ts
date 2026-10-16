@@ -10,13 +10,21 @@ import {
   topDownInput,
   beltScrollerInput,
   virtualInputLayouts,
+  virtualCornerLayouts,
+  createVirtualCornerPreset,
 } from '../src/index.js';
 import type { ActionEvent, VirtualLayout } from '../src/index.js';
 import { Target, Key, withHost } from './helpers/inputHost.js';
 
 class Element extends Target {
   children: Element[] = [];
-  style: Record<string, string> = {};
+  style: Record<string, unknown> & {
+    setProperty: (name: string, value: string) => void;
+  } = {
+    setProperty(name: string, value: string) {
+      this[name] = value;
+    },
+  };
   attributes = new Map<string, string>();
   captures = new Set<number>();
   className = '';
@@ -388,4 +396,196 @@ void test('games compose independent stick and button containers in separate DOM
     assert.equal(controls.value('horizontal'), 1);
     await app.dispose();
     assert.equal((stick.element as unknown as Element).removed, true);
+  }));
+
+void test('digital pads emit exact directions while analog pads retain proportional travel', () =>
+  withHost(async (host) => {
+    const original = host.document.createElement.bind(host.document);
+    Object.defineProperty(host.document, 'createElement', {
+      value: (tag: string) =>
+        tag === 'canvas'
+          ? original()
+          : new Element(host.document as unknown as Document, tag),
+    });
+    const app = new Rocket(),
+      scene = app.scene(new Scene2D());
+    const controls = app.use(Input).actions(scene).use(flightInput);
+    const view = app.view({ target: host.target, scene });
+    controls.bind(view);
+    const target = new Element(host.document as unknown as Document);
+    const analog = controls.virtual({
+      target: target as unknown as HTMLElement,
+      sticks: [{ label: 'Analog', x: 'right', y: 'forward' }],
+    });
+    const digital = controls.virtual({
+      target: target as unknown as HTMLElement,
+      sticks: [
+        {
+          label: 'Digital',
+          x: 'yaw',
+          y: 'pitch',
+          mode: 'digital',
+          deadZone: 0.2,
+        },
+      ],
+    });
+    const a = (analog.element as unknown as Element).children[0]!,
+      d = (digital.element as unknown as Element).children[0]!;
+    await app.start();
+    host.frame(0);
+    a.dispatchEvent(pointer('pointerdown', 1, 70, 50));
+    d.dispatchEvent(pointer('pointerdown', 2, 70, 50));
+    host.frame(16);
+    assert.ok(controls.value('right') > 0 && controls.value('right') < 1);
+    assert.equal(controls.value('yaw'), 1);
+    assert.equal(controls.value('pitch'), 0);
+    d.dispatchEvent(pointer('pointermove', 2, 90, 10));
+    host.frame(32);
+    assert.equal(controls.value('yaw'), 1);
+    assert.equal(controls.value('pitch'), 1);
+    d.dispatchEvent(pointer('pointermove', 2, 10, 90));
+    host.frame(48);
+    assert.equal(controls.value('yaw'), -1);
+    assert.equal(controls.value('pitch'), -1);
+    d.dispatchEvent(pointer('pointermove', 2, 50, 50));
+    host.frame(64);
+    assert.equal(controls.value('yaw'), 0);
+    assert.equal(d.getAttribute('data-x'), '0');
+    d.dispatchEvent(pointer('pointercancel', 2));
+    a.dispatchEvent(pointer('pointerup', 1));
+    host.frame(80);
+    assert.equal(controls.value('right'), 0);
+    await app.dispose();
+  }));
+
+void test('mirrored corner presets stack groups, customize theme live, and keep independent sources', () =>
+  withHost(async (host) => {
+    const original = host.document.createElement.bind(host.document);
+    Object.defineProperty(host.document, 'createElement', {
+      value: (tag: string) =>
+        tag === 'canvas'
+          ? original()
+          : new Element(host.document as unknown as Document, tag),
+    });
+    const app = new Rocket(),
+      scene = app.scene(new Scene2D());
+    const controls = app.use(Input).actions(scene).use(flightInput);
+    const view = app.view({ target: host.target, scene });
+    controls.bind(view);
+    const target = new Element(host.document as unknown as Document);
+    const mount = (options: Parameters<typeof controls.virtual>[0]) =>
+      controls.virtual(options);
+    const base = { target: target as unknown as HTMLElement };
+    assert.throws(() => createVirtualCornerPreset({}), /movement pad/);
+    const noButtons = createVirtualCornerPreset({
+      sticks: [{ label: 'Move', x: 'right' }],
+    });
+    assert.equal(noButtons.right.face!.buttons.length, 0);
+    assert.throws(
+      () => mount({ ...base, corner: { side: 'left' } }),
+      /exactly one/,
+    );
+    assert.throws(
+      () => mount({ ...base, groups: [{ buttons: [], columns: 5 }] }),
+      /columns/,
+    );
+    assert.throws(() => mount({ ...base, theme: { opacity: 1.1 } }), /theme/);
+    assert.throws(() => mount({ ...base, theme: { size: 20 } }), /theme/);
+    assert.throws(() => mount({ ...base, theme: { color: '' } }), /theme/);
+    const left = mount({
+      ...base,
+      corner: {
+        ...virtualCornerLayouts.flight.left,
+        above: [
+          ...virtualCornerLayouts.flight.left.above!,
+          {
+            label: 'Extra',
+            columns: 1,
+            buttons: [{ label: 'Fire', action: 'fire' }],
+          },
+        ],
+      },
+      theme: { color: '#ffffff', opacity: 0.7, size: 120 },
+    });
+    const right = mount({ ...base, corner: virtualCornerLayouts.flight.right });
+    const root = left.element as unknown as Element,
+      mirrored = right.element as unknown as Element;
+    assert.equal(root.getAttribute('data-side'), 'left');
+    assert.equal(mirrored.getAttribute('data-side'), 'right');
+    assert.equal(
+      root.children[0]!.children.length,
+      2,
+      'multiple above groups stack',
+    );
+    assert.equal(
+      root.children[2]!.children[0]!.style['--virtual-columns'],
+      '1',
+    );
+    left.setTheme({ opacity: 0.4 });
+    assert.equal(root.style['--virtual-color'], '#ffffff');
+    assert.equal(root.style['--virtual-opacity'], '0.4');
+    assert.equal(root.style['--virtual-size'], '120px');
+    // Above/inside groups remain ordinary independent action controls.
+    const fire = root.children[0]!.children[1]!.children[0]!;
+    await app.start();
+    host.frame(0);
+    fire.dispatchEvent(pointer('pointerdown', 1));
+    host.frame(16);
+    assert.equal(controls.value('fire'), 1);
+    left.dispose();
+    host.frame(32);
+    assert.equal(controls.value('fire'), 0);
+    assert.throws(() => left.setTheme({ opacity: 0.5 }), /disposed/);
+    right.dispose();
+    await app.dispose();
+    assert.equal(root.removed && mirrored.removed, true);
+  }));
+
+void test('all corner templates validate against their presets, including face-only action blocks', () =>
+  withHost(async (host) => {
+    const original = host.document.createElement.bind(host.document);
+    Object.defineProperty(host.document, 'createElement', {
+      value: (tag: string) =>
+        tag === 'canvas'
+          ? original()
+          : new Element(host.document as unknown as Document, tag),
+    });
+    const presets = {
+      'first-person': firstPersonInput,
+      'top-down': topDownInput,
+      platformer: platformerInput,
+      'belt-scroller': beltScrollerInput,
+      flight: flightInput,
+    };
+    for (const name of Object.keys(presets) as (keyof typeof presets)[]) {
+      const app = new Rocket(),
+        scene = app.scene(new Scene2D());
+      const controls = app.use(Input).actions(scene).use(presets[name]);
+      const view = app.view({ target: host.target, scene });
+      controls.bind(view, { capture: 'focus' });
+      const target = new Element(host.document as unknown as Document);
+      for (const corner of [
+        virtualCornerLayouts[name].left,
+        virtualCornerLayouts[name].right,
+      ]) {
+        const controller = controls.virtual({
+          target: target as unknown as HTMLElement,
+          corner,
+        });
+        assert.match(controller.element.className, /corner/);
+      }
+      controls.virtual({
+        target: target as unknown as HTMLElement,
+        groups: [
+          {
+            label: 'Custom',
+            columns: 1,
+            buttons: [{ label: 'Interact', action: 'interact' }],
+          },
+        ],
+      });
+      await app.start();
+      host.frame(0);
+      await app.dispose();
+    }
   }));
