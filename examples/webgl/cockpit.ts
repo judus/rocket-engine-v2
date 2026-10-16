@@ -282,7 +282,100 @@ async function start() {
     scale: { x: modelScale, y: modelScale, z: modelScale },
   };
   placement.add(instance.root);
-  assembly.add(placement);
+  const tuningPanel = document.querySelector('#cockpit-tuning');
+  if (tuningPanel) {
+    // Scale around the preview's visual center, independently of its exported origin.
+    const pivotY = assetNumber('modelCenterY', 1.5);
+    const tuning = new Node3D('cockpit tuning');
+    placement.transform = {
+      ...placement.transform,
+      position: { x: 0, y: assetNumber('modelY', 0) - pivotY, z: 0 },
+    };
+    tuning.add(placement);
+    assembly.add(tuning);
+    const ids = ['cockpit-width', 'cockpit-height', 'cockpit-y', 'cockpit-z'];
+    const controls = ids.map((id) =>
+      document.querySelector<HTMLInputElement>(`#${id}`)!,
+    );
+    const defaults = [1, 1, 0, 0];
+    const storageKey = `rocket:cockpit-tuning:${modelUrl}`;
+    const savedStatus = document.querySelector('#cockpit-tuning-status')!;
+    try {
+      const saved: unknown = JSON.parse(
+        localStorage.getItem(storageKey) ?? 'null',
+      );
+      if (Array.isArray(saved) && saved.length === controls.length) {
+        controls.forEach((control, i) => {
+          const value: unknown = saved[i];
+          if (
+            typeof value === 'number' &&
+            Number.isFinite(value) &&
+            value >= Number(control.min) &&
+            value <= Number(control.max)
+          )
+            control.value = String(value);
+        });
+      }
+    } catch {
+      savedStatus.textContent =
+        'Saved settings unavailable; controls still work.';
+    }
+    const applyTuning = (save: boolean) => {
+      const values = controls.map((control) => Number(control.value));
+      const [width, height, y, z] = values as [number, number, number, number];
+      tuning.transform = {
+        position: { x: 0, y: pivotY + y, z: -z },
+        rotation: { x: 0, y: 0, z: 0 },
+        scale: { x: width, y: height, z: 1 },
+      };
+      controls.forEach((control, i) => {
+        document.querySelector<HTMLOutputElement>(
+          `#${control.id}-value`,
+        )!.value = `${values[i]!.toFixed(2)}${i < 2 ? '×' : ' U'}`;
+      });
+      document.querySelector('#cockpit-tuning-values')!.textContent =
+        JSON.stringify(
+          {
+            model: modelUrl,
+            widthScale: width,
+            heightScale: height,
+            offsetY: y,
+            offsetZ: z,
+            camera: { x: home.x, y: home.y, z: home.z },
+          },
+          null,
+          2,
+        );
+      if (save) {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(values));
+          savedStatus.textContent = 'Settings saved in this browser.';
+        } catch {
+          savedStatus.textContent =
+            'Storage unavailable; copy the values below to keep them.';
+        }
+      }
+    };
+    controls.forEach((control) =>
+      control.addEventListener('input', () => applyTuning(true), { signal }),
+    );
+    document.querySelector('#cockpit-tuning-reset')!.addEventListener(
+      'click',
+      () => {
+        controls.forEach((control, i) => {
+          control.value = String(defaults[i]);
+        });
+        applyTuning(true);
+      },
+      { signal },
+    );
+    // Delayed until the fixed camera home has been initialized below.
+    queueMicrotask(() => {
+      if (!signal.aborted) applyTuning(false);
+    });
+  } else {
+    assembly.add(placement);
+  }
   const shadowFit = shadowsEnabled ? cockpitShadowFit(assembly) : undefined;
   const reticle = instruments ? cockpitReticle() : undefined;
   if (reticle) assembly.add(reticle);
@@ -353,6 +446,7 @@ async function start() {
   const cameraX = document.querySelector<HTMLInputElement>('#camera-x')!,
     cameraY = document.querySelector<HTMLInputElement>('#camera-y')!,
     cameraZ = document.querySelector<HTMLInputElement>('#camera-z')!;
+  for (const control of [cameraX, cameraY, cameraZ]) control.step = 'any';
   cameraX.value = String(home.x);
   cameraY.value = String(home.y);
   cameraZ.value = String(home.z);
