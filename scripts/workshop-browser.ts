@@ -37,7 +37,7 @@ await cp(
 for (const [name, directory, version] of [
   ['sprite-animation', 'sprite-animation-0.3.0', '0.3.0'],
   ['sprite-animation-baseline', 'sprite-animation-0.2.0', '0.2.0'],
-  ['rocket-workers', 'rocket-workers-0.4.0', '0.4.0'],
+  ['rocket-workers', 'rocket-workers-0.4.1', '0.4.1'],
 ] as const) {
   const pkg: unknown = JSON.parse(
     await readFile(
@@ -62,5 +62,5 @@ for (const [name, directory, version] of [
 // the same compiled task registry and the pinned package's worker helper.
 await writeFile(
   new URL('../examples/workers/terrain.worker.js', import.meta.url),
-  "import { serveTasks } from '../../vendor/rocket-workers-0.4.0/worker.js';\nimport { terrainTask } from './task.js';\nserveTasks({terrain:terrainTask});\n",
+  "import { serveTasks } from '../../vendor/rocket-workers-0.4.1/worker.js';\nimport { terrainTask } from './task.js';\nserveTasks({terrain:terrainTask});\n",
 );
