@@ -48,10 +48,10 @@ export function validateDirectionalShadow(
   if (
     !Number.isInteger(resolution) ||
     resolution < 64 ||
-    resolution > 2048 ||
+    resolution > 8192 ||
     resolution & (resolution - 1)
   )
-    throw new Error('Shadow resolution must be power of two in 64..2048');
+    throw new Error('Shadow resolution must be power of two in 64..8192');
   if (
     ![bias, slopeBias].every(
       (v) => Number.isFinite(v) && v >= 0 && v <= 0.05,

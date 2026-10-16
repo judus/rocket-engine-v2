@@ -840,3 +840,26 @@ and no console errors. Latest local sample: 128 callback FPS, 1.51 ms update CPU
 1.26 ms submission and 0.758 ms GPU draw average. This is not a controlled before/
 after benchmark or proof of steady 144 Hz; compositing/presentation is outside the
 GPU query. The 199k-triangle model, fourteen-light capacity and bloom remain.
+
+### Field-wide sun shadow experiment
+
+Hi3D opts every asteroid into casting and receiving directional shadows, alongside
+the cockpit. Other demos retain their previous field defaults. One orthographic
+map contains the cached field sphere and the transformed cockpit sphere. Their
+minimal enclosing sphere is updated without retraversing model vertices each
+frame; regenerating the field refreshes its cached fit. Hidden fields are omitted
+from fitting. Flying far beyond the field expands the volume and reduces detail.
+
+Default resolution is 4096 (64 MiB depth storage), with 512/1024/2048/8192 controls,
+3x3 PCF, bias 0.0003 and slope bias 0.001. The shadow contract now allows powers of
+two through 8192; actual allocation still checks the context's texture limit.
+Sun yaw/elevation start at -140/20 degrees, matching the space lighting direction.
+This is a single shadow map, without cascades or ray tracing. Local lens/screen
+spill remains unshadowed and instrument inserts do not cast shadows.
+
+Verification: full check passed 496 tests and coverage; focused shadow tests also
+verify accepted 4K/8K limits and enclosing both a distant moving cabin and all
+asteroids. Browser: 98 caster draws / 211652 triangles, 8K allocation succeeds,
+shadows off gives zero depth draws, and no console errors. 8K was left active for
+Julien's experiment; local sample averaged 1.942 ms GPU with 9.366 ms peak and
+124 callback FPS. This moving-view sample is not a controlled hardware benchmark.

@@ -43,10 +43,15 @@ void test('directional shadow volume has the light-facing depth convention and s
 });
 void test('shadow contract rejects non-directional indices, bad budgets, singular projections and negative bias', () => {
   validateDirectionalShadow({ lightIndex: 0, matrix: identityMatrix }, [light]);
+  for (const resolution of [4096, 8192])
+    validateDirectionalShadow(
+      { lightIndex: 0, matrix: identityMatrix, resolution },
+      [light],
+    );
   for (const bad of [
     { lightIndex: 1 },
     { resolution: 63 },
-    { resolution: 4096 },
+    { resolution: 16384 },
     { bias: -0.1 },
     { slopeBias: NaN },
     { filter: 'blur' },

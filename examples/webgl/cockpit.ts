@@ -14,7 +14,7 @@ import type { BloomOptions } from '../../src/webgl/index.js';
 import { cockpitReticle } from './CockpitReticle.js';
 import { attachCockpitDisplays } from './CockpitDisplays.js';
 import { cockpitInstruments } from './CockpitInstruments.js';
-import { cockpitShadowFit } from './CockpitShadowFit.js';
+import { cockpitShadowFit, mergeShadowFits } from './CockpitShadowFit.js';
 import { directionalShadowMatrix } from '../../src/3d/index.js';
 import type { DirectionalShadow3D } from '../../src/3d/index.js';
 import { studioEnvironment, previewEnvironment } from './StudioEnvironment.js';
@@ -272,7 +272,12 @@ async function start() {
   }
   root.add(grid);
   // World content is a sibling of the pilot rig, never a cockpit child.
-  let field = asteroidWorld ? cockpitAsteroidField(2126, 96) : undefined;
+  const worldShadows = hi3dDisplays && !!shadowsEnabled;
+  let field = asteroidWorld
+    ? cockpitAsteroidField(2126, 96, worldShadows)
+    : undefined;
+  let fieldShadowFit =
+    field && worldShadows ? cockpitShadowFit(field) : undefined;
   if (field) root.add(field);
   if (asteroidWorld) {
     fieldControl('field-seed').value = '2126';
@@ -286,10 +291,12 @@ async function start() {
           const next = cockpitAsteroidField(
             Number(fieldControl('field-seed').value),
             Number(fieldControl('field-count').value),
+            worldShadows,
           );
           if (field) root.remove(field);
           field = next;
           root.add(next);
+          fieldShadowFit = worldShadows ? cockpitShadowFit(next) : undefined;
         } catch (error) {
           status.value = String(error);
         }
@@ -754,6 +761,7 @@ async function start() {
           ? { x: -0.6, y: 0.35, z: -0.72 }
           : { x: -0.5, y: 1, z: -0.6 };
       let shadow: DirectionalShadow3D | undefined;
+      let shadowExtent = 0;
       if (shadowFit) {
         const rotationMatrix = transformMatrix({
           position: { x: 0, y: 0, z: 0 },
@@ -764,14 +772,23 @@ async function start() {
           multiplyMatrices(rig.worldMatrix(), rotationMatrix),
           shadowFit.center,
         );
-        const extent = shadowFit.radius * 1.05;
+        const cabin = {
+          center,
+          radius: shadowFit.radius + (worldShadows ? 0.3 : 0),
+        };
+        const fit =
+          worldShadows && field?.visible && fieldShadowFit
+            ? mergeShadowFits(cabin, fieldShadowFit)
+            : cabin;
+        const extent = fit.radius * 1.05;
+        shadowExtent = extent;
         shadow = {
           lightIndex: 1,
           matrix: directionalShadowMatrix(
             lightDirection,
-            center,
+            fit.center,
             extent,
-            shadowFit.radius * 2.2,
+            fit.radius * 2.2,
           ),
           resolution: Number(
             document.querySelector<HTMLSelectElement>('#shadow-resolution')!
@@ -919,7 +936,7 @@ async function start() {
         if (shadowFit) {
           const stats = renderer.shadowStats!;
           document.querySelector('#shadow-status')!.textContent =
-            `${stats.drawCalls} depth draws · ${stats.triangles} caster triangles · ${stats.resolution}² / ${(stats.depthBytes / 1048576).toFixed(2)} MiB estimated · fitted width ${(shadowFit.radius * 2.1).toFixed(2)} units · bias ${shadow!.bias!.toFixed(4)} + slope ${shadow!.slopeBias!.toFixed(4)}`;
+            `${stats.drawCalls} depth draws · ${stats.triangles} caster triangles · ${stats.resolution}² / ${(stats.depthBytes / 1048576).toFixed(2)} MiB estimated · fitted width ${(shadowExtent * 2).toFixed(2)} units · bias ${shadow!.bias!.toFixed(4)} + slope ${shadow!.slopeBias!.toFixed(4)}`;
         }
         const resources = renderer.textureStats!;
         document.querySelector('#mesh-stats')!.textContent =

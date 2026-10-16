@@ -2,9 +2,13 @@ import { Mesh3D } from '../../src/3d/index.js';
 import { asteroidField } from './AsteroidField.js';
 
 /** Demo composition: world-owned rocks, independent of the moving pilot rig.
- * The existing shadow map is fitted to the cabin, not the whole field.
+ * Shadow participation is opt-in; the host must fit its map to the full field.
  */
-export function cockpitAsteroidField(seed: number, count: number) {
+export function cockpitAsteroidField(
+  seed: number,
+  count: number,
+  shadows = false,
+) {
   const field = asteroidField(seed, count);
   field.transform = {
     ...field.transform,
@@ -26,8 +30,8 @@ export function cockpitAsteroidField(seed: number, count: number) {
       materials.set(source, mesh);
     }
     node.mesh = mesh;
-    node.castsShadow = false;
-    node.receivesShadow = false;
+    node.castsShadow = shadows;
+    node.receivesShadow = shadows;
   }
   return field;
 }

@@ -30,3 +30,28 @@ export function cockpitShadowFit(root: Node3D): {
   );
   return Object.freeze({ center, radius });
 }
+
+/** Smallest sphere containing two fitted spheres, without traversing moving geometry. */
+export function mergeShadowFits(
+  a: { readonly center: Vec3; readonly radius: number },
+  b: { readonly center: Vec3; readonly radius: number },
+) {
+  const delta = {
+    x: b.center.x - a.center.x,
+    y: b.center.y - a.center.y,
+    z: b.center.z - a.center.z,
+  };
+  const distance = Math.hypot(delta.x, delta.y, delta.z);
+  if (a.radius >= distance + b.radius) return a;
+  if (b.radius >= distance + a.radius) return b;
+  const radius = (distance + a.radius + b.radius) / 2;
+  const t = (radius - a.radius) / distance;
+  return {
+    center: {
+      x: a.center.x + delta.x * t,
+      y: a.center.y + delta.y * t,
+      z: a.center.z + delta.z * t,
+    },
+    radius,
+  };
+}

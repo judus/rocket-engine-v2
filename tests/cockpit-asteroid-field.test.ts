@@ -1,6 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Node3D, matrixPoint } from '../src/3d/index.js';
+import {
+  cockpitShadowFit,
+  mergeShadowFits,
+} from '../examples/webgl/CockpitShadowFit.js';
 import { cockpitAsteroidField } from '../examples/space/CockpitAsteroidField.js';
 
 void test('outside field stays in world space while the pilot rig moves and turns', () => {
@@ -40,5 +44,29 @@ void test('cockpit field retains eight shared rock meshes with diffuse material 
     assert.equal(node.mesh!.materials[0]!.roughnessFactor, 1);
     assert.equal(node.mesh!.geometry.faces.length, 128);
     assert.ok(node.transform.position.z + field.transform.position.z >= 26);
+  }
+});
+
+void test('world shadow opt-in covers every asteroid and conservatively includes a moving cockpit', () => {
+  const field = cockpitAsteroidField(2126, 96, true);
+  for (const node of field.children) {
+    assert.equal(node.castsShadow, true);
+    assert.equal(node.receivesShadow, true);
+  }
+  const world = cockpitShadowFit(field);
+  for (const cabin of [
+    { center: { x: 0, y: 1.5, z: 0 }, radius: 5 },
+    { center: { x: 500, y: -20, z: -200 }, radius: 5 },
+    { center: world.center, radius: 500 },
+  ]) {
+    const fit = mergeShadowFits(cabin, world);
+    for (const bound of [cabin, world]) {
+      const d = Math.hypot(
+        bound.center.x - fit.center.x,
+        bound.center.y - fit.center.y,
+        bound.center.z - fit.center.z,
+      );
+      assert.ok(d + bound.radius <= fit.radius + 1e-9);
+    }
   }
 });
