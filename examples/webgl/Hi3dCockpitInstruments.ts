@@ -76,7 +76,7 @@ export function hi3dCockpitInstruments() {
         ctx.strokeStyle = '#5b4930';
         ctx.strokeRect(4, 4, canvas.width - 8, 88);
         ctx.fillStyle = amber;
-        ctx.font = `bold ${i === 2 ? 36 : 44}px monospace`;
+        ctx.font = 'bold 36px monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(rows[i]!, canvas.width / 2, 49, canvas.width - 20);
