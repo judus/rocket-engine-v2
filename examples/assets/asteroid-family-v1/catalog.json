@@ -1,0 +1,297 @@
+{
+  "asteroids": [
+    {
+      "id": "asteroid-01-chipped-round",
+      "name": "chipped-round",
+      "kind": "round",
+      "seed": 2700,
+      "longestDimensionMetres": 10,
+      "dimensionsMetres": [
+        10.0,
+        8.965667468262575,
+        9.630227993567747
+      ],
+      "triangles": 4800,
+      "geometryFile": "meshes/asteroid-01-chipped-round.glb",
+      "meshIndex": 0,
+      "defaultMaterial": "Rock035",
+      "uvRepeats": [
+        1,
+        0.45680867933285346
+      ],
+      "nominalTextureTileMetres": 50,
+      "actualEquatorialTileMetres": 30.83782537221701,
+      "closedManifoldAfterWelding": true
+    },
+    {
+      "id": "asteroid-02-long-boulder",
+      "name": "long-boulder",
+      "kind": "round",
+      "seed": 2701,
+      "longestDimensionMetres": 16,
+      "dimensionsMetres": [
+        16.0,
+        7.128041939639185,
+        8.0802446937667
+      ],
+      "triangles": 4800,
+      "geometryFile": "meshes/asteroid-02-long-boulder.glb",
+      "meshIndex": 1,
+      "defaultMaterial": "Rock031",
+      "uvRepeats": [
+        1,
+        0.35
+      ],
+      "nominalTextureTileMetres": 50,
+      "actualEquatorialTileMetres": 38.85504510657861,
+      "closedManifoldAfterWelding": true
+    },
+    {
+      "id": "asteroid-03-flat-slab",
+      "name": "flat-slab",
+      "kind": "round",
+      "seed": 2702,
+      "longestDimensionMetres": 22,
+      "dimensionsMetres": [
+        22.0,
+        7.370950340976736,
+        18.93473186220765
+      ],
+      "triangles": 4800,
+      "geometryFile": "meshes/asteroid-03-flat-slab.glb",
+      "meshIndex": 2,
+      "defaultMaterial": "Rock033",
+      "uvRepeats": [
+        1,
+        0.35
+      ],
+      "nominalTextureTileMetres": 50,
+      "actualEquatorialTileMetres": 64.39029542784131,
+      "closedManifoldAfterWelding": true
+    },
+    {
+      "id": "asteroid-04-wedge",
+      "name": "wedge",
+      "kind": "wedge",
+      "seed": 2703,
+      "longestDimensionMetres": 28,
+      "dimensionsMetres": [
+        28.0,
+        18.65214167093307,
+        19.288610782911626
+      ],
+      "triangles": 4800,
+      "geometryFile": "meshes/asteroid-04-wedge.glb",
+      "meshIndex": 3,
+      "defaultMaterial": "Rock035",
+      "uvRepeats": [
+        1,
+        0.4013000549926939
+      ],
+      "nominalTextureTileMetres": 50,
+      "actualEquatorialTileMetres": 74.91231813641318,
+      "closedManifoldAfterWelding": true
+    },
+    {
+      "id": "asteroid-05-double-lobe",
+      "name": "double-lobe",
+      "kind": "lobes",
+      "seed": 2704,
+      "longestDimensionMetres": 35,
+      "dimensionsMetres": [
+        35.0,
+        14.086134268396473,
+        13.904990166820388
+      ],
+      "triangles": 4800,
+      "geometryFile": "meshes/asteroid-05-double-lobe.glb",
+      "meshIndex": 4,
+      "defaultMaterial": "Rock031",
+      "uvRepeats": [
+        2,
+        0.6385169912409319
+      ],
+      "nominalTextureTileMetres": 50,
+      "actualEquatorialTileMetres": 40.217799940928565,
+      "closedManifoldAfterWelding": true
+    },
+    {
+      "id": "asteroid-06-impact-basin",
+      "name": "impact-basin",
+      "kind": "basin",
+      "seed": 2705,
+      "longestDimensionMetres": 42,
+      "dimensionsMetres": [
+        42.0,
+        34.47544318148079,
+        41.91518667928061
+      ],
+      "triangles": 4800,
+      "geometryFile": "meshes/asteroid-06-impact-basin.glb",
+      "meshIndex": 5,
+      "defaultMaterial": "Rock033",
+      "uvRepeats": [
+        3,
+        1.2325109013440085
+      ],
+      "nominalTextureTileMetres": 50,
+      "actualEquatorialTileMetres": 43.9379002202362,
+      "closedManifoldAfterWelding": true
+    },
+    {
+      "id": "asteroid-07-splinter",
+      "name": "splinter",
+      "kind": "wedge",
+      "seed": 2706,
+      "longestDimensionMetres": 50,
+      "dimensionsMetres": [
+        50.00000000000001,
+        14.033841803621396,
+        17.34426657777227
+      ],
+      "triangles": 4800,
+      "geometryFile": "meshes/asteroid-07-splinter.glb",
+      "meshIndex": 6,
+      "defaultMaterial": "Rock035",
+      "uvRepeats": [
+        2,
+        0.4765556298527799
+      ],
+      "nominalTextureTileMetres": 50,
+      "actualEquatorialTileMetres": 56.04834666736585,
+      "closedManifoldAfterWelding": true
+    },
+    {
+      "id": "asteroid-08-weathered-boulder",
+      "name": "weathered-boulder",
+      "kind": "weathered",
+      "seed": 2707,
+      "longestDimensionMetres": 60,
+      "dimensionsMetres": [
+        60.0,
+        46.312306785655764,
+        53.393837753550315
+      ],
+      "triangles": 4800,
+      "geometryFile": "meshes/asteroid-08-weathered-boulder.glb",
+      "meshIndex": 7,
+      "defaultMaterial": "Rock031",
+      "uvRepeats": [
+        4,
+        1.6364593250539865
+      ],
+      "nominalTextureTileMetres": 50,
+      "actualEquatorialTileMetres": 44.56744805979846,
+      "closedManifoldAfterWelding": true
+    },
+    {
+      "id": "asteroid-09-scarred",
+      "name": "scarred",
+      "kind": "scar",
+      "seed": 2708,
+      "longestDimensionMetres": 70,
+      "dimensionsMetres": [
+        70.0,
+        46.24124175341864,
+        52.34190057566129
+      ],
+      "triangles": 4800,
+      "geometryFile": "meshes/asteroid-09-scarred.glb",
+      "meshIndex": 8,
+      "defaultMaterial": "Rock033",
+      "uvRepeats": [
+        4,
+        1.5278675939155257
+      ],
+      "nominalTextureTileMetres": 50,
+      "actualEquatorialTileMetres": 48.294093210060886,
+      "closedManifoldAfterWelding": true
+    },
+    {
+      "id": "asteroid-10-ridged",
+      "name": "ridged",
+      "kind": "ridge",
+      "seed": 2709,
+      "longestDimensionMetres": 80,
+      "dimensionsMetres": [
+        80.0,
+        55.021166176492635,
+        62.8446641940458
+      ],
+      "triangles": 4800,
+      "geometryFile": "meshes/asteroid-10-ridged.glb",
+      "meshIndex": 9,
+      "defaultMaterial": "Rock035",
+      "uvRepeats": [
+        5,
+        1.9399502886294397
+      ],
+      "nominalTextureTileMetres": 50,
+      "actualEquatorialTileMetres": 45.03793796005831,
+      "closedManifoldAfterWelding": true
+    },
+    {
+      "id": "asteroid-11-broad-plate",
+      "name": "broad-plate",
+      "kind": "eroded",
+      "seed": 2710,
+      "longestDimensionMetres": 90,
+      "dimensionsMetres": [
+        90.0,
+        38.86280681216877,
+        75.23011881621463
+      ],
+      "triangles": 4800,
+      "geometryFile": "meshes/asteroid-11-broad-plate.glb",
+      "meshIndex": 10,
+      "defaultMaterial": "Rock031",
+      "uvRepeats": [
+        5,
+        1.1807475246898307
+      ],
+      "nominalTextureTileMetres": 50,
+      "actualEquatorialTileMetres": 52.012318828755156,
+      "closedManifoldAfterWelding": true
+    },
+    {
+      "id": "asteroid-12-broken-mass",
+      "name": "broken-mass",
+      "kind": "broken",
+      "seed": 2711,
+      "longestDimensionMetres": 100,
+      "dimensionsMetres": [
+        100.0,
+        95.66474597828028,
+        93.66811038005694
+      ],
+      "triangles": 4800,
+      "geometryFile": "meshes/asteroid-12-broken-mass.glb",
+      "meshIndex": 11,
+      "defaultMaterial": "Rock033",
+      "uvRepeats": [
+        6,
+        2.96535913158844
+      ],
+      "nominalTextureTileMetres": 50,
+      "actualEquatorialTileMetres": 50.715742949412295,
+      "closedManifoldAfterWelding": true
+    }
+  ],
+  "materials": [
+    {
+      "id": "Rock035",
+      "sourceUrl": "https://ambientcg.com/view?id=Rock035",
+      "folder": "materials/Rock035"
+    },
+    {
+      "id": "Rock031",
+      "sourceUrl": "https://ambientcg.com/view?id=Rock031",
+      "folder": "materials/Rock031"
+    },
+    {
+      "id": "Rock033",
+      "sourceUrl": "https://ambientcg.com/view?id=Rock033",
+      "folder": "materials/Rock033"
+    }
+  ]
+}

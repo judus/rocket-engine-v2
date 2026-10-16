@@ -1,0 +1,25 @@
+{
+  "assetId": "Rock033",
+  "files": [
+    {
+      "file": "basecolor.png",
+      "bytes": 9104212,
+      "sha256": "feeac1ac63a5ed78e30e3d2e8224c13e6c69a11c1a7eb769eaba6d31fd67d529"
+    },
+    {
+      "file": "orm.png",
+      "bytes": 5260684,
+      "sha256": "68bdd086409ef2ab5ee19e9f802a6ef22d9066ddc7bd2afdf7d1824c218a7996"
+    },
+    {
+      "file": "normal.png",
+      "bytes": 10806971,
+      "sha256": "cf1166827fa1c78a1d951d579823d9f453fc0d1b8d80ecc71c7fb0dc7410ec44"
+    }
+  ],
+  "notes": [
+    "Colour PNG unchanged from source.",
+    "Normal converted from source 16-bit to RGB8 at original 2048x2048 resolution.",
+    "ORM R=source AO, G=source roughness, B=0."
+  ]
+}

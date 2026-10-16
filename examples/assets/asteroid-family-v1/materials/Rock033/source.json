@@ -1,0 +1,112 @@
+{
+  "assetId": "Rock033",
+  "library": "ambientCG",
+  "publisher": "ambientCG",
+  "libraryCreatorAndOperator": "Lennart Demes",
+  "authorNote": "Library credit; source asset page does not specify a separate individual author byline.",
+  "sourceUrl": "https://ambientcg.com/view?id=Rock033",
+  "stableUrl": "https://ambientcg.com/a/Rock033",
+  "downloadUrl": "https://ambientcg.com/get?file=Rock033_2K-PNG.zip",
+  "resolvedDownloadUrl": "https://acg-download.struffelproductions.com/file/ambientCG-Web/download/Rock033_VCPwyZ5d/Rock033_2K-PNG.zip",
+  "downloadedOn": "2026-10-16",
+  "license": "CC0-1.0",
+  "licenseUrl": "https://docs.ambientcg.com/license/",
+  "imprintUrl": "https://docs.ambientcg.com/legal/",
+  "package": "Rock033_2K-PNG.zip",
+  "archiveBytes": 69311739,
+  "archiveSha256": "032b9597756997d2bba5c6925fcd1719e9c2725e42516423fb221871bc62807a",
+  "files": [
+    {
+      "file": "original/Rock033.png",
+      "bytes": 389737,
+      "sha256": "1fa40296d0cbc31d21cbd089d9582f70af5f8aa0cb21852727f33937e98b1146",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "file": "original/Rock033_2K-PNG.blend",
+      "bytes": 1109428,
+      "sha256": "cfaf4a2f2c1bf06a12ebd22633ccd999bd9e542a0c74b074be0f1bce066305a1"
+    },
+    {
+      "file": "original/Rock033_2K-PNG.mtlx",
+      "bytes": 2242,
+      "sha256": "6cce9aa9e4c5ffdf7d13a3b925de43998c04bb637dd5233357e0785b36d63744"
+    },
+    {
+      "file": "original/Rock033_2K-PNG.tres",
+      "bytes": 1010,
+      "sha256": "d300933c56e5891d732d5fe380f2ccadc82b95f4294de4d03577e86791513159"
+    },
+    {
+      "file": "original/Rock033_2K-PNG.usdc",
+      "bytes": 3001,
+      "sha256": "3ec46afe16fc64b416ffd26d2cc2f918a1eb1b704595700f7e1eafcbead2f9d3"
+    },
+    {
+      "file": "original/Rock033_2K-PNG_AmbientOcclusion.png",
+      "bytes": 1978145,
+      "sha256": "2680badb1db16f6f49d2ea202a90585f09ad0654f5cad60ad1e4550f4307f0b0",
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "L"
+    },
+    {
+      "file": "original/Rock033_2K-PNG_Color.png",
+      "bytes": 9104212,
+      "sha256": "feeac1ac63a5ed78e30e3d2e8224c13e6c69a11c1a7eb769eaba6d31fd67d529",
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "RGB"
+    },
+    {
+      "file": "original/Rock033_2K-PNG_Displacement.png",
+      "bytes": 5780686,
+      "sha256": "35ac836c1163bfccc6487d4f99069538ee8ff7832a642a2dc05d69589695a8c1",
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "I"
+    },
+    {
+      "file": "original/Rock033_2K-PNG_NormalDX.png",
+      "bytes": 24312615,
+      "sha256": "9b8ad8b750851a5ce914d5428a3a5befed7cc8418f1adb06d61ce6c997bb99d2",
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "RGB"
+    },
+    {
+      "file": "original/Rock033_2K-PNG_NormalGL.png",
+      "bytes": 24311761,
+      "sha256": "01eaca8e1f2bad3dcb5fb5e0e781f8b1215ec59521439fb0b0256237270a15bb",
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "RGB"
+    },
+    {
+      "file": "original/Rock033_2K-PNG_Roughness.png",
+      "bytes": 2316760,
+      "sha256": "c4f75447a4809a9e9f8c6bbfaf284c443a29c282b2495b565da09cb40d3da479",
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "L"
+    }
+  ],
+  "verified": true,
+  "integratedIntoAsteroid": false
+}

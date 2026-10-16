@@ -288,6 +288,10 @@ const groups: readonly { title: string; pages: readonly DemoPage[] }[] = [
         href: './webgl-bloom.html',
       },
       {
+        title: 'Original asteroid family',
+        href: './webgl-asteroid-family.html',
+      },
+      {
         title: 'Procedural asteroid field',
         href: './webgl-asteroids.html',
       },

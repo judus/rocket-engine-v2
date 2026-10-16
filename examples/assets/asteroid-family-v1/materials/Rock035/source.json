@@ -1,0 +1,113 @@
+{
+  "assetId": "Rock035",
+  "library": "ambientCG",
+  "sourceUrl": "https://ambientcg.com/view?id=Rock035",
+  "stableUrl": "https://ambientcg.com/a/Rock035",
+  "downloadUrl": "https://ambientcg.com/get?file=Rock035_2K-PNG.zip",
+  "downloadedOn": "2026-10-16",
+  "package": "Rock035_2K-PNG.zip",
+  "archiveBytes": 67677382,
+  "archiveSha256": "bd649a13a7571ab69a465f261dd91dbaad66087e69a5b40149016d91c979ad62",
+  "publisher": "ambientCG",
+  "libraryCreatorAndOperator": "Lennart Demes",
+  "authorNote": "Asset page does not provide a separate individual author credit. Lennart Demes is identified in the library imprint; do not interpret this as a separately verified per-asset byline.",
+  "imprintUrl": "https://docs.ambientcg.com/legal/",
+  "license": "CC0-1.0",
+  "licenseUrl": "https://docs.ambientcg.com/license/",
+  "licenseTextUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "technique": "procedural (as listed on asset page)",
+  "sourceReleaseDate": "2020-03-29",
+  "role": "Selected baseline shared rock material for planned twelve 40-100m asteroids. Not yet integrated into asteroid meshes.",
+  "files": [
+    {
+      "file": "original/Rock035.png",
+      "bytes": 370193,
+      "sha256": "40a0c56cc26e1206dce9a7111c17fbfa3c735f904a7eca6aaabd9c06e309c89f",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "file": "original/Rock035_2K-PNG.blend",
+      "bytes": 1109636,
+      "sha256": "a2a5e3a19e7596d09635ff99bb82cd1cfac4004ceaf461d0f1d66fc45c5a6375"
+    },
+    {
+      "file": "original/Rock035_2K-PNG.mtlx",
+      "bytes": 2242,
+      "sha256": "3d1b2906a4c0ab33a98c8c3d93803f9f4ceacee959cdaa3405bebd9ae99abb20"
+    },
+    {
+      "file": "original/Rock035_2K-PNG.tres",
+      "bytes": 1010,
+      "sha256": "21fe2e9f19120f76958f339e4a8f064152e721547e31f2a8d0466f5efabc11c1"
+    },
+    {
+      "file": "original/Rock035_2K-PNG.usdc",
+      "bytes": 3009,
+      "sha256": "77bdb58ca865cb7c7a94f2d0136fc3b7fa00111eca85f2cfe0d3feec84ec413e"
+    },
+    {
+      "file": "original/Rock035_2K-PNG_AmbientOcclusion.png",
+      "bytes": 1982638,
+      "sha256": "512c03b6c0dc7cc39de829d3eb19a1edd1728bc484c48e06e926d1012da46333",
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "L"
+    },
+    {
+      "file": "original/Rock035_2K-PNG_Color.png",
+      "bytes": 7421142,
+      "sha256": "c540dd17d580909f539e8a251681688f6c4fde2e2b2367430b26b9e6b4c0906e",
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "RGB"
+    },
+    {
+      "file": "original/Rock035_2K-PNG_Displacement.png",
+      "bytes": 5784361,
+      "sha256": "31944507c614958f5cbb5a5a173dcd834f31c5f5f7708e84b714008d52777efe",
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "I"
+    },
+    {
+      "file": "original/Rock035_2K-PNG_NormalDX.png",
+      "bytes": 24323556,
+      "sha256": "430365e6235458550a638c41b785ee0b55ed7eb0addb1e886c1532805d4d4a5f",
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "RGB"
+    },
+    {
+      "file": "original/Rock035_2K-PNG_NormalGL.png",
+      "bytes": 24322588,
+      "sha256": "39f4073c79e22efc8240ee90e4425256d8f5a50be3db174eafac51da0138dca0",
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "RGB"
+    },
+    {
+      "file": "original/Rock035_2K-PNG_Roughness.png",
+      "bytes": 2354923,
+      "sha256": "78f1edb0ca8e93e4d9b0e81168eb17bf4d19cad9fc9856241a3d94ba4df62151",
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "L"
+    }
+  ]
+}

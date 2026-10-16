@@ -1,0 +1,201 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "Asteroid family v1"
+  },
+  "materials": [
+    {
+      "name": "Rock035",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "metallicFactor": 1,
+        "roughnessFactor": 1,
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicRoughnessTexture": {
+          "index": 1
+        }
+      },
+      "normalTexture": {
+        "index": 2
+      },
+      "occlusionTexture": {
+        "index": 1
+      },
+      "extras": {
+        "plainBaseColorLinear": [
+          0.09,
+          0.1,
+          0.105
+        ],
+        "plainRoughness": 0.85,
+        "plainMetallic": 0,
+        "sourceUrl": "https://ambientcg.com/a/Rock035",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "name": "Rock031",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "metallicFactor": 1,
+        "roughnessFactor": 1,
+        "baseColorTexture": {
+          "index": 3
+        },
+        "metallicRoughnessTexture": {
+          "index": 4
+        }
+      },
+      "normalTexture": {
+        "index": 5
+      },
+      "occlusionTexture": {
+        "index": 4
+      },
+      "extras": {
+        "plainBaseColorLinear": [
+          0.09,
+          0.1,
+          0.105
+        ],
+        "plainRoughness": 0.85,
+        "plainMetallic": 0,
+        "sourceUrl": "https://ambientcg.com/a/Rock031",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "name": "Rock033",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "metallicFactor": 1,
+        "roughnessFactor": 1,
+        "baseColorTexture": {
+          "index": 6
+        },
+        "metallicRoughnessTexture": {
+          "index": 7
+        }
+      },
+      "normalTexture": {
+        "index": 8
+      },
+      "occlusionTexture": {
+        "index": 7
+      },
+      "extras": {
+        "plainBaseColorLinear": [
+          0.09,
+          0.1,
+          0.105
+        ],
+        "plainRoughness": 0.85,
+        "plainMetallic": 0,
+        "sourceUrl": "https://ambientcg.com/a/Rock033",
+        "license": "CC0-1.0"
+      }
+    }
+  ],
+  "images": [
+    {
+      "uri": "materials/Rock035/basecolor.png",
+      "name": "Rock035-basecolor"
+    },
+    {
+      "uri": "materials/Rock035/orm.png",
+      "name": "Rock035-orm"
+    },
+    {
+      "uri": "materials/Rock035/normal.png",
+      "name": "Rock035-normal"
+    },
+    {
+      "uri": "materials/Rock031/basecolor.png",
+      "name": "Rock031-basecolor"
+    },
+    {
+      "uri": "materials/Rock031/orm.png",
+      "name": "Rock031-orm"
+    },
+    {
+      "uri": "materials/Rock031/normal.png",
+      "name": "Rock031-normal"
+    },
+    {
+      "uri": "materials/Rock033/basecolor.png",
+      "name": "Rock033-basecolor"
+    },
+    {
+      "uri": "materials/Rock033/orm.png",
+      "name": "Rock033-orm"
+    },
+    {
+      "uri": "materials/Rock033/normal.png",
+      "name": "Rock033-normal"
+    }
+  ],
+  "textures": [
+    {
+      "source": 0,
+      "sampler": 0
+    },
+    {
+      "source": 1,
+      "sampler": 0
+    },
+    {
+      "source": 2,
+      "sampler": 0
+    },
+    {
+      "source": 3,
+      "sampler": 0
+    },
+    {
+      "source": 4,
+      "sampler": 0
+    },
+    {
+      "source": 5,
+      "sampler": 0
+    },
+    {
+      "source": 6,
+      "sampler": 0
+    },
+    {
+      "source": 7,
+      "sampler": 0
+    },
+    {
+      "source": 8,
+      "sampler": 0
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "description": "glTF material/image sections for the shared asteroid library; indices match asteroid-family.gltf"
+}
