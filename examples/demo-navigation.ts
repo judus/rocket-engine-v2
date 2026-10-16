@@ -7,6 +7,7 @@ const groups: readonly { title: string; pages: readonly DemoPage[] }[] = [
   {
     title: 'Runtime',
     pages: [
+      { title: 'API experiment', href: './api-experiment.html' },
       {
         title: 'Arms & cameras',
         href: './',
