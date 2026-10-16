@@ -93,7 +93,7 @@ export function hi3dCockpitLamps() {
         const edge = Math.min(1, Math.min(u, 1 - u, v, 1 - v) * 12);
         const highlight = Math.exp(-Math.pow((v - 0.2) * 18, 2)) * 0.12;
         const brightness = powered
-          ? 0.32 + 0.68 * glow
+          ? Math.min(1, (0.32 + 0.68 * glow) * 1.18)
           : 0.035 + 0.025 * glow + highlight;
         const i = (y * width + x) * 4;
         pixels[i] = Math.round(255 * brightness * (0.5 + 0.5 * edge));
@@ -261,7 +261,7 @@ export function hi3dCockpitLamps() {
           kind: 'point',
           position: matrixPoint(node.worldMatrix(), { x: 0, y: 0, z: 0.18 }),
           color: [1, 0.61, 0.09],
-          intensity: spec.width * spec.height * 0.5,
+          intensity: spec.width * spec.height * 0.7,
           minimumDistance: 0.25,
         };
       },

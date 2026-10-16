@@ -788,9 +788,13 @@ lighting are unchanged. Screen isolation excludes the button lights.
 
 The GPU light bound is now twelve, shared by uniform packing and both Lambert
 and GGX shader sources. No light is silently dropped. Button light intensity is
-half its authored face area, with a 0.18-unit forward offset and 0.25-unit minimum
+0.7 times its authored face area, with a 0.18-unit forward offset and 0.25-unit minimum
 falloff distance. This is approximate spill without occlusion or shadows.
 
 Validation: full check passes 494 tests and coverage; browser checks cover all
 twelve lights together, independent switching, screen power, both shading paths
 and renderer recreation with cleanup.
+
+Rectangular powered lens artwork has an 18% brightness boost (clamped) for a
+slightly fuller bloom halo. Off textures, screen bloom settings and round alert
+lenses are unchanged.
