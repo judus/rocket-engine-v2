@@ -369,7 +369,7 @@
         <p>
           Overhead, left to right: heading/pitch (medium), speed (small), X/Y/Z
           position (large). Lower left: heading-up radar of actual asteroid
-          centers within 120 units. Lower right: speed, attitude and nearest
+          centers within 7,680 units. Lower right: speed, attitude and nearest
           in-range rock. Flight values follow the current camera; collisions
           remain disabled.
         </p>
@@ -751,9 +751,14 @@ Loading…</pre>
         </div>
         <p id="field-status"></p>
         <p>
-          Distant stars and nebulae beyond the field. The separate sun follows
-          the actual sun-light direction and stays at a constant apparent size
-          as you fly.
+          Original asteroid shapes and uncompressed 2K textures, with
+          independently seeded shape, material and size (10–1,000 m); 96 rocks
+          submit 460,800 asteroid triangles. Seeded placement is spread 64 times
+          wider for the larger bodies. Shared geometry and textures are
+          retained; texture detail currently scales with each body. Distant
+          stars and nebulae beyond the field. The separate sun follows the
+          actual sun-light direction and stays at a constant apparent size as
+          you fly.
         </p>
         <label
           ><input type="checkbox" id="sky-enabled" checked /> Starfield
@@ -1115,7 +1120,7 @@ Loading…</pre>
     </main>
     <script
       type="module"
-      src="./dist/examples/webgl/cockpit.js?v=hi3d-20261016"
+      src="./dist/examples/webgl/cockpit.js?v=original-asteroid-family"
     ></script>
   </body>
 </html>

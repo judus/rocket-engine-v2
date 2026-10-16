@@ -24,7 +24,7 @@ export function hi3dRadarContacts(
 }
 
 /** New Hi3D artwork. Readouts come from navigation and the seeded field, not fake ship systems. */
-export function hi3dCockpitInstruments() {
+export function hi3dCockpitInstruments(range = 120) {
   const make = (width: number, height: number) => {
     const canvas = document.createElement('canvas');
     canvas.width = width;
@@ -108,8 +108,8 @@ export function hi3dCockpitInstruments() {
         ctx.stroke();
       };
       let ctx = radar.ctx;
-      base(ctx, 'LOCAL SCANNER / 120 U');
-      const visible = hi3dRadarContacts(navigation, contacts);
+      base(ctx, `LOCAL SCANNER / ${range} U`);
+      const visible = hi3dRadarContacts(navigation, contacts, range);
       const cx = 256,
         cy = 211,
         radius = 139;
@@ -132,8 +132,8 @@ export function hi3dCockpitInstruments() {
       ctx.fillStyle = cyan;
       for (const point of visible)
         ctx.fillRect(
-          cx + (point.right / 120) * radius - 2,
-          cy - (point.forward / 120) * radius - 2,
+          cx + (point.right / range) * radius - 2,
+          cy - (point.forward / range) * radius - 2,
           4,
           4,
         );

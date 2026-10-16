@@ -1,3 +1,5 @@
+import { loadAsteroidFamily } from '../space/AsteroidFamily.js';
+import { originalAsteroidField } from '../space/OriginalAsteroidField.js';
 import { distantSun } from '../space/DistantSun.js';
 import { maxGpuLights } from '../../src/webgl/LightUniforms.js';
 import { hi3dCockpitLamps } from './Hi3dCockpitLamps.js';
@@ -60,7 +62,7 @@ const hi3dDisplays =
   document.querySelector<HTMLElement>('#gpu-view')?.dataset.instruments ===
   'hi3d';
 const hi3dInstruments =
-  instrumentRunning && hi3dDisplays ? hi3dCockpitInstruments() : undefined;
+  instrumentRunning && hi3dDisplays ? hi3dCockpitInstruments(7680) : undefined;
 const instruments =
   hi3dInstruments ?? (instrumentRunning ? cockpitInstruments() : undefined);
 document
@@ -281,9 +283,24 @@ async function start() {
   if (sun) root.add(sun.node);
   // World content is a sibling of the pilot rig, never a cockpit child.
   const worldShadows = hi3dDisplays && !!shadowsEnabled;
-  let field = asteroidWorld
-    ? cockpitAsteroidField(2126, 96, worldShadows)
-    : undefined;
+  let family: Awaited<ReturnType<typeof loadAsteroidFamily>> | undefined;
+  if (hi3dDisplays && asteroidWorld) {
+    status.value =
+      'Loading 12 original asteroid meshes and nine full-resolution maps…';
+    try {
+      family = await loadAsteroidFamily(signal);
+    } catch (error) {
+      events.abort();
+      surface.dispose();
+      await application.dispose();
+      throw error;
+    }
+  }
+  const makeField = (seed: number, count: number) =>
+    family
+      ? originalAsteroidField(seed, count, family.variants, worldShadows)
+      : cockpitAsteroidField(seed, count, worldShadows);
+  let field = asteroidWorld ? makeField(2126, 96) : undefined;
   let fieldShadowFit =
     field && worldShadows ? cockpitShadowFit(field) : undefined;
   if (field) root.add(field);
@@ -296,10 +313,9 @@ async function start() {
       () => {
         if (!fieldControl('field-seed').reportValidity()) return;
         try {
-          const next = cockpitAsteroidField(
+          const next = makeField(
             Number(fieldControl('field-seed').value),
             Number(fieldControl('field-count').value),
-            worldShadows,
           );
           if (field) root.remove(field);
           field = next;
@@ -629,7 +645,7 @@ async function start() {
   let lightPhase = 0;
   const camera = new PerspectiveCamera();
   camera.near = hi3dDisplays ? 0.15 : (preset?.near ?? 0.03);
-  camera.far = asteroidWorld ? 600 : (preset?.far ?? 100);
+  camera.far = family ? 16000 : asteroidWorld ? 600 : (preset?.far ?? 100);
   const depthTest = document.querySelector<HTMLInputElement>('#depth-test')!;
   const reverseOrder =
     document.querySelector<HTMLInputElement>('#reverse-order')!;
@@ -815,7 +831,7 @@ async function start() {
       if (field) {
         field.visible = fieldControl('field-enabled').checked;
         document.querySelector('#field-status')!.textContent =
-          `${field.name} · ${field.children.length} rocks · ${field.visible ? 'visible' : 'hidden'} · fixed world placement · camera far plane ${camera.far} U`;
+          `${field.name} · ${field.children.length} rocks · ${field.visible ? 'visible' : 'hidden'}${family ? ' · original 2K maps · 4,800 triangles/rock · 9 shared images' : ''} · fixed world placement · camera far plane ${camera.far} U`;
       }
       if (reticle)
         reticle.visible =
