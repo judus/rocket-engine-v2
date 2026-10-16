@@ -85,9 +85,9 @@ export function hi3dCockpitInstruments() {
         `X ${number(navigation.x)} Y ${number(navigation.y)} Z ${number(navigation.z)}`,
       ];
       upper.forEach(({ canvas, ctx }, i) => {
-        ctx.strokeStyle = '#5b4930';
+        ctx.strokeStyle = '#21423e';
         ctx.strokeRect(4, 4, canvas.width - 8, 88);
-        ctx.fillStyle = amber;
+        ctx.fillStyle = cyan;
         ctx.font = 'bold 36px monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';

@@ -366,7 +366,7 @@
               min="0"
               max="8"
               step="0.1"
-              value="1.5" /><output id="screen-light-value"></output
+              value="0.4" /><output id="screen-light-value"></output
           ></label>
         </div>
         <p id="screen-light-status"></p>
@@ -379,12 +379,13 @@
         </p>
         <p>
           This reuses existing inverse-square point lights, offset in front of
-          the five display meshes. Representative green/amber colors and face
-          areas approximate backlight output. It does not sample the animated
-          pixels or simulate area lights. These lights have no shadows or
-          occlusion, so they can leak through cabin walls. Display power stops
-          their contribution and blacks out the five textures; pausing display
-          updates simply freezes the powered readouts.
+          the five display meshes. Soft turquoise light and face areas
+          approximate backlight output. A broader falloff reduces center
+          hotspots. It does not sample the animated pixels or simulate area
+          lights. These lights have no shadows or occlusion, so they can leak
+          through cabin walls. Display power stops their contribution and blacks
+          out the five textures; pausing display updates simply freezes the
+          powered readouts.
         </p>
       </fieldset>
       <fieldset>

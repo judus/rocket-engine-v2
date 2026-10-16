@@ -3,6 +3,7 @@ import type { Node3D, PointLight3D, Vec3 } from '../../src/3d/index.js';
 
 /** Asset-owned approximation: one existing point light just in front of each LCD.
  * Representative display colors and authored face area approximate backlight output.
+ * Soft cyan uses broader distance falloff to avoid concentrated bezel hotspots.
  * No radiance sampling, area lights, occlusion or new lighting/domain system.
  */
 export function cockpitScreenLights(
@@ -12,6 +13,7 @@ export function cockpitScreenLights(
     'display-right__screen-black/instrument',
     ...[1, 2, 3].map((i) => `overhead-display-${i}__screen-black/instrument`),
   ],
+  style: 'classic' | 'soft-cyan' = 'classic',
 ): (strength: number, powered: boolean) => readonly PointLight3D[] {
   const sources: { node: Node3D; center: Vec3; area: number; warm: boolean }[] =
     [];
@@ -38,7 +40,7 @@ export function cockpitScreenLights(
       center: {
         x: (low.x + high.x) / 2,
         y: (low.y + high.y) / 2,
-        z: high.z + 0.075,
+        z: high.z + (style === 'soft-cyan' ? 0.45 : 0.075),
       },
       warm: names.indexOf(node.name) >= 2,
     });
@@ -54,7 +56,9 @@ export function cockpitScreenLights(
     value /= 255;
     return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
   };
-  const cool = [113, 229, 195].map(decode) as [number, number, number];
+  const cool = (style === 'soft-cyan' ? [134, 234, 214] : [113, 229, 195]).map(
+    decode,
+  ) as [number, number, number];
   const warm = [233, 189, 112].map(decode) as [number, number, number];
   return (strength, powered) => {
     if (!Number.isFinite(strength) || strength < 0 || strength > 8)
@@ -63,9 +67,9 @@ export function cockpitScreenLights(
     return sources.map((source) => ({
       kind: 'point',
       position: matrixPoint(source.node.worldMatrix(), source.center),
-      color: source.warm ? warm : cool,
+      color: source.warm && style === 'classic' ? warm : cool,
       intensity: source.area * strength,
-      minimumDistance: 0.12,
+      minimumDistance: style === 'soft-cyan' ? 0.65 : 0.12,
     }));
   };
 }

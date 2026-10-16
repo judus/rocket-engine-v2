@@ -71,16 +71,23 @@ void test('Hi3D light spill follows fitted display centers and shared power', ()
     binding,
     binding,
   ]);
-  const lights = cockpitScreenLights(displays, [
-    'Hi3D radar',
-    'Hi3D flight',
-    'Hi3D attitude',
-    'Hi3D speed',
-    'Hi3D position',
-  ]);
+  const lights = cockpitScreenLights(
+    displays,
+    [
+      'Hi3D radar',
+      'Hi3D flight',
+      'Hi3D attitude',
+      'Hi3D speed',
+      'Hi3D position',
+    ],
+    'soft-cyan',
+  );
   const before = lights(1.5, true);
   assert.equal(before.length, 5);
-  assert.notDeepEqual(before[0]!.color, before[2]!.color);
+  assert.deepEqual(before[0]!.color, before[2]!.color);
+  assert.equal(before[2]!.minimumDistance, 0.65);
+  assert.ok(before[2]!.color[1] > before[2]!.color[0]);
+  assert.ok(lights(0.4, true)[2]!.intensity < before[2]!.intensity / 3);
   assert.deepEqual(lights(1.5, false), []);
   const node = displays.children[0]!;
   node.transform = { ...node.transform, position: { x: 0.25, y: -0.1, z: 0 } };

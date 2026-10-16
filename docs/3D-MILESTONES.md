@@ -770,6 +770,10 @@ rebaking the imprint. Real blending remains on the roadmap.
 The preview reuses the original cockpit bloom controls, diagnostic views and
 render-target lifecycle. Five lights follow the fitted instrument centers and
 shared screen power, using all eight available light slots with scene lighting.
-Spill is approximate and has no occlusion or shadows. Lamps receive bloom but
+The Hi3D default spill strength is 0.4, with turquoise light matching the
+overhead readouts. Sources sit 0.45 units ahead of the faces and use a 0.65-unit
+minimum falloff distance to soften concentrated bezel hotspots. The original
+cockpit retains its previous lighting profile. Spill is approximate and has no
+occlusion or shadows. Lamps receive bloom but
 have no separate point lights. Tests cover fitted centers, warm/cool assignment
 and power; browser checks verify both toggles and the combined presentation.

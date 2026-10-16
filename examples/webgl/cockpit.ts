@@ -352,13 +352,17 @@ async function start() {
     hi3dDisplayTuning(displays, modelUrl, signal);
     placement.add(displays);
     if (screenLightEnabled)
-      screenLights = cockpitScreenLights(displays, [
-        'Hi3D radar',
-        'Hi3D flight',
-        'Hi3D attitude',
-        'Hi3D speed',
-        'Hi3D position',
-      ]);
+      screenLights = cockpitScreenLights(
+        displays,
+        [
+          'Hi3D radar',
+          'Hi3D flight',
+          'Hi3D attitude',
+          'Hi3D speed',
+          'Hi3D position',
+        ],
+        'soft-cyan',
+      );
     const lamps = hi3dCockpitLamps();
     hi3dLamps = lamps;
     lamps.root.transform = displays.transform;
