@@ -51,8 +51,10 @@ export class Cameras {
   }
   scenesChanged(scenes: ReadonlySet<Scene>): undefined {
     this.#scenes = scenes;
-    for (const [view, controller] of this.#controllers)
+    for (const [view, controller] of this.#controllers) {
+      controller.refreshCamera();
       if (!view.scene || !scenes.has(view.scene)) controller.resetMotion();
+    }
   }
   stop(): undefined {
     this.#running = false;
@@ -69,6 +71,7 @@ export class Cameras {
 }
 /** Caller updates once in the scene, before picking and demand calculation. No RAF or clock. */
 export class CameraController {
+  #camera: View['camera'];
   #vx = 0;
   #vy = 0;
   #disposed = false;
@@ -83,6 +86,7 @@ export class CameraController {
     private readonly active: () => boolean,
     private readonly release: () => void,
   ) {
+    this.#camera = view.camera;
     this.#speed = finite(options.speed ?? 320, 'speed');
     this.#inertia = finite(options.inertia ?? 12, 'inertia');
     this.#min = finite(options.minZoom ?? 0.5, 'minZoom');
@@ -99,6 +103,7 @@ export class CameraController {
   }
   #wheel = (event: WheelEvent) => {
     if (this.#disposed || !this.active()) return;
+    this.refreshCamera();
     if (!Number.isFinite(event.deltaY)) return;
     event.preventDefault();
     // Coalesce into one bounded request. DOM events never mutate the camera mid-frame.
@@ -115,13 +120,19 @@ export class CameraController {
   get disposed() {
     return this.#disposed;
   }
+  /** Reconcile a replaced view camera without changing either camera's pose. */
+  refreshCamera(): void {
+    if (this.#camera !== this.view.camera) this.resetMotion();
+  }
   resetMotion(): void {
+    this.#camera = this.view.camera;
     this.#vx = this.#vy = 0;
     this.#pending = null;
   }
   #live() {
     if (this.#disposed || this.view.disposed)
       throw new Error('Camera controller disposed');
+    this.refreshCamera();
   }
   zoomAt(zoom: number, screen: Point): void {
     this.#live();

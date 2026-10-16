@@ -99,3 +99,13 @@ Scene composition demo uses one app/view with two interactive retained/fresh roo
 Full gate: 460 tests; existing coverage floors unchanged. No merge to main.
 WORKERS-001 was imported on both branches (WORKERS-001-IMPORT.md); Sprite Q2 was
 already accepted #675/676. Earlier pending notes above are historical snapshots.
+
+### API-002 camera transition correction
+
+Steve completed the second-pass review in Rocket-Engine messages 683–684 and
+confirmed the activation design. His one confirmed defect was view-owned Cameras
+carrying inertia and pending wheel input into a newly selected route camera.
+Camera identity reconciliation now resets controller motion, preserving retained
+camera poses. Regression coverage includes actual createApp named navigation,
+direct camera replacement, queued wheel cancellation, and new-camera wheel input.
+The change remains on the experimental branch; main is unchanged.

@@ -87,6 +87,10 @@ Stage2D publishes its world/screen Scene2D scopes and implements world drawing w
 own real `camera: Camera2D`. View.camera now accepts a Camera2D reference. On commit,
 the facade points the View at that room's camera and refreshes service scopes. Retained
 rooms preserve their node and camera objects; fresh factories start with new objects.
+A view-owned Cameras controller discards pan inertia and queued wheel input when
+that camera identity changes, while preserving each camera's actual pose. Reconciliation
+runs at scope refresh and before controller operations or incoming wheel requests,
+so direct View.camera replacement also cannot carry old motion into the new camera.
 Screen layers use the same View overlay/canvas and remain in logical screen pixels.
 Explicit multi-view users can still call drawWorld with each view's camera and drawScreen
 in each overlay. For a directly registered Stage2D, assign view.camera = stage.camera;

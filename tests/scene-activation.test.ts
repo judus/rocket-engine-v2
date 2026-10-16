@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { Cameras } from '../src/Cameras.js';
 import { Rocket } from '../src/Rocket.js';
 import type { Service } from '../src/Service.js';
 import type { Scene } from '../src/types.js';
@@ -232,4 +233,30 @@ void test('fresh routed input bindings share canvas ownership until the last sce
     assert.equal(canvas.getAttribute('tabindex'), null);
     assert.equal(canvas.style.touchAction, '');
     assert.equal(canvas.listenerCount, 0);
+  }));
+
+void test('named navigation resets view-owned camera inertia without resetting retained camera poses', () =>
+  withHost(async (host) => {
+    const app = createApp({ target: host.target, autoStart: false });
+    const controller = app.engine.use(Cameras).bind(app.view);
+    app.addScene('a', { retain: true, create: () => new Stage2D() });
+    app.addScene('b', { create: () => new Stage2D() });
+    try {
+      await app.run('a');
+      const retained = app.view.camera;
+      controller.update(0.1, { x: 1, y: 0 });
+      const pose = retained.x;
+      assert.ok(pose > 0);
+      await app.run('b');
+      controller.update(0.1);
+      assert.equal(app.view.camera.x, 0);
+      controller.update(0.1, { x: -1, y: 0 });
+      await app.previous();
+      assert.equal(app.view.camera, retained);
+      controller.update(0.1);
+      assert.equal(retained.x, pose);
+    } finally {
+      await app.dispose();
+    }
+    assert.equal(app.view.disposed, true);
   }));
