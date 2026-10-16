@@ -379,6 +379,31 @@
       "coveredLinePercent": 95.28313253012048,
       "coveredBranchPercent": 62.0,
       "coveredFunctionPercent": 87.73529411764706
+    },
+    "experimental/CameraFollow.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 76.42307692307693,
+      "coveredFunctionPercent": 99.5
+    },
+    "experimental/createApp.js": {
+      "coveredLinePercent": 94.41525423728814,
+      "coveredBranchPercent": 88.97368421052632,
+      "coveredFunctionPercent": 63.13636363636363
+    },
+    "experimental/index.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "experimental/SceneNavigator.js": {
+      "coveredLinePercent": 96.19421487603306,
+      "coveredBranchPercent": 87.73529411764706,
+      "coveredFunctionPercent": 82.83333333333334
+    },
+    "experimental/Stage2D.js": {
+      "coveredLinePercent": 96.96835443037975,
+      "coveredBranchPercent": 90.4090909090909,
+      "coveredFunctionPercent": 94.95454545454545
     }
   }
 }

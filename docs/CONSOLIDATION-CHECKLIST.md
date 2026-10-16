@@ -1,9 +1,10 @@
 # Rocket consolidation checklist
 
-Collected 2026-10-16 at Julien’s request from the current Rocket discussion and
-mailbox messages 643–663 listed below. This is a tracking checklist, not blanket
-implementation approval, package acceptance or an assignment to peer projects.
-No runtime changes, package upgrades, paid generation or deployments accompany it.
+Initially collected 2026-10-16 from Rocket discussion and mailbox messages 643–663.
+Updated below as Julien’s subsequent implementation instructions are completed.
+See CONSOLIDATION-PROGRESS.md for commits/evidence and API-EXPERIMENT-FINDINGS.md
+for the isolated experimental branch. Deferred items remain visible; they are not
+new assignments or blanket approval for peer work.
 
 The cockpit/asteroid integration is complete as a bounded renderer demonstration.
 Gameplay expansion is outside this consolidation. Preserve the simple callback path
@@ -112,22 +113,22 @@ Source: Steve 662 and the verbatim
 [exploratory concept](/home/maduser/Documents/Codex/2026-10-13/new-chat/rocket-api-ergonomics-exploratory-concept.md).
 Every sketch is an idea, not an approved API or instruction to implement it verbatim.
 
-- [ ] Compare small old-Rocket/v2 consumer programs and investigate a minimal callback
+- [x] Compare small old-Rocket/v2 consumer programs and investigate a minimal callback
       entry point, default canvas/scene/startup, with explicit readiness/errors.
-- [ ] Investigate scene preparation/enter/leave/pause/resume/dispose, retained versus
+- [x] Investigate scene preparation/enter/leave/pause/resume/dispose, retained versus
       fresh instances, history and interrupted/failed transitions.
-- [ ] Investigate progressive entities/IDs/tags/queries and optional collider/body
+- [x] Investigate progressive entities/IDs/tags/queries and optional collider/body
       conveniences against existing nodes, physics and transform ownership. Do not
       introduce a competing entity model or imply discrete queries provide CCD.
-- [ ] Investigate ordered world/screen layers, feet sorting, custom ordering and
+- [x] Investigate ordered world/screen layers, feet sorting, custom ordering and
       caching, distinct from gameplay/collision groups and canvas allocation.
-- [ ] Investigate camera/control presets, tuning units, framing, focus and picking;
+- [x] Investigate camera/control presets, tuning units, framing, focus and picking;
       camera controls and character controls remain separate.
-- [ ] Investigate parallax independently from finite/repeating artwork, with explicit
+- [x] Investigate parallax independently from finite/repeating artwork, with explicit
       dimensions/edge behavior and no unnecessary per-copy entities.
-- [ ] Evaluate primitive/tween conveniences only after the general foundations;
+- [x] Evaluate primitive/tween conveniences only after the general foundations;
       preserve advanced access through the same underlying objects.
-- [ ] Consolidate agreed ergonomics with the lifecycle/rendering contracts above
+- [x] Consolidate agreed ergonomics with the lifecycle/rendering contracts above
       before committing names, defaults or implementation scope.
 
 ## 5. Quality gates across owned packages
@@ -140,9 +141,10 @@ implementation; their proposals await bounded review/agreement, not automatic di
       baselines in the required gate.
 - [ ] Review Rocket-Workers’ equivalent tooling correction against its own module
       inventory and baseline; keep native worker evidence separate.
-- [ ] Review Sprite’s Q2 proposal: expected-module checks, text/machine reports,
+- [x] Review Sprite’s Q2 proposal: expected-module checks, text/machine reports,
       missing/incomplete/test-failure handling and unrounded baseline/branch ratchet;
-      no redundant unit runs or changes to accepted archives/pins.
+      no redundant unit runs or changes to accepted archives/pins. Bounded tooling
+      slice authorized in #671; upstream implementation/report still pending.
 - [x] Verify Rocket’s gate rejects intentional regressions/missing reports/modules.
       Do not chase 100% by touching lines. Browser loaders, native Canvas/worker
       behavior and shader execution need appropriate independent evidence.

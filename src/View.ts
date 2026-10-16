@@ -88,6 +88,12 @@ export class View {
   get camera() {
     return this.#camera;
   }
+  set camera(value: Camera2D) {
+    this.#assertLive();
+    if (!(value instanceof Camera2D))
+      throw new TypeError('camera must be a Camera2D');
+    this.#camera = value;
+  }
   get width() {
     return this.#width;
   }

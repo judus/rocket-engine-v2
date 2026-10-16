@@ -20,6 +20,8 @@ export interface FixedStats {
 }
 // undefined rather than void keeps async callbacks out of synchronous slots.
 export interface Scene {
+  /** Active delegated children for service scopes; parent owns their updates/lifetime. */
+  activeChildren?(): readonly Scene[];
   fixedUpdate?(dt: number, frame: FixedFrame): undefined;
   update?(dt: number, frame: Frame): undefined;
   draw?(ctx: CanvasRenderingContext2D, frame: Frame): undefined;

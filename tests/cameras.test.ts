@@ -4,6 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Construction } from '../examples/workshop/Construction.js';
 import { FactoryDemo } from '../examples/workshop/FactoryDemo.js';
+import { Camera2D } from '../src/Camera2D.js';
 import { Cameras } from '../src/Cameras.js';
 import { View } from '../src/View.js';
 import type { Matrix2D } from '../src/types.js';
@@ -318,6 +319,44 @@ void test('zoomed and snapped factory picking selects footprints and places at t
   } finally {
     visuals.dispose();
     f.dispose();
+    view.dispose();
+    service.dispose();
+  }
+});
+
+void test('camera replacement discards outgoing inertia and wheel requests while preserving retained poses', () => {
+  const { view, canvas } = fixture();
+  const service = new Cameras();
+  const controller = service.bind(view);
+  service.start();
+  try {
+    const retained = view.camera;
+    controller.update(0.1, { x: 1, y: 0 });
+    const pose = retained.x;
+    assert.ok(pose > 0);
+    wheel(canvas, 100);
+    view.camera = new Camera2D();
+    service.scenesChanged(new Set([view.scene!]));
+    controller.update(0.1);
+    assert.equal(view.camera.x, 0);
+    assert.equal(view.camera.zoom, 1);
+    // A wheel event after replacement belongs to the new camera, even before RAF.
+    controller.update(0.1, { x: 1, y: 0 });
+    wheel(canvas, 200);
+    view.camera = retained;
+    wheel(canvas, -100);
+    controller.update(0);
+    close(retained.zoom, Math.exp(100 * 0.0015));
+    // Zoom can move the anchor, but no old pan velocity may move it afterward.
+    const zoomedPose = retained.x;
+    controller.update(0.1);
+    assert.equal(retained.x, zoomedPose);
+    // Direct replacement must also reconcile without a service notification.
+    view.camera = new Camera2D();
+    controller.update(0.1);
+    assert.equal(view.camera.x, 0);
+    assert.equal(view.camera.zoom, 1);
+  } finally {
     view.dispose();
     service.dispose();
   }

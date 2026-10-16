@@ -231,6 +231,35 @@ export class InputScope<A extends string> {
   }
 }
 
+// Several scene scopes can share one presentation. Restore its attributes only
+// when the final binding retires, regardless of route disposal order.
+const canvasOwners = new WeakMap<
+  HTMLCanvasElement,
+  { count: number; tab: string | null; touch: string }
+>();
+function ownCanvas(canvas: HTMLCanvasElement): () => void {
+  let state = canvasOwners.get(canvas);
+  if (!state) {
+    state = {
+      count: 0,
+      tab: canvas.getAttribute('tabindex'),
+      touch: canvas.style.touchAction,
+    };
+    canvasOwners.set(canvas, state);
+    if (state.tab === null) canvas.tabIndex = 0;
+    canvas.style.touchAction = 'none';
+  }
+  state.count++;
+  const owned = state;
+  return () => {
+    if (--owned.count !== 0) return;
+    canvasOwners.delete(canvas);
+    if (owned.tab === null) canvas.removeAttribute('tabindex');
+    else canvas.setAttribute('tabindex', owned.tab);
+    canvas.style.touchAction = owned.touch;
+  };
+}
+
 /** A view-owned primary pointer and canvas keyboard routing. */
 export class ViewInput<T extends InputTarget = View> {
   readonly view: T;
@@ -261,15 +290,7 @@ export class ViewInput<T extends InputTarget = View> {
     this.view = view;
     this.#onDispose = onDispose;
     const canvas = view.canvas;
-    const oldTab = canvas.getAttribute('tabindex');
-    const oldTouch = canvas.style.touchAction;
-    if (oldTab === null) canvas.tabIndex = 0;
-    canvas.style.touchAction = 'none';
-    this.#resources.push(() => {
-      if (oldTab === null) canvas.removeAttribute('tabindex');
-      else canvas.setAttribute('tabindex', oldTab);
-      canvas.style.touchAction = oldTouch;
-    });
+    this.#resources.push(ownCanvas(canvas));
     const listen = (type: string, callback: EventListener) => {
       canvas.addEventListener(type, callback);
       this.#resources.push(() => canvas.removeEventListener(type, callback));
@@ -464,8 +485,15 @@ export class Input {
     this.#activeScenes = new Set();
     this.#reset();
   }
-  beforeUpdate(_frame: Frame, activeScenes: ReadonlySet<Scene>): undefined {
+  scenesChanged(activeScenes: ReadonlySet<Scene>): undefined {
+    // Reset both departing and entering scopes: held keys must not survive a route boundary.
+    for (const scope of this.#scopes)
+      if (this.#activeScenes.has(scope.scene) !== activeScenes.has(scope.scene))
+        scope.reset();
     this.#activeScenes = new Set(activeScenes);
+  }
+  beforeUpdate(_frame: Frame, activeScenes: ReadonlySet<Scene>): undefined {
+    this.scenesChanged(activeScenes);
     for (const scope of this.#scopes)
       scope.snapshot(activeScenes.has(scope.scene), !!scope.scene.fixedUpdate);
   }

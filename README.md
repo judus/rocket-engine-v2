@@ -139,3 +139,9 @@ The reusable foundation is available through the optional `rocket-engine-v2/3d` 
 - [27 · Screen light spill](http://127.0.0.1:8092/webgl-cockpit-spill.html): five model-attached point lights approximate display illumination; independent bloom, light isolation, strength and coupled display power controls.
 - [28 · Asteroid field](http://127.0.0.1:8092/webgl-asteroids.html): a finite seeded field of shared faceted rock meshes, free camera, native resolution and CPU/GPU metrics.
 - [29 · Cockpit asteroid field](http://127.0.0.1:8092/webgl-cockpit-asteroids.html): the v5 cockpit flies through the seeded world, retaining live displays, cabin shadows, bloom and performance metrics.
+
+## Experimental API branch
+
+`experiment/api-ergonomics` adds a runnable [API experiment](http://127.0.0.1:8092/api-experiment.html),
+[implemented API](docs/API-EXPERIMENT.md) and [findings](docs/API-EXPERIMENT-FINDINGS.md).
+The consolidated runtime remains on main; this experiment is separate for review.

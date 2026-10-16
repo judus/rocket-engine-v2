@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket · API ergonomics experiment</title>
+    <link rel="stylesheet" href="./examples/style.css" />
+    <link rel="stylesheet" href="./examples/demo-navigation.css" />
+    <script type="module" src="./dist/examples/demo-navigation.js"></script>
+    <style>
+      .experiment-view {
+        overflow: hidden;
+        border: 1px solid #355066;
+        border-radius: 12px;
+        background: #091321;
+      }
+      .experiment-view canvas {
+        display: block;
+        max-width: 100%;
+        height: auto !important;
+      }
+      pre {
+        overflow-x: auto;
+        background: #0b1524;
+        padding: 1rem;
+        border-radius: 8px;
+        color: #a6e7db;
+      }
+      .metrics {
+        font: 14px monospace;
+        color: #8de0c8;
+        min-height: 2rem;
+      }
+      .experiment-view + .toolbar {
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <header>
+        <p class="eyebrow">EXPERIMENTAL BRANCH / API ERGONOMICS</p>
+        <h1>Less ceremony. Same engine.</h1>
+        <p>
+          Scene-owned nodes, feet sorting, parallax and a screen layer. Click
+          the canvas, then move with WASD or arrows.
+        </p>
+      </header>
+      <p id="metrics" class="metrics">Starting…</p>
+      <div id="stage" class="experiment-view"></div>
+      <div class="toolbar">
+        <button id="pause">Pause</button
+        ><label
+          ><input id="follow" type="checkbox" checked /> Follow camera</label
+        ><label
+          >Zoom
+          <input
+            id="zoom"
+            type="range"
+            min="0.6"
+            max="2"
+            step="0.1"
+            value="1" /></label
+        ><button id="remove">Remove a tree</button
+        ><button id="dispose">Dispose stage</button>
+      </div>
+      <p id="stage-status" aria-live="polite">
+        Click to focus. The hero and trees share a sorted layer.
+      </p>
+      <pre><code>const app = createApp({ target: '#stage', update(dt) { … } });
+app.stage.addLayer('actors', { sort: 'y' });
+const hero = app.stage.add({ id: 'hero', layer: 'actors', draw(ctx) { … } });
+// hero is a real Node2D; app.view.camera is the real Camera2D.
+await app.ready;</code></pre>
+      <h2>Retained and fresh scenes</h2>
+      <p>
+        The current scene stays active during preparation. Failed or superseded
+        loads leave it intact. Home retains its counter; each visit to Fresh
+        creates a new one.
+      </p>
+      <p id="route-status" class="metrics" aria-live="polite">Preparing…</p>
+      <div id="routes" class="experiment-view"></div>
+      <div class="toolbar">
+        <button data-route="home">Home · retained</button
+        ><button data-route="fresh">Fresh instance</button
+        ><button data-route="slow">Slow load</button
+        ><button data-route="broken">Fail load</button
+        ><button id="previous">Previous</button
+        ><button id="dispose-routes">Dispose navigator</button>
+      </div>
+      <p id="route-result" aria-live="polite">Ready</p>
+      <p>
+        <a href="./docs/API-EXPERIMENT.md">Implemented API</a> ·
+        <a href="./docs/API-EXPERIMENT-FINDINGS.md">Findings and tradeoffs</a>
+      </p>
+      <script
+        type="module"
+        src="./dist/examples/experimental/ergonomics.js"
+      ></script>
+    </main>
+  </body>
+</html>

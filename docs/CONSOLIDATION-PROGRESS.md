@@ -49,8 +49,6 @@ Actual sprite-pack validation is left aside: no pack was selected for this task.
 
 - Import WORKERS-001 fix when upstream reports it ready (requested in Rocket-Workers
   #668); proceed independently while it is prepared.
-- Create separate experimental ergonomics branch; document implemented API and
-  evaluation, post Markdown links to Rocket-Engine and ask Steve to review.
 
 ## Reusable extraction
 
@@ -71,3 +69,43 @@ not a cross-device acceptance claim.
 Local V8 coverage now runs once in `npm run check`, with retained machine/text reports,
 explicit module inventory, per-module floors and missing/regression checks. 446 tests
 pass. See COVERAGE.md for measurement limits and baseline policy.
+
+## API ergonomics experiment
+
+Separate branch `experiment/api-ergonomics`, based on main `f47309e`. Implements
+createApp, real-node IDs/tags, world/screen layers, feet sorting, decorative parallax,
+camera follow and a retained/fresh SceneNavigator. New runnable api-experiment.html.
+See API-EXPERIMENT.md and API-EXPERIMENT-FINDINGS.md for complete API, comparison
+with old Rocket and the limitations left aside. Full check: 454 tests. Browser
+verified movement, focus, zoom, pause/resume, tree removal, retained/fresh navigation,
+failed/cancelled loading and final cleanup (both canvases removed; 3 created route
+instances / 3 disposed). Screenshot: `/tmp/rocket-api-experiment.png`.
+
+Unresolved external work: WORKERS-001 report/fix requested #668; Sprite Q2 tooling
+authorized #671 and awaits report. No repeated nudges or peer implementation takeover.
+The active ten-minute batched watch includes Production-Workshop and Sprite-Animation.
+Packaging, formal acceptance and compatibility projects, game expansion, HDR/area
+lights and quest follow-ups remain deliberately deferred. The route-service activation
+contract is explicitly left aside for review; current child routes do not imply
+automatic nested Input/service activation.
+
+## Second API pass
+
+Steve’s review #681 found the architecture sound and recommended explicit activation
+plus an interactive composition proof. Julien authorized that implementation.
+See SCENE-ACTIVATION.md: root/child activation graph, immediate service notification,
+scene-owned input, camera identity, named facade navigation and shared canvas leases.
+Scene composition demo uses one app/view with two interactive retained/fresh rooms.
+Full gate: 460 tests; existing coverage floors unchanged. No merge to main.
+WORKERS-001 was imported on both branches (WORKERS-001-IMPORT.md); Sprite Q2 was
+already accepted #675/676. Earlier pending notes above are historical snapshots.
+
+### API-002 camera transition correction
+
+Steve completed the second-pass review in Rocket-Engine messages 683–684 and
+confirmed the activation design. His one confirmed defect was view-owned Cameras
+carrying inertia and pending wheel input into a newly selected route camera.
+Camera identity reconciliation now resets controller motion, preserving retained
+camera poses. Regression coverage includes actual createApp named navigation,
+direct camera replacement, queued wheel cancellation, and new-camera wheel input.
+The change remains on the experimental branch; main is unchanged.

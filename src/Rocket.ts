@@ -115,6 +115,7 @@ export class Rocket {
     for (const name of [
       'start',
       'stop',
+      'scenesChanged',
       'beforeUpdate',
       'beforeFixedUpdate',
       'dispose',
@@ -135,6 +136,7 @@ export class Rocket {
     if (!definition || typeof definition !== 'object')
       throw new TypeError('scene must be an object');
     for (const name of [
+      'activeChildren',
       'fixedUpdate',
       'update',
       'draw',
@@ -148,6 +150,7 @@ export class Rocket {
         throw new TypeError(`scene.${name} must be a function`);
       }
     }
+    assertSynchronous(definition.activeChildren, 'scene.activeChildren');
     assertSynchronous(definition.fixedUpdate, 'scene.fixedUpdate');
     if (definition.fixedUpdate && !this.#fixed)
       throw new Error(
@@ -201,7 +204,7 @@ export class Rocket {
     this.#preparation = controller;
     this.#startPromise = Promise.resolve()
       .then(async () => {
-        for (const scene of this.#activeScenes()) {
+        for (const scene of this.#rootScenes()) {
           if (controller.signal.aborted) throw controller.signal.reason;
           if (!this.#prepared.has(scene)) {
             await scene.prepare?.({ signal: controller.signal });
@@ -323,11 +326,59 @@ export class Rocket {
     return this.#disposePromise;
   }
 
-  #activeScenes() {
+  #rootScenes() {
     const active = new Set<Scene>(this.#persistentScenes);
     for (const view of this.#views)
       if (!view.disposed && view.scene) active.add(view.scene);
     return active;
+  }
+
+  #expandScenes(roots: Iterable<Scene>): Set<Scene> {
+    const active = new Set<Scene>();
+    const visiting = new Set<Scene>();
+    const visit = (scene: Scene) => {
+      if (visiting.has(scene))
+        throw new Error('Active scene graph contains a cycle');
+      if (active.has(scene)) return;
+      visiting.add(scene);
+      active.add(scene);
+      let children: readonly Scene[] | undefined;
+      invokeSynchronous(
+        () => (children = scene.activeChildren?.()),
+        scene,
+        [],
+        'scene.activeChildren',
+      );
+      if (children !== undefined && !Array.isArray(children as unknown))
+        throw new TypeError('activeChildren must return an array');
+      for (const child of children ?? []) visit(child);
+      visiting.delete(scene);
+    };
+    for (const root of roots) visit(root);
+    return active;
+  }
+  #activeScenes() {
+    return this.#expandScenes(this.#rootScenes());
+  }
+  /** Refresh service scopes immediately after a delegated scene commits a transition. */
+  refreshScenes(): void {
+    if (!this.#running) return;
+    const active = this.#activeScenes();
+    const errors: unknown[] = [];
+    for (const service of this.#startedServices) {
+      try {
+        invokeSynchronous(
+          service.scenesChanged,
+          service,
+          [active],
+          'service.scenesChanged',
+        );
+      } catch (error) {
+        errors.push(error);
+      }
+    }
+    if (errors.length)
+      throw new AggregateError(errors, 'Scene activation notification failed');
   }
 
   #isActive(scene: Scene) {
@@ -388,7 +439,7 @@ export class Rocket {
               invokeSynchronous(
                 service.beforeFixedUpdate,
                 service,
-                [tick, current],
+                [tick, this.#expandScenes(current)],
                 'service.beforeFixedUpdate',
               );
             }
