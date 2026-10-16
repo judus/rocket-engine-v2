@@ -72,3 +72,16 @@ X=80. Dark self-occluded regions remain. Normal shaded view restored; no shader
 compile/browser errors. The single map still covers kilometres, so small cabin
 shadow detail remains coarse and silhouettes can alias. No resolution increase
 or cascaded shadow implementation was added.
+
+## Open issue — movement-dependent asteroid shading flicker
+
+2026-10-17: Julien confirms the strange shadow-like pattern is still visible
+and changes as the ship/camera moves, after correction commit `8482c4c`.
+The receiver-plane comparison improved the checked shadow-mask views but did
+not resolve the reported issue. Root cause remains unconfirmed; do not mark
+this fixed based on those static comparisons or the passing test suite.
+
+Investigation deferred at Julien's request. Resume with a reproducible moving
+viewpoint and isolate shadows, normal mapping and material response separately;
+check filtering, depth precision and shadow-volume stability as hypotheses.
+Keep the current rendering settings until that investigation is resumed.
