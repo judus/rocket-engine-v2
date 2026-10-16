@@ -87,3 +87,22 @@ void test('round lenses cancel unequal cockpit scaling without moving their cent
   }
   assert.throws(() => lamps.setCockpitScale(0, 1), /positive/);
 });
+
+void test('disc sizing preserves roundness, fitted centers and independent lamp state', () => {
+  const lamps = hi3dCockpitLamps();
+  const r1 = lamps.root.children[4]!,
+    r2 = lamps.root.children[5]!;
+  const position = { ...r1.transform.position },
+    mesh = r1.mesh;
+  lamps.setCockpitScale(0.81, 0.93);
+  lamps.setSize(4, 0.7);
+  assert.equal(r1.transform.scale.y, 0.7);
+  assert.ok(Math.abs(r1.transform.scale.x * 0.81 - 0.7 * 0.93) < 1e-12);
+  assert.equal(r2.transform.scale.y, 1);
+  lamps.setCockpitScale(1.2, 0.8);
+  assert.equal(r1.transform.scale.y, 0.7);
+  assert.ok(Math.abs(r1.transform.scale.x * 1.2 - 0.7 * 0.8) < 1e-12);
+  assert.deepEqual(r1.transform.position, position);
+  assert.equal(r1.mesh, mesh);
+  assert.throws(() => lamps.setSize(4, 0), /positive/);
+});

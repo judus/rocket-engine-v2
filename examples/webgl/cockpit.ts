@@ -1,5 +1,5 @@
 import { hi3dCockpitLamps } from './Hi3dCockpitLamps.js';
-import { hi3dDisplayTuning } from './Hi3dDisplayTuning.js';
+import { hi3dDisplayTuning, hi3dLampSizeTuning } from './Hi3dDisplayTuning.js';
 import { hi3dCockpitDisplays } from './Hi3dCockpitDisplays.js';
 import { hi3dCockpitInstruments } from './Hi3dCockpitInstruments.js';
 import { CockpitMotion, CockpitFlight } from './CockpitMotion.js';
@@ -354,6 +354,9 @@ async function start() {
     hi3dLamps = lamps;
     lamps.root.transform = displays.transform;
     hi3dDisplayTuning(lamps.root, modelUrl, signal, 'lamp');
+    hi3dLampSizeTuning(modelUrl, signal, (index, size) =>
+      lamps.setSize(index, size),
+    );
     placement.add(lamps.root);
     [
       'overhead-left',

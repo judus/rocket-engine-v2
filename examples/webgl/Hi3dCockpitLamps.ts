@@ -198,13 +198,22 @@ export function hi3dCockpitLamps() {
     node.mesh = bright;
     node.castsShadow = node.receivesShadow = false;
     root.add(node);
+    let size = 1,
+      aspect = 1;
+    const applySize = () => {
+      node.transform = {
+        ...node.transform,
+        scale: { x: size * aspect, y: size, z: 1 },
+      };
+    };
     return {
       compensateScale(width: number, height: number) {
-        if (round)
-          node.transform = {
-            ...node.transform,
-            scale: { x: height / width, y: 1, z: 1 },
-          };
+        aspect = round ? height / width : 1;
+        applySize();
+      },
+      setSize(value: number) {
+        size = value;
+        applySize();
       },
       setPowered(value: boolean) {
         powered = value;
@@ -233,6 +242,13 @@ export function hi3dCockpitLamps() {
       )
         throw new RangeError('Cockpit scale must be finite and positive');
       lamps.forEach((lamp) => lamp.compensateScale(width, height));
+    },
+    setSize(index: number, size: number) {
+      const lamp = lamps[index];
+      if (!lamp) throw new RangeError('Unknown Hi3D lamp');
+      if (!Number.isFinite(size) || size <= 0)
+        throw new RangeError('Lamp size must be finite and positive');
+      lamp.setSize(size);
     },
     setPowered(index: number, powered: boolean) {
       const lamp = lamps[index];

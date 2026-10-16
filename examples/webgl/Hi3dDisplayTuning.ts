@@ -101,3 +101,70 @@ export function hi3dDisplayTuning(
   );
   apply(false);
 }
+
+/** Independent round-lens sizing; uses the same lifecycle as the fitting sliders. */
+export function hi3dLampSizeTuning(
+  modelUrl: string,
+  signal: AbortSignal,
+  setSize: (index: number, size: number) => void,
+): void {
+  const ids = ['r1', 'r2'];
+  const controls = ids.map((id) =>
+    document.querySelector<HTMLInputElement>(`#lamp-${id}-size`)!,
+  );
+  const key = `rocket:lamp-sizes:${modelUrl}`;
+  try {
+    const saved: unknown = JSON.parse(localStorage.getItem(key) ?? 'null');
+    if (Array.isArray(saved) && saved.length === controls.length)
+      controls.forEach((control, i) => {
+        const value: unknown = saved[i];
+        if (
+          typeof value === 'number' &&
+          Number.isFinite(value) &&
+          value >= Number(control.min) &&
+          value <= Number(control.max)
+        )
+          control.value = String(value);
+      });
+  } catch {
+    /* Sizing remains usable without storage. */
+  }
+  const apply = (save: boolean) => {
+    const values = controls.map((control) => Number(control.value));
+    values.forEach((value, i) => {
+      setSize(i + 4, value);
+      document.querySelector<HTMLOutputElement>(
+        `#lamp-${ids[i]}-size-value`,
+      )!.value = `${(value * 100).toFixed(1)}%`;
+    });
+    document.querySelector('#lamp-size-values')!.textContent = JSON.stringify(
+      {
+        model: modelUrl,
+        sizes: Object.fromEntries(ids.map((id, i) => [id, values[i]])),
+      },
+      null,
+      2,
+    );
+    if (save) {
+      try {
+        localStorage.setItem(key, JSON.stringify(values));
+      } catch {
+        /* Exact sizes remain available in the readout. */
+      }
+    }
+  };
+  controls.forEach((control) =>
+    control.addEventListener('input', () => apply(true), { signal }),
+  );
+  document.querySelector('#lamp-size-reset')!.addEventListener(
+    'click',
+    () => {
+      controls.forEach((control) => {
+        control.value = control.defaultValue;
+      });
+      apply(true);
+    },
+    { signal },
+  );
+  apply(false);
+}
