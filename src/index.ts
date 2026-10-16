@@ -37,3 +37,19 @@ export type { AssetLease } from './AssetPool.js';
 
 export { PointerLockCapture } from './PointerLockCapture.js';
 export type { CaptureState } from './PointerLockCapture.js';
+
+export { ActionContext } from './ActionContext.js';
+export type {
+  ActionEvent,
+  ActionHandler,
+  ActionKind,
+  ActionMapping,
+  InputPreset,
+} from './ActionContext.js';
+export { firstPersonInput, topDownInput } from './InputPresets.js';
+export type {
+  InputModifier,
+  InputButton,
+  InputBinding,
+  InputBindOptions,
+} from './Input.js';

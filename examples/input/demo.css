@@ -1,0 +1,67 @@
+#input-viewport {
+  max-width: 960px;
+  border: 1px solid #456474;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #081420;
+}
+#input-viewport canvas {
+  display: block;
+  max-width: 100%;
+  height: auto !important;
+}
+.rocket-input-activation {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #142838;
+  min-height: 3rem;
+}
+.rocket-input-activation span {
+  color: #a5e9d1;
+}
+.rocket-input-activation button {
+  flex-shrink: 0;
+}
+.input-inspection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 960px;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+td,
+th {
+  padding: 0.35rem 0.6rem;
+  text-align: left;
+  border-bottom: 1px solid #304255;
+}
+#event-log {
+  white-space: pre-wrap;
+  min-height: 8rem;
+  color: #a5e9d1;
+}
+#demo-status {
+  display: block;
+  padding: 1rem 0;
+  font-variant-numeric: tabular-nums;
+}
+#ui-panel {
+  border: 1px solid #8b9cc3;
+  background: #19243c;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+[hidden] {
+  display: none !important;
+}
+@media (max-width: 700px) {
+  .input-inspection {
+    grid-template-columns: 1fr;
+  }
+}

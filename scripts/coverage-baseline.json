@@ -449,6 +449,21 @@
       "coveredLinePercent": 95,
       "coveredBranchPercent": 85,
       "coveredFunctionPercent": 95
+    },
+    "ActionContext.js": {
+      "coveredLinePercent": 85,
+      "coveredBranchPercent": 75,
+      "coveredFunctionPercent": 90
+    },
+    "InputActivation.js": {
+      "coveredLinePercent": 85,
+      "coveredBranchPercent": 75,
+      "coveredFunctionPercent": 90
+    },
+    "InputPresets.js": {
+      "coveredLinePercent": 85,
+      "coveredBranchPercent": 75,
+      "coveredFunctionPercent": 90
     }
   }
 }

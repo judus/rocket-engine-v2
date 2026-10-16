@@ -1,3 +1,4 @@
+import { ActionContext } from './ActionContext.js';
 import { PointerLockCapture } from './PointerLockCapture.js';
 import type { View } from './View.js';
 import type { Frame, FixedFrame, Point, Scene } from './types.js';
@@ -11,7 +12,27 @@ export interface InputTarget {
   own<T extends Cleanup>(resource: T): T;
 }
 
-export type Bindings = Record<string, string | readonly string[]>;
+export type InputModifier = 'Control' | 'Shift' | 'Alt' | 'Meta';
+export type InputButton =
+  | string
+  | { readonly code: string; readonly modifiers: readonly InputModifier[] };
+export type InputBinding = InputButton | readonly InputButton[];
+export type Bindings = Record<string, InputBinding>;
+interface ButtonEvent {
+  readonly code: string;
+  readonly ctrlKey: boolean;
+  readonly shiftKey?: boolean;
+  readonly altKey: boolean;
+  readonly metaKey: boolean;
+  readonly repeat?: boolean;
+  readonly isComposing?: boolean;
+  preventDefault(): void;
+}
+export interface InputBindOptions {
+  readonly pointerLock?: boolean;
+  readonly mouseButtons?: boolean;
+}
+
 export interface PointerState {
   readonly world: Readonly<Point> | null;
   readonly down: boolean;
@@ -21,9 +42,41 @@ export interface PointerState {
 const emptyPointer = (): PointerState =>
   Object.freeze({ world: null, down: false, pressed: false, released: false });
 
+/** Shared validation used before publishing remaps. */
+export function normalizeInputBinding(binding: InputBinding) {
+  const list = Array.isArray(binding) ? binding : [binding];
+  if (!list.length) throw new TypeError('Empty input binding');
+  const normalized = Array.from(list, (item: InputButton) => {
+    const code = typeof item === 'string' ? item : item.code;
+    const modifiers = typeof item === 'string' ? [] : item.modifiers;
+    if (
+      typeof code !== 'string' ||
+      !code ||
+      !Array.isArray(modifiers) ||
+      modifiers.some(
+        (m: unknown) =>
+          typeof m !== 'string' ||
+          !['Control', 'Shift', 'Alt', 'Meta'].includes(m),
+      ) ||
+      new Set(modifiers).size !== modifiers.length
+    )
+      throw new TypeError('Invalid input binding');
+    return {
+      code,
+      modifiers: Array.from(modifiers as readonly InputModifier[]),
+    };
+  });
+  return normalized;
+}
+
 /** One scene's actions, shared across its focusable view bindings. */
 export class InputScope<A extends string> {
-  #bindings = new Map<A, readonly string[]>();
+  #bindings = new Map<
+    A,
+    readonly { code: string; modifiers: readonly InputModifier[] }[]
+  >();
+  #modifiers = new Set<InputModifier>();
+  #available = true;
   #keys = new Set<string>();
   #pressed = new Set<A>();
   #released = new Set<A>();
@@ -49,28 +102,36 @@ export class InputScope<A extends string> {
 
   constructor(
     scene: Scene,
-    bindings: Record<A, string | readonly string[]>,
+    bindings: Record<A, InputBinding>,
     enabled: () => boolean,
     onDispose: () => void,
+    readonly modifiedKeys = false,
   ) {
     this.scene = scene;
     this.#enabled = enabled;
     this.#onDispose = onDispose;
-    for (const name of Object.keys(bindings) as A[]) {
-      const codes = bindings[name];
-      const list = typeof codes === 'string' ? [codes] : codes;
-      if (!Array.isArray(list) || !list.length) {
-        throw new TypeError(`Invalid binding for ${name}`);
-      }
-      this.#bindings.set(
-        name,
-        Array.from(list, (code: unknown) => {
-          if (typeof code !== 'string' || !code)
-            throw new TypeError(`Invalid binding for ${name}`);
-          return code;
-        }),
-      );
+    for (const name of Object.keys(bindings) as A[])
+      this.setBinding(name, bindings[name]);
+  }
+  get enabled(): boolean {
+    return this.#available;
+  }
+  setEnabled(enabled: boolean): void {
+    if (this.#available === enabled) return;
+    this.#available = enabled;
+    this.reset();
+  }
+  /** Replace one binding atomically, clearing held state without recapturing. */
+  setBinding(action: A, binding: InputBinding | undefined): void {
+    if (this.#disposed) throw new Error('Input scope is disposed');
+    if (binding === undefined) {
+      this.#bindings.delete(action);
+      this.#resetKeys();
+      return;
     }
+    const normalized = normalizeInputBinding(binding);
+    this.#bindings.set(action, normalized);
+    this.#resetKeys();
   }
   down(action: A): boolean {
     return this.#held.has(action);
@@ -86,7 +147,7 @@ export class InputScope<A extends string> {
   }
   bind<T extends InputTarget>(
     view: T,
-    options: { readonly pointerLock?: boolean } = {},
+    options: InputBindOptions = {},
   ): ViewInput<T> {
     if (this.#disposed) throw new Error('Input scope is disposed');
     if (view.disposed || view.scene !== this.scene)
@@ -113,28 +174,48 @@ export class InputScope<A extends string> {
     return [...this.#bindings.keys()];
   }
   #isHeld(action: A): boolean {
+    const matches = (button: {
+      code: string;
+      modifiers: readonly InputModifier[];
+    }) =>
+      this.#keys.has(button.code) &&
+      button.modifiers.every((m) => this.#modifiers.has(m));
     return (
-      this.#bindings.get(action)?.some((code) => this.#keys.has(code)) ?? false
+      this.#bindings
+        .get(action)
+        ?.some(
+          (button) =>
+            matches(button) &&
+            ![...this.#bindings.values()].some((list) =>
+              list.some(
+                (other) =>
+                  other.code === button.code &&
+                  other.modifiers.length > button.modifiers.length &&
+                  matches(other),
+              ),
+            ),
+        ) ?? false
     );
   }
-  #key(
-    owner: ViewInput<InputTarget>,
-    event: KeyboardEvent,
-    down: boolean,
-  ): void {
+  #key(owner: ViewInput<InputTarget>, event: ButtonEvent, down: boolean): void {
     if (
+      !this.#available ||
       !this.#enabled() ||
       (down &&
-        (event.isComposing || event.ctrlKey || event.altKey || event.metaKey))
+        (event.isComposing ||
+          (!this.modifiedKeys &&
+            (event.ctrlKey || event.altKey || event.metaKey))))
     )
       return;
-    if (
-      !this.#actions().some((action) =>
-        this.#bindings.get(action)?.includes(event.code),
-      )
-    )
-      return;
-    event.preventDefault();
+    const codeBound = [...this.#bindings.values()].some((list) =>
+      list.some((b) => b.code === event.code),
+    );
+    const modifierEvent = /^(Control|Shift|Alt|Meta)(Left|Right)$/.test(
+      event.code,
+    );
+    if (!codeBound && !(this.modifiedKeys && modifierEvent)) return;
+    if (!down && !modifierEvent && !this.#keys.has(event.code)) return;
+    if (codeBound) event.preventDefault();
     if (down && event.repeat) return;
     if (this.#keyboardOwner !== owner) {
       this.#resetKeys();
@@ -145,9 +226,22 @@ export class InputScope<A extends string> {
     );
     if (down) this.#keys.add(event.code);
     else this.#keys.delete(event.code);
+    this.#modifiers.clear();
+    for (const [name, pressed] of [
+      ['Control', event.ctrlKey],
+      ['Shift', event.shiftKey],
+      ['Alt', event.altKey],
+      ['Meta', event.metaKey],
+    ] as const)
+      if (
+        pressed ||
+        this.#keys.has(`${name}Left`) ||
+        this.#keys.has(`${name}Right`)
+      )
+        this.#modifiers.add(name);
     for (const action of this.#actions()) {
       const after = this.#isHeld(action);
-      if (!before.has(action) && after) this.#pendingPress.add(action);
+      if (!before.has(action) && after && down) this.#pendingPress.add(action);
       if (before.has(action) && !after) this.#pendingRelease.add(action);
     }
   }
@@ -161,6 +255,7 @@ export class InputScope<A extends string> {
   #resetKeys(): void {
     this.#resetFixed();
     this.#keys.clear();
+    this.#modifiers.clear();
     this.#held.clear();
     this.#pressed.clear();
     this.#released.clear();
@@ -287,12 +382,12 @@ export class ViewInput<T extends InputTarget = View> {
     enabled: () => boolean,
     key: (
       binding: ViewInput<InputTarget>,
-      event: KeyboardEvent,
+      event: ButtonEvent,
       down: boolean,
     ) => void,
     blur: (binding: ViewInput<InputTarget>) => void,
     onDispose: (binding: ViewInput<InputTarget>) => void,
-    options: { readonly pointerLock?: boolean } = {},
+    options: InputBindOptions = {},
   ) {
     this.view = view;
     this.#onDispose = onDispose;
@@ -336,6 +431,37 @@ export class ViewInput<T extends InputTarget = View> {
       blur(this);
       this.reset();
     });
+    if (options.mouseButtons) {
+      const mouseTarget = this.capture ? canvas.ownerDocument : canvas;
+      const mouse = (raw: Event, down: boolean) => {
+        const event = raw as MouseEvent;
+        if (this.capture ? !this.capture.active : down && raw.target !== canvas)
+          return;
+        if (!this.capture && down) canvas.focus({ preventScroll: true });
+        key(
+          this,
+          {
+            code: `Mouse${event.button}`,
+            ctrlKey: event.ctrlKey,
+            shiftKey: event.shiftKey,
+            altKey: event.altKey,
+            metaKey: event.metaKey,
+            preventDefault: () => event.preventDefault(),
+          },
+          down,
+        );
+      };
+      const down = (event: Event) => mouse(event, true),
+        up = (event: Event) => mouse(event, false);
+      mouseTarget.addEventListener('mousedown', down);
+      const mouseUpTarget = canvas.ownerDocument;
+      mouseUpTarget.addEventListener('mouseup', up);
+      this.#resources.push(
+        () => mouseTarget.removeEventListener('mousedown', down),
+        () => mouseUpTarget.removeEventListener('mouseup', up),
+      );
+      listen('contextmenu', (event) => event.preventDefault());
+    }
     if (this.capture) return;
     listen('pointerdown', (raw) => {
       const event = raw as PointerEvent;
@@ -346,7 +472,9 @@ export class ViewInput<T extends InputTarget = View> {
         this.#id !== null
       )
         return;
-      event.preventDefault();
+      // Cancelling pointerdown suppresses compatibility mousedown events.
+      // Action bindings need those for all mouse buttons, including chords.
+      if (!options.mouseButtons) event.preventDefault();
       canvas.focus({ preventScroll: true });
       this.#id = event.pointerId;
       this.#down = true;
@@ -463,10 +591,11 @@ export class ViewInput<T extends InputTarget = View> {
 
 /** Install once per app. Canvas focus routing by default; document keys only for explicitly locked bindings. */
 export class Input {
+  #contexts = new Set<ActionContext>();
   #scopes = new Set<
     Pick<
       InputScope<string>,
-      'scene' | 'snapshot' | 'snapshotFixed' | 'reset' | 'dispose'
+      'scene' | 'snapshot' | 'snapshotFixed' | 'reset' | 'dispose' | 'enabled'
     >
   >();
   #activeScenes: ReadonlySet<Scene> = new Set();
@@ -475,6 +604,13 @@ export class Input {
   #document = globalThis.document;
   #reset = () => {
     const errors: unknown[] = [];
+    for (const context of this.#contexts) {
+      try {
+        context.cancel();
+      } catch (error) {
+        errors.push(error);
+      }
+    }
     for (const scope of this.#scopes) {
       try {
         scope.reset();
@@ -491,13 +627,15 @@ export class Input {
   }
   scope<A extends string>(
     scene: Scene,
-    bindings: Record<A, string | readonly string[]>,
+    bindings: Record<A, InputBinding>,
+    options: { readonly modifiedKeys?: boolean } = {},
   ): InputScope<A> {
     if (this.#disposed) throw new Error('Input service is disposed');
     const scope: InputScope<A> = new InputScope<A>(
       scene,
       bindings,
       () =>
+        scope.enabled &&
         this.#running &&
         !this.#document.hidden &&
         this.#activeScenes.has(scene) &&
@@ -505,9 +643,18 @@ export class Input {
           (binding) => !binding.disposed && !binding.view.disposed,
         ),
       () => this.#scopes.delete(scope),
+      options.modifiedKeys ?? false,
     );
     this.#scopes.add(scope);
     return scope;
+  }
+  actions(scene: Scene): ActionContext {
+    const context = new ActionContext(
+      this.scope<string>(scene, {}, { modifiedKeys: true }),
+      () => this.#contexts.delete(context),
+    );
+    this.#contexts.add(context);
+    return context;
   }
   start(activeScenes: ReadonlySet<Scene>): undefined {
     this.#activeScenes = new Set(activeScenes);
@@ -526,10 +673,15 @@ export class Input {
         scope.reset();
     this.#activeScenes = new Set(activeScenes);
   }
-  beforeUpdate(_frame: Frame, activeScenes: ReadonlySet<Scene>): undefined {
+  beforeUpdate(frame: Frame, activeScenes: ReadonlySet<Scene>): undefined {
     this.scenesChanged(activeScenes);
     for (const scope of this.#scopes)
-      scope.snapshot(activeScenes.has(scope.scene), !!scope.scene.fixedUpdate);
+      scope.snapshot(
+        activeScenes.has(scope.scene) && scope.enabled,
+        !!scope.scene.fixedUpdate,
+      );
+    for (const context of this.#contexts)
+      context.update(frame.dt, activeScenes.has(context.scene));
   }
   beforeFixedUpdate(
     _frame: FixedFrame,
@@ -546,6 +698,13 @@ export class Input {
       this.stop();
     } catch (error) {
       errors.push(error);
+    }
+    for (const context of [...this.#contexts]) {
+      try {
+        context.dispose();
+      } catch (error) {
+        errors.push(error);
+      }
     }
     for (const scope of [...this.#scopes]) {
       try {
