@@ -347,6 +347,108 @@
         <output id="instruments-status" aria-live="polite"></output>
       </fieldset>
 
+      <fieldset>
+        <legend>Screen illumination</legend>
+        <div class="toolbar">
+          <label
+            ><input id="screen-light-enabled" type="checkbox" checked /> Screen
+            light spill</label
+          >
+          <label
+            ><input id="screen-light-only" type="checkbox" /> Isolate screen
+            lighting</label
+          >
+          <label
+            >Strength
+            <input
+              id="screen-light-strength"
+              type="range"
+              min="0"
+              max="8"
+              step="0.1"
+              value="1.5" /><output id="screen-light-value"></output
+          ></label>
+        </div>
+        <p id="screen-light-status"></p>
+        <p>
+          Isolate removes ambient, studio fill and the existing
+          directional/point lamps. Toggle bloom separately to distinguish a
+          screen halo from illumination on the nearby frame. Existing emissive
+          materials remain visible. Scene light controls retain their values
+          while isolation is active.
+        </p>
+        <p>
+          This reuses existing inverse-square point lights, offset in front of
+          the five display meshes. Representative green/amber colors and face
+          areas approximate backlight output. It does not sample the animated
+          pixels or simulate area lights. These lights have no shadows or
+          occlusion, so they can leak through cabin walls. Display power stops
+          their contribution and blacks out the five textures; pausing display
+          updates simply freezes the powered readouts.
+        </p>
+      </fieldset>
+      <fieldset>
+        <legend>Bloom</legend>
+        <div class="toolbar">
+          <label
+            ><input id="bloom-enabled" type="checkbox" checked /> Bloom</label
+          >
+          <label
+            >View
+            <select id="bloom-view">
+              <option value="composite">Composite</option>
+              <option value="scene">Sharp scene</option>
+              <option value="bright">Bright extraction</option>
+              <option value="bloom">Blurred glow</option>
+            </select></label
+          >
+          <label
+            >Threshold
+            <input
+              id="bloom-threshold"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.6" /><output id="bloom-threshold-value"></output
+          ></label>
+          <label
+            >Strength
+            <input
+              id="bloom-strength"
+              type="range"
+              min="0"
+              max="2"
+              step="0.05"
+              value="0.35" /><output id="bloom-strength-value"></output
+          ></label>
+          <label
+            >Radius
+            <input
+              id="bloom-radius"
+              type="range"
+              min="0"
+              max="8"
+              step="0.25"
+              value="1.5" /><output id="bloom-radius-value"></output
+          ></label>
+        </div>
+        <p id="bloom-status"></p>
+        <p>
+          The same reusable pass as milestone 25. All sufficiently bright
+          visible pixels can bloom: lamps, displays and reflections. It does not
+          illuminate nearby surfaces. Disable bloom in Composite view for a
+          comparison with identical scene resolution. Material, normal and
+          shadow diagnostic views automatically bypass bloom.
+        </p>
+        <p>
+          The scene uses an 8-bit offscreen target with depth and no multisample
+          antialiasing; native resolution and render scale still apply. Glow
+          buffers are half resolution. Existing scene highlights are already
+          clipped; no HDR or exposure yet. GPU timing includes the scene, shadow
+          pass and enabled post-processing.
+        </p>
+      </fieldset>
       <fieldset id="display-tuning">
         <legend>Temporary display fitting</legend>
         <p>

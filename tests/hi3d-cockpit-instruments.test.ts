@@ -1,3 +1,4 @@
+import { cockpitScreenLights } from '../examples/webgl/CockpitScreenLights.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { TextureImage, Node3D, matrixPoint } from '../src/3d/index.js';
@@ -59,4 +60,36 @@ void test('Hi3D inserts retain unequal overhead sizes and follow the same model 
     assert.ok(Math.abs(world.y - (vertex.y * 0.93 + 1.53)) < 1e-6);
     assert.ok(Math.abs(world.z - (vertex.z - 0.44)) < 1e-6);
   }
+});
+
+void test('Hi3D light spill follows fitted display centers and shared power', () => {
+  const binding = {
+    image: new TextureImage(1, 1, new Uint8Array([0, 128, 128, 255])),
+  };
+  const displays = hi3dCockpitDisplays(binding, binding, [
+    binding,
+    binding,
+    binding,
+  ]);
+  const lights = cockpitScreenLights(displays, [
+    'Hi3D radar',
+    'Hi3D flight',
+    'Hi3D attitude',
+    'Hi3D speed',
+    'Hi3D position',
+  ]);
+  const before = lights(1.5, true);
+  assert.equal(before.length, 5);
+  assert.notDeepEqual(before[0]!.color, before[2]!.color);
+  assert.deepEqual(lights(1.5, false), []);
+  const node = displays.children[0]!;
+  node.transform = { ...node.transform, position: { x: 0.25, y: -0.1, z: 0 } };
+  const after = lights(1.5, true);
+  assert.ok(
+    Math.abs(after[0]!.position.x - before[0]!.position.x - 0.25) < 1e-12,
+  );
+  assert.ok(
+    Math.abs(after[0]!.position.y - before[0]!.position.y + 0.1) < 1e-12,
+  );
+  assert.deepEqual(after[1], before[1]);
 });

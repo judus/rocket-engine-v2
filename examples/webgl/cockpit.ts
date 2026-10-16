@@ -322,9 +322,10 @@ async function start() {
         { image: typeof instruments.radar },
       ],
     );
-  const screenLights = screenLightEnabled
-    ? cockpitScreenLights(instance.root)
-    : undefined;
+  let screenLights =
+    screenLightEnabled && !hi3dDisplays
+      ? cockpitScreenLights(instance.root)
+      : undefined;
   const placement = new Node3D('asset placement');
   placement.transform = {
     position: { x: 0, y: assetNumber('modelY', 0), z: 0 },
@@ -350,6 +351,14 @@ async function start() {
     };
     hi3dDisplayTuning(displays, modelUrl, signal);
     placement.add(displays);
+    if (screenLightEnabled)
+      screenLights = cockpitScreenLights(displays, [
+        'Hi3D radar',
+        'Hi3D flight',
+        'Hi3D attitude',
+        'Hi3D speed',
+        'Hi3D position',
+      ]);
     const lamps = hi3dCockpitLamps();
     hi3dLamps = lamps;
     lamps.root.transform = displays.transform;

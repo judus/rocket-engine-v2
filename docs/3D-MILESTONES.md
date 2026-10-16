@@ -703,9 +703,10 @@ occlusion are not modeled. Readouts describe the camera when inspecting freely.
 
 These use the existing dynamic-texture transport and scene update; no new timer
 or GPU ownership is introduced. Recreate/context restoration use the shared
-renderer lifecycle. Screens are unlit; bloom and instrument light spill are not
-enabled on this preview. The source GLB, baked texture lighting and accepted fit
-remain unchanged. Tests cover radar translation/heading/range and fitted surface
+renderer lifecycle. Screens use unlit artwork with the existing bloom pipeline
+and five attached screen point lights. Bloom and spill have independent controls
+below the viewport; screen power also stops the five lights. The source GLB,
+baked texture lighting and accepted fit remain unchanged. Tests cover radar translation/heading/range and fitted surface
 sizes, bindings and inherited transforms; browser checks cover visual alignment,
 updates, pause/step/power, field visibility and recreation.
 
@@ -734,7 +735,8 @@ mesh with shared geometry. Off keeps a dark lens in place to cover the baked
 glow; it does not hide the overlay and reveal the old bright texture.
 
 The two opaque procedural glass textures are shared across the four lenses.
-There is no extra clock, alarm logic, bloom or light spill. Control listeners use
+The shared bloom pass gives bright lenses a halo; lamps do not add individual
+point lights. There is no extra clock or alarm logic. Control listeners use
 the existing application abort signal; recreation reuses checkbox state and
 retires the old renderer/resources. Tests cover independent switching, opaque
 dark coverage, retained geometry and cached meshes. Browser checks cover the
@@ -762,3 +764,12 @@ and samples every ray through its mesh/UVs. It does not edit the model. This is
 fixed texture detail, not live transparency: it does not transmit changing lights,
 objects or shadows behind the lenses, and changing the footprint/model requires
 rebaking the imprint. Real blending remains on the roadmap.
+
+### Hi3D bloom and screen illumination
+
+The preview reuses the original cockpit bloom controls, diagnostic views and
+render-target lifecycle. Five lights follow the fitted instrument centers and
+shared screen power, using all eight available light slots with scene lighting.
+Spill is approximate and has no occlusion or shadows. Lamps receive bloom but
+have no separate point lights. Tests cover fitted centers, warm/cool assignment
+and power; browser checks verify both toggles and the combined presentation.

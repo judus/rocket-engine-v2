@@ -7,16 +7,16 @@ import type { Node3D, PointLight3D, Vec3 } from '../../src/3d/index.js';
  */
 export function cockpitScreenLights(
   root: Node3D,
+  names: readonly string[] = [
+    'display-left__screen-black/instrument',
+    'display-right__screen-black/instrument',
+    ...[1, 2, 3].map((i) => `overhead-display-${i}__screen-black/instrument`),
+  ],
 ): (strength: number, powered: boolean) => readonly PointLight3D[] {
-  const names = [
-    'display-left__screen-black',
-    'display-right__screen-black',
-    ...[1, 2, 3].map((i) => `overhead-display-${i}__screen-black`),
-  ];
   const sources: { node: Node3D; center: Vec3; area: number; warm: boolean }[] =
     [];
   root.traverse((node) => {
-    if (!names.some((name) => node.name === `${name}/instrument`)) return;
+    if (!names.includes(node.name)) return;
     const g = node.mesh?.geometry;
     if (!g)
       throw new Error('Screen illumination requires attached display geometry');
@@ -40,7 +40,7 @@ export function cockpitScreenLights(
         y: (low.y + high.y) / 2,
         z: high.z + 0.075,
       },
-      warm: node.name.startsWith('overhead'),
+      warm: names.indexOf(node.name) >= 2,
     });
   });
   if (
