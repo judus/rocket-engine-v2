@@ -55,8 +55,8 @@ export function hi3dCockpitDisplays(
     root.add(node);
   };
   // Roughly six extra CSS pixels across/vertically at the tuned pilot view.
-  screen('Hi3D radar', -1.955, -0.415, -0.577, 0.507, -0.525, radar);
-  screen('Hi3D flight', 0.51, 2.05, -0.577, 0.507, -0.525, flight);
+  screen('Hi3D radar', -1.91, -0.37, -0.577, 0.507, -0.525, radar);
+  screen('Hi3D flight', 0.465, 2.005, -0.577, 0.507, -0.525, flight);
   // Medium / small / large: attitude, speed, then the longer XYZ readout.
   screen('Hi3D attitude', -2.47, -1.69, 3.3, 3.46, -0.465, overhead[0]);
   screen('Hi3D speed', -1.4, -0.72, 3.3, 3.46, -0.465, overhead[1]);
