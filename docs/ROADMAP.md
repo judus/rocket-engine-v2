@@ -9,6 +9,14 @@ accepted upstream packages and work still awaiting integration. The latest compl
 Rocket gate has 318 passing tests plus TypeScript, lint, formatting and build checks.
 No delivery dates or implementation estimates are committed.
 
+## Latest effects milestones — 16 October 2026
+
+Delivered the first 2D particle pool/emitter/Canvas adapter and independent
+point-projectile sweep system, with separate runnable demos. The game owns target
+eligibility and hit consequences; effects remain presentation. See
+[Particles and projectiles](EFFECTS-AND-PROJECTILES.md). GPU/3D adapters, moving-target
+relative sweeps and finite-radius projectiles are future slices, not delivered here.
+
 ## Delivery discipline
 
 For each slice: define a narrow consumer contract, build the smallest working

@@ -6,6 +6,13 @@ Rocket v2 is a multipurpose JavaScript canvas engine: start with ordinary update
 
 The old spaceship demo was an exploration and stress test, not the engine's defining use case. Procedural terrain and Production Workshop are intended integration consumers, alongside simple animations and interactive diagrams.
 
+## Particles and projectiles
+
+The first 2D effects milestones are available at `/particles.html` and
+`/projectiles.html`: bounded seeded emitters, shared read-only particle rendering,
+and point-projectile sweeps against host-selected static targets. Both use the
+existing fixed clock and scene-owned cleanup. See [API and scope](docs/EFFECTS-AND-PROJECTILES.md).
+
 ## Try the foundation
 
 ```sh

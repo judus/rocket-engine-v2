@@ -404,6 +404,36 @@
       "coveredLinePercent": 96.96835443037975,
       "coveredBranchPercent": 90.4090909090909,
       "coveredFunctionPercent": 94.95454545454545
+    },
+    "effects/Particles2D.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "effects/Emitter2D.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "effects/ParticleRenderer2D.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "effects/index.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "projectiles/Projectiles2D.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
+    "projectiles/index.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
     }
   }
 }

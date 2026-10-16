@@ -15,6 +15,8 @@ const groups: readonly { title: string; pages: readonly DemoPage[] }[] = [
         title: 'Fixed timing',
         href: './fixed.html',
       },
+      { title: 'Particle emitters', href: './particles.html' },
+      { title: 'Swept projectiles & impacts', href: './projectiles.html' },
       {
         title: 'Physics sandbox',
         href: './physics.html',

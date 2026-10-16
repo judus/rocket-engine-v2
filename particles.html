@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Rocket · Particles</title>
+    <link rel="stylesheet" href="./examples/style.css" />
+    <link rel="stylesheet" href="./examples/demo-navigation.css?v=2" />
+    <script type="module" src="./dist/examples/demo-navigation.js"></script>
+    <style>
+      [hidden] {
+        display: none !important;
+      }
+      .effect-host {
+        overflow: hidden;
+        border: 1px solid #294858;
+        border-radius: 10px;
+        margin: 1rem 0;
+      }
+      .effect-host canvas {
+        display: block;
+        max-width: 100%;
+        height: auto !important;
+      }
+      .effect-metrics {
+        font: 14px monospace;
+        color: #96e4cc;
+        min-height: 2rem;
+      }
+      .toolbar {
+        margin: 1rem 0;
+      }
+      #effect-overview {
+        max-width: 100%;
+      }
+    </style>
+  </head>
+  <body class="demo-layout" data-demo="particles">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <header>
+        <p class="eyebrow">ENGINE EFFECTS · 01 / PARTICLES</p>
+        <h1>A small pool. A lot of motion.</h1>
+        <p>
+          Seeded sparks, a drifting plume and click bursts. One bounded particle
+          pool updates once; both canvases draw the same particles. Click the
+          canvas or press Space for a burst.
+        </p>
+      </header>
+      <output id="metrics" class="effect-metrics">Preparing…</output>
+      <div id="effect-view" class="effect-host"></div>
+      <div class="toolbar">
+        <button id="burst">Burst at pointer</button
+        ><button id="saturate">100,000-particle overload</button
+        ><button id="clear">Clear</button><button id="pause">Pause</button
+        ><button id="dispose">Dispose</button
+        ><button id="recreate">Recreate</button>
+      </div>
+      <div class="toolbar">
+        <label
+          ><input type="checkbox" id="continuous" checked />Continuous
+          emission</label
+        ><label
+          >Sparks / second
+          <input
+            id="rate"
+            type="range"
+            min="0"
+            max="2500"
+            step="50"
+            value="200" /></label
+        ><label hidden
+          >Projectile speed
+          <input
+            id="speed"
+            type="range"
+            min="500"
+            max="20000"
+            step="500"
+            value="20000"
+        /></label>
+      </div>
+      <output id="status" class="effect-metrics" aria-live="polite"
+        >Starting…</output
+      >
+      <h2>Second camera <span>same simulation, half zoom</span></h2>
+      <div id="effect-overview" class="effect-host"></div>
+      <p id="cleanup" class="effect-metrics"></p>
+      <p>
+        The pool holds at most 4,096 particles. Overload drops emission attempts
+        with bounded work; it never creates 100,000 nodes or physics bodies.
+        Constant acceleration, lifetime fade and linear size interpolation run
+        on Rocket’s existing fixed clock. Pausing freezes simulation; disposal
+        releases both views, input, emitters and storage.
+      </p>
+      <p>
+        First 2D milestone: Canvas square particles; no GPU instancing, texture
+        atlas, collisions or 3D renderer yet. Rendering is separate from
+        simulation.
+        <a href="./docs/EFFECTS-AND-PROJECTILES.md">API and ownership</a> ·
+        <a href="./projectiles.html">Projectile range</a>
+      </p>
+      <script type="module" src="./dist/examples/effects/demo.js"></script>
+    </main>
+  </body>
+</html>
