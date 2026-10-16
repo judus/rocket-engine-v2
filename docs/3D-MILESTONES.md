@@ -673,6 +673,7 @@ LOD, GPU instancing, asteroid shadows, radar binding or new lighting techniques.
 
 Recorded at Julien’s request on 2026-10-16:
 
+- WebGL transparency: explicit material alpha modes, blend/depth state and transparent ordering; needed for translucent lamps and future glass. Roadmap only; current materials remain opaque.
 - HDR rendering, exposure and tone mapping.
 - Area lights and local-light occlusion/shadows, including reducing cockpit light leaks.
 
@@ -744,3 +745,20 @@ namespace/storage key. Each lens gets additive X/Y offsets in 0.001-unit steps;
 its original depth and placement are preserved. The four rows, including on/off
 controls, sit above the canvas. `lamp-tuning-values` exposes exact offsets for
 capturing the accepted fit later; display offsets remain independent.
+
+### Round Hi3D alert lenses and source-texture imprint
+
+R1 is amber warning glass and R2 a warm red critical indicator. Their independent
+power, color, X/Y and size controls live above the canvas. Accepted sizes are
+68.6%, with offsets R1 (+0.009, -0.058) and R2 (-0.038, -0.058). The circular
+geometry cancels unequal cockpit X/Y scaling while fitted centers retain it.
+Each lens has distinct edge-heavy weathering.
+
+For now, opaque glass includes a 10% luminance imprint sampled from the GLB's
+original base-color texture beneath each accepted footprint. Reproduce it with
+`python3 scripts/sample-hi3d-lamp-underlay.py` (NumPy and Pillow), then format the
+generated `examples/webgl/Hi3dLampUnderlay.ts`. The generator records the GLB digest
+and samples every ray through its mesh/UVs. It does not edit the model. This is
+fixed texture detail, not live transparency: it does not transmit changing lights,
+objects or shadows behind the lenses, and changing the footprint/model requires
+rebaking the imprint. Real blending remains on the roadmap.

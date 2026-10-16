@@ -1,3 +1,4 @@
+import { hi3dLampUnderlay } from './Hi3dLampUnderlay.js';
 import {
   Mesh3D,
   MeshGeometry,
@@ -11,7 +12,7 @@ import {
  */
 export function hi3dCockpitLamps() {
   const root = new Node3D('Hi3D lamp lenses');
-  const lens = (powered: boolean, round = false, seed = 0) => {
+  const lens = (powered: boolean, round = false, seed = 0, name = '') => {
     // Worn translucent glass: broad smudges and rim grime, without bulb shading.
     if (round) {
       const size = 64,
@@ -65,9 +66,11 @@ export function hi3dCockpitLamps() {
                 scuff,
             ),
           );
+          // A fixed 10% source-texture luminance imprint, not alpha blending.
+          const surface = 0.9 * finish + 0.1 * hi3dLampUnderlay(name, u, v);
           const value = powered
-            ? Math.round(255 * Math.min(1, finish))
-            : Math.round(18 * finish);
+            ? Math.round(255 * Math.min(1, surface))
+            : Math.round(18 * surface);
           const i = (y * size + x) * 4;
           pixels.set([value, value, value, 255], i);
         }
@@ -227,8 +230,8 @@ export function hi3dCockpitLamps() {
         },
       ]);
     const seed = spec.name === 'r1' ? 17 : 83;
-    const offImage = round ? lens(false, true, seed) : off,
-      onImage = round ? lens(true, true, seed) : on;
+    const offImage = round ? lens(false, true, seed, spec.name) : off,
+      onImage = round ? lens(true, true, seed, spec.name) : on;
     let dark = mesh(offImage),
       bright = mesh(onImage),
       powered = true;
