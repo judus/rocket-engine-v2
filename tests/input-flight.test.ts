@@ -1,3 +1,4 @@
+import { FlightOrientation } from '../examples/input/FlightOrientation.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Rocket, Scene2D, Input, flightInput } from '../src/index.js';
@@ -217,3 +218,17 @@ void test('flight mouse mode consumes captured deltas once and clears rotation w
     assert.equal(controls.value('lookY'), 0);
     await app.dispose();
   }));
+
+void test('cockpit attitude angle round trips preserve local flight through loops and rolls', () => {
+  const reference = new FlightOrientation(),
+    cockpit = new FlightOrientation();
+  for (let i = 0; i < 2000; i++) {
+    reference.rotate(1 / 144, 0.5, 1, -0.8);
+    const angles = cockpit.angles;
+    cockpit.setAngles(angles.yaw, angles.pitch, angles.roll);
+    cockpit.rotate(1 / 144, 0.5, 1, -0.8);
+    for (const key of ['right', 'up', 'forward'] as const)
+      for (const axis of ['x', 'y', 'z'] as const)
+        close(cockpit[key][axis], reference[key][axis]);
+  }
+});

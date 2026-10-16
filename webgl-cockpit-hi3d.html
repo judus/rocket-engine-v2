@@ -15,34 +15,15 @@
       #gpu-view {
         position: relative;
       }
-      #capture-banner {
-        position: absolute;
-        z-index: 2;
-        top: 0.5rem;
-        left: 0.5rem;
-        right: 0.5rem;
-        margin: 0;
-        padding: 0.45rem 0.7rem;
-        background: #071016dd;
+      .rocket-input-activation {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.5rem 0.75rem;
         color: #b8f3df;
-        pointer-events: none;
+        background: #071016;
         font-size: 0.85rem;
-      }
-      #capture-banner[data-state='captured'] {
-        top: auto;
-        bottom: 0.4rem;
-        right: auto;
-        font-size: 0.75rem;
-      }
-      #capture-start {
-        position: absolute;
-        z-index: 3;
-        top: 45%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-      }
-      #capture-start[hidden] {
-        display: none;
       }
     </style>
     <script type="importmap">
@@ -367,13 +348,12 @@
         data-model-yaw="0"
         data-eye-y="1.48"
         data-eye-z="-3.37"
+      ></div>
+      <label
+        ><input id="flight-mouse-capture" type="checkbox" /> Mouse steering
+        (capture pointer; restarts preview)</label
       >
-        <p id="capture-banner" role="status" aria-live="polite">
-          Controls disconnected · Click or focus the viewport and press Space to
-          fly
-        </p>
-        <button id="capture-start" type="button">Start flight · Space</button>
-      </div>
+      <output id="flight-input-status">Flight actions ready.</output>
       <label
         ><input id="reticle-enabled" type="checkbox" checked /> Turquoise flight
         reticle</label
@@ -821,14 +801,18 @@ Loading…</pre>
         full resolution.
       </p>
       <p>
-        Click the viewport or press Space while it is focused to connect flight
-        controls. Escape releases the mouse; switching tabs or windows
-        disconnects controls. The simulation continues.
-        <strong>WASD</strong> moves, <strong>Q / E</strong> lowers / raises,
-        <strong>Shift</strong> boosts to 300 m/s (normal flight: 80 m/s).
-        <strong>Mouse</strong> move the captured mouse or use the arrow keys to
-        turn; <strong>R</strong> returns to the pilot seat. One grid square =
-        one unit; the reference spans 60 × 60 units.
+        Click the viewport or Activate controls for keyboard flight. Mouse
+        steering is optional; enable it above, then activate controls. Esc
+        releases mouse capture. Switching tabs/windows clears held input; the
+        world continues running.
+        <strong>W/S</strong> forward/back, <strong>A/D</strong> strafe,
+        <strong>Left Alt / Ctrl</strong> local up/down,
+        <strong>Q/E</strong> roll, <strong>arrows</strong> yaw/pitch,
+        <strong>Shift</strong> boost to 300 m/s (normal: 80 m/s).
+        <strong>Space / Left mouse</strong> fire, <strong>F</strong> interact,
+        <strong>Tab</strong> health/consume are mapped actions awaiting gameplay
+        systems. <strong>Ctrl+R</strong> returns to the pilot seat. Full loops
+        and rolls use ship-local axes.
       </p>
       <div class="toolbar">
         <label
@@ -1141,7 +1125,7 @@ Loading…</pre>
     </main>
     <script
       type="module"
-      src="./dist/examples/webgl/cockpit.js?v=reticle-cross-gap-6"
+      src="./dist/examples/webgl/cockpit.js?v=flight-actions-7"
     ></script>
   </body>
 </html>

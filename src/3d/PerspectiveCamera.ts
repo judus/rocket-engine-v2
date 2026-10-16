@@ -24,6 +24,8 @@ export class PerspectiveCamera {
   z = 0;
   yaw = 0;
   pitch = 0;
+  /** Radians around forward: positive tilts the local right axis downward. */
+  roll = 0;
   verticalFov = Math.PI / 3;
   near = 0.1;
   far = 160;
@@ -38,6 +40,7 @@ export class PerspectiveCamera {
         this.z,
         this.yaw,
         this.pitch,
+        this.roll,
         this.verticalFov,
         this.near,
         this.far,
@@ -62,9 +65,13 @@ export class PerspectiveCamera {
       sy = Math.sin(this.yaw),
       cp = Math.cos(this.pitch),
       sp = Math.sin(this.pitch);
+    const horizontal = cy * x - sy * z,
+      vertical = -sy * sp * x + cp * y - cy * sp * z,
+      cr = Math.cos(this.roll),
+      sr = Math.sin(this.roll);
     return {
-      x: cy * x - sy * z,
-      y: -sy * sp * x + cp * y - cy * sp * z,
+      x: cr * horizontal - sr * vertical,
+      y: sr * horizontal + cr * vertical,
       z: sy * cp * x + sp * y + cy * cp * z,
     };
   }
@@ -114,7 +121,10 @@ export class PerspectiveCamera {
       (-2 * this.far * this.near) / range,
       0,
     ];
-    return multiplyMatrices(projection, view);
+    const cr = Math.cos(this.roll),
+      sr = Math.sin(this.roll);
+    const roll: Matrix4 = [cr, sr, 0, 0, -sr, cr, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+    return multiplyMatrices(projection, multiplyMatrices(roll, view));
   }
 
   /** Clip in camera space before the perspective divide, on all six planes. */

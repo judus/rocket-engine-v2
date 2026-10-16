@@ -1,3 +1,5 @@
+import { FlightOrientation } from '../input/FlightOrientation.js';
+import { Input, flightInput } from '../../src/index.js';
 import { opacityProbe } from './OpacityProbe.js';
 import { loadAsteroidFamily } from '../space/AsteroidFamily.js';
 import { originalAsteroidField } from '../space/OriginalAsteroidField.js';
@@ -142,49 +144,111 @@ async function start() {
   app = application;
   const motion = new CockpitMotion();
   const flight = new CockpitFlight();
+  const attitude = new FlightOrientation();
+  let roll = 0;
   const motionEnabled =
     document.querySelector<HTMLInputElement>('#cockpit-motion');
   const scene = application.scene(
     new Scene2D({
       update(dt) {
-        keys.update();
-        look(
-          (keys('ArrowRight') - keys('ArrowLeft')) * dt,
-          (keys('ArrowDown') - keys('ArrowUp')) * dt,
-        );
+        keys?.update();
+        if (flightControls) {
+          // Inspector edits seed the local frame; rotations themselves remain local.
+          const yaw = (Number(cameraYaw.value) * Math.PI) / 180,
+            pitch = (Number(cameraPitch.value) * Math.PI) / 180;
+          attitude.setAngles(yaw, pitch, roll);
+          const yawTurn =
+              flightControls.value('yaw') * 1.2 * dt +
+              flightControls.value('lookX'),
+            pitchTurn =
+              flightControls.value('pitch') * 1.2 * dt -
+              flightControls.value('lookY');
+          attitude.rotate(
+            dt,
+            flightControls.value('yaw'),
+            flightControls.value('pitch'),
+            flightControls.value('roll'),
+            flightControls.value('lookX'),
+            flightControls.value('lookY'),
+          );
+          if (motionEnabled?.checked && pilot.checked)
+            motion.kick(-yawTurn * 12, -pitchTurn * 12);
+          const angles = attitude.angles;
+          cameraYaw.value = String((angles.yaw * 180) / Math.PI);
+          cameraPitch.value = String((angles.pitch * 180) / Math.PI);
+          roll = angles.roll;
+          const inputStatus = document.querySelector('#flight-input-status');
+          if (inputStatus)
+            inputStatus.textContent = `Roll ${((roll * 180) / Math.PI).toFixed(1)}° · fire ${flightControls.value('fire') ? 'held' : 'idle'} · weapons/interact/health await game systems`;
+        } else
+          look(
+            (keys!('ArrowRight') - keys!('ArrowLeft')) * dt,
+            (keys!('ArrowDown') - keys!('ArrowUp')) * dt,
+          );
         const previousPosition = [
           Number(cameraX.value),
           Number(cameraY.value),
           Number(cameraZ.value),
         ] as const;
         const forward =
-            keys('KeyW') -
-            keys('KeyS') +
+            (flightControls
+              ? flightControls.value('forward')
+              : keys!('KeyW') - keys!('KeyS')) +
             Number(
               asteroidWorld &&
-                keys.connected() &&
+                (flightControls
+                  ? (flightBinding!.capture?.active ??
+                    document.activeElement === canvas)
+                  : keys!.connected()) &&
                 fieldControl('cruise').checked,
             ),
-          right = keys('KeyD') - keys('KeyA'),
-          up = keys('KeyE') - keys('KeyQ');
+          right = flightControls
+            ? flightControls.value('right')
+            : keys!('KeyD') - keys!('KeyA'),
+          up = flightControls
+            ? flightControls.value('up')
+            : keys!('KeyE') - keys!('KeyQ');
         const yaw = (Number(cameraYaw.value) * Math.PI) / 180,
           pitch = (Number(cameraPitch.value) * Math.PI) / 180;
         const speed = hi3dDisplays ? 80 : asteroidWorld ? 8 : 3;
         const boost = hi3dDisplays ? 300 : asteroidWorld ? 30 : 12;
         const targetSpeed =
-          (keys('ShiftLeft') || keys('ShiftRight') ? boost : speed) /
-          (Math.hypot(forward, right, up) || 1);
-        const target = {
-          x:
-            (Math.sin(yaw) * Math.cos(pitch) * forward +
-              Math.cos(yaw) * right) *
-            targetSpeed,
-          y: (Math.sin(pitch) * forward + up) * targetSpeed,
-          z:
-            (Math.cos(yaw) * Math.cos(pitch) * forward -
-              Math.sin(yaw) * right) *
-            targetSpeed,
-        };
+          ((
+            flightControls
+              ? flightControls.value('boost')
+              : keys!('ShiftLeft') || keys!('ShiftRight')
+          )
+            ? boost
+            : speed) / Math.max(1, Math.hypot(forward, right, up));
+        const target = flightControls
+          ? {
+              x:
+                (attitude.forward.x * forward +
+                  attitude.right.x * right +
+                  attitude.up.x * up) *
+                targetSpeed,
+              y:
+                (attitude.forward.y * forward +
+                  attitude.right.y * right +
+                  attitude.up.y * up) *
+                targetSpeed,
+              z:
+                (attitude.forward.z * forward +
+                  attitude.right.z * right +
+                  attitude.up.z * up) *
+                targetSpeed,
+            }
+          : {
+              x:
+                (Math.sin(yaw) * Math.cos(pitch) * forward +
+                  Math.cos(yaw) * right) *
+                targetSpeed,
+              y: (Math.sin(pitch) * forward + up) * targetSpeed,
+              z:
+                (Math.cos(yaw) * Math.cos(pitch) * forward -
+                  Math.sin(yaw) * right) *
+                targetSpeed,
+            };
         const movement = motionEnabled
           ? flight.update(dt, target.x, target.y, target.z)
           : {
@@ -197,19 +261,33 @@ async function start() {
             };
         if (motionEnabled?.checked && pilot.checked) {
           const referenceAcceleration = speed * 3;
-          motion.update(
-            dt,
-            (movement.ax * Math.cos(yaw) - movement.az * Math.sin(yaw)) /
-              referenceAcceleration,
-            (-movement.ax * Math.sin(yaw) * Math.sin(pitch) +
-              movement.ay * Math.cos(pitch) -
-              movement.az * Math.cos(yaw) * Math.sin(pitch)) /
-              referenceAcceleration,
-            (movement.ax * Math.sin(yaw) * Math.cos(pitch) +
-              movement.ay * Math.sin(pitch) +
-              movement.az * Math.cos(yaw) * Math.cos(pitch)) /
-              referenceAcceleration,
-          );
+          if (flightControls) {
+            const along = (axis: { x: number; y: number; z: number }) =>
+              (movement.ax * axis.x +
+                movement.ay * axis.y +
+                movement.az * axis.z) /
+              referenceAcceleration;
+            motion.update(
+              dt,
+              along(attitude.right),
+              along(attitude.up),
+              along(attitude.forward),
+            );
+          } else {
+            motion.update(
+              dt,
+              (movement.ax * Math.cos(yaw) - movement.az * Math.sin(yaw)) /
+                referenceAcceleration,
+              (-movement.ax * Math.sin(yaw) * Math.sin(pitch) +
+                movement.ay * Math.cos(pitch) -
+                movement.az * Math.cos(yaw) * Math.sin(pitch)) /
+                referenceAcceleration,
+              (movement.ax * Math.sin(yaw) * Math.cos(pitch) +
+                movement.ay * Math.sin(pitch) +
+                movement.az * Math.cos(yaw) * Math.cos(pitch)) /
+                referenceAcceleration,
+            );
+          }
         } else motion.reset();
         cameraX.value = String(Number(cameraX.value) + movement.x);
         cameraY.value = String(Number(cameraY.value) + movement.y);
@@ -258,7 +336,7 @@ async function start() {
   const surface = new WebGLSurface({
     target: host,
     scene,
-    label: `GPU lighting: ${modelLabel}. ${hi3dDisplays ? 'Click or press Space to capture flight controls. Esc releases. Mouse or arrows turn.' : 'Click to focus. Drag or arrows turn.'} WASD moves, Q/E changes height, Shift speeds up, R returns home.`,
+    label: `GPU lighting: ${modelLabel}. ${hi3dDisplays ? 'Click to activate flight controls. WASD thrust, arrows rotate, Q/E roll, Left Alt/Ctrl vertical thrust, Shift boost, Ctrl+R reset. Optional captured mouse turns.' : 'Click to focus. Drag or arrows turn. WASD moves, Q/E changes height, Shift speeds up, R returns home.'}`,
     onError: (error) => {
       status.value = String(error);
     },
@@ -682,6 +760,10 @@ async function start() {
     document.querySelector<HTMLInputElement>('#camera-pitch')!;
   for (const control of [cameraX, cameraY, cameraZ, cameraYaw, cameraPitch])
     control.step = 'any';
+  if (hi3dDisplays) {
+    cameraPitch.min = '-90';
+    cameraPitch.max = '90';
+  }
   depthTest.checked = true;
   reverseOrder.checked = false;
   cameraYaw.value = String((home.yaw * 180) / Math.PI);
@@ -760,63 +842,33 @@ async function start() {
       ),
     );
   };
-  const keys = explorationInput(
-    application,
-    scene,
-    surface,
-    look,
-    () => document.querySelector<HTMLButtonElement>('#reset-triangle')!.click(),
-    hi3dDisplays,
+  const flightControls = hi3dDisplays
+    ? application.use(Input).actions(scene).use(flightInput)
+    : undefined;
+  const flightBinding = flightControls?.bind(surface, {
+    capture: document.querySelector<HTMLInputElement>('#flight-mouse-capture')!
+      .checked
+      ? 'pointer-lock'
+      : 'focus',
+  });
+  flightControls?.on('reset', () => {
+    document.querySelector<HTMLButtonElement>('#reset-triangle')!.click();
+    return undefined;
+  });
+  document.querySelector('#flight-mouse-capture')?.addEventListener(
+    'change',
+    () => {
+      void start().catch((error) => {
+        status.value = String(error);
+      });
+    },
+    { signal },
   );
-  if (keys.capture) {
-    const capture = keys.capture;
-    const start = document.querySelector<HTMLButtonElement>('#capture-start')!;
-    const banner = document.querySelector<HTMLElement>('#capture-banner')!;
-    const messages = {
-      released:
-        'Controls disconnected · Click or focus the viewport and press Space to fly',
-      requesting: 'Connecting flight controls…',
-      captured: 'Flight controls connected · Esc to release',
-      error:
-        'Capture refused · Click Start flight to retry (after Esc, the browser may require another click)',
-      unavailable: 'Mouse capture is unavailable in this browser',
-    };
-    const request = () => {
-      void capture.request();
-    };
-    start.addEventListener('click', request, { signal });
-    canvas.addEventListener('click', request, { signal });
-    canvas.addEventListener(
-      'keydown',
-      (event) => {
-        if (event.code === 'Space' && !event.repeat && !capture.active) {
-          event.preventDefault();
-          request();
-        }
-      },
-      { signal },
-    );
-    const previousUpdate = keys.update;
-    keys.update = () => {
-      previousUpdate();
-      const message =
-        messages[capture.state] +
-        (capture.state === 'error' && capture.reason
-          ? ` · ${capture.reason}`
-          : '');
-      if (banner.textContent !== message) {
-        banner.textContent = message;
-        banner.dataset.state = capture.state;
-      }
-      start.hidden = capture.active;
-      start.disabled =
-        capture.state === 'requesting' || capture.state === 'unavailable';
-      start.textContent =
-        capture.state === 'error'
-          ? 'Retry flight capture'
-          : 'Start flight · Space';
-    };
-  }
+  const keys = hi3dDisplays
+    ? undefined
+    : explorationInput(application, scene, surface, look, () =>
+        document.querySelector<HTMLButtonElement>('#reset-triangle')!.click(),
+      );
   application.presentation({
     scene,
     render() {
@@ -851,6 +903,7 @@ async function start() {
       };
       camera.yaw = (Number(cameraYaw.value) * Math.PI) / 180;
       camera.pitch = (Number(cameraPitch.value) * Math.PI) / 180;
+      camera.roll = roll;
       camera.x = Number(cameraX.value);
       camera.y = Number(cameraY.value);
       camera.z = Number(cameraZ.value);
@@ -866,7 +919,14 @@ async function start() {
           document.querySelector<HTMLInputElement>('#reticle-enabled')!.checked;
       if (pilot.checked)
         rig.matrix = multiplyMatrices(
-          pose(camera.x, camera.y, camera.z, camera.yaw, camera.pitch),
+          multiplyMatrices(
+            pose(camera.x, camera.y, camera.z, camera.yaw, camera.pitch),
+            transformMatrix({
+              position: { x: 0, y: 0, z: 0 },
+              rotation: { x: 0, y: 0, z: -roll },
+              scale: { x: 1, y: 1, z: 1 },
+            }),
+          ),
           inverseHome,
         );
       const lightYaw = shadowsEnabled
@@ -1186,6 +1246,7 @@ async function start() {
     () => {
       motion.reset();
       flight.reset();
+      roll = 0;
       pilot.checked = true;
       if (asteroidWorld) fieldControl('cruise').checked = false;
       rig.matrix = identityMatrix;
@@ -1214,6 +1275,7 @@ async function start() {
     'click',
     () => {
       flight.reset();
+      roll = 0;
       motion.reset();
       pilot.checked = false;
       if (asteroidWorld) fieldControl('cruise').checked = false;

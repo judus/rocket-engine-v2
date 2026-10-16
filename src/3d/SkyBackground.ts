@@ -24,7 +24,9 @@ export function skyBackgroundView(
   const yaw = camera.yaw - (background.yaw ?? 0),
     pitch = camera.pitch;
   if (
-    ![yaw, pitch, camera.verticalFov, width, height].every(Number.isFinite) ||
+    ![yaw, pitch, camera.roll, camera.verticalFov, width, height].every(
+      Number.isFinite,
+    ) ||
     width <= 0 ||
     height <= 0 ||
     camera.verticalFov <= 0 ||
@@ -37,10 +39,20 @@ export function skyBackgroundView(
     sp = Math.sin(pitch);
   const ty = Math.tan(camera.verticalFov / 2),
     tx = (ty * width) / height;
+  const cr = Math.cos(camera.roll),
+    sr = Math.sin(camera.roll);
   return {
     image: background.image,
     forward: { x: sy * cp, y: sp, z: cy * cp },
-    right: { x: cy * tx, y: 0, z: -sy * tx },
-    up: { x: -sy * sp * ty, y: cp * ty, z: -cy * sp * ty },
+    right: {
+      x: (cy * cr + sy * sp * sr) * tx,
+      y: -cp * sr * tx,
+      z: (-sy * cr + cy * sp * sr) * tx,
+    },
+    up: {
+      x: (cy * sr - sy * sp * cr) * ty,
+      y: cp * cr * ty,
+      z: (-sy * sr - cy * sp * cr) * ty,
+    },
   };
 }

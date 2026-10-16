@@ -1,6 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PerspectiveCamera } from '../src/3d/index.js';
+import {
+  PerspectiveCamera,
+  skyBackgroundView,
+  TextureImage,
+} from '../src/3d/index.js';
 
 const close = (a: number, b: number) =>
   assert.ok(Math.abs(a - b) < 1e-8, `${a} != ${b}`);
@@ -72,6 +76,7 @@ void test('GPU clip matrix agrees with CPU perspective and maps near/far to WebG
   camera.z = -5;
   camera.yaw = 0.2;
   camera.pitch = -0.1;
+  camera.roll = 0.65;
   const m = camera.clipMatrix(800, 450);
   for (const p of [
     { x: 0, y: 0, z: 2 },
@@ -93,4 +98,54 @@ void test('GPU clip matrix agrees with CPU perspective and maps near/far to WebG
   assert.ok((clip[10] * 0.01 + clip[14]) / 0.01 < -1);
   assert.ok((clip[10] * 200 + clip[14]) / 200 > 1);
   assert.throws(() => c.clipMatrix(0, 450));
+});
+
+void test('rolled camera projects its local right/up and panorama rays consistently', () => {
+  const camera = new PerspectiveCamera();
+  camera.roll = Math.PI / 2;
+  camera.verticalFov = Math.PI / 2;
+  const point = camera.segment(
+    { x: 1, y: 0, z: 2 },
+    { x: 1, y: 0, z: 2 },
+    800,
+    400,
+  )!;
+  close(point[0].x, 400);
+  close(point[0].y, 100);
+  const polygon = camera.polygon(
+    [
+      { x: 0, y: 0, z: 2 },
+      { x: 1, y: 0, z: 2 },
+      { x: 0, y: 1, z: 2 },
+    ],
+    800,
+    400,
+  )!;
+  close(polygon.points[1]!.y, 100);
+  camera.yaw = 0.7;
+  camera.pitch = -0.4;
+  const sky = skyBackgroundView(
+    { image: new TextureImage(1, 1, new Uint8Array([0, 0, 0, 255])) },
+    camera,
+    800,
+    400,
+  );
+  for (const [ray, x, y] of [
+    [sky.right, 600, 200],
+    [sky.up, 400, 100],
+  ] as const) {
+    const p = {
+      x: sky.forward.x + ray.x * 0.5,
+      y: sky.forward.y + ray.y * 0.5,
+      z: sky.forward.z + ray.z * 0.5,
+    };
+    const projected = camera.segment(p, p, 800, 400)!;
+    close(projected[0].x, x);
+    close(projected[0].y, y);
+  }
+  camera.roll = NaN;
+  assert.throws(() => camera.clipMatrix(800, 400));
+  assert.throws(() =>
+    skyBackgroundView({ image: sky.image }, camera, 800, 400),
+  );
 });

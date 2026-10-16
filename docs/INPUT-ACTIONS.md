@@ -309,3 +309,23 @@ The input demos offer Pad (Preset/Analog/D-pad), Tint and Opacity controls. Pad
 changes recreate the demo to cancel old gestures; tint/opacity update in place.
 Tests cover analog/digital distinction, direction changes/dead zone, multiple
 stacked groups, mirror metadata, live theme updates and all preset/action pairs.
+
+## Hi3D spaceship integration
+
+The Hi3D cockpit now consumes `flightInput` through `Input.actions(scene)` and
+uses the engine's activation feedback. Keyboard focus is the default; the
+Mouse steering checkbox opts into pointer lock and recreates the preview with
+its existing lifecycle cleanup. Click the viewport or Activate controls to
+connect. Mouse capture may still be refused by an embedded browser; keyboard
+flight remains available with Mouse steering unchecked.
+
+W/S thrust forward/back, A/D strafe, Left Alt/Ctrl thrust locally up/down,
+Q/E roll, arrows yaw/pitch, Shift boosts, and Ctrl+R resets the pilot seat.
+Space/Mouse0 fire, F interact and Tab health/consume are registered actions;
+weapons, interaction and consumable gameplay are not implemented here.
+The existing 80/300 m/s speeds, exponential acceleration/braking and cosmetic
+cockpit spring remain. Rotations and thrust use the ship's local frame, including
+loops and rolls. `FlightOrientation` is shared demo policy, not another engine
+clock or flight simulation service. `PerspectiveCamera.roll` (radians, default
+zero) rotates CPU/GPU projection and sky rays consistently. Positive roll tilts
+the camera's local right axis down toward its local negative Y direction.

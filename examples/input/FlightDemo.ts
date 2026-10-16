@@ -1,3 +1,4 @@
+import { FlightOrientation } from './FlightOrientation.js';
 import {
   CanvasRenderer3D,
   PerspectiveCamera,
@@ -26,22 +27,10 @@ const mix = (a: Vec3, b: Vec3, c: number, s: number): Vec3 => ({
   y: a.y * c + b.y * s,
   z: a.z * c + b.z * s,
 });
-const cross = (a: Vec3, b: Vec3): Vec3 => ({
-  x: a.y * b.z - a.z * b.y,
-  y: a.z * b.x - a.x * b.z,
-  z: a.x * b.y - a.y * b.x,
-});
-const unit = (v: Vec3): Vec3 => {
-  const length = Math.hypot(v.x, v.y, v.z);
-  return { x: v.x / length, y: v.y / length, z: v.z / length };
-};
 /** Demo policy only: a local orientation frame and assisted world-space velocity. */
-export class FlightDemo {
+export class FlightDemo extends FlightOrientation {
   position: Vec3 = { x: 0, y: 2, z: -12 };
   velocity: Vec3 = { x: 0, y: 0, z: 0 };
-  right: Vec3 = { x: 1, y: 0, z: 0 };
-  up: Vec3 = { x: 0, y: 1, z: 0 };
-  forward: Vec3 = { x: 0, y: 0, z: 1 };
   get speed(): number {
     return Math.hypot(this.velocity.x, this.velocity.y, this.velocity.z);
   }
@@ -53,29 +42,14 @@ export class FlightDemo {
     this.forward = { x: 0, y: 0, z: 1 };
   }
   step(dt: number, input: FlightIntent): void {
-    // Each rotation uses the current craft-local axes; no Euler pitch clamp.
-    let angle = input.yaw * 1.2 * dt + input.lookX;
-    let c = Math.cos(angle),
-      s = Math.sin(angle);
-    const oldRight = this.right;
-    this.right = mix(oldRight, this.forward, c, -s);
-    this.forward = mix(this.forward, oldRight, c, s);
-    angle = input.pitch * 1.2 * dt - input.lookY;
-    c = Math.cos(angle);
-    s = Math.sin(angle);
-    const oldUp = this.up;
-    this.up = mix(oldUp, this.forward, c, -s);
-    this.forward = mix(this.forward, oldUp, c, s);
-    angle = input.roll * 1.2 * dt;
-    c = Math.cos(angle);
-    s = Math.sin(angle);
-    const rollRight = this.right;
-    this.right = mix(rollRight, this.up, c, -s);
-    this.up = mix(this.up, rollRight, c, s);
-    // Keep an orthonormal frame after many loops and rolls.
-    this.forward = unit(this.forward);
-    this.right = unit(cross(this.up, this.forward));
-    this.up = cross(this.forward, this.right);
+    this.rotate(
+      dt,
+      input.yaw,
+      input.pitch,
+      input.roll,
+      input.lookX,
+      input.lookY,
+    );
     const scale =
       (input.boost ? 18 : 7) /
       Math.max(1, Math.hypot(input.forward, input.right, input.up));
