@@ -34,21 +34,23 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
     });
   };
   const parts: Node3D[] = [];
-  const takePart = (name: string) => {
+  const takePart = (name: string, opacity = 0.5) => {
     const part = new Node3D(name);
     part.mesh = new Mesh3D(new MeshGeometry(vertices, faces), [
       {
         color: '#86ead6',
         unlit: true,
-        opacity: 0.75,
+        opacity,
         metallicFactor: 0,
         roughnessFactor: 1,
       },
     ]);
     part.castsShadow = part.receivesShadow = false;
     parts.push(part);
+
     vertices.length = 0;
     faces.length = 0;
+    return part;
   };
   const arc = (
     radius: number,
@@ -60,53 +62,92 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
     for (let i = 0; i < segments; i++) {
       const a = start + ((end - start) * i) / segments;
       const b = start + ((end - start) * (i + 1)) / segments;
-      strip(
-        Math.cos(a) * radius,
-        Math.sin(a) * radius,
-        Math.cos(b) * radius,
-        Math.sin(b) * radius,
-        half,
-      );
+      // Radial edges meet exactly, including the closing seam of a full ring.
+      const offset = vertices.length;
+      for (const [angle, r] of [
+        [a, radius + half],
+        [b, radius + half],
+        [b, radius - half],
+        [a, radius - half],
+      ] as const)
+        vertices.push({
+          x: Math.cos(angle) * r,
+          y: Math.sin(angle) * r,
+          z: 0,
+        });
+      faces.push({
+        id: String(faces.length),
+        indices: [offset, offset + 1, offset + 2, offset + 3],
+        material: 0,
+      });
     }
   };
   if (style === 'hi3d') {
-    // Julien's sketch: large fine circle, quarter arcs, paired radial ticks,
-    // small centre ring and dot. No lock-on or implied target state.
-    const outer = 1.15,
-      inner = 0.36,
-      centre = 0.07,
-      half = 0.0025;
-    arc(outer, 0, Math.PI * 2, 192, half);
-    takePart('outer reference ring');
-    for (let q = 0; q < 4; q++) {
-      const angle = (q * Math.PI) / 2;
-      arc(inner, angle + 0.18, angle + Math.PI / 2 - 0.18, 24, half);
-      for (const offset of [-0.14, 0.14]) {
-        const a = angle + offset;
-        strip(
-          Math.cos(a) * 0.34,
-          Math.sin(a) * 0.34,
-          Math.cos(a) * 0.42,
-          Math.sin(a) * 0.42,
-          half,
-        );
+    // Around 3 CSS pixels at the default 60-degree FOV / 750px canvas height.
+    const half = 0.0103;
+    const shapes: [string, (width: number) => void][] = [
+      [
+        'outer reference ring',
+        (width) => arc(1.15, 0, Math.PI * 2, 192, width),
+      ],
+      [
+        'projectile direction ring',
+        (width) => {
+          for (let q = 0; q < 4; q++) {
+            const angle = (q * Math.PI) / 2;
+            arc(0.36, angle + 0.18, angle + Math.PI / 2 - 0.18, 24, width);
+          }
+        },
+      ],
+      ['context range ring', (width) => arc(0.07, 0, Math.PI * 2, 48, width)],
+      [
+        'fixed cross and dot',
+        (width) => {
+          for (let q = 0; q < 4; q++) {
+            const angle = (q * Math.PI) / 2;
+            strip(
+              Math.cos(angle) * 0.065,
+              Math.sin(angle) * 0.065,
+              Math.cos(angle) * 0.115,
+              Math.sin(angle) * 0.115,
+              width,
+            );
+          }
+          const centre = vertices.length;
+          vertices.push({ x: 0, y: 0, z: 0 });
+          for (let i = 0; i <= 32; i++) {
+            const angle = (i * Math.PI * 2) / 32;
+            vertices.push({
+              x: Math.cos(angle) * width,
+              y: Math.sin(angle) * width,
+              z: 0,
+            });
+            if (i)
+              faces.push({
+                id: String(faces.length),
+                indices: [centre, centre + i, centre + i + 1],
+                material: 0,
+              });
+          }
+        },
+      ],
+    ];
+    for (const [name, draw] of shapes) {
+      draw(half);
+      const core = takePart(name);
+      // Broad low-alpha fringes keep the glow visible even below bloom's
+      // luminance threshold, without increasing spill from the instruments.
+      for (const [spread, opacity] of [
+        [4, 0.025],
+        [2.5, 0.045],
+        [1.6, 0.075],
+      ] as const) {
+        draw(half * spread);
+        const halo = takePart(`${name} glow`, opacity);
+        parts.pop();
+        core.add(halo);
       }
     }
-    takePart('projectile direction ring');
-    arc(centre, 0, Math.PI * 2, 40, half);
-    takePart('context range ring');
-    for (let q = 0; q < 4; q++) {
-      const angle = (q * Math.PI) / 2;
-      strip(
-        Math.cos(angle) * 0.065,
-        Math.sin(angle) * 0.065,
-        Math.cos(angle) * 0.115,
-        Math.sin(angle) * 0.115,
-        half,
-      );
-    }
-    strip(-0.004, 0, 0.004, 0, 0.004);
-    takePart('fixed cross and dot');
   } else {
     // Four interrupted arcs and short cardinal ticks leave the view open.
     for (let quadrant = 0; quadrant < 4; quadrant++) {
@@ -134,7 +175,10 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
   const node = new Node3D('cockpit forward reticle');
   if (style === 'hi3d') {
     for (const part of parts) node.add(part);
-    node.transform = { ...node.transform, scale: { x: 0.9, y: 0.9, z: 0.9 } };
+    node.transform = {
+      ...node.transform,
+      scale: { x: 0.3375, y: 0.3375, z: 0.3375 },
+    };
   } else
     node.mesh = new Mesh3D(new MeshGeometry(vertices, faces), [
       {
