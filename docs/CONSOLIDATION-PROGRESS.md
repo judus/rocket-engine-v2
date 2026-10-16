@@ -88,3 +88,14 @@ Packaging, formal acceptance and compatibility projects, game expansion, HDR/are
 lights and quest follow-ups remain deliberately deferred. The route-service activation
 contract is explicitly left aside for review; current child routes do not imply
 automatic nested Input/service activation.
+
+## Second API pass
+
+Steve’s review #681 found the architecture sound and recommended explicit activation
+plus an interactive composition proof. Julien authorized that implementation.
+See SCENE-ACTIVATION.md: root/child activation graph, immediate service notification,
+scene-owned input, camera identity, named facade navigation and shared canvas leases.
+Scene composition demo uses one app/view with two interactive retained/fresh rooms.
+Full gate: 460 tests; existing coverage floors unchanged. No merge to main.
+WORKERS-001 was imported on both branches (WORKERS-001-IMPORT.md); Sprite Q2 was
+already accepted #675/676. Earlier pending notes above are historical snapshots.

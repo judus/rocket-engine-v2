@@ -4,6 +4,8 @@ import type { Frame, FixedFrame, Scene } from './types.js';
 export interface Service {
   start?(activeScenes: ReadonlySet<Scene>): undefined;
   stop?(): undefined;
+  /** Synchronous activation boundary, including between RAF callbacks. */
+  scenesChanged?(activeScenes: ReadonlySet<Scene>): undefined;
   beforeUpdate?(frame: Frame, activeScenes: ReadonlySet<Scene>): undefined;
   beforeFixedUpdate?(
     frame: FixedFrame,

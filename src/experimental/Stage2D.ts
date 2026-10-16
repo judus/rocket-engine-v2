@@ -50,6 +50,7 @@ class ParallaxNode extends Node2D {
 
 /** Experimental vocabulary over two existing Scene2D trees; no alternate transform model. */
 export class Stage2D implements Scene {
+  readonly camera = new Camera2D();
   readonly world: Scene2D;
   readonly screen = new Scene2D();
   #layers = new Map<string, Layer>();
@@ -151,6 +152,12 @@ export class Stage2D implements Scene {
         }
       }
     }
+  }
+  activeChildren(): readonly Scene[] {
+    return this.#disposed ? [] : [this.world, this.screen];
+  }
+  draw(ctx: CanvasRenderingContext2D, frame: Frame): undefined {
+    this.drawWorld(ctx, frame, this.camera);
   }
   drawWorld(
     ctx: CanvasRenderingContext2D,

@@ -4,6 +4,15 @@ Branch `experiment/api-ergonomics` is ready for design review, not merged into m
 Implemented API: [API-EXPERIMENT.md](./API-EXPERIMENT.md).
 Runnable demo: [api-experiment.html](http://127.0.0.1:8092/api-experiment.html).
 
+## Second-pass update
+
+Julien authorized the scene-composition pass after Steve’s review #681. It is now
+implemented: [contract, API and evidence](./SCENE-ACTIVATION.md), with the new
+[interactive two-scene demo](http://127.0.0.1:8092/scene-composition.html).
+The route-service activation limitation discussed below describes the first-pass
+snapshot; it is addressed by activeChildren + synchronous service notification and
+facade-owned input bindings. No promotion/merge to main accompanies this experiment.
+
 ## What improved
 
 A small callback program now needs only createApp and its update/render callbacks.
@@ -66,13 +75,12 @@ there is no global current-view service. This makes per-view parallax possible b
 means a raw Stage is not itself a complete presentation. Naming and whether this
 adapter belongs directly on View deserve review before promotion.
 
-SceneNavigator is useful as an independent delegate scene, but is not yet the whole
-friendly application facade from the sketch. Scene-scoped services/input for routed
-scenes require a deliberate activation contract: Rocket currently sees the navigator
-as the active scene. The demo routes draw/update/load only; it does not imply nested
-scene Input scopes or arbitrary services automatically track route activation. A
-service-activation protocol should precede that integration. No workaround clock or
-silent enabling of inactive scopes was introduced.
+The first pass left routed Input/service activation unresolved. The second pass now
+publishes active child scopes to app services, immediately notifies activation changes,
+and provides named navigation plus scene-owned input through createApp. The dedicated
+SCENE-ACTIVATION.md describes those implemented contracts and their limits. App-scoped
+services are not restarted for each room, and child simulation remains parent-delegated.
+This closes the specific composition gap Steve identified without a second scheduler.
 
 Synchronous hooks remain synchronous. Loading may be asynchronous. Cancellation waits
 for a noncooperative load to settle so its eventual resources can be released. Cleanup

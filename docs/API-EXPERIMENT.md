@@ -6,6 +6,10 @@ Import from `rocket-engine-v2/experimental`; existing root and optional module e
 are available unchanged. The examples below use the same runtime objects as explicit
 Rocket programs.
 
+Second pass: [scene activation and lifetime](./SCENE-ACTIVATION.md) is now implemented,
+including named navigation and scene-local input. The details below retain the first
+pass APIs with the updates noted here.
+
 ## Small applications
 
 ```ts
@@ -46,9 +50,11 @@ though the callback-only path marks it handled. A later explicit resume has its 
 Promise; `ready` always describes the initial attempt. Rendering errors use Rocket's
 ordinary stop/error behavior. Construction errors throw synchronously.
 
-Returned properties: `engine: Rocket`, `stage: Stage2D`, `view: View`,
+Returned properties: `engine: Rocket`, current `stage: Stage2D`, `view: View`,
+`navigator: SceneNavigator`, `current`, `addScene(id, route)`, `run(id)`, `previous()`,
+`input(stage, bindings)`,
 `ready: Promise<void>`, `pause()`, `resume(): Promise<void>`, `dispose(): Promise<void>`.
-The engine owns the proxy scene and view; stage owns its attached nodes and the
+The engine owns the navigator root and view; stage owns its attached nodes and the
 implicit target is removed on disposal. Targets supplied by the caller remain.
 
 ## Scene nodes and visual layers
@@ -91,8 +97,8 @@ hero.dispose();
 - `prepare({ signal })`, `update(dt, frame)`, `drawWorld(ctx, frame, camera)`,
   `drawScreen(ctx, frame)` and idempotent synchronous `dispose()` allow explicit
   integration. A View draws world content with its camera and screen content in
-  its overlay. `createApp` provides this adapter. A bare Stage has no implicit
-  view/camera and no automatic RAF registration.
+  its overlay. `createApp` provides this adapter. A Stage has its own real Camera2D and world draw method, but no implicit view
+  or RAF registration; its screen tree still uses a View overlay.
 
 Insertion determines layer order. Screen layers render after world layers on the
 **same canvas**. World and screen nodes update once through their existing Scene2D
@@ -173,7 +179,8 @@ the same Promise on repeated calls. There is no independent animation loop.
 Fixed scenes require **both** `new Rocket({ fixed: … })` and
 `new SceneNavigator({ fixed: true })`; otherwise they reject instead of silently
 losing ticks. The navigator forwards ordinary/fixed updates and draw only to the
-active scene. It does not suspend the entire engine during a transition. Explicit
-enter/leave/pause/resume hooks, transition animations, nested routers and transactional
+active scene. It does not suspend the entire engine during a transition. The second pass adds activeChildren, onChange/onDispose and facade wiring; see the
+activation contract. Explicit enter/leave/pause/resume hooks, transition animations,
+nested routers and transactional
 rollback of external side effects are left out pending a clearer lifecycle contract.
 Route preparation signals cover loading, not the lifetime of the active scene.

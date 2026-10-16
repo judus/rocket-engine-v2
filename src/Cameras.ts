@@ -47,6 +47,9 @@ export class Cameras {
     this.#running = true;
   }
   beforeUpdate(_frame: Frame, scenes: ReadonlySet<Scene>): undefined {
+    this.scenesChanged(scenes);
+  }
+  scenesChanged(scenes: ReadonlySet<Scene>): undefined {
     this.#scenes = scenes;
     for (const [view, controller] of this.#controllers)
       if (!view.scene || !scenes.has(view.scene)) controller.resetMotion();

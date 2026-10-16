@@ -1,8 +1,16 @@
 import { Rocket } from '../Rocket.js';
 import type { RocketOptions } from '../Rocket.js';
+import { Input } from '../Input.js';
+import type { InputTarget } from '../Input.js';
+import type { View } from '../View.js';
 import { Stage2D } from './Stage2D.js';
 import type { StageOptions } from './Stage2D.js';
+import { SceneNavigator } from './SceneNavigator.js';
 
+export interface StageRoute {
+  create: () => Stage2D;
+  retain?: boolean;
+}
 export interface AppOptions extends StageOptions {
   target?: string | HTMLElement;
   width?: number;
@@ -10,7 +18,7 @@ export interface AppOptions extends StageOptions {
   autoStart?: boolean;
   runtime?: RocketOptions;
 }
-/** Experimental implicit Scene2D + View convenience; underlying objects stay public. */
+/** Single-canvas facade. Navigation and direct drawing share one activation contract. */
 export function createApp({
   target,
   width = 800,
@@ -21,63 +29,113 @@ export function createApp({
 }: AppOptions = {}) {
   const ownedTarget =
     target === undefined ? document.createElement('div') : null;
-  const stage = new Stage2D(hooks);
+  const initial = new Stage2D(hooks);
   const engine = new Rocket(runtime);
+  let view: View;
+  let inputService: Input | undefined;
+  let paused = false;
+  let requested: Promise<void> | null = null;
+  const navigator = new SceneNavigator({
+    onChange(current): undefined {
+      if (current instanceof Stage2D) view.camera = current.camera;
+      engine.refreshScenes();
+    },
+    onDispose(): undefined {
+      try {
+        initial.dispose();
+      } finally {
+        ownedTarget?.remove();
+      }
+    },
+  });
+  navigator.add('default', { retain: true, create: () => initial });
   try {
     if (ownedTarget) document.body.appendChild(ownedTarget);
-    const scene = engine.scene({
-      prepare: (context: { signal: AbortSignal }) => stage.prepare(context),
-      update(dt, frame): undefined {
-        stage.update(dt, frame);
-      },
-      draw(ctx, frame): undefined {
-        stage.drawWorld(ctx, frame, view.camera);
-      },
-      dispose(): undefined {
-        try {
-          stage.dispose();
-        } finally {
-          ownedTarget?.remove();
-        }
-      },
-    });
-    const view = engine.view({
+    engine.scene(navigator);
+    view = engine.view({
       target: target ?? ownedTarget!,
       width,
       height,
-      scene,
+      scene: navigator,
       overlay(ctx, frame): undefined {
-        stage.drawScreen(ctx, frame);
+        const scene = navigator.scene;
+        if (scene instanceof Stage2D) scene.drawScreen(ctx, frame);
       },
     });
-    let paused = false;
+    view.camera = initial.camera;
+    // Configure lazily-used input before automatic startup. Route factories may create scopes later.
+    inputService = engine.use(Input);
+    const select = (id: string) => {
+      requested = navigator.run(id);
+      return requested;
+    };
     const ready = autoStart
-      ? Promise.resolve().then(() => (paused ? undefined : engine.start()))
+      ? Promise.resolve().then(async () => {
+          if (paused) return;
+          await (requested ?? select('default'));
+          if (!paused) await engine.start();
+        })
       : Promise.resolve();
-    // Mark handled for callback-only use; awaiting ready still observes its rejection.
     void ready.catch(
       runtime.onError ?? ((error: unknown) => console.error(error)),
     );
     return {
       engine,
-      stage,
       view,
+      navigator,
       ready,
-      pause: () => {
+      get stage(): Stage2D {
+        return navigator.scene instanceof Stage2D ? navigator.scene : initial;
+      },
+      get current() {
+        return navigator.current;
+      },
+      addScene(id: string, route: StageRoute) {
+        navigator.add(id, route);
+      },
+      async run(id: string) {
+        await select(id);
+        if (!paused) await engine.start();
+      },
+      async previous() {
+        requested = navigator.previous();
+        await requested;
+        if (!paused) await engine.start();
+      },
+      input<A extends string>(
+        scene: Stage2D,
+        bindings: Record<A, string | readonly string[]>,
+      ) {
+        const scope = scene.world.own(inputService!.scope(scene, bindings));
+        // The view presents the navigator, but this binding belongs to the scene's lifetime.
+        const target: InputTarget = {
+          canvas: view.canvas,
+          scene,
+          get disposed() {
+            return view.disposed || scene.disposed;
+          },
+          clientToWorld: (point) => view.clientToWorld(point),
+          own: (resource) => scene.world.own(resource),
+        };
+        scope.bind(target);
+        return scope;
+      },
+      pause() {
         paused = true;
         engine.stop();
       },
-      resume: () => {
+      async resume() {
         paused = false;
-        return engine.start();
+        if (!navigator.scene) await select('default');
+        await engine.start();
       },
-      dispose: () => {
+      dispose() {
         paused = true;
         return engine.dispose();
       },
     };
   } catch (error) {
-    stage.dispose();
+    initial.dispose();
     ownedTarget?.remove();
     void engine.dispose();
     throw error;

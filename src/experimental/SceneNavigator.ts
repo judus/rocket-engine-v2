@@ -1,9 +1,14 @@
 import type { Frame, FixedFrame, Scene } from '../types.js';
-import { invokeSynchronous } from '../synchronous.js';
+import { assertSynchronous, invokeSynchronous } from '../synchronous.js';
 
 export interface Route {
   create: () => Scene;
   retain?: boolean;
+}
+export interface NavigatorOptions {
+  fixed?: boolean;
+  onChange?: (current: Scene | null, previous: Scene | null) => undefined;
+  onDispose?: () => undefined;
 }
 interface Instance {
   id: string;
@@ -19,10 +24,20 @@ export class SceneNavigator implements Scene {
   #jobs = new Set<Promise<void>>();
   #disposed = false;
   #completion: Promise<void> | null = null;
+  #onChange: NavigatorOptions['onChange'];
+  #onDispose: NavigatorOptions['onDispose'];
+  activeChildren(): readonly Scene[] {
+    return this.#disposed || !this.#active ? [] : [this.#active.scene];
+  }
   readonly fixedUpdate?: (dt: number, frame: FixedFrame) => undefined;
-  constructor({ fixed = false }: { fixed?: boolean } = {}) {
+  constructor({ fixed = false, onChange, onDispose }: NavigatorOptions = {}) {
+    assertSynchronous(onChange, 'navigator.onChange');
+    assertSynchronous(onDispose, 'navigator.onDispose');
+    this.#onChange = onChange;
+    this.#onDispose = onDispose;
     if (fixed)
       this.fixedUpdate = (dt, frame): undefined => {
+        if (this.#disposed) return;
         invokeSynchronous(
           this.#active?.scene.fixedUpdate,
           this.#active?.scene,
@@ -107,19 +122,38 @@ export class SceneNavigator implements Scene {
       owned = false;
       if (previous) this.#history.pop();
       else if (outgoing && outgoing.id !== id) this.#history.push(outgoing.id);
-      // Commit precedes cleanup: cleanup failure is reported but does not roll back activation.
+      // The activation is committed; notify scopes before disposing outgoing resources.
+      const errors: unknown[] = [];
+      try {
+        invokeSynchronous(
+          this.#onChange,
+          undefined,
+          [scene, outgoing?.scene ?? null],
+          'navigator.onChange',
+        );
+      } catch (error) {
+        errors.push(error);
+      }
       if (
         outgoing &&
         outgoing.scene !== scene &&
         this.#retained.get(outgoing.id) !== outgoing.scene
-      )
-        await outgoing.scene.dispose?.();
+      ) {
+        try {
+          await outgoing.scene.dispose?.();
+        } catch (error) {
+          errors.push(error);
+        }
+      }
+      if (errors.length)
+        throw new AggregateError(errors, 'Committed transition cleanup failed');
     } finally {
       if (this.#pending === controller) this.#pending = null;
       if (owned && scene) await scene.dispose?.();
     }
   }
   update(dt: number, frame: Frame): undefined {
+    if (this.#disposed) return;
     invokeSynchronous(
       this.#active?.scene.update,
       this.#active?.scene,
@@ -128,6 +162,7 @@ export class SceneNavigator implements Scene {
     );
   }
   draw(ctx: CanvasRenderingContext2D, frame: Frame): undefined {
+    if (this.#disposed) return;
     invokeSynchronous(
       this.#active?.scene.draw,
       this.#active?.scene,
@@ -139,6 +174,7 @@ export class SceneNavigator implements Scene {
     if (this.#completion) return this.#completion;
     this.#disposed = true;
     const jobs = [...this.#jobs];
+    const errors: unknown[] = [];
     this.#completion = Promise.resolve().then(async () => {
       await Promise.allSettled(jobs);
       const scenes = new Set(this.#retained.values());
@@ -150,12 +186,36 @@ export class SceneNavigator implements Scene {
       const results = await Promise.allSettled(
         [...scenes].map(async (scene) => scene.dispose?.()),
       );
-      const errors = results
-        .filter((result) => result.status === 'rejected')
-        .map((result) => result.reason as unknown);
+      errors.push(
+        ...results
+          .filter((result) => result.status === 'rejected')
+          .map((result) => result.reason as unknown),
+      );
+      try {
+        invokeSynchronous(
+          this.#onDispose,
+          undefined,
+          [],
+          'navigator.onDispose',
+        );
+      } catch (error) {
+        errors.push(error);
+      }
+      this.#onChange = undefined;
+      this.#onDispose = undefined;
       if (errors.length)
         throw new AggregateError(errors, 'Route cleanup failed');
     });
+    try {
+      invokeSynchronous(
+        this.#onChange,
+        undefined,
+        [null, this.#active?.scene ?? null],
+        'navigator.onChange',
+      );
+    } catch (error) {
+      errors.push(error);
+    }
     this.#pending?.abort();
     return this.#completion;
   }

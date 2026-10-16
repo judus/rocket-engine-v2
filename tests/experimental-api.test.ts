@@ -38,6 +38,7 @@ void test('experimental stages retain actual nodes, IDs/tags, sorting, and owner
   assert.deepEqual(stage.query({ tag: 'actor' }), [b]);
   stage.dispose();
   stage.dispose();
+  assert.deepEqual(stage.activeChildren(), []);
   assert.ok(b.disposed);
   assert.throws(() => stage.add(), /disposed/);
 });
@@ -313,4 +314,45 @@ void test('navigator forwards fixed ticks only when explicitly opted in', async 
   nav.fixedUpdate!(1 / 60, { dt: 1 / 60, time: 1 / 60, tick: 1 });
   assert.equal(ticks, 1);
   await nav.dispose();
+});
+
+void test('committed activation failures report errors without abandoning outgoing or final cleanup', async () => {
+  let released = 0,
+    final = 0;
+  const nav = new SceneNavigator({
+    onChange(current): undefined {
+      if (current === second) throw new Error('activation observer');
+    },
+    onDispose(): undefined {
+      final++;
+    },
+  });
+  const first = {
+    dispose() {
+      released++;
+      throw new Error('outgoing cleanup');
+    },
+  };
+  const second = {
+    dispose() {
+      released++;
+      throw new Error('final cleanup');
+    },
+  };
+  nav.add('one', { create: () => first });
+  nav.add('two', { create: () => second });
+  await nav.run('one');
+  await assert.rejects(
+    nav.run('two'),
+    (error) => error instanceof AggregateError && error.errors.length === 2,
+  );
+  assert.equal(nav.scene, second);
+  assert.equal(released, 1);
+  assert.deepEqual(nav.activeChildren(), [second]);
+  const completion = nav.dispose();
+  await assert.rejects(completion, AggregateError);
+  assert.equal(nav.dispose(), completion);
+  assert.equal(final, 1);
+  assert.equal(released, 2);
+  assert.deepEqual(nav.activeChildren(), []);
 });
