@@ -59,6 +59,15 @@ const host = document.querySelector<HTMLElement>('#gpu-view')!;
 const modelUrl =
   host.dataset.model ?? './examples/3d/assets/cockpit-forward-v4-materials.glb';
 const modelLabel = host.dataset.modelLabel ?? 'Cockpit v4';
+// Inspection pages may place an unfamiliar asset without modifying its source.
+function assetNumber(key: string, fallback: number): number {
+  const value = Number(host.dataset[key] ?? fallback);
+  if (!Number.isFinite(value))
+    throw new Error(`Invalid asset placement: ${key}`);
+  return value;
+}
+const modelScale = assetNumber('modelScale', 1);
+if (modelScale <= 0) throw new Error('Model scale must be positive');
 const asteroidWorld = host.dataset.world === 'asteroids';
 const fieldControl = (id: string) =>
   document.querySelector<HTMLInputElement>(`#${id}`)!;
@@ -89,7 +98,11 @@ const shadowInput = (id: string) =>
 const ambientDefault = environment ? '0.02' : '0.08';
 const directionalDefault = shadowsEnabled ? '1.4' : environment ? '0.35' : '1';
 const pointDefault = shadowsEnabled ? '0' : environment ? '6' : '12';
-const assets = new WebGLAssets();
+const assets = new WebGLAssets(
+  host.dataset.largeTextures === 'true'
+    ? { maxImagePixels: 67108864, maxTotalPixels: 134217728 }
+    : {},
+);
 let app: Rocket | undefined,
   retired = 0;
 async function start() {
@@ -262,17 +275,24 @@ async function start() {
   const screenLights = screenLightEnabled
     ? cockpitScreenLights(instance.root)
     : undefined;
-  assembly.add(instance.root);
+  const placement = new Node3D('asset placement');
+  placement.transform = {
+    position: { x: 0, y: assetNumber('modelY', 0), z: 0 },
+    rotation: { x: 0, y: (assetNumber('modelYaw', 0) * Math.PI) / 180, z: 0 },
+    scale: { x: modelScale, y: modelScale, z: modelScale },
+  };
+  placement.add(instance.root);
+  assembly.add(placement);
   const shadowFit = shadowsEnabled ? cockpitShadowFit(assembly) : undefined;
   const reticle = instruments ? cockpitReticle() : undefined;
   if (reticle) assembly.add(reticle);
   const preset = instance.cameras[0];
   const position = preset
     ? matrixPoint(preset.node.worldMatrix(), { x: 0, y: 0, z: 0 })
-    : { x: 0, y: 1.5, z: 0 };
+    : { x: 0, y: assetNumber('eyeY', 1.5), z: assetNumber('eyeZ', 0) };
   const target = preset
     ? matrixPoint(preset.node.worldMatrix(), { x: 0, y: 0, z: -1 })
-    : { x: 0, y: 1.5, z: 1 };
+    : { x: position.x, y: position.y, z: position.z + 1 };
   const home = {
     ...position,
     yaw: Math.atan2(target.x - position.x, target.z - position.z),

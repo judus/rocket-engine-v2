@@ -20,3 +20,5 @@ export { WebGLSurface } from './WebGLSurface.js';
 export type { ContextResource, ContextLease } from './WebGLSurface.js';
 export { WebGLAssets } from './WebGLAssets.js';
 export { WebGLBloomPipeline } from './BloomPipeline.js';
+
+export type { GlbDecodeOptions } from './GlbLoader.js';

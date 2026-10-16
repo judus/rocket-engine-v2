@@ -5,6 +5,7 @@ export async function loadTextureImage(
   options: {
     readonly signal?: AbortSignal;
     readonly colorSpace?: 'srgb' | 'linear';
+    readonly maxPixels?: number;
   } = {},
 ): Promise<TextureImage> {
   const { signal } = options;
@@ -22,10 +23,14 @@ export async function decodeTextureImage(
   options: {
     readonly signal?: AbortSignal;
     readonly colorSpace?: 'srgb' | 'linear';
+    readonly maxPixels?: number;
   } = {},
 ): Promise<TextureImage> {
   const { signal } = options;
   signal?.throwIfAborted();
+  const maxPixels = options.maxPixels ?? 16777216;
+  if (!Number.isSafeInteger(maxPixels) || maxPixels < 1 || maxPixels > 67108864)
+    throw new Error('Invalid texture pixel budget');
   const bitmap = await createImageBitmap(blob, {
     imageOrientation: 'none',
     premultiplyAlpha: 'none',
@@ -33,7 +38,7 @@ export async function decodeTextureImage(
   });
   try {
     signal?.throwIfAborted();
-    if (bitmap.width * bitmap.height > 16777216)
+    if (bitmap.width * bitmap.height > maxPixels)
       throw new Error('Texture exceeds pixel budget');
     const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
     const context = canvas.getContext('2d', { colorSpace: 'srgb' });
@@ -44,7 +49,7 @@ export async function decodeTextureImage(
       bitmap.width,
       bitmap.height,
       new Uint8Array(pixels.data),
-      { colorSpace: options.colorSpace ?? 'srgb' },
+      { colorSpace: options.colorSpace ?? 'srgb', maxPixels },
     );
   } finally {
     bitmap.close();

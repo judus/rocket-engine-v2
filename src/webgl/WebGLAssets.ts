@@ -1,11 +1,22 @@
 import { AssetPool } from '../AssetPool.js';
+import type { GlbDecodeOptions } from './GlbLoader.js';
 import { loadTexturedGlb } from './GlbLoader.js';
 import { loadTextureImage } from './TextureLoader.js';
 /** App-owned CPU asset leases. GPU storage remains renderer/context-owned. */
 export class WebGLAssets {
-  readonly #models = new AssetPool((url, signal) =>
-    loadTexturedGlb(url, { signal }),
-  );
+  readonly #models: AssetPool<Awaited<ReturnType<typeof loadTexturedGlb>>>;
+  constructor({
+    maxImagePixels,
+    maxTotalPixels,
+  }: Omit<GlbDecodeOptions, 'signal'> = {}) {
+    this.#models = new AssetPool((url, signal) =>
+      loadTexturedGlb(url, {
+        signal,
+        ...(maxImagePixels === undefined ? {} : { maxImagePixels }),
+        ...(maxTotalPixels === undefined ? {} : { maxTotalPixels }),
+      }),
+    );
+  }
   readonly #textures = new AssetPool((url, signal) =>
     loadTextureImage(url, { signal }),
   );

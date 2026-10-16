@@ -3,13 +3,14 @@ function validatePixels(
   width: number,
   height: number,
   pixels: Uint8Array,
+  maxPixels = 16777216,
 ): void {
   if (
     !Number.isInteger(width) ||
     !Number.isInteger(height) ||
     width < 1 ||
     height < 1 ||
-    width * height > 16777216 ||
+    width * height > maxPixels ||
     pixels.length !== width * height * 4
   )
     throw new Error('Invalid texture dimensions or RGBA8 byte count');
@@ -26,12 +27,22 @@ export class TextureImage {
     readonly width: number,
     readonly height: number,
     pixels: Uint8Array,
-    options: { readonly colorSpace?: 'srgb' | 'linear' } = {},
+    options: {
+      readonly colorSpace?: 'srgb' | 'linear';
+      readonly maxPixels?: number;
+    } = {},
   ) {
     this.colorSpace = options.colorSpace ?? 'srgb';
     if (!['srgb', 'linear'].includes(this.colorSpace))
       throw new Error('Invalid texture color space');
-    validatePixels(width, height, pixels);
+    const maxPixels = options.maxPixels ?? 16777216;
+    if (
+      !Number.isSafeInteger(maxPixels) ||
+      maxPixels < 1 ||
+      maxPixels > 67108864
+    )
+      throw new Error('Invalid texture pixel budget');
+    validatePixels(width, height, pixels, maxPixels);
     this.#pixels = new Uint8Array(pixels);
     Object.freeze(this);
   }

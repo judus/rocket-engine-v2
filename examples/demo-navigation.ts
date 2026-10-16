@@ -291,6 +291,7 @@ const groups: readonly { title: string; pages: readonly DemoPage[] }[] = [
   {
     title: '10 · Cockpit integration',
     pages: [
+      { title: 'Hi3D heavy model preview', href: './webgl-cockpit-hi3d.html' },
       {
         title: 'Textured cockpit',
         href: './webgl-cockpit.html',
