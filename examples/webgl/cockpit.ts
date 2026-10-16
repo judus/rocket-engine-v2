@@ -1,3 +1,4 @@
+import { maxGpuLights } from '../../src/webgl/LightUniforms.js';
 import { hi3dCockpitLamps } from './Hi3dCockpitLamps.js';
 import { hi3dDisplayTuning, hi3dLampSizeTuning } from './Hi3dDisplayTuning.js';
 import { hi3dCockpitDisplays } from './Hi3dCockpitDisplays.js';
@@ -801,6 +802,14 @@ async function start() {
           minimumDistance: 0.2,
         },
       ];
+      if (hi3dLamps) {
+        const buttons = screenLightOnly?.checked
+          ? []
+          : hi3dLamps.buttonLights();
+        lights.push(...buttons);
+        document.querySelector('#button-light-status')!.textContent =
+          `${buttons.length}/4 rectangular button lights · warm local spill · R1/R2 lighting deferred${screenLightOnly?.checked ? ' · excluded during screen isolation' : ''}`;
+      }
       if (screenLights) {
         const spill = screenLights(
           screenLightEnabled!.checked ? Number(screenLightStrength!.value) : 0,
@@ -811,7 +820,7 @@ async function start() {
           '#screen-light-value',
         )!.value = `${screenLightStrength!.value}×`;
         document.querySelector('#screen-light-status')!.textContent =
-          `${screenPower!.checked ? 'Displays powered' : 'Displays off'} · ${spill.length} attached point lights · ${lights.length}/8 lighting slots · ${lit.checked ? (screenLightOnly!.checked ? 'screen lighting isolated' : 'scene lighting combined') : 'unlit view: surface illumination bypassed'}`;
+          `${screenPower!.checked ? 'Displays powered' : 'Displays off'} · ${spill.length} attached point lights · ${lights.length}/${maxGpuLights} lighting slots · ${lit.checked ? (screenLightOnly!.checked ? 'screen lighting isolated' : 'scene lighting combined') : 'unlit view: surface illumination bypassed'}`;
       }
       document.querySelector('#light-status')!.textContent =
         `${lit.checked ? (response.checked ? 'GGX material response' : 'Lambert comparison') : 'Unlit base color'} · camera ${camera.x.toFixed(1)}, ${camera.y.toFixed(1)}, ${camera.z.toFixed(1)}`;

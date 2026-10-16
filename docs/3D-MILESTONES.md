@@ -735,8 +735,8 @@ mesh with shared geometry. Off keeps a dark lens in place to cover the baked
 glow; it does not hide the overlay and reveal the old bright texture.
 
 The two opaque procedural glass textures are shared across the four lenses.
-The shared bloom pass gives bright lenses a halo; lamps do not add individual
-point lights. There is no extra clock or alarm logic. Control listeners use
+The shared bloom pass gives bright lenses a halo; the four rectangular buttons also cast a restrained warm spill. Round R1/R2
+lighting remains deferred. There is no extra clock or alarm logic. Control listeners use
 the existing application abort signal; recreation reuses checkbox state and
 retires the old renderer/resources. Tests cover independent switching, opaque
 dark coverage, retained geometry and cached meshes. Browser checks cover the
@@ -769,11 +769,28 @@ rebaking the imprint. Real blending remains on the roadmap.
 
 The preview reuses the original cockpit bloom controls, diagnostic views and
 render-target lifecycle. Five lights follow the fitted instrument centers and
-shared screen power, using all eight available light slots with scene lighting.
+shared screen power, using five of twelve available light slots (three more for scene lighting and
+four for rectangular buttons).
 The Hi3D default spill strength is 0.4, with turquoise light matching the
 overhead readouts. Sources sit 0.45 units ahead of the faces and use a 0.65-unit
 minimum falloff distance to soften concentrated bezel hotspots. The original
 cockpit retains its previous lighting profile. Spill is approximate and has no
-occlusion or shadows. Lamps receive bloom but
-have no separate point lights. Tests cover fitted centers, warm/cool assignment
+occlusion or shadows. All bright lenses receive bloom. Rectangular buttons also have independent
+point lights; round alert lights remain deferred. Tests cover fitted centers, warm/cool assignment
 and power; browser checks verify both toggles and the combined presentation.
+
+### Hi3D rectangular button illumination
+
+The four rectangular buttons each contribute a warm point light while powered.
+Their existing checkboxes control lens and light together, independently of screen
+power. Lights follow the fitted lens transforms. R1/R2 geometry, artwork and
+lighting are unchanged. Screen isolation excludes the button lights.
+
+The GPU light bound is now twelve, shared by uniform packing and both Lambert
+and GGX shader sources. No light is silently dropped. Button light intensity is
+half its authored face area, with a 0.18-unit forward offset and 0.25-unit minimum
+falloff distance. This is approximate spill without occlusion or shadows.
+
+Validation: full check passes 494 tests and coverage; browser checks cover all
+twelve lights together, independent switching, screen power, both shading paths
+and renderer recreation with cleanup.

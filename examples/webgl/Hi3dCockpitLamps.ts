@@ -1,14 +1,17 @@
 import { hi3dLampUnderlay } from './Hi3dLampUnderlay.js';
 import {
+  matrixPoint,
   Mesh3D,
   MeshGeometry,
   Node3D,
   TextureImage,
 } from '../../src/3d/index.js';
+import type { PointLight3D } from '../../src/3d/index.js';
 
 /** Four large generated lamp faces and two round alert lenses, fitted in the same pre-tuning preview units
  * as the LCD inserts. Opaque lenses cover the baked glow even when switched off.
- * No simulation meaning, light spill, bloom or extra update clock.
+ * Four rectangular button lights follow their lenses; round alert lighting is deferred.
+ * No simulation meaning or extra update clock.
  */
 export function hi3dCockpitLamps() {
   const root = new Node3D('Hi3D lamp lenses');
@@ -252,6 +255,16 @@ export function hi3dCockpitLamps() {
       };
     };
     return {
+      buttonLight(): PointLight3D | undefined {
+        if (round || !powered) return undefined;
+        return {
+          kind: 'point',
+          position: matrixPoint(node.worldMatrix(), { x: 0, y: 0, z: 0.18 }),
+          color: [1, 0.61, 0.09],
+          intensity: spec.width * spec.height * 0.5,
+          minimumDistance: 0.25,
+        };
+      },
       compensateScale(width: number, height: number) {
         aspect = round ? height / width : 1;
         applySize();
@@ -277,6 +290,13 @@ export function hi3dCockpitLamps() {
   });
   return {
     root,
+    /** Only the four rectangular buttons emit spill; independent of display power. */
+    buttonLights(): readonly PointLight3D[] {
+      return lamps.flatMap((lamp) => {
+        const light = lamp.buttonLight();
+        return light ? [light] : [];
+      });
+    },
     /** Keep round lenses circular while their centers follow the cockpit fit. */
     setCockpitScale(width: number, height: number) {
       if (

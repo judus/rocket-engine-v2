@@ -1,3 +1,4 @@
+import { maxGpuLights } from './LightUniforms.js';
 export const litVertexSource = `#version 300 es
 layout(location=0) in vec3 position;
 layout(location=1) in vec3 color;
@@ -25,15 +26,15 @@ in vec3 worldNormal;
 in vec3 emissiveColor;
 uniform bool lightingEnabled;
 uniform int lightCount;
-uniform vec4 lightVectors[8];
-uniform vec4 lightColors[8];
-uniform float lightMinimums[8];
+uniform vec4 lightVectors[${maxGpuLights}];
+uniform vec4 lightColors[${maxGpuLights}];
+uniform float lightMinimums[${maxGpuLights}];
 out vec4 pixel;
 void main(){
   vec3 illumination=vec3(0.0);
   float normalLength=length(worldNormal);
   vec3 n=normalLength>0.0 ? worldNormal/normalLength : vec3(0.0);
-  for(int i=0;i<8;i++){
+  for(int i=0;i<${maxGpuLights};i++){
     if(i>=lightCount) break;
     vec4 source=lightVectors[i];
     float diffuse=1.0;

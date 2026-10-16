@@ -1,3 +1,4 @@
+import { maxGpuLights } from './LightUniforms.js';
 import { litVertexSource, texturedVertexSource } from './LightingShader.js';
 /** Direct-light metallic/roughness BRDF. GGX, height-correlated Smith, Schlick.
  * Reference: glTF 2.0 Appendix B. Optional split-sum environment lighting; no multiple scattering.
@@ -48,9 +49,9 @@ uniform vec3 cameraPosition;
 uniform bool materialResponseEnabled;
 uniform bool lightingEnabled;
 uniform int lightCount;
-uniform vec4 lightVectors[8];
-uniform vec4 lightColors[8];
-uniform float lightMinimums[8];
+uniform vec4 lightVectors[${maxGpuLights}];
+uniform vec4 lightColors[${maxGpuLights}];
+uniform float lightMinimums[${maxGpuLights}];
 out vec4 pixel;
 const float PI=3.141592653589793;
 vec3 safeUnit(vec3 v){float d=length(v);return d>0.0?v/d:vec3(0.0);}
@@ -98,7 +99,7 @@ void main(){
   float metallic=clamp(surface.x,0.0,1.0), roughness=clamp(surface.y,0.0,1.0);`
   }
   vec3 radiance=vec3(0.0);
-  for(int i=0;i<8;i++){
+  for(int i=0;i<${maxGpuLights};i++){
     if(i>=lightCount) break;
     vec4 source=lightVectors[i];
     vec3 energy=lightColors[i].rgb*lightColors[i].a;

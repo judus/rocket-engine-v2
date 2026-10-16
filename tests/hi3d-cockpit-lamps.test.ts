@@ -106,3 +106,28 @@ void test('disc sizing preserves roundness, fitted centers and independent lamp 
   assert.equal(r1.mesh, mesh);
   assert.throws(() => lamps.setSize(4, 0), /positive/);
 });
+
+void test('rectangular button spill follows fit and power independently of round alerts', () => {
+  const lamps = hi3dCockpitLamps();
+  const initial = lamps.buttonLights();
+  assert.equal(initial.length, 4);
+  assert.ok(
+    initial.every(
+      (light) =>
+        light.color[0] > light.color[1] && light.color[1] > light.color[2],
+    ),
+  );
+  lamps.setPowered(4, false);
+  lamps.setPowered(5, false);
+  assert.deepEqual(lamps.buttonLights(), initial);
+  lamps.setPowered(0, false);
+  assert.deepEqual(lamps.buttonLights(), initial.slice(1));
+  lamps.setPowered(0, true);
+  const node = lamps.root.children[0]!;
+  node.transform = { ...node.transform, position: { x: 1, y: 2, z: 3 } };
+  const moved = lamps.buttonLights();
+  assert.deepEqual(moved[0]!.position, { x: 1, y: 2, z: 3.18 });
+  assert.deepEqual(moved.slice(1), initial.slice(1));
+  for (let i = 0; i < 4; i++) lamps.setPowered(i, false);
+  assert.deepEqual(lamps.buttonLights(), []);
+});

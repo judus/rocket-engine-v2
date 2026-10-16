@@ -1,7 +1,7 @@
 import type { Light3D } from '../3d/Lighting3D.js';
 import { prepareLights } from '../3d/Lighting3D.js';
 
-export const maxGpuLights = 8;
+export const maxGpuLights = 12;
 export interface LightUniforms {
   readonly count: number;
   readonly vectors: Float32Array;
