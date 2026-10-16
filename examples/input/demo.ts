@@ -5,6 +5,7 @@ import {
   Input,
   firstPersonInput,
   topDownInput,
+  platformerInput,
 } from '../../src/index.js';
 import {
   CanvasRenderer3D,
@@ -12,6 +13,7 @@ import {
   Node3D,
   Mesh3D,
 } from '../../src/3d/index.js';
+import { PlatformerDemo, platformerBlocks } from './PlatformerDemo.js';
 import { cubeGeometry, cubeMaterials } from '../3d/CubeGeometry.js';
 
 function describe(mapping: ActionMapping): string {
@@ -26,6 +28,7 @@ function describe(mapping: ActionMapping): string {
   return [...chord.modifiers, chord.code].join(' + ');
 }
 
+const platformer = document.body.dataset.inputDemo === 'platformer';
 const firstPerson = document.body.dataset.inputDemo === 'first-person';
 const button = (id: string) =>
   document.querySelector<HTMLButtonElement>(`#${id}`)!;
@@ -35,7 +38,9 @@ const status = document.querySelector<HTMLOutputElement>('#demo-status')!;
 const instructions = document.querySelector<HTMLElement>('#instructions')!;
 instructions.textContent = firstPerson
   ? 'WASD: move relative to facing · Mouse/Arrows: look · Shift: sprint · Ctrl: crouch · Space: jump · R: reload · Left mouse: fire · Ctrl+R: reset.'
-  : 'W/S: north/south · A/D: west/east (arrows also work) · Shift: sprint · E: interact · Left mouse: fire · Ctrl+R: reset.';
+  : platformer
+    ? 'A/D or ←/→: walk west/east · Shift: run · Space/↑: jump · Ctrl+R: reset · Reach the flag. No north/south movement.'
+    : 'W/S: north/south · A/D: west/east (arrows also work) · Shift: sprint · E: interact · Left mouse: fire · Ctrl+R: reset.';
 document.querySelector<HTMLElement>('#capture-option')!.hidden = !firstPerson;
 let current: Rocket | undefined;
 async function start() {
@@ -43,6 +48,7 @@ async function start() {
   await current?.dispose();
   ui.hidden = true;
   const app = new Rocket({
+    ...(platformer ? { fixed: {} } : {}),
     onError: (error) => {
       status.textContent = String(error);
     },
@@ -52,6 +58,7 @@ async function start() {
   camera.y = 1.7;
   camera.z = -8;
   camera.far = 100;
+  const platform = new PlatformerDemo();
   const player = { x: 480, y: 270 },
     events: string[] = [];
   let time = 0,
@@ -63,6 +70,7 @@ async function start() {
     lastFire = 0,
     remapped = false;
   const reset = () => {
+    platform.reset();
     player.x = 480;
     player.y = 270;
     camera.x = 0;
@@ -84,6 +92,17 @@ async function start() {
   }
   const scene = app.scene(
     new Scene2D({
+      ...(platformer
+        ? {
+            fixedUpdate(dt: number) {
+              platform.step(
+                dt,
+                controls.value('horizontal'),
+                controls.value('sprint') !== 0,
+              );
+            },
+          }
+        : {}),
       update(dt) {
         time += dt;
         const speed =
@@ -118,7 +137,7 @@ async function start() {
           jump = Math.max(0, jump + verticalSpeed * dt);
           if (jump === 0) verticalSpeed = 0;
           camera.y = (controls.value('crouch') ? 0.95 : 1.7) + jump;
-        } else {
+        } else if (!platformer) {
           const east = controls.value('east'),
             north = controls.value('north'),
             length = Math.max(1, Math.hypot(east, north));
@@ -131,11 +150,11 @@ async function start() {
             Math.min(524, player.y - (north * speed * 35 * dt) / length),
           );
         }
-        if (controls.value('fire') && time - lastFire > 0.15) {
+        if (!platformer && controls.value('fire') && time - lastFire > 0.15) {
           shots++;
           lastFire = time;
         }
-        status.textContent = `World time ${time.toFixed(1)} s · ${firstPerson ? `X ${camera.x.toFixed(2)} Z ${camera.z.toFixed(2)} heading ${((camera.yaw * 180) / Math.PI).toFixed(1)}°` : `X ${player.x.toFixed(1)} Y ${player.y.toFixed(1)}`} · reloads ${reloads} · interactions ${interactions} · shots ${shots} · ${controls.enabled ? 'game context' : 'UI context'}`;
+        status.textContent = `World time ${time.toFixed(1)} s · ${firstPerson ? `X ${camera.x.toFixed(2)} Z ${camera.z.toFixed(2)} heading ${((camera.yaw * 180) / Math.PI).toFixed(1)}°` : platformer ? `X ${platform.x.toFixed(1)} height ${(480 - platform.y).toFixed(1)} · ${platform.grounded ? 'grounded' : 'airborne'}${platform.x > 2290 ? ' · FLAG REACHED!' : ''}` : `X ${player.x.toFixed(1)} Y ${player.y.toFixed(1)}`} · reloads ${reloads} · interactions ${interactions} · shots ${shots} · ${controls.enabled ? 'game context' : 'UI context'}`;
         for (const name of controls.names)
           document.querySelector<HTMLElement>(
             `[data-value="${name}"]`,
@@ -176,6 +195,41 @@ async function start() {
           ctx.moveTo(480, 262);
           ctx.lineTo(480, 278);
           ctx.stroke();
+        } else if (platformer) {
+          const scroll = Math.max(0, Math.min(1440, platform.x - 320));
+          ctx.fillStyle = '#152a3b';
+          for (let x = -scroll % 120; x < 960; x += 120)
+            ctx.fillRect(x, 70, 1, 410);
+          ctx.save();
+          ctx.translate(-scroll, 0);
+          for (const block of platformerBlocks) {
+            ctx.fillStyle = '#294658';
+            ctx.fillRect(block.x, block.y, block.width, block.height);
+            ctx.fillStyle = '#80dbbd';
+            ctx.fillRect(block.x, block.y, block.width, 4);
+          }
+          ctx.fillStyle = '#d3dce5';
+          ctx.fillRect(2320, 345, 4, 135);
+          ctx.fillStyle = '#ffc077';
+          ctx.fillRect(2324, 345, 50, 30);
+          ctx.fillStyle = '#80dbbd';
+          ctx.fillRect(platform.x - 12, platform.y - 32, 24, 32);
+          ctx.fillStyle = '#081420';
+          ctx.fillRect(
+            platform.x + platform.facing * 5 - 2,
+            platform.y - 25,
+            4,
+            5,
+          );
+          ctx.restore();
+          ctx.font = '16px monospace';
+          ctx.fillStyle = '#c3d9e5';
+          ctx.fillText('WEST ←    SIDE VIEW    → EAST', 24, 36);
+          ctx.fillText(
+            'Jump onto the ledges · Shift to run · Reach the flag →',
+            24,
+            62,
+          );
         } else {
           ctx.strokeStyle = '#203849';
           ctx.lineWidth = 1;
@@ -213,7 +267,11 @@ async function start() {
       },
     }),
   );
-  const preset = firstPerson ? firstPersonInput : topDownInput;
+  const preset = firstPerson
+    ? firstPersonInput
+    : platformer
+      ? platformerInput
+      : topDownInput;
   const controls = app.use(Input).actions(scene).use(preset);
   for (const name of controls.names)
     controls.on(name, (event) => {
@@ -233,7 +291,10 @@ async function start() {
       if (name === 'reload') reloads++;
       if (name === 'interact') interactions++;
       if (name === 'reset') reset();
-      if (name === 'jump' && !jump) verticalSpeed = 4.5;
+      if (name === 'jump') {
+        if (platformer) platform.requestJump();
+        else if (!jump) verticalSpeed = 4.5;
+      }
     });
   const tbody = document.querySelector<HTMLElement>('#action-values')!;
   tbody.replaceChildren();
@@ -263,7 +324,11 @@ async function start() {
   });
   view.canvas.setAttribute(
     'aria-label',
-    firstPerson ? 'First-person input playground' : 'Top-down input playground',
+    firstPerson
+      ? 'First-person input playground'
+      : platformer
+        ? 'Platformer input playground'
+        : 'Top-down input playground',
   );
   controls.bind(view, {
     capture: firstPerson && captureMode.checked ? 'pointer-lock' : 'focus',
@@ -291,19 +356,17 @@ async function start() {
     { signal },
   );
   button('ui-close').addEventListener('click', close, { signal });
-  const remapName = firstPerson ? 'reload' : 'interact';
+  const remapName = firstPerson ? 'reload' : platformer ? 'jump' : 'interact';
+  const defaultMapping = preset.actions[remapName]!.mapping;
   button('remap').textContent = `Remap ${remapName} to F`;
   button('remap').addEventListener(
     'click',
     () => {
       remapped = !remapped;
-      controls.map(
-        firstPerson ? 'reload' : 'interact',
-        remapped ? 'KeyF' : firstPerson ? 'KeyR' : 'KeyE',
-      );
+      controls.map(remapName, remapped ? 'KeyF' : defaultMapping);
       document.querySelector<HTMLElement>(
         `[data-mapping="${remapName}"]`,
-      )!.textContent = remapped ? 'KeyF' : firstPerson ? 'KeyR' : 'KeyE';
+      )!.textContent = remapped ? 'KeyF' : describe(defaultMapping);
       button('remap').textContent = remapped
         ? 'Restore default binding'
         : `Remap ${remapName} to F`;

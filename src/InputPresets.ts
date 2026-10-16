@@ -46,3 +46,20 @@ export const topDownInput: InputPreset = {
     reset: { kind: 'press', mapping: { code: 'KeyR', modifiers: ['Control'] } },
   },
 };
+
+/** Side-view movement: height comes from game-owned jumping, never a north axis. */
+export const platformerInput: InputPreset = {
+  capture: 'focus',
+  actions: {
+    horizontal: {
+      kind: 'axis',
+      mapping: {
+        negative: ['KeyA', 'ArrowLeft'],
+        positive: ['KeyD', 'ArrowRight'],
+      },
+    },
+    sprint: { kind: 'hold', mapping: ['ShiftLeft', 'ShiftRight'] },
+    jump: { kind: 'press', mapping: ['Space', 'ArrowUp'] },
+    reset: { kind: 'press', mapping: { code: 'KeyR', modifiers: ['Control'] } },
+  },
+};

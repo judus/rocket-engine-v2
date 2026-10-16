@@ -9,6 +9,7 @@ const groups: readonly { title: string; pages: readonly DemoPage[] }[] = [
     pages: [
       { title: 'Input · 3D first-person', href: './input-first-person.html' },
       { title: 'Input · 2D top-down', href: './input-top-down.html' },
+      { title: 'Input · 2D platformer', href: './input-platformer.html' },
       {
         title: 'Arms & cameras',
         href: './',

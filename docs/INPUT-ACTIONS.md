@@ -3,7 +3,7 @@
 The Input service owns physical events, frame snapshots, capture, focus loss and
 cleanup. `ActionContext` adds named actions and handlers over that same service;
 it does not create another event loop or keyboard implementation. The spaceship
-is unchanged; these basics have independent first-person and top-down demos.
+is unchanged; these basics have independent first-person, top-down and side-view platformer demos.
 
 ## Small API
 
@@ -52,7 +52,15 @@ implemented by the demo/game, never the preset.
 `topDownInput` defines north/east axes (W/D positive, S/A negative, arrow aliases),
 sprint, interact (E), fire (Mouse0) and reset (Ctrl+R), with focus activation and a
 visible cursor. Positive north is an intention; in the demo's Y-down canvas it
-subtracts from Y. Neither preset includes combat or collision domain systems.
+subtracts from Y. The presets include no combat or collision domain systems.
+
+`platformerInput` defines a horizontal axis (A/D and left/right arrows), sprint
+(Shift), jump (Space or Up) and reset (Ctrl+R). It uses focus activation with a
+visible cursor. There is no north/south axis. Jump is a press action: holding it
+or browser key repeat cannot repeatedly jump. A game may remap it normally.
+The demo consumes jump requests in Rocket's fixed update and owns gravity,
+solid ledges, grounded checks and camera scrolling. Midair presses are ignored;
+a fresh press after landing is required. These are demo rules, not preset policy.
 
 ## Bindings and combos
 
@@ -102,6 +110,12 @@ snapshot consumers; existing demos keep their previous capture policy.
 - `/input-top-down.html`: north/east movement, visible directional labels, hold
   and press actions. Both demos normalize diagonal movement, expose live remapping,
   an HTML text-entry context, a continuing world clock and recreation cleanup.
+
+- `/input-platformer.html`: a side-view scrolling level with walk/run, jumping,
+  solid ledges and a finish flag. Includes the same action inspector, UI context,
+  recreation and live remapping (jump to F and back). The UI disables controls
+  while gravity and world time continue. Belt-scrolling ground depth is a separate
+  planned preset, followed by flight and virtual controllers.
 
 This slice does not implement a key-recording/rebinding editor, persisted player
 profiles, touch/gamepad mappings, context priority stacks or the spaceship UI.

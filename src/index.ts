@@ -46,7 +46,11 @@ export type {
   ActionMapping,
   InputPreset,
 } from './ActionContext.js';
-export { firstPersonInput, topDownInput } from './InputPresets.js';
+export {
+  firstPersonInput,
+  topDownInput,
+  platformerInput,
+} from './InputPresets.js';
 export type {
   InputModifier,
   InputButton,
