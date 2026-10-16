@@ -1,3 +1,5 @@
+import { hi3dCockpitDisplays } from './Hi3dCockpitDisplays.js';
+import { hi3dCockpitInstruments } from './Hi3dCockpitInstruments.js';
 import { CockpitMotion, CockpitFlight } from './CockpitMotion.js';
 import { cockpitAsteroidField } from '../space/CockpitAsteroidField.js';
 import { cockpitScreenLights } from './CockpitScreenLights.js';
@@ -50,7 +52,13 @@ const instrumentRunning = document.querySelector<HTMLInputElement>(
 );
 const instrumentRate =
   document.querySelector<HTMLInputElement>('#instruments-rate');
-const instruments = instrumentRunning ? cockpitInstruments() : undefined;
+const hi3dDisplays =
+  document.querySelector<HTMLElement>('#gpu-view')?.dataset.instruments ===
+  'hi3d';
+const hi3dInstruments =
+  instrumentRunning && hi3dDisplays ? hi3dCockpitInstruments() : undefined;
+const instruments =
+  hi3dInstruments ?? (instrumentRunning ? cockpitInstruments() : undefined);
 document
   .querySelector('#instruments-step')
   ?.addEventListener('click', () => instruments?.advance());
@@ -196,6 +204,14 @@ async function start() {
               ) / dt
             : 0;
         if (screenPower) instruments?.setPowered(screenPower.checked);
+        if (hi3dInstruments)
+          hi3dInstruments.setContacts(
+            field && fieldControl('field-enabled').checked
+              ? field.children.map((node) =>
+                  matrixPoint(node.worldMatrix(), { x: 0, y: 0, z: 0 }),
+                )
+              : [],
+          );
         instruments?.update(
           dt,
           instrumentRunning!.checked,
@@ -213,7 +229,7 @@ async function start() {
           '#instruments-status',
         );
         if (instrumentStatus && instruments)
-          instrumentStatus.value = `Five live displays · ${instrumentRate!.value} Hz · ${instruments.draws} draws per display · local ${Number(cameraX.value).toFixed(1)}, ${Number(cameraY.value).toFixed(1)}, ${Number(cameraZ.value).toFixed(1)} U · heading ${(((Number(cameraYaw.value) % 360) + 360) % 360).toFixed(1)}° / pitch ${Number(cameraPitch.value).toFixed(1)}° · ${navigationSpeed.toFixed(1)} U/s · ${pilot.checked ? 'pilot navigation' : 'free camera'}`;
+          instrumentStatus.value = `${hi3dDisplays ? 'Hi3D navigation / real field contacts' : 'Five live displays'} · ${instrumentRate!.value} Hz · ${instruments.draws} draws per display · local ${Number(cameraX.value).toFixed(1)}, ${Number(cameraY.value).toFixed(1)}, ${Number(cameraZ.value).toFixed(1)} U · heading ${(((Number(cameraYaw.value) % 360) + 360) % 360).toFixed(1)}° / pitch ${Number(cameraPitch.value).toFixed(1)}° · ${navigationSpeed.toFixed(1)} U/s · ${pilot.checked ? 'pilot navigation' : 'free camera'}`;
         if (animate.checked) phase = (phase + dt * 0.5) % (Math.PI * 2);
         if (orbitLight.checked)
           lightPhase = (lightPhase + dt * 0.6) % (Math.PI * 2);
@@ -293,7 +309,7 @@ async function start() {
     return;
   }
   const instance = model.instantiate();
-  if (instruments)
+  if (instruments && !hi3dDisplays)
     attachCockpitDisplays(
       instance.root,
       { image: instruments.radar },
@@ -314,6 +330,23 @@ async function start() {
     scale: { x: modelScale, y: modelScale, z: modelScale },
   };
   placement.add(instance.root);
+  if (instruments && hi3dDisplays) {
+    const displays = hi3dCockpitDisplays(
+      { image: instruments.radar },
+      { image: instruments.telemetry },
+      instruments.overhead.map((image) => ({ image })) as [
+        { image: typeof instruments.radar },
+        { image: typeof instruments.radar },
+        { image: typeof instruments.radar },
+      ],
+    );
+    displays.transform = {
+      position: { x: 0, y: -assetNumber('modelY', 0) / modelScale, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      scale: { x: 1 / modelScale, y: 1 / modelScale, z: 1 / modelScale },
+    };
+    placement.add(displays);
+  }
   const tuningPanel = document.querySelector('#cockpit-tuning');
   if (tuningPanel) {
     // Scale around the preview's visual center, independently of its exported origin.
@@ -409,7 +442,7 @@ async function start() {
     assembly.add(placement);
   }
   const shadowFit = shadowsEnabled ? cockpitShadowFit(assembly) : undefined;
-  const reticle = instruments ? cockpitReticle() : undefined;
+  const reticle = instruments && !hi3dDisplays ? cockpitReticle() : undefined;
   if (reticle) assembly.add(reticle);
   const preset = instance.cameras[0];
   const position = preset

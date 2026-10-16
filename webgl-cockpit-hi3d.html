@@ -104,6 +104,7 @@
         data-model="./examples/3d/assets/cockpit-hi3d-v3-gap-filled.glb"
         data-model-label="Hi3D v3 gap-filled cockpit"
         data-world="asteroids"
+        data-instruments="hi3d"
         data-large-textures="false"
         data-model-scale="94.70412249158481"
         data-model-y="-0.8191118254985987"
@@ -111,6 +112,30 @@
         data-eye-y="1.48"
         data-eye-z="-3.37"
       ></div>
+      <fieldset>
+        <legend>Hi3D instruments</legend>
+        <p>
+          Overhead, left to right: heading/pitch (medium), speed (small), X/Y/Z
+          position (large). Lower left: heading-up radar of actual asteroid
+          centers within 120 units. Lower right: speed, attitude and nearest
+          in-range rock. Flight values follow the current camera; collisions
+          remain disabled.
+        </p>
+        <label
+          ><input id="screen-power" type="checkbox" checked /> Screen
+          power</label
+        >
+        <label
+          ><input id="instruments-running" type="checkbox" checked /> Run
+          displays</label
+        >
+        <label
+          >Display updates / second
+          <input id="instruments-rate" type="range" min="1" max="30" value="10"
+        /></label>
+        <button id="instruments-step">Advance displays once</button>
+        <output id="instruments-status" aria-live="polite"></output>
+      </fieldset>
       <div class="toolbar">
         <label
           ><input id="cockpit-motion" type="checkbox" checked /> Subtle cockpit
@@ -278,7 +303,8 @@ Loading…</pre>
       <p>
         Move with cockpit keeps the current camera-to-model offset. Turn it off
         to look around independently; Inspect exterior resets the cockpit at the
-        origin. This is direct navigation, without flight physics or collision.
+        origin. Navigation uses smooth acceleration and braking; collisions
+        remain disabled.
       </p>
       <div class="toolbar">
         <label
@@ -498,7 +524,7 @@ Loading…</pre>
       <output id="gpu-status" aria-live="polite">Starting…</output>
       <p>
         Revised Hi3D v3 geometry and six textures. The lower coverage panel is
-        separate; instruments remain part of the cockpit mesh, with no
+        separate; instrument bezels remain part of the cockpit mesh, with no
         pilot-camera metadata. UV-derived tangents were added for the normal
         map; geometry, textures and embedded transforms are unchanged.
       </p>
@@ -527,10 +553,10 @@ Loading…</pre>
         <div id="environment-preview" class="toolbar"></div>
       </details>
       <p>
-        This imported cockpit has a separate lower coverage panel; the authored
-        radar/telemetry and overhead display adapters from the low-poly cockpit
-        do not apply. This preview uses its own material textures, the shared
-        lighting/reflection controls and native viewport resolution.
+        This imported cockpit has a separate lower coverage panel and five
+        fitted live instrument inserts with new Hi3D artwork. This preview uses
+        its own material textures, the shared lighting/reflection controls and
+        native viewport resolution.
         <a href="./webgl-cockpit-displays.html">Original cockpit comparison</a>.
       </p>
       <p><a href="./docs/3D-MILESTONES.md">Milestones and boundaries</a></p>

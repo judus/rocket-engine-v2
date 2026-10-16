@@ -678,3 +678,28 @@ Recorded at Julien’s request on 2026-10-16:
 
 These are future exploration topics, with no assigned milestone, schedule or
 implementation approval.
+
+### Hi3D v3 fitted instruments
+
+`webgl-cockpit-hi3d.html` adds five unlit, depth-tested inserts without changing
+its GLB or bezel artwork. `Hi3dCockpitDisplays.ts` fits the facade in preview
+units before the shared width/height/Y/Z tuning, so the inserts inherit the
+same fit, pilot rig and cosmetic motion as the model. This is an asset-specific
+adapter for the v3 gap-filled mesh, not the older authored display-name adapter.
+
+Overhead order follows the different glass sizes: heading/pitch on medium left,
+speed on small center, local XYZ on large right. `Hi3dCockpitInstruments.ts`
+paints new graphics at 10 Hz by default (1–30 Hz control, pause, single-step,
+power). Lower left is heading-up, top-down radar of actual asteroid centers
+within a spherical 120-unit range. Lower right shows current navigation speed,
+heading/pitch and nearest in-range center distance. It does not invent hull,
+shield or power state. Contact size, pitch projection, collision clearance and
+occlusion are not modeled. Readouts describe the camera when inspecting freely.
+
+These use the existing dynamic-texture transport and scene update; no new timer
+or GPU ownership is introduced. Recreate/context restoration use the shared
+renderer lifecycle. Screens are unlit; bloom and instrument light spill are not
+enabled on this preview. The source GLB, baked texture lighting and accepted fit
+remain unchanged. Tests cover radar translation/heading/range and fitted surface
+sizes, bindings and inherited transforms; browser checks cover visual alignment,
+updates, pause/step/power, field visibility and recreation.
