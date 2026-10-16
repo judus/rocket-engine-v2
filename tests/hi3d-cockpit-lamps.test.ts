@@ -60,3 +60,30 @@ void test('round alert colors change live while retaining power, geometry and te
   assert.throws(() => lamps.setColor(4, 'orange'), /#rrggbb/);
   assert.throws(() => lamps.setColor(6, '#ffffff'), /Unknown/);
 });
+
+void test('round lenses cancel unequal cockpit scaling without moving their centers or stretching other lamps', () => {
+  const lamps = hi3dCockpitLamps();
+  const positions = lamps.root.children.map((node) => ({
+    ...node.transform.position,
+  }));
+  const meshes = lamps.root.children.map((node) => node.mesh);
+  for (const [width, height] of [
+    [0.81, 0.93],
+    [1.2, 0.8],
+    [1, 1],
+  ]) {
+    lamps.setCockpitScale(width!, height!);
+    lamps.root.children.forEach((node, i) => {
+      assert.deepEqual(node.transform.position, positions[i]);
+      assert.equal(node.mesh, meshes[i]);
+      if (i < 4) assert.deepEqual(node.transform.scale, { x: 1, y: 1, z: 1 });
+      else
+        assert.ok(
+          Math.abs(
+            node.transform.scale.x * width! - node.transform.scale.y * height!,
+          ) < 1e-12,
+        );
+    });
+  }
+  assert.throws(() => lamps.setCockpitScale(0, 1), /positive/);
+});

@@ -332,6 +332,7 @@ async function start() {
     scale: { x: modelScale, y: modelScale, z: modelScale },
   };
   placement.add(instance.root);
+  let hi3dLamps: ReturnType<typeof hi3dCockpitLamps> | undefined;
   if (instruments && hi3dDisplays) {
     const displays = hi3dCockpitDisplays(
       { image: instruments.radar },
@@ -350,6 +351,7 @@ async function start() {
     hi3dDisplayTuning(displays, modelUrl, signal);
     placement.add(displays);
     const lamps = hi3dCockpitLamps();
+    hi3dLamps = lamps;
     lamps.root.transform = displays.transform;
     hi3dDisplayTuning(lamps.root, modelUrl, signal, 'lamp');
     placement.add(lamps.root);
@@ -425,6 +427,7 @@ async function start() {
         rotation: { x: 0, y: 0, z: 0 },
         scale: { x: width, y: height, z: 1 },
       };
+      hi3dLamps?.setCockpitScale(width, height);
       controls.forEach((control, i) => {
         document.querySelector<HTMLOutputElement>(
           `#${control.id}-value`,

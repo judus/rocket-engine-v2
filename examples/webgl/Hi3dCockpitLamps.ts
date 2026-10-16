@@ -12,6 +12,24 @@ import {
 export function hi3dCockpitLamps() {
   const root = new Node3D('Hi3D lamp lenses');
   const lens = (powered: boolean, round = false) => {
+    // Shallow lens shading; no strong bulb highlight or dark inward edge.
+    if (round) {
+      const size = 32,
+        pixels = new Uint8Array(size * size * 4);
+      for (let y = 0; y < size; y++)
+        for (let x = 0; x < size; x++) {
+          const radius = Math.min(
+            1,
+            Math.hypot(((x + 0.5) / size) * 2 - 1, ((y + 0.5) / size) * 2 - 1),
+          );
+          const value = powered
+            ? Math.round(255 * (1 - 0.1 * radius * radius))
+            : Math.round(16 - 2 * radius);
+          const i = (y * size + x) * 4;
+          pixels.set([value, value, value, 255], i);
+        }
+      return new TextureImage(size, size, pixels);
+    }
     const width = 64,
       height = 32,
       pixels = new Uint8Array(width * height * 4);
@@ -23,12 +41,7 @@ export function hi3dCockpitLamps() {
           0,
           1 - Math.hypot((u - 0.5) * 1.3, (v - 0.48) * 1.5),
         );
-        const edge = round
-          ? Math.min(
-              1,
-              Math.max(0, 1 - Math.hypot((u - 0.5) * 2, (v - 0.5) * 2)) * 6,
-            )
-          : Math.min(1, Math.min(u, 1 - u, v, 1 - v) * 12);
+        const edge = Math.min(1, Math.min(u, 1 - u, v, 1 - v) * 12);
         const highlight = Math.exp(-Math.pow((v - 0.2) * 18, 2)) * 0.12;
         const brightness = powered
           ? 0.32 + 0.68 * glow
@@ -36,11 +49,9 @@ export function hi3dCockpitLamps() {
         const i = (y * width + x) * 4;
         pixels[i] = Math.round(255 * brightness * (0.5 + 0.5 * edge));
         pixels[i + 1] = Math.round(
-          (round ? 255 : powered ? 205 : 150) * brightness * (0.5 + 0.5 * edge),
+          (powered ? 205 : 150) * brightness * (0.5 + 0.5 * edge),
         );
-        pixels[i + 2] = Math.round(
-          (round ? 255 : powered ? 85 : 65) * brightness,
-        );
+        pixels[i + 2] = Math.round((powered ? 85 : 65) * brightness);
         pixels[i + 3] = 255;
       }
     return new TextureImage(width, height, pixels);
@@ -88,7 +99,8 @@ export function hi3dCockpitLamps() {
       name: 'r1',
       x: 1.29,
       y: 3.405,
-      z: -0.415,
+      // Just in front of the lip, covering its inward baked shadow.
+      z: -0.35,
       width: 0.3,
       height: 0.3,
       round: true,
@@ -98,7 +110,8 @@ export function hi3dCockpitLamps() {
       name: 'r2',
       x: 1.75,
       y: 3.405,
-      z: -0.415,
+      // Just in front of the lip, covering its inward baked shadow.
+      z: -0.35,
       width: 0.3,
       height: 0.3,
       round: true,
@@ -186,6 +199,13 @@ export function hi3dCockpitLamps() {
     node.castsShadow = node.receivesShadow = false;
     root.add(node);
     return {
+      compensateScale(width: number, height: number) {
+        if (round)
+          node.transform = {
+            ...node.transform,
+            scale: { x: height / width, y: 1, z: 1 },
+          };
+      },
       setPowered(value: boolean) {
         powered = value;
         node.mesh = powered ? bright : dark;
@@ -203,6 +223,17 @@ export function hi3dCockpitLamps() {
   });
   return {
     root,
+    /** Keep round lenses circular while their centers follow the cockpit fit. */
+    setCockpitScale(width: number, height: number) {
+      if (
+        !Number.isFinite(width) ||
+        !Number.isFinite(height) ||
+        width <= 0 ||
+        height <= 0
+      )
+        throw new RangeError('Cockpit scale must be finite and positive');
+      lamps.forEach((lamp) => lamp.compensateScale(width, height));
+    },
     setPowered(index: number, powered: boolean) {
       const lamp = lamps[index];
       if (!lamp) throw new RangeError('Unknown Hi3D lamp');
