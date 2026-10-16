@@ -106,10 +106,10 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
           for (let q = 0; q < 4; q++) {
             const angle = (q * Math.PI) / 2;
             strip(
-              Math.cos(angle) * 0.065,
-              Math.sin(angle) * 0.065,
-              Math.cos(angle) * 0.115,
-              Math.sin(angle) * 0.115,
+              Math.cos(angle) * 0.12,
+              Math.sin(angle) * 0.12,
+              Math.cos(angle) * 0.17,
+              Math.sin(angle) * 0.17,
               width,
             );
           }
