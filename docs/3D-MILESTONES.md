@@ -738,3 +738,9 @@ the existing application abort signal; recreation reuses checkbox state and
 retires the old renderer/resources. Tests cover independent switching, opaque
 dark coverage, retained geometry and cached meshes. Browser checks cover the
 four on/off states and placement at the accepted pilot fit.
+
+Lamp fitting uses the shared `Hi3dDisplayTuning` helper with a separate `lamp`
+namespace/storage key. Each lens gets additive X/Y offsets in 0.001-unit steps;
+its original depth and placement are preserved. The four rows, including on/off
+controls, sit above the canvas. `lamp-tuning-values` exposes exact offsets for
+capturing the accepted fit later; display offsets remain independent.

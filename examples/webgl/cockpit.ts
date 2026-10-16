@@ -351,6 +351,7 @@ async function start() {
     placement.add(displays);
     const lamps = hi3dCockpitLamps();
     lamps.root.transform = displays.transform;
+    hi3dDisplayTuning(lamps.root, modelUrl, signal, 'lamp');
     placement.add(lamps.root);
     [
       'overhead-left',
