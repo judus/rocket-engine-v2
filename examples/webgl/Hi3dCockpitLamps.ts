@@ -46,17 +46,17 @@ export function hi3dCockpitLamps() {
       x: -2.844,
       y: 3.365,
       z: -0.375,
-      // About +8 × +4 CSS pixels at the tuned 60-degree pilot view.
-      width: 0.244,
-      height: 0.103,
+      // Both overhead lenses use the midpoint of their fitted sizes.
+      width: 0.2255,
+      height: 0.092,
     },
     {
       name: 'overhead-right',
       x: 2.854,
       y: 3.365,
       z: -0.373,
-      width: 0.207,
-      height: 0.081,
+      width: 0.2255,
+      height: 0.092,
     },
     {
       name: 'center-console',
