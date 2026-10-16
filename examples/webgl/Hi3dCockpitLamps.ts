@@ -12,23 +12,54 @@ import {
 export function hi3dCockpitLamps() {
   const root = new Node3D('Hi3D lamp lenses');
   const lens = (powered: boolean, round = false) => {
-    // Shallow lens shading; no strong bulb highlight or dark inward edge.
+    // Worn translucent glass: broad smudges and rim grime, without bulb shading.
     if (round) {
-      const size = 32,
+      const size = 64,
         pixels = new Uint8Array(size * size * 4);
+      const hash = (x: number, y: number) => {
+        const value = Math.sin(x * 127.1 + y * 311.7 + 19.3) * 43758.5453;
+        return value - Math.floor(value);
+      };
+      const dirt = (u: number, v: number) => {
+        const x = Math.floor(u),
+          y = Math.floor(v);
+        const fx = u - x,
+          fy = v - y;
+        const sx = fx * fx * (3 - 2 * fx),
+          sy = fy * fy * (3 - 2 * fy);
+        const a = hash(x, y) * (1 - sx) + hash(x + 1, y) * sx;
+        const b = hash(x, y + 1) * (1 - sx) + hash(x + 1, y + 1) * sx;
+        return a * (1 - sy) + b * sy;
+      };
       for (let y = 0; y < size; y++)
         for (let x = 0; x < size; x++) {
           const radius = Math.min(
             1,
             Math.hypot(((x + 0.5) / size) * 2 - 1, ((y + 0.5) / size) * 2 - 1),
           );
-          // Stable fine grain and a few faint scuffs in aged translucent glass.
-          const grain = ((x * 73 + y * 151 + x * y * 19) % 101) / 100;
+          const u = (x + 0.5) / size,
+            v = (y + 0.5) / size;
+          const smudge = dirt(u * 6, v * 6);
+          const speckle = dirt(u * 23, v * 23);
+          const grain = hash(x, y);
+          const rim = Math.max(0, (radius - 0.65) / 0.35);
           const scuff =
-            (y === 9 && x > 7 && x < 15) || (y === 22 && x > 18 && x < 25)
-              ? 0.035
+            (Math.abs(v - (0.29 + u * 0.13)) < 0.012 && u > 0.18 && u < 0.43) ||
+            (Math.abs(v - (0.68 - u * 0.1)) < 0.009 && u > 0.58 && u < 0.84)
+              ? 0.09
               : 0;
-          const finish = 0.98 - 0.08 * radius * radius - 0.04 * grain + scuff;
+          const finish = Math.max(
+            0.28,
+            Math.min(
+              1,
+              1.06 -
+                0.34 * smudge -
+                0.14 * speckle -
+                0.07 * grain -
+                rim * (0.13 + 0.22 * smudge) +
+                scuff,
+            ),
+          );
           const value = powered
             ? Math.round(255 * Math.min(1, finish))
             : Math.round(18 * finish);
