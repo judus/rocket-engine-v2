@@ -100,6 +100,14 @@ const groups: readonly { title: string; pages: readonly DemoPage[] }[] = [
     title: '05 · Production & workplaces',
     pages: [
       {
+        title: 'Object inventories',
+        href: './examples/inventory/inventory.html',
+      },
+      {
+        title: 'Atomic inventory operations',
+        href: './examples/inventory/operations.html',
+      },
+      {
         title: 'Inventory & equipment',
         href: './examples/inventory/context.html',
       },
@@ -168,6 +176,7 @@ const groups: readonly { title: string; pages: readonly DemoPage[] }[] = [
         title: 'Watchtower quest',
         href: './character-encounter.html',
       },
+      { title: 'Journal & episode continuity', href: './journal.html' },
       {
         title: 'Published quest consumer',
         href: './quest-consumer.html',

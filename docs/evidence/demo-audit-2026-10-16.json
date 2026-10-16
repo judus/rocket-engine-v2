@@ -1,0 +1,4566 @@
+{
+  "startup": [
+    {
+      "title": "Arms & cameras",
+      "url": "http://127.0.0.1:8092/",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "pause",
+          "text": "Pause"
+        },
+        {
+          "disabled": false,
+          "id": "replace-arm",
+          "text": "Replace first arm"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Restart example"
+        },
+        {
+          "disabled": false,
+          "id": "asset-error",
+          "text": "Test image error"
+        }
+      ],
+      "canvases": [
+        [770, 433],
+        [770, 433],
+        [914, 217]
+      ],
+      "current": "Arms & cameras",
+      "heading": "One scene. Two perspectives.",
+      "status": [
+        {
+          "id": "status",
+          "text": "Running \u00b7 one update per scene"
+        },
+        {
+          "id": "interaction-status",
+          "text": "Arm 1 selected \u00b7 motion on"
+        },
+        {
+          "id": "asset-status",
+          "text": "One loaded image \u00b7 two arms \u00b7 two views \u00b7 scene-owned"
+        },
+        {
+          "id": "cleanup-status",
+          "text": "0 arms cleaned up"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Fixed timing",
+      "url": "http://127.0.0.1:8092/fixed.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "fixed-pause",
+          "text": "Pause"
+        },
+        {
+          "disabled": false,
+          "id": "fixed-stall",
+          "text": "Test 250 ms stall"
+        }
+      ],
+      "canvases": [
+        [770, 217],
+        [770, 217]
+      ],
+      "current": "Fixed timing",
+      "heading": "One simulation. A steady step.",
+      "status": [
+        {
+          "id": "fixed-status",
+          "text": "0 input reversals \u00b7 running"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Physics sandbox",
+      "url": "http://127.0.0.1:8092/physics.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "physics-spawn",
+          "text": "Spawn box"
+        },
+        {
+          "disabled": false,
+          "id": "physics-remove",
+          "text": "Remove oldest box"
+        },
+        {
+          "disabled": false,
+          "id": "physics-sensor",
+          "text": "Remove sensor"
+        },
+        {
+          "disabled": false,
+          "id": "physics-hide",
+          "text": "Hide world artwork"
+        },
+        {
+          "disabled": false,
+          "id": "physics-reset",
+          "text": "Reset world"
+        }
+      ],
+      "canvases": [
+        [770, 433],
+        [770, 433]
+      ],
+      "current": "Physics sandbox",
+      "heading": "Physics owns the motion.",
+      "status": [
+        {
+          "id": "physics-status",
+          "text": "6 boxes \u00b7 0 inside sensor \u00b7 0 sensor entries"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Nodes, layers & camera follow",
+      "url": "http://127.0.0.1:8092/api-experiment.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "pause",
+          "text": "Pause"
+        },
+        {
+          "disabled": false,
+          "id": "remove",
+          "text": "Remove a tree"
+        },
+        {
+          "disabled": false,
+          "id": "dispose",
+          "text": "Dispose stage"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Home \u00b7 retained"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Fresh instance"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Slow load"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Fail load"
+        },
+        {
+          "disabled": false,
+          "id": "previous",
+          "text": "Previous"
+        },
+        {
+          "disabled": false,
+          "id": "dispose-routes",
+          "text": "Dispose navigator"
+        }
+      ],
+      "canvases": [
+        [1155, 578],
+        [1155, 205]
+      ],
+      "current": "Nodes, layers & camera follow",
+      "heading": "Less ceremony. Same engine.",
+      "status": [
+        {
+          "id": "stage-status",
+          "text": "\n        Click to focus. The hero and trees share a sorted layer.\n      "
+        },
+        {
+          "id": "route-status",
+          "text": "Current home \u00b7 history empty \u00b7 created 1 / disposed 0"
+        },
+        {
+          "id": "route-result",
+          "text": "Ready"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Scene composition & navigation",
+      "url": "http://127.0.0.1:8092/scene-composition.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "bridge",
+          "text": "Bridge \u00b7 retained"
+        },
+        {
+          "disabled": false,
+          "id": "hangar",
+          "text": "Hangar \u00b7 fresh"
+        },
+        {
+          "disabled": false,
+          "id": "back",
+          "text": "Previous"
+        },
+        {
+          "disabled": false,
+          "id": "slow",
+          "text": "Slow hangar load"
+        },
+        {
+          "disabled": false,
+          "id": "fail",
+          "text": "Fail next hangar load"
+        },
+        {
+          "disabled": false,
+          "id": "pause-scenes",
+          "text": "Pause"
+        },
+        {
+          "disabled": false,
+          "id": "dispose-scenes",
+          "text": "Dispose app"
+        }
+      ],
+      "canvases": [[1155, 529]],
+      "current": "Scene composition & navigation",
+      "heading": "One app. Two interactive scenes.",
+      "status": [
+        {
+          "id": "composition-status",
+          "text": "Active: bridge. Click canvas to focus."
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Tile board",
+      "url": "http://127.0.0.1:8092/tiles.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "restart-board",
+          "text": "Reset board"
+        },
+        {
+          "disabled": false,
+          "id": "close-detail",
+          "text": "Close detail view"
+        }
+      ],
+      "canvases": [
+        [770, 433],
+        [770, 433],
+        [770, 265]
+      ],
+      "current": "Tile board",
+      "heading": "One board. Three presentations.",
+      "status": [
+        {
+          "id": "board-status",
+          "text": "no tile selected \u00b7 0 edits \u00b7 3 canvases"
+        },
+        {
+          "id": "cache-status",
+          "text": "Shared cache: 8/24 regions \u00b7 8 rebuilds \u00b7 0 evictions\n2.00 MiB RGBA estimate (6 MiB limit)"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Chunk streaming",
+      "url": "http://127.0.0.1:8092/streaming.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "stream-far",
+          "text": "A: visit far away"
+        },
+        {
+          "disabled": false,
+          "id": "stream-back",
+          "text": "A: return to selection"
+        },
+        {
+          "disabled": false,
+          "id": "stream-overlap",
+          "text": "Overlap views"
+        },
+        {
+          "disabled": false,
+          "id": "stream-close-a",
+          "text": "Close view A"
+        },
+        {
+          "disabled": false,
+          "id": "stream-close-b",
+          "text": "Close view B"
+        },
+        {
+          "disabled": false,
+          "id": "stream-restart",
+          "text": "Recreate stream"
+        },
+        {
+          "disabled": true,
+          "id": "stream-retry",
+          "text": "Retry storage"
+        },
+        {
+          "disabled": false,
+          "id": "stream-fail-save",
+          "text": "\n          Fail next save\n        "
+        },
+        {
+          "disabled": false,
+          "id": "chunk-fail",
+          "text": "Fail next chunk"
+        },
+        {
+          "disabled": true,
+          "id": "chunk-retry",
+          "text": "\n          Retry failed chunks\n        "
+        }
+      ],
+      "canvases": [
+        [770, 433],
+        [770, 433],
+        [770, 650]
+      ],
+      "current": "Chunk streaming",
+      "heading": "Leave a tile. Keep the edit.",
+      "status": [
+        {
+          "id": "stream-status",
+          "text": "tile (1, -4) pending \u00b7 16 overrides \u00b7 0/44 ready"
+        },
+        {
+          "id": "chunk-status",
+          "text": "250 ms base delay \u00b7 varied completion order \u00b7 4/4 job slots \u00b7 40 queued \u00b7 0 failed"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Terrain fields",
+      "url": "http://127.0.0.1:8092/terrain.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "terrain-apply",
+          "text": "Apply seed / scale"
+        },
+        {
+          "disabled": false,
+          "id": "terrain-regenerate",
+          "text": "Regenerate"
+        },
+        {
+          "disabled": false,
+          "id": "terrain-west",
+          "text": "West"
+        },
+        {
+          "disabled": false,
+          "id": "terrain-east",
+          "text": "East"
+        },
+        {
+          "disabled": false,
+          "id": "terrain-north",
+          "text": "North"
+        },
+        {
+          "disabled": false,
+          "id": "terrain-south",
+          "text": "South"
+        }
+      ],
+      "canvases": [
+        [770, 578],
+        [770, 578]
+      ],
+      "current": "Terrain fields",
+      "heading": "One seed. A continuous world.",
+      "status": [
+        {
+          "id": "terrain-status",
+          "text": "Seed 42 \u00b7 origin (-64, -64) \u00b7 checksum 3c7f5f4a"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Tiles & vegetation",
+      "url": "http://127.0.0.1:8092/terrain-tiles.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "legacy-behind",
+          "text": "Behind reference tree"
+        },
+        {
+          "disabled": false,
+          "id": "legacy-front",
+          "text": "\n          In front of reference tree"
+        },
+        {
+          "disabled": false,
+          "id": "legacy-center",
+          "text": "Follow walker"
+        }
+      ],
+      "canvases": [
+        [770, 578],
+        [770, 578]
+      ],
+      "current": "Tiles & vegetation",
+      "heading": "Corners without the fight.",
+      "status": [
+        {
+          "id": "legacy-status",
+          "text": "Ready \u00b7 original atlas / new seeded terrain"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Streamed terrain",
+      "url": "http://127.0.0.1:8092/terrain-streaming.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "world-apply",
+          "text": "Open world"
+        },
+        {
+          "disabled": false,
+          "id": "world-far",
+          "text": "Visit far away"
+        },
+        {
+          "disabled": false,
+          "id": "world-back",
+          "text": "Return to edit"
+        },
+        {
+          "disabled": false,
+          "id": "world-close",
+          "text": "Close elevation"
+        },
+        {
+          "disabled": false,
+          "id": "world-close-classic",
+          "text": "\n          Close classic tiles"
+        },
+        {
+          "disabled": false,
+          "id": "world-reset",
+          "text": "Recreate stream"
+        },
+        {
+          "disabled": false,
+          "id": "world-fail",
+          "text": "Fail next chunk"
+        },
+        {
+          "disabled": true,
+          "id": "world-retry",
+          "text": "Retry"
+        },
+        {
+          "disabled": false,
+          "id": "benchmark-run",
+          "text": "\n          Run repeatable route\n        "
+        },
+        {
+          "disabled": true,
+          "id": "benchmark-cancel",
+          "text": "\n          Cancel benchmark\n        "
+        }
+      ],
+      "canvases": [
+        [770, 433],
+        [770, 433],
+        [770, 433]
+      ],
+      "current": "Streamed terrain",
+      "heading": "A seeded world, streamed.",
+      "status": [
+        {
+          "id": "world-status",
+          "text": "Selection (-2,-2) pending \u00b7 56 active overrides \u00b7 2/198 ready"
+        },
+        {
+          "id": "benchmark-results",
+          "text": "No benchmark run yet."
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Terrain camera controls",
+      "url": "http://127.0.0.1:8092/camera-terrain.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "camera-close",
+          "text": "Close overview"
+        },
+        {
+          "disabled": false,
+          "id": "camera-reset",
+          "text": "Recreate views"
+        }
+      ],
+      "canvases": [
+        [770, 433],
+        [770, 433]
+      ],
+      "current": "Terrain camera controls",
+      "heading": "Two cameras. One world.",
+      "status": [
+        {
+          "id": "camera-status",
+          "text": "2 cameras \u00b7 2 demand owners \u00b7 16/96 ready chunks (limit 256) \u00b7 4/4 jobs \u00b7 \u2026 FPS\nShared selection: click a ready tile in either view\nbiome: origin -160.0, -90.0 \u00b7 zoom 2.00 \u00b7 tiles {\"minX\":-10,\"minY\":-6,\"maxX\":10,\"maxY\":6}\nheight: origin -640.0, -360.0 \u00b7 zoom 0.50 \u00b7 tiles {\"minX\":-40,\"minY\":-23,\"maxX\":40,\"maxY\":23}"
+        },
+        {
+          "id": "camera-proof",
+          "text": "\n        Independent camera controls; shared terrain, edits, raster caches and\n        bounded loading jobs. Edits stay in memory for this demo.\n      "
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Terrain worker comparison",
+      "url": "http://127.0.0.1:8092/terrain-workers.html",
+      "buttons": [
+        {
+          "disabled": true,
+          "id": "world-apply",
+          "text": "Open world"
+        },
+        {
+          "disabled": true,
+          "id": "world-far",
+          "text": "Visit far away"
+        },
+        {
+          "disabled": true,
+          "id": "world-back",
+          "text": "Return to edit"
+        },
+        {
+          "disabled": true,
+          "id": "world-close",
+          "text": "Close elevation"
+        },
+        {
+          "disabled": true,
+          "id": "world-close-classic",
+          "text": "\n          Close classic tiles"
+        },
+        {
+          "disabled": true,
+          "id": "world-reset",
+          "text": "Recreate stream"
+        },
+        {
+          "disabled": true,
+          "id": "world-fail",
+          "text": "Fail next chunk"
+        },
+        {
+          "disabled": true,
+          "id": "world-retry",
+          "text": "Retry"
+        },
+        {
+          "disabled": true,
+          "id": "benchmark-run",
+          "text": "\n          Run repeatable route\n        "
+        },
+        {
+          "disabled": true,
+          "id": "benchmark-cancel",
+          "text": "\n          Cancel benchmark\n        "
+        }
+      ],
+      "canvases": [
+        [770, 433],
+        [770, 433],
+        [770, 433]
+      ],
+      "current": "Terrain worker comparison",
+      "heading": "Same terrain, native workers.",
+      "status": [
+        {
+          "id": "world-status",
+          "text": "Loading saved edits\u2026"
+        },
+        {
+          "id": "benchmark-results",
+          "text": "No benchmark run yet."
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Sprite animation",
+      "url": "http://127.0.0.1:8092/sprites.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "sprite-pause",
+          "text": "Pause / resume selected"
+        },
+        {
+          "disabled": false,
+          "id": "sprite-flip",
+          "text": "Flip selected"
+        },
+        {
+          "disabled": false,
+          "id": "sprite-once",
+          "text": "Play once"
+        },
+        {
+          "disabled": false,
+          "id": "sprite-loop",
+          "text": "Loop"
+        },
+        {
+          "disabled": false,
+          "id": "sprite-remove",
+          "text": "Remove selected"
+        },
+        {
+          "disabled": false,
+          "id": "sprite-close",
+          "text": "Close detail view"
+        },
+        {
+          "disabled": false,
+          "id": "sprite-dispose",
+          "text": "Dispose scene"
+        },
+        {
+          "disabled": false,
+          "id": "sprite-recreate",
+          "text": "Recreate"
+        },
+        {
+          "disabled": false,
+          "id": "sprite-bad-image",
+          "text": "Test preparation rollback"
+        }
+      ],
+      "canvases": [
+        [770, 385],
+        [770, 385]
+      ],
+      "current": "Sprite animation",
+      "heading": "Two players, one atlas, two views.",
+      "status": [],
+      "logs": []
+    },
+    {
+      "title": "Synchronized sprite layers",
+      "url": "http://127.0.0.1:8092/sprite-layers.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "pause",
+          "text": "Pause"
+        },
+        {
+          "disabled": false,
+          "id": "once",
+          "text": "Play once"
+        },
+        {
+          "disabled": false,
+          "id": "loop",
+          "text": "Loop"
+        },
+        {
+          "disabled": false,
+          "id": "shirt",
+          "text": "Change shirt"
+        },
+        {
+          "disabled": false,
+          "id": "destroy",
+          "text": "Destroy"
+        },
+        {
+          "disabled": false,
+          "id": "recreate",
+          "text": "Recreate"
+        },
+        {
+          "disabled": false,
+          "id": "verify",
+          "text": "Run checks"
+        }
+      ],
+      "canvases": [[800, 320]],
+      "current": "Synchronized sprite layers",
+      "heading": "One motion.Many layers.",
+      "status": [
+        {
+          "id": "status",
+          "text": "playing \u00b7 step 1 \u00b7 phase 0.021s \u00b7 completions 0\nweapon: behind body (step 1)\nback \u2192 front: weapon \u2192 body \u2192 shirt\nactive clocks 1 \u00b7 active control scopes 1 \u00b7 created 1 / destroyed 0"
+        },
+        {
+          "id": "proof",
+          "text": "Not run yet"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Finite navigation",
+      "url": "http://127.0.0.1:8092/navigation.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "navigation-go",
+          "text": "Walk to the other side"
+        },
+        {
+          "disabled": false,
+          "id": "navigation-gate",
+          "text": "Close gate"
+        },
+        {
+          "disabled": false,
+          "id": "navigation-unknown",
+          "text": "Make strip unknown"
+        },
+        {
+          "disabled": false,
+          "id": "navigation-retry",
+          "text": "Retry journey"
+        },
+        {
+          "disabled": false,
+          "id": "navigation-cancel",
+          "text": "Cancel journey"
+        },
+        {
+          "disabled": false,
+          "id": "navigation-view",
+          "text": "Close diagnostic view"
+        }
+      ],
+      "canvases": [
+        [770, 462],
+        [770, 462]
+      ],
+      "current": "Finite navigation",
+      "heading": "Plan a route. Validate every move.",
+      "status": [],
+      "logs": []
+    },
+    {
+      "title": "Actor streaming & corridors",
+      "url": "http://127.0.0.1:8092/navigation-streaming.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "walker-go",
+          "text": "Plan journey"
+        },
+        {
+          "disabled": false,
+          "id": "walker-cancel",
+          "text": "Cancel journey"
+        },
+        {
+          "disabled": false,
+          "id": "walker-reset",
+          "text": "Reset example"
+        },
+        {
+          "disabled": false,
+          "id": "walker-east",
+          "text": "Target one chunk east"
+        },
+        {
+          "disabled": false,
+          "id": "walker-west",
+          "text": "Target one chunk west"
+        },
+        {
+          "disabled": false,
+          "id": "walker-return",
+          "text": "Frame actor and target"
+        },
+        {
+          "disabled": false,
+          "id": "walker-away",
+          "text": "Move cameras away"
+        },
+        {
+          "disabled": false,
+          "id": "walker-views",
+          "text": "Close both terrain views"
+        },
+        {
+          "disabled": false,
+          "id": "walker-fail",
+          "text": "Fail next chunk load"
+        },
+        {
+          "disabled": false,
+          "id": "walker-retry",
+          "text": "Retry failed loads"
+        },
+        {
+          "disabled": false,
+          "id": "walker-dispose",
+          "text": "Dispose actor"
+        }
+      ],
+      "canvases": [
+        [770, 462],
+        [770, 462]
+      ],
+      "current": "Actor streaming & corridors",
+      "heading": "See why the actor waits.",
+      "status": [
+        {
+          "id": "walker-status",
+          "text": "Choose a destination and Plan journey. Blue will show the area the planner is allowed to search."
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Panels",
+      "url": "http://127.0.0.1:8092/ui-panels.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "open-tools",
+          "text": "Open controls"
+        },
+        {
+          "disabled": false,
+          "id": "open-note",
+          "text": "Open mission note"
+        },
+        {
+          "disabled": false,
+          "id": "close-first-view",
+          "text": "Dispose first view + its panels"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "\u00d7"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Mark as read"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "\u00d7"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Mint orb"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Purple orb"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Reset orb"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Count click"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Save preferences"
+        }
+      ],
+      "canvases": [
+        [674, 385],
+        [674, 385]
+      ],
+      "current": "Panels",
+      "heading": "Little panels. Native controls.",
+      "status": [
+        {
+          "id": "simulation-status",
+          "text": "Orb (280.0, 170.0) \u00b7 3 shared updates \u00b7 0 FPS"
+        },
+        {
+          "id": "lifecycle-status",
+          "text": "\n        Closing a panel hides it; disposing its view removes it and releases its\n        listeners.\n      "
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Chat box",
+      "url": "http://127.0.0.1:8092/ui-chat.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "open-chat-1",
+          "text": "Open first chat"
+        },
+        {
+          "disabled": false,
+          "id": "open-chat-2",
+          "text": "Open second chat"
+        },
+        {
+          "disabled": false,
+          "id": "fail-reply",
+          "text": "Fail next reply"
+        },
+        {
+          "disabled": false,
+          "id": "new-session",
+          "text": "New conversation"
+        },
+        {
+          "disabled": false,
+          "id": "dispose-second-view",
+          "text": "Dispose second view + chat"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "\u00d7"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "What is this station?"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "What can I try?"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Send"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Cancel reply"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Retry reply"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "\u00d7"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "What is this station?"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "What can I try?"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Send"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Cancel reply"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Retry reply"
+        }
+      ],
+      "canvases": [
+        [674, 385],
+        [674, 385]
+      ],
+      "current": "Chat box",
+      "heading": "A chat window. One conversation.",
+      "status": [
+        {
+          "id": "simulation-status",
+          "text": "Orb (280.0, 170.0) \u00b7 4 shared updates \u00b7 0 FPS"
+        },
+        {
+          "id": "chat-proof",
+          "text": "Session session-1 \u00b7 0 commands received \u00b7 2 attached chat panels. Closing a panel detaches its presentation; the shared conversation continues."
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Inventory & equipment",
+      "url": "http://127.0.0.1:8092/examples/inventory/context.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "move-apple",
+          "text": "Move apple to fridge"
+        },
+        {
+          "disabled": false,
+          "id": "wait",
+          "text": "Wait 10 seconds"
+        },
+        {
+          "disabled": false,
+          "id": "cool",
+          "text": "Toggle cooling"
+        },
+        {
+          "disabled": false,
+          "id": "equip-sword",
+          "text": "Equip / swap sword"
+        },
+        {
+          "disabled": false,
+          "id": "equip-hat",
+          "text": "Equip hat"
+        },
+        {
+          "disabled": false,
+          "id": "wrong-slot",
+          "text": "Try hat in hand"
+        },
+        {
+          "disabled": false,
+          "id": "unequip",
+          "text": "Unequip hand"
+        },
+        {
+          "disabled": false,
+          "id": "rename",
+          "text": "Rename bag metadata"
+        },
+        {
+          "disabled": false,
+          "id": "save",
+          "text": "Save checkpoint"
+        },
+        {
+          "disabled": true,
+          "id": "restore",
+          "text": "Restore checkpoint"
+        },
+        {
+          "disabled": false,
+          "id": "reset",
+          "text": "Reset example"
+        }
+      ],
+      "canvases": [],
+      "heading": "Same item. Different surroundings.",
+      "status": [],
+      "logs": []
+    },
+    {
+      "title": "Workshop basics",
+      "url": "http://127.0.0.1:8092/workshop.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "factory-pause",
+          "text": "Pause production"
+        },
+        {
+          "disabled": false,
+          "id": "factory-smelter",
+          "text": "Disable smelter"
+        },
+        {
+          "disabled": true,
+          "id": "factory-collect",
+          "text": "\n          Collect finished parts"
+        },
+        {
+          "disabled": false,
+          "id": "factory-close",
+          "text": "Close factory view"
+        },
+        {
+          "disabled": false,
+          "id": "factory-reset",
+          "text": "Reset factory"
+        }
+      ],
+      "canvases": [
+        [770, 433],
+        [770, 433]
+      ],
+      "current": "Workshop basics",
+      "heading": "One factory. Two perspectives.",
+      "status": [
+        {
+          "id": "factory-status",
+          "text": "0.00 simulated seconds \u00b7 0 Workshop ticks \u00b7 2 advance calls \u00b7 0 parts produced \u00b7 0 collected \u00b7 \u2026 FPS"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Streamed factory",
+      "url": "http://127.0.0.1:8092/factory-terrain.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "factory-world-far",
+          "text": "Visit far away"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-home",
+          "text": "Return to factory"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-close",
+          "text": "\n          Close terrain view"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-recreate",
+          "text": "\n          Recreate views / resume"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-pause",
+          "text": "Pause production"
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-collect",
+          "text": "\n          Collect finished parts\n        "
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-save",
+          "text": "\n          Save factory\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-retry-load",
+          "text": "\n          Retry load\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-route-connect",
+          "text": "\n          Connect route\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-route-disconnect",
+          "text": "\n          Disconnect destination route\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-open-inspector",
+          "text": "\n          Open inspection panel\n        "
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-clear-spikes",
+          "text": "\n          Clear spike history\n        "
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "\u00d7"
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-drain",
+          "text": "\n          Drain building\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-remove",
+          "text": "\n          Remove idle building\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-site-cancel",
+          "text": "\n            Cancel selected site\n          "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-facility-pause",
+          "text": "\n            Pause building production\n          "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-operator",
+          "text": "\n            Place operator on site\n          "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-supply",
+          "text": "\n            Move up to 4 mine ore to depot\n          "
+        }
+      ],
+      "canvases": [
+        [1540, 866],
+        [770, 553]
+      ],
+      "current": "Streamed factory",
+      "heading": "The terrain leaves. The factory stays.",
+      "status": [
+        {
+          "id": "factory-world-building-status",
+          "text": "Select a building, then click a green footprint to build."
+        },
+        {
+          "id": "factory-world-save-status",
+          "text": "No saved factory. Save explicitly to keep buildings and production."
+        },
+        {
+          "id": "factory-world-route-status",
+          "text": "Initial chain connected. One supply route per destination."
+        },
+        {
+          "id": "factory-world-pick-status",
+          "text": "Pan mode: click roofs, building bodies or tree bounds. Frontmost hit wins."
+        },
+        {
+          "id": "factory-world-status",
+          "text": "Loading\u2026"
+        },
+        {
+          "id": "factory-world-proof",
+          "text": "\n        Travel far away: building visuals should reach zero while domain\n        facilities keep producing. Return to rebuild visuals with the same IDs.\n      "
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Factory transport",
+      "url": "http://127.0.0.1:8092/factory-terrain.html?transport=1",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "factory-world-far",
+          "text": "Visit far away"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-home",
+          "text": "Return to factory"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-close",
+          "text": "\n          Close terrain view"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-recreate",
+          "text": "\n          Recreate views / resume"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-pause",
+          "text": "Pause production"
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-collect",
+          "text": "Collect all finished parts"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-save",
+          "text": "\n          Save factory\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-retry-load",
+          "text": "\n          Retry load\n        "
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-route-connect",
+          "text": "\n          Connect route\n        "
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-route-disconnect",
+          "text": "\n          Disconnect destination route\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-open-inspector",
+          "text": "\n          Open inspection panel\n        "
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-clear-spikes",
+          "text": "\n          Clear spike history\n        "
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "\u00d7"
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-drain",
+          "text": "\n          Drain building\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-remove",
+          "text": "\n          Remove idle building\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-site-cancel",
+          "text": "\n            Cancel selected site\n          "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-facility-pause",
+          "text": "\n            Pause building production\n          "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-operator",
+          "text": "\n            Place operator on site\n          "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-supply",
+          "text": "\n            Move up to 4 mine ore to depot\n          "
+        }
+      ],
+      "canvases": [
+        [1540, 866],
+        [770, 553]
+      ],
+      "current": "Factory transport",
+      "heading": "Cargo travels. Production waits.",
+      "status": [
+        {
+          "id": "factory-world-building-status",
+          "text": "Pan mode: click a building or tree to inspect; click terrain to focus WASD. "
+        },
+        {
+          "id": "factory-world-save-status",
+          "text": "No saved factory. Save explicitly to keep buildings and production."
+        },
+        {
+          "id": "factory-world-route-status",
+          "text": "Initial chain connected. One supply route per destination."
+        },
+        {
+          "id": "factory-world-pick-status",
+          "text": "Pan mode: click roofs, building bodies or tree bounds. Frontmost hit wins."
+        },
+        {
+          "id": "factory-world-status",
+          "text": "Workshop tick 0 \u00b7 0 parts produced \u00b7 0 stored \u00b7 0 collected\n1 terrain demand owner \u00b7 176/224 chunks \u00b7 4/8 jobs \u00b7 0 artwork regions\n0/3 nearby building/site visuals \u00b7 0 visible buildings/cargo \u00b7 0 built / 0 released \u00b7 3 domain facilities \u00b7 zoom 1.00\u00d7 \u00b7 \u2026 FPS\nFrame avg / max \u2026 / \u2026 ms \u00b7 update \u2026 ms \u00b7 draw \u2026 ms\nDecorations scanned 0/0 cached \u00b7 0 queried regions \u00b7 0 visible depth objects\n2 routes \u00b7 0 cargo in transit/blocked \u00b7 0 deliveries completed \u00b7 7 inventories"
+        },
+        {
+          "id": "factory-world-proof",
+          "text": "\n        Travel far away: building visuals should reach zero while domain\n        facilities keep producing. Return to rebuild visuals with the same IDs.\n      "
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Construction & staffing",
+      "url": "http://127.0.0.1:8092/factory-terrain.html?transport=1&workshop=1",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "factory-world-far",
+          "text": "Visit far away"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-home",
+          "text": "Return to factory"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-close",
+          "text": "\n          Close terrain view"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-recreate",
+          "text": "\n          Recreate views / resume"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-pause",
+          "text": "Pause production"
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-collect",
+          "text": "Collect all finished parts"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-save",
+          "text": "\n          Save factory\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-retry-load",
+          "text": "\n          Retry load\n        "
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-route-connect",
+          "text": "\n          Connect route\n        "
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-route-disconnect",
+          "text": "\n          Disconnect destination route\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-open-inspector",
+          "text": "\n          Open inspection panel\n        "
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-clear-spikes",
+          "text": "\n          Clear spike history\n        "
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "\u00d7"
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-drain",
+          "text": "\n          Drain building\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-remove",
+          "text": "\n          Remove idle building\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-site-cancel",
+          "text": "\n            Cancel selected site\n          "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-facility-pause",
+          "text": "\n            Pause building production\n          "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-operator",
+          "text": "\n            Place operator on site\n          "
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-supply",
+          "text": "\n            Move up to 4 mine ore to depot\n          "
+        }
+      ],
+      "canvases": [
+        [1540, 866],
+        [770, 553]
+      ],
+      "current": "Construction & staffing",
+      "heading": "Build it. Staff it. Then produce.",
+      "status": [
+        {
+          "id": "factory-world-building-status",
+          "text": "Select a building, then click a green footprint to build."
+        },
+        {
+          "id": "factory-world-save-status",
+          "text": "Restored tick 3596. No offline progression. Save explicitly to keep later changes."
+        },
+        {
+          "id": "factory-world-route-status",
+          "text": "Initial chain connected. One supply route per destination."
+        },
+        {
+          "id": "factory-world-pick-status",
+          "text": "Pan mode: click roofs, building bodies or tree bounds. Frontmost hit wins."
+        },
+        {
+          "id": "factory-world-status",
+          "text": "Loading\u2026"
+        },
+        {
+          "id": "factory-world-proof",
+          "text": "\n        Travel far away: building visuals should reach zero while domain\n        facilities keep producing. Return to rebuild visuals with the same IDs.\n      "
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Workplace journeys",
+      "url": "http://127.0.0.1:8092/navigation-workshop.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "staffing-smelter",
+          "text": "Assign Smelter"
+        },
+        {
+          "disabled": false,
+          "id": "staffing-press",
+          "text": "Assign Press"
+        },
+        {
+          "disabled": false,
+          "id": "staffing-off",
+          "text": "Release assignment"
+        },
+        {
+          "disabled": false,
+          "id": "staffing-retry",
+          "text": "Retry journey"
+        },
+        {
+          "disabled": false,
+          "id": "staffing-gate",
+          "text": "Close gate"
+        },
+        {
+          "disabled": false,
+          "id": "staffing-unknown",
+          "text": "Make press terrain unknown"
+        },
+        {
+          "disabled": false,
+          "id": "staffing-collect",
+          "text": "Collect parts"
+        },
+        {
+          "disabled": false,
+          "id": "staffing-view",
+          "text": "Close diagnostics"
+        }
+      ],
+      "canvases": [
+        [770, 462],
+        [770, 462]
+      ],
+      "current": "Workplace journeys",
+      "heading": "Work begins after arrival.",
+      "status": [],
+      "logs": []
+    },
+    {
+      "title": "Streamed workplaces",
+      "url": "http://127.0.0.1:8092/navigation-workshop-streaming.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "assign-smelter",
+          "text": "Assign Smelter"
+        },
+        {
+          "disabled": false,
+          "id": "assign-press",
+          "text": "Assign Press"
+        },
+        {
+          "disabled": false,
+          "id": "release",
+          "text": "Release assignment"
+        },
+        {
+          "disabled": false,
+          "id": "gate",
+          "text": "Seal upper passage"
+        },
+        {
+          "disabled": false,
+          "id": "entrance",
+          "text": "Block assigned entrance"
+        },
+        {
+          "disabled": false,
+          "id": "views",
+          "text": "Close both views"
+        },
+        {
+          "disabled": false,
+          "id": "save-worker",
+          "text": "Save worker + Workshop"
+        },
+        {
+          "disabled": false,
+          "id": "retry-start",
+          "text": "Reload saved checkpoint"
+        },
+        {
+          "disabled": false,
+          "id": "fail",
+          "text": "Fail next chunk load"
+        },
+        {
+          "disabled": false,
+          "id": "retry-loads",
+          "text": "Retry failed loads"
+        },
+        {
+          "disabled": false,
+          "id": "fail-save",
+          "text": "Fail next Save"
+        }
+      ],
+      "canvases": [
+        [1232, 616],
+        [770, 616]
+      ],
+      "current": "Streamed workplaces",
+      "heading": "Travel first. Work on arrival.",
+      "status": [
+        {
+          "id": "checkpoint-status",
+          "text": "Restored tick 1071, worker (240.0, 30.0). No offline time applied; attendance waits for ready terrain."
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Two-worker staffing",
+      "url": "http://127.0.0.1:8092/navigation-staffing.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "assign-smelter",
+          "text": "Assign Smelter"
+        },
+        {
+          "disabled": false,
+          "id": "assign-press",
+          "text": "Assign Press"
+        },
+        {
+          "disabled": false,
+          "id": "release",
+          "text": "Release assignment"
+        },
+        {
+          "disabled": false,
+          "id": "gate",
+          "text": "Seal upper passage"
+        },
+        {
+          "disabled": false,
+          "id": "entrance",
+          "text": "Block assigned entrance"
+        },
+        {
+          "disabled": false,
+          "id": "views",
+          "text": "Close both views"
+        },
+        {
+          "disabled": false,
+          "id": "remove-worker",
+          "text": "Dispose selected worker"
+        },
+        {
+          "disabled": false,
+          "id": "save-worker",
+          "text": "Save workers + Workshop"
+        },
+        {
+          "disabled": false,
+          "id": "retry-start",
+          "text": "Reload saved checkpoint"
+        },
+        {
+          "disabled": false,
+          "id": "fail",
+          "text": "Fail next chunk load"
+        },
+        {
+          "disabled": false,
+          "id": "retry-loads",
+          "text": "Retry failed loads"
+        },
+        {
+          "disabled": false,
+          "id": "fail-save",
+          "text": "Fail next Save"
+        }
+      ],
+      "canvases": [
+        [1232, 616],
+        [770, 616]
+      ],
+      "current": "Two-worker staffing",
+      "heading": "Two workers. One claim per slot.",
+      "status": [
+        {
+          "id": "checkpoint-status",
+          "text": "Restored tick 260, 2 workers and 2 reservations. No offline time applied; attendance waits for ready terrain."
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "6,000-facility stress test",
+      "url": "http://127.0.0.1:8092/factory-terrain.html?stress=6000&range=128",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "factory-world-far",
+          "text": "Visit far away"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-home",
+          "text": "Return to factory"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-close",
+          "text": "\n          Close terrain view"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-recreate",
+          "text": "\n          Recreate views / resume"
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-pause",
+          "text": "Pause production"
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-collect",
+          "text": "Collect sample chain parts"
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-save",
+          "text": "\n          Save factory\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-retry-load",
+          "text": "\n          Retry load\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-route-connect",
+          "text": "\n          Connect route\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-route-disconnect",
+          "text": "\n          Disconnect destination route\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-open-inspector",
+          "text": "\n          Open inspection panel\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-drain",
+          "text": "\n          Drain building\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-remove",
+          "text": "\n          Remove idle building\n        "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-site-cancel",
+          "text": "\n            Cancel selected site\n          "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-facility-pause",
+          "text": "\n            Pause building production\n          "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-operator",
+          "text": "\n            Place operator on site\n          "
+        },
+        {
+          "disabled": true,
+          "id": "factory-world-supply",
+          "text": "\n            Move up to 4 mine ore to depot\n          "
+        },
+        {
+          "disabled": false,
+          "id": "factory-world-clear-spikes",
+          "text": "\n          Clear spike history\n        "
+        }
+      ],
+      "canvases": [
+        [1540, 866],
+        [770, 553]
+      ],
+      "current": "6,000-facility stress test",
+      "heading": "6,000 factories. One shared world.",
+      "status": [
+        {
+          "id": "factory-world-building-status",
+          "text": "Select a building, then click a green footprint to build."
+        },
+        {
+          "id": "factory-world-save-status",
+          "text": "Stress mode: saving disabled."
+        },
+        {
+          "id": "factory-world-route-status",
+          "text": "Initial chain connected. One supply route per destination."
+        },
+        {
+          "id": "factory-world-pick-status",
+          "text": "Stress mode: selection disabled."
+        },
+        {
+          "id": "factory-world-status",
+          "text": "Workshop tick 0 \u00b7 0 parts produced \u00b7 0 stored \u00b7 0 collected\n1 terrain demand owner \u00b7 176/224 chunks \u00b7 4/8 jobs \u00b7 0 artwork regions\n0/6000 nearby building/site visuals \u00b7 0 visible buildings \u00b7 0 built / 0 released \u00b7 6000 domain facilities \u00b7 zoom 1.00\u00d7 \u00b7 \u2026 FPS\nFrame avg / max \u2026 / \u2026 ms \u00b7 update \u2026 ms \u00b7 draw \u2026 ms\nDecorations scanned 0/0 cached \u00b7 0 queried regions \u00b7 0 visible depth objects"
+        },
+        {
+          "id": "factory-world-proof",
+          "text": "All 6,000 facilities simulate regardless of visibility. Travel or close terrain to compare simulation cost with rendering."
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Dialogue & spatial picking",
+      "url": "http://127.0.0.1:8092/character-dialogue.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "open-mara",
+          "text": "Open Mara"
+        },
+        {
+          "disabled": false,
+          "id": "open-mara-two",
+          "text": "Open second chat"
+        },
+        {
+          "disabled": false,
+          "id": "walk-grove",
+          "text": "Walk to Old Grove"
+        },
+        {
+          "disabled": false,
+          "id": "return-mara",
+          "text": "Return to Mara"
+        },
+        {
+          "disabled": false,
+          "id": "fail-mara",
+          "text": "Fail next scripted reply"
+        },
+        {
+          "disabled": false,
+          "id": "close-character-diagnostics",
+          "text": "\n          Close diagnostic view + chat\n        "
+        },
+        {
+          "disabled": false,
+          "id": "cancel-mara-journey",
+          "text": "Cancel Mara journey"
+        },
+        {
+          "disabled": false,
+          "id": "retry-mara-route",
+          "text": "Retry Mara route"
+        },
+        {
+          "disabled": false,
+          "id": "lose-mara-reply",
+          "text": "Lose next departure reply"
+        },
+        {
+          "disabled": false,
+          "id": "remove-mara",
+          "text": "Remove Mara"
+        },
+        {
+          "disabled": false,
+          "id": "dispose-character-proof",
+          "text": "Dispose proof"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "\u00d7"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Send"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Stop waiting"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Retry reply"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "\u00d7"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Send"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Stop waiting"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Retry reply"
+        }
+      ],
+      "canvases": [
+        [770, 385],
+        [770, 385]
+      ],
+      "current": "Dialogue & spatial picking",
+      "heading": "Mara and the Old Grove",
+      "status": [
+        {
+          "id": "dispose-character-proof",
+          "text": "Dispose proof"
+        },
+        {
+          "id": "character-status",
+          "text": "Quest: No quest offered \u00b7 quest visit: not satisfied \u00b7 lifetime visit: not visited \u00b7 journey: idle \u00b7 Mara: idle (0 journeys, 0 outcomes) \u00b7 5 shared updates \u00b7 0 FPS"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Character sprites (archive)",
+      "url": "http://127.0.0.1:8092/character-sprites.html",
+      "buttons": [
+        {
+          "disabled": true,
+          "id": "pause",
+          "text": "Pause / resume selected"
+        },
+        {
+          "disabled": true,
+          "id": "close-detail",
+          "text": "Close second view"
+        },
+        {
+          "disabled": true,
+          "id": "dispose",
+          "text": "Dispose scene"
+        },
+        {
+          "disabled": true,
+          "id": "recreate",
+          "text": "Recreate"
+        },
+        {
+          "disabled": true,
+          "id": "fail",
+          "text": "Test preparation failure"
+        }
+      ],
+      "canvases": [
+        [794, 481],
+        [794, 481]
+      ],
+      "current": "Character sprites (archive)",
+      "heading": "The original character sprites.",
+      "status": [],
+      "logs": []
+    },
+    {
+      "title": "Character control",
+      "url": "http://127.0.0.1:8092/character-control.html",
+      "buttons": [
+        {
+          "disabled": true,
+          "id": "pause",
+          "text": "Pause"
+        },
+        {
+          "disabled": true,
+          "id": "unknown",
+          "text": "Mark purple terrain known"
+        },
+        {
+          "disabled": true,
+          "id": "open-chat",
+          "text": "Open chat focus test"
+        },
+        {
+          "disabled": true,
+          "id": "close-second",
+          "text": "Close second view"
+        },
+        {
+          "disabled": true,
+          "id": "remove",
+          "text": "Remove character"
+        },
+        {
+          "disabled": true,
+          "id": "dispose",
+          "text": "Dispose scene"
+        },
+        {
+          "disabled": true,
+          "id": "recreate",
+          "text": "Recreate"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "\u00d7"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "What is this station?"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "What can I try?"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Send"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Cancel reply"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Retry reply"
+        }
+      ],
+      "canvases": [
+        [693, 462],
+        [693, 462]
+      ],
+      "current": "Character control",
+      "heading": "Walk with WASD. Hold Shift to run.",
+      "status": [],
+      "logs": []
+    },
+    {
+      "title": "Work, takeover & resume",
+      "url": "http://127.0.0.1:8092/character-work.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "takeover",
+          "text": "Take control"
+        },
+        {
+          "disabled": true,
+          "id": "release",
+          "text": "Release control"
+        },
+        {
+          "disabled": false,
+          "id": "gate",
+          "text": "Toggle gate"
+        },
+        {
+          "disabled": false,
+          "id": "remove",
+          "text": "Remove selected worker"
+        },
+        {
+          "disabled": false,
+          "id": "save",
+          "text": "Save checkpoint"
+        },
+        {
+          "disabled": true,
+          "id": "restore",
+          "text": "Restore checkpoint"
+        },
+        {
+          "disabled": false,
+          "id": "dispose",
+          "text": "Dispose"
+        },
+        {
+          "disabled": false,
+          "id": "recreate",
+          "text": "Recreate"
+        }
+      ],
+      "canvases": [[693, 462]],
+      "current": "Work, takeover & resume",
+      "heading": "Work \u2192 takeover \u2192 resume",
+      "status": [],
+      "logs": []
+    },
+    {
+      "title": "Authored guide dialogue",
+      "url": "http://127.0.0.1:8092/character-situations.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "talk",
+          "text": "Open guide dialogue"
+        },
+        {
+          "disabled": false,
+          "id": "fail",
+          "text": "Fail next journal save"
+        },
+        {
+          "disabled": false,
+          "id": "hold",
+          "text": "Hold next journal save"
+        },
+        {
+          "disabled": false,
+          "id": "unhold",
+          "text": "Release held save"
+        },
+        {
+          "disabled": false,
+          "id": "remove",
+          "text": "Remove guide"
+        },
+        {
+          "disabled": false,
+          "id": "dispose",
+          "text": "Dispose"
+        },
+        {
+          "disabled": false,
+          "id": "recreate",
+          "text": "Recreate"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "\u00d7"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Send"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Cancel reply"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Retry reply"
+        }
+      ],
+      "canvases": [[693, 462]],
+      "current": "Authored guide dialogue",
+      "heading": "A guide, authored choices, current game facts",
+      "status": [],
+      "logs": []
+    },
+    {
+      "title": "Grove evidence & pickup",
+      "url": "http://127.0.0.1:8092/character-grove.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "arm",
+          "text": "Arm situation"
+        },
+        {
+          "disabled": false,
+          "id": "panel",
+          "text": "Open situation details"
+        },
+        {
+          "disabled": false,
+          "id": "lose",
+          "text": "Lose next reveal reply"
+        },
+        {
+          "disabled": false,
+          "id": "evidence",
+          "text": "Make event history unavailable"
+        },
+        {
+          "disabled": false,
+          "id": "remove",
+          "text": "Remove existing marker"
+        },
+        {
+          "disabled": false,
+          "id": "dispose",
+          "text": "Dispose"
+        },
+        {
+          "disabled": false,
+          "id": "fresh",
+          "text": "Fresh world"
+        },
+        {
+          "disabled": false,
+          "id": "prior-visit",
+          "text": "Load prior visit"
+        },
+        {
+          "disabled": false,
+          "id": "prior-pickup",
+          "text": "Load prior pickup"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "\u00d7"
+        }
+      ],
+      "canvases": [[770, 385]],
+      "current": "Grove evidence & pickup",
+      "heading": "Visit the grove. Find the existing marker.",
+      "status": [],
+      "logs": []
+    },
+    {
+      "title": "Watchtower quest",
+      "url": "http://127.0.0.1:8092/character-encounter.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "fresh",
+          "text": "Fresh world"
+        },
+        {
+          "disabled": false,
+          "id": "prior",
+          "text": "Seals already carried"
+        },
+        {
+          "disabled": false,
+          "id": "panel",
+          "text": "Talk to watchkeeper"
+        },
+        {
+          "disabled": false,
+          "id": "history",
+          "text": "Toggle event history"
+        },
+        {
+          "disabled": false,
+          "id": "lose",
+          "text": "Lose next consequence reply"
+        },
+        {
+          "disabled": true,
+          "id": "retry",
+          "text": "Retry starting"
+        },
+        {
+          "disabled": false,
+          "id": "dispose",
+          "text": "Dispose"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "\u00d7"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Send"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Cancel reply"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Retry reply"
+        }
+      ],
+      "canvases": [[924, 501]],
+      "current": "Watchtower quest",
+      "heading": "Restore the watchtower route.",
+      "status": [],
+      "logs": []
+    },
+    {
+      "title": "Published quest consumer",
+      "url": "http://127.0.0.1:8092/quest-consumer.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "generation-connect",
+          "text": "Refresh connection"
+        },
+        {
+          "disabled": true,
+          "id": "generate",
+          "text": "Generate quest"
+        },
+        {
+          "disabled": true,
+          "id": "generation-retry",
+          "text": "\n            Resume / retry same request\n          "
+        },
+        {
+          "disabled": true,
+          "id": "generation-stop",
+          "text": "Stop watching"
+        },
+        {
+          "disabled": true,
+          "id": "generation-release",
+          "text": "Release request"
+        },
+        {
+          "disabled": false,
+          "id": "fresh",
+          "text": "Fresh world"
+        },
+        {
+          "disabled": false,
+          "id": "prior",
+          "text": "Items already carried"
+        },
+        {
+          "disabled": false,
+          "id": "panel",
+          "text": "Talk to nearby character"
+        },
+        {
+          "disabled": false,
+          "id": "history",
+          "text": "Toggle event history"
+        },
+        {
+          "disabled": false,
+          "id": "lose",
+          "text": "Lose next consequence reply"
+        },
+        {
+          "disabled": true,
+          "id": "retry",
+          "text": "Retry starting"
+        },
+        {
+          "disabled": false,
+          "id": "dispose",
+          "text": "Dispose"
+        },
+        {
+          "disabled": false,
+          "id": "use-item",
+          "text": "Use on nearby target"
+        },
+        {
+          "disabled": false,
+          "id": "give-item",
+          "text": "Give to nearby character"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "\u00d7"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Send"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Cancel reply"
+        },
+        {
+          "disabled": false,
+          "id": "",
+          "text": "Retry reply"
+        }
+      ],
+      "canvases": [[924, 501]],
+      "current": "Published quest consumer",
+      "heading": "Play a published quest candidate.",
+      "status": [
+        {
+          "id": "generation-status",
+          "text": ""
+        },
+        {
+          "id": "generation-results",
+          "text": ""
+        },
+        {
+          "id": "objective-status",
+          "text": "Generate or load a quest to begin."
+        },
+        {
+          "id": "game-status",
+          "text": "Explore the village. Generate or load a quest to begin.\nNo quest loaded \u00b7 player 540.0, 210.0\n\n\nCarrying nothing\nHistory available \u00b7 consequence executions 0 \u00b7 event sequence 0 \u00b7 released sheets 0"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Grid & camera",
+      "url": "http://127.0.0.1:8092/3d-grid.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset",
+          "text": "Reset camera"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        }
+      ],
+      "canvases": [[1163, 655]],
+      "current": "Grid & camera",
+      "heading": "A grid. A camera.",
+      "status": [
+        {
+          "id": "camera-status",
+          "text": "Position 8.0, 6.0, -12.0 \u00b7 yaw -29\u00b0 \u00b7 pitch -18\u00b0 \u00b7 cleaned scenes 0"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Wireframe cube",
+      "url": "http://127.0.0.1:8092/3d-cube.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset",
+          "text": "Reset camera"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "reset-cube",
+          "text": "Reset cube"
+        }
+      ],
+      "canvases": [[1163, 655]],
+      "current": "Wireframe cube",
+      "heading": "One cube. Three transforms.",
+      "status": [
+        {
+          "id": "camera-status",
+          "text": "Position 8.0, 6.0, -12.0 \u00b7 yaw -29\u00b0 \u00b7 pitch -18\u00b0 \u00b7 cleaned scenes 0"
+        },
+        {
+          "id": "cube-status",
+          "text": "8 vertices \u00b7 12 edges + 3 local axes \u00b7 Y rotation 25.0\u00b0"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Solid cube",
+      "url": "http://127.0.0.1:8092/3d-solid.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset",
+          "text": "Reset camera"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "reset-cube",
+          "text": "Reset cube"
+        }
+      ],
+      "canvases": [[1163, 655]],
+      "current": "Solid cube",
+      "heading": "Give the cube its faces.",
+      "status": [
+        {
+          "id": "camera-status",
+          "text": "Position 8.0, 6.0, -12.0 \u00b7 yaw -29\u00b0 \u00b7 pitch -18\u00b0 \u00b7 cleaned scenes 0"
+        },
+        {
+          "id": "cube-status",
+          "text": "6 faces \u00b7 3 back-facing \u00b7 0 outside view \u00b7 Y rotation 25.0\u00b0"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Cockpit frame",
+      "url": "http://127.0.0.1:8092/3d-cockpit.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset",
+          "text": "Seat view"
+        },
+        {
+          "disabled": false,
+          "id": "inspect",
+          "text": "Inspect assembly"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        }
+      ],
+      "canvases": [[1163, 655]],
+      "current": "Cockpit frame",
+      "heading": "Take a seat.",
+      "status": [
+        {
+          "id": "camera-status",
+          "text": "Position 0.0, 1.6, 0.0 \u00b7 yaw 0\u00b0 \u00b7 pitch -2\u00b0 \u00b7 cleaned scenes 0"
+        },
+        {
+          "id": "assembly-status",
+          "text": "13 box parts \u00b7 78 faces \u00b7 53 back-facing \u00b7 6 outside view"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Cockpit overlay",
+      "url": "http://127.0.0.1:8092/3d-overlay.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset",
+          "text": "Seat view"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "reset-grade",
+          "text": "Reset grade"
+        }
+      ],
+      "canvases": [[1163, 655]],
+      "current": "Cockpit overlay",
+      "heading": "A window into the world.",
+      "status": [
+        {
+          "id": "camera-status",
+          "text": "Position 0.0, 1.6, 0.0 \u00b7 yaw 0\u00b0 \u00b7 pitch -2\u00b0 \u00b7 cleaned scenes 0"
+        },
+        {
+          "id": "overlay-status",
+          "text": "v14-relic \u00b7 graded \u00b7 grade builds 1 \u00b7 1 cached image draw/frame"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Reusable 3D foundation",
+      "url": "http://127.0.0.1:8092/3d-foundation.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset",
+          "text": "Reset camera"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "reset-cube",
+          "text": "Reset parent"
+        }
+      ],
+      "canvases": [[1163, 655]],
+      "current": "Reusable 3D foundation",
+      "heading": "One geometry, two independent objects.",
+      "status": [
+        {
+          "id": "camera-status",
+          "text": "Position 8.0, 6.0, -12.0 \u00b7 yaw -29\u00b0 \u00b7 pitch -18\u00b0 \u00b7 cleaned scenes 0"
+        },
+        {
+          "id": "cube-status",
+          "text": "1 shared geometry \u00b7 2 mesh nodes \u00b7 12 faces \u00b7 parent transform moves both children"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Visibility & depth buffer",
+      "url": "http://127.0.0.1:8092/3d-visibility.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset",
+          "text": "Reset camera"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        }
+      ],
+      "canvases": [[1163, 655]],
+      "current": "Visibility & depth buffer",
+      "heading": "Which surface is actually in front?",
+      "status": [
+        {
+          "id": "camera-status",
+          "text": "Position 0.0, 0.0, -7.0 \u00b7 yaw 0\u00b0 \u00b7 pitch 0\u00b0 \u00b7 cleaned scenes 0"
+        },
+        {
+          "id": "visibility-status",
+          "text": "Same camera and geometry \u00b7 2 opaque faces \u00b7 original submission order \u00b7 yaw 0\u00b0"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "GLB model loading",
+      "url": "http://127.0.0.1:8092/3d-model.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset",
+          "text": "Reset to pilot view"
+        },
+        {
+          "disabled": false,
+          "id": "outside",
+          "text": "Inspect exterior"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "load-model",
+          "text": "Reload cockpit v3"
+        },
+        {
+          "disabled": true,
+          "id": "cancel-load",
+          "text": "Cancel load"
+        }
+      ],
+      "canvases": [[1163, 655]],
+      "current": "GLB model loading",
+      "heading": "A model, not a hardcoded cockpit",
+      "status": [
+        {
+          "id": "model-status",
+          "text": "Loaded. Free camera: explore outside too; this asset is an open forward cabin."
+        },
+        {
+          "id": "camera-status",
+          "text": "Position 0.0, 1.5, 0.0 \u00b7 yaw 0\u00b0 \u00b7 pitch 0\u00b0 \u00b7 cleaned scenes 0"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Independent lighting",
+      "url": "http://127.0.0.1:8092/3d-lighting.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset",
+          "text": "Reset camera"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "reset-lighting",
+          "text": "Reset lighting & objects"
+        }
+      ],
+      "canvases": [[1163, 655]],
+      "current": "Independent lighting",
+      "heading": "One light, independent objects",
+      "status": [
+        {
+          "id": "lighting-status",
+          "text": "Light direction is shared in world space. Rotate objects or move the light independently. No cast shadows; the floor receives the same direct light."
+        },
+        {
+          "id": "camera-status",
+          "text": "Position 0.0, 3.5, -11.0 \u00b7 yaw 0\u00b0 \u00b7 pitch -9\u00b0 \u00b7 cleaned scenes 0"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Point lights",
+      "url": "http://127.0.0.1:8092/3d-point-light.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset",
+          "text": "Reset camera"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "reset-lamp",
+          "text": "Reset lamp & objects"
+        }
+      ],
+      "canvases": [[1163, 655]],
+      "current": "Point lights",
+      "heading": "A lamp with a position",
+      "status": [
+        {
+          "id": "point-status",
+          "text": "Lamp (-1.0, 3.0, -1.5) \u00b7 270 shaded faces \u00b7 266 visible faces including marker \u00b7 floor 16 \u00d7 16 \u00b7 one lighting sample per face"
+        },
+        {
+          "id": "camera-status",
+          "text": "Position 0.0, 4.0, -11.0 \u00b7 yaw 0\u00b0 \u00b7 pitch -13\u00b0 \u00b7 cleaned scenes 0"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "GPU triangle",
+      "url": "http://127.0.0.1:8092/webgl-triangle.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset-triangle",
+          "text": "Reset triangle"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check center pixel"
+        }
+      ],
+      "canvases": [[1163, 655]],
+      "current": "GPU triangle",
+      "heading": "Our first GPU triangle",
+      "status": [
+        {
+          "id": "gpu-status",
+          "text": "WebGL2 ready \u00b7 1 triangle \u00b7 1 draw call \u00b7 1 vertex buffer (72 bytes) \u00b7 cleaned presentations 0"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Meshes & depth",
+      "url": "http://127.0.0.1:8092/webgl-meshes.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset-triangle",
+          "text": "Reset pose"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check depth order"
+        }
+      ],
+      "canvases": [
+        [960, 540],
+        [960, 540]
+      ],
+      "current": "Meshes & depth",
+      "heading": "Meshes & GPU depth",
+      "status": [
+        {
+          "id": "gpu-status",
+          "text": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 0"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "2 draw calls \u00b7 24 triangles \u00b7 2 cached meshes \u00b7 1728 uploaded bytes"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Per-pixel lighting",
+      "url": "http://127.0.0.1:8092/webgl-lighting.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset-triangle",
+          "text": "Reset pose"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check lighting math"
+        }
+      ],
+      "canvases": [
+        [960, 540],
+        [960, 540]
+      ],
+      "current": "Per-pixel lighting",
+      "heading": "Per-pixel GPU lighting",
+      "status": [
+        {
+          "id": "light-status",
+          "text": "Ambient 0.08 \u00b7 directional 0.35 \u00b7 point 6 \u00b7 lighting on"
+        },
+        {
+          "id": "gpu-status",
+          "text": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 0"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "4 draw calls \u00b7 38 triangles \u00b7 4 cached meshes \u00b7 5472 uploaded bytes"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Base-color textures",
+      "url": "http://127.0.0.1:8092/webgl-textures.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset-triangle",
+          "text": "Reset pose"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check UV + color"
+        }
+      ],
+      "canvases": [[960, 540]],
+      "current": "Base-color textures",
+      "heading": "Base-color textures",
+      "status": [
+        {
+          "id": "light-status",
+          "text": "Lambert lighting \u00b7 left: coating \u00b7 middle: steel \u00b7 right: rubber \u00b7 UV repeat 2"
+        },
+        {
+          "id": "gpu-status",
+          "text": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 0"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "3 draws \u00b7 36 triangles \u00b7 6048 geometry bytes \u00b7 3 textures \u00b7 1 samplers \u00b7 16.00 MiB RGBA8 + mip levels"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Metallic & roughness",
+      "url": "http://127.0.0.1:8092/webgl-materials.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset-triangle",
+          "text": "Reset pose"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check material math"
+        }
+      ],
+      "canvases": [[960, 540]],
+      "current": "Metallic & roughness",
+      "heading": "Metallic & roughness",
+      "status": [
+        {
+          "id": "light-status",
+          "text": "GGX material response \u00b7 left: coating \u00b7 middle: steel \u00b7 right: rubber \u00b7 UV repeat 2"
+        },
+        {
+          "id": "gpu-status",
+          "text": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 0"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "3 draws \u00b7 6624 triangles \u00b7 1271808 geometry bytes \u00b7 1 textures \u00b7 1 samplers \u00b7 0.00 MiB RGBA8 + mip levels"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Packed material maps",
+      "url": "http://127.0.0.1:8092/webgl-material-maps.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset-triangle",
+          "text": "Reset pose"
+        },
+        {
+          "disabled": true,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check data channels"
+        }
+      ],
+      "canvases": [[300, 150]],
+      "current": "Packed material maps",
+      "heading": "Packed material maps",
+      "status": [
+        {
+          "id": "light-status",
+          "text": "Preparing lights\u2026"
+        },
+        {
+          "id": "gpu-status",
+          "text": "Loading three base-color and three linear material maps\u2026"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "Preparing meshes\u2026"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Normal mapping",
+      "url": "http://127.0.0.1:8092/webgl-normals.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset-triangle",
+          "text": "Reset pose"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check normal mapping"
+        }
+      ],
+      "canvases": [[960, 540]],
+      "current": "Normal mapping",
+      "heading": "Surface detail, same geometry",
+      "status": [
+        {
+          "id": "light-status",
+          "text": "GGX material response \u00b7 left: coating \u00b7 middle: steel \u00b7 right: rubber \u00b7 UV repeat 2"
+        },
+        {
+          "id": "gpu-status",
+          "text": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 0"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "3 draws \u00b7 6624 triangles \u00b7 1589760 geometry bytes \u00b7 5 textures \u00b7 1 samplers \u00b7 16.33 MiB RGBA8 + mip levels"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Environment reflections",
+      "url": "http://127.0.0.1:8092/webgl-environment.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset-view",
+          "text": "Reset view"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check environment lighting"
+        }
+      ],
+      "canvases": [
+        [960, 540],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64]
+      ],
+      "current": "Environment reflections",
+      "heading": "Light from the surroundings",
+      "status": [
+        {
+          "id": "environment-status",
+          "text": "Environment yaw 0\u00b0 \u00b7 strength 100%"
+        },
+        {
+          "id": "gpu-status",
+          "text": "Environment renderer ready \u00b7 cleaned presentations 0"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "3 draws \u00b7 6624 triangles \u00b7 1112832 geometry bytes \u00b7 3 environment textures \u00b7 147.4 KiB \u00b7 no per-frame texture uploads"
+        },
+        {
+          "id": "bake-status",
+          "text": "Baked once in 130 ms \u00b7 six 64\u00b2 faces \u00b7 seven GGX levels \u00b7 diffuse 12\u00b2 \u00b7 BRDF 64\u00b2 \u00b7 128 samples. No filtering work runs per frame."
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Directional shadows",
+      "url": "http://127.0.0.1:8092/webgl-shadows.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "reset-view",
+          "text": "Reset view"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check shadow visibility"
+        }
+      ],
+      "canvases": [[960, 540]],
+      "current": "Directional shadows",
+      "heading": "Give the light something to hide behind",
+      "status": [
+        {
+          "id": "shadow-status",
+          "text": "Light yaw -145\u00b0 \u00b7 coverage 16 units \u00b7 bias 0.0010 + slope 0.0020 \u00b7 3 \u00d7 3 PCF"
+        },
+        {
+          "id": "gpu-status",
+          "text": "Shadow renderer ready \u00b7 cleaned presentations 0"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "Color: 4 draws / 2234 triangles \u00b7 depth: 3 draws / 2232 triangles \u00b7 512\u00b2 depth texture / 1.00 MiB estimated \u00b7 shared 375312 geometry bytes"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Dynamic textures",
+      "url": "http://127.0.0.1:8092/webgl-dynamic-textures.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "refresh-display",
+          "text": "Advance display once"
+        },
+        {
+          "disabled": false,
+          "id": "reset-view",
+          "text": "Reset view"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check texture updates"
+        }
+      ],
+      "canvases": [
+        [960, 540],
+        [512, 320]
+      ],
+      "current": "Dynamic textures",
+      "heading": "A display that keeps changing",
+      "status": [
+        {
+          "id": "display-status",
+          "text": "Running \u00b7 target 10 Hz \u00b7 canvas draws 1 \u00b7 source revision 1 \u00b7 render clock continues independently"
+        },
+        {
+          "id": "upload-stats",
+          "text": "GPU texture allocations 1 \u00b7 in-place updates 0 \u00b7 0.63 MiB submitted (base pixels) \u00b7 mipmap builds 1"
+        },
+        {
+          "id": "gpu-status",
+          "text": "Dynamic texture renderer ready \u00b7 cleaned presentations 0"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "2 surfaces \u00b7 1 shared mesh \u00b7 4 triangles \u00b7 336 geometry bytes \u00b7 1 texture / 853.3 KiB including mip levels"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Bloom",
+      "url": "http://127.0.0.1:8092/webgl-bloom.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check bloom pixels"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        }
+      ],
+      "canvases": [[1163, 655]],
+      "current": "Bloom",
+      "heading": "Let bright surfaces glow",
+      "status": [
+        {
+          "id": "pass-stats",
+          "text": "6 scene draws / 12 triangles \u00b7 6 fullscreen passes \u00b7 bloom 582 \u00d7 328 \u00b7 5.82 MiB targets (RGBA8 + depth16, estimated) \u00b7 geometry 2016 bytes"
+        },
+        {
+          "id": "gpu-status",
+          "text": "Bloom ready \u00b7 cleaned presentations 0"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Procedural asteroid field",
+      "url": "http://127.0.0.1:8092/webgl-asteroids.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "generate",
+          "text": "Generate field"
+        },
+        {
+          "disabled": false,
+          "id": "home",
+          "text": "Home camera"
+        },
+        {
+          "disabled": false,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        }
+      ],
+      "canvases": [[1163, 655]],
+      "current": "Procedural asteroid field",
+      "heading": "A small patch of space",
+      "status": [
+        {
+          "id": "gpu-status",
+          "text": "Ready \u00b7 cleaned presentations 0"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "Asteroid field \u00b7 seed 2126 \u00b7 96 rocks \u00b7 96 draw calls \u00b7 12,288 submitted triangles \u00b7 8 cached meshes \u00b7 147,456 uploaded bytes"
+        },
+        {
+          "id": "camera-status",
+          "text": "Position 0.0, 0.0, -18.0 \u00b7 heading 0\u00b0 \u00b7 pitch 0\u00b0"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Textured cockpit",
+      "url": "http://127.0.0.1:8092/webgl-cockpit.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "inspect-model",
+          "text": "Inspect exterior"
+        },
+        {
+          "disabled": false,
+          "id": "reset-triangle",
+          "text": "Pilot seat"
+        },
+        {
+          "disabled": true,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check normal mapping"
+        }
+      ],
+      "canvases": [[300, 150]],
+      "current": "Textured cockpit",
+      "heading": "Finally, the cockpit.",
+      "status": [
+        {
+          "id": "light-status",
+          "text": "Preparing lights\u2026"
+        },
+        {
+          "id": "gpu-status",
+          "text": "Loading Cockpit v4 and embedded materials\u2026"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "Preparing meshes\u2026"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Environment reflections",
+      "url": "http://127.0.0.1:8092/webgl-cockpit-environment.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "inspect-model",
+          "text": "Inspect exterior"
+        },
+        {
+          "disabled": false,
+          "id": "reset-triangle",
+          "text": "Pilot seat"
+        },
+        {
+          "disabled": true,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check normal mapping"
+        }
+      ],
+      "canvases": [
+        [300, 150],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64]
+      ],
+      "current": "Environment reflections",
+      "heading": "The cockpit meets its surroundings",
+      "status": [
+        {
+          "id": "environment-status",
+          "text": ""
+        },
+        {
+          "id": "light-status",
+          "text": "Preparing lights\u2026"
+        },
+        {
+          "id": "gpu-status",
+          "text": "Loading Cockpit v4 and embedded materials\u2026"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "Preparing meshes\u2026"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Directional shadows",
+      "url": "http://127.0.0.1:8092/webgl-cockpit-shadows.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "inspect-model",
+          "text": "Inspect exterior"
+        },
+        {
+          "disabled": false,
+          "id": "reset-triangle",
+          "text": "Pilot seat"
+        },
+        {
+          "disabled": true,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check normal mapping"
+        }
+      ],
+      "canvases": [
+        [300, 150],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64]
+      ],
+      "current": "Directional shadows",
+      "heading": "Let the window frame cast a shadow",
+      "status": [
+        {
+          "id": "environment-status",
+          "text": ""
+        },
+        {
+          "id": "shadow-status",
+          "text": ""
+        },
+        {
+          "id": "light-status",
+          "text": "Preparing lights\u2026"
+        },
+        {
+          "id": "gpu-status",
+          "text": "Loading Cockpit v4 and embedded materials\u2026"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "Preparing meshes\u2026"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Live instruments & HUD",
+      "url": "http://127.0.0.1:8092/webgl-cockpit-displays.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "inspect-model",
+          "text": "Inspect exterior"
+        },
+        {
+          "disabled": false,
+          "id": "reset-triangle",
+          "text": "Pilot seat"
+        },
+        {
+          "disabled": true,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check normal mapping"
+        },
+        {
+          "disabled": false,
+          "id": "instruments-step",
+          "text": "Advance displays once"
+        }
+      ],
+      "canvases": [
+        [300, 150],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64]
+      ],
+      "current": "Live instruments & HUD",
+      "heading": "Radar left. Telemetry right.",
+      "status": [
+        {
+          "id": "environment-status",
+          "text": ""
+        },
+        {
+          "id": "shadow-status",
+          "text": ""
+        },
+        {
+          "id": "light-status",
+          "text": "Preparing lights\u2026"
+        },
+        {
+          "id": "instruments-status",
+          "text": ""
+        },
+        {
+          "id": "gpu-status",
+          "text": "Loading Cockpit v5 fitted wear and embedded materials\u2026"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "Preparing meshes\u2026"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Instrument bloom",
+      "url": "http://127.0.0.1:8092/webgl-cockpit-bloom.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "inspect-model",
+          "text": "Inspect exterior"
+        },
+        {
+          "disabled": false,
+          "id": "reset-triangle",
+          "text": "Pilot seat"
+        },
+        {
+          "disabled": true,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check normal mapping"
+        },
+        {
+          "disabled": false,
+          "id": "instruments-step",
+          "text": "Advance displays once"
+        }
+      ],
+      "canvases": [
+        [300, 150],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64]
+      ],
+      "current": "Instrument bloom",
+      "heading": "A little glow in the old bucket",
+      "status": [
+        {
+          "id": "bloom-status",
+          "text": ""
+        },
+        {
+          "id": "environment-status",
+          "text": ""
+        },
+        {
+          "id": "shadow-status",
+          "text": ""
+        },
+        {
+          "id": "light-status",
+          "text": "Preparing lights\u2026"
+        },
+        {
+          "id": "instruments-status",
+          "text": ""
+        },
+        {
+          "id": "gpu-status",
+          "text": "Loading Cockpit v5 fitted wear and embedded materials\u2026"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "Preparing meshes\u2026"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Screen light spill",
+      "url": "http://127.0.0.1:8092/webgl-cockpit-spill.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "inspect-model",
+          "text": "Inspect exterior"
+        },
+        {
+          "disabled": false,
+          "id": "reset-triangle",
+          "text": "Pilot seat"
+        },
+        {
+          "disabled": true,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check normal mapping"
+        },
+        {
+          "disabled": false,
+          "id": "instruments-step",
+          "text": "Advance displays once"
+        }
+      ],
+      "canvases": [
+        [300, 150],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64]
+      ],
+      "current": "Screen light spill",
+      "heading": "Let the screens light the cabin",
+      "status": [
+        {
+          "id": "screen-light-status",
+          "text": ""
+        },
+        {
+          "id": "bloom-status",
+          "text": ""
+        },
+        {
+          "id": "environment-status",
+          "text": ""
+        },
+        {
+          "id": "shadow-status",
+          "text": ""
+        },
+        {
+          "id": "light-status",
+          "text": "Preparing lights\u2026"
+        },
+        {
+          "id": "instruments-status",
+          "text": ""
+        },
+        {
+          "id": "gpu-status",
+          "text": "Loading Cockpit v5 fitted wear and embedded materials\u2026"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "Preparing meshes\u2026"
+        }
+      ],
+      "logs": []
+    },
+    {
+      "title": "Cockpit & asteroid field",
+      "url": "http://127.0.0.1:8092/webgl-cockpit-asteroids.html",
+      "buttons": [
+        {
+          "disabled": false,
+          "id": "field-generate",
+          "text": "Generate field"
+        },
+        {
+          "disabled": false,
+          "id": "field-home",
+          "text": "Return home"
+        },
+        {
+          "disabled": false,
+          "id": "inspect-model",
+          "text": "Inspect exterior"
+        },
+        {
+          "disabled": false,
+          "id": "reset-triangle",
+          "text": "Pilot seat"
+        },
+        {
+          "disabled": true,
+          "id": "restart",
+          "text": "Recreate demo"
+        },
+        {
+          "disabled": false,
+          "id": "lose-context",
+          "text": "Simulate context loss"
+        },
+        {
+          "disabled": true,
+          "id": "restore-context",
+          "text": "Restore context"
+        },
+        {
+          "disabled": false,
+          "id": "read-pixel",
+          "text": "Check normal mapping"
+        },
+        {
+          "disabled": false,
+          "id": "instruments-step",
+          "text": "Advance displays once"
+        }
+      ],
+      "canvases": [
+        [300, 150],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64],
+        [64, 64]
+      ],
+      "current": "Cockpit & asteroid field",
+      "heading": "Take the cockpit into the field",
+      "status": [
+        {
+          "id": "field-status",
+          "text": ""
+        },
+        {
+          "id": "screen-light-status",
+          "text": ""
+        },
+        {
+          "id": "bloom-status",
+          "text": ""
+        },
+        {
+          "id": "environment-status",
+          "text": ""
+        },
+        {
+          "id": "shadow-status",
+          "text": ""
+        },
+        {
+          "id": "light-status",
+          "text": "Preparing lights\u2026"
+        },
+        {
+          "id": "instruments-status",
+          "text": ""
+        },
+        {
+          "id": "gpu-status",
+          "text": "Loading Cockpit v5 fitted wear and embedded materials\u2026"
+        },
+        {
+          "id": "mesh-stats",
+          "text": "Preparing meshes\u2026"
+        }
+      ],
+      "logs": []
+    }
+  ],
+  "software3D": [
+    {
+      "url": "http://127.0.0.1:8092/3d-grid.html",
+      "action": "recreate",
+      "errors": [],
+      "outputs": [
+        "Position 8.0, 6.0, -12.0 \u00b7 yaw -29\u00b0 \u00b7 pitch -18\u00b0 \u00b7 cleaned scenes 1"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/3d-cube.html",
+      "action": "recreate",
+      "errors": [],
+      "outputs": [
+        "Position 8.0, 6.0, -12.0 \u00b7 yaw -29\u00b0 \u00b7 pitch -18\u00b0 \u00b7 cleaned scenes 1"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/3d-solid.html",
+      "action": "recreate",
+      "errors": [],
+      "outputs": [
+        "Position 8.0, 6.0, -12.0 \u00b7 yaw -29\u00b0 \u00b7 pitch -18\u00b0 \u00b7 cleaned scenes 1"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/3d-cockpit.html",
+      "action": "recreate",
+      "errors": [],
+      "outputs": [
+        "Position 0.0, 1.6, 0.0 \u00b7 yaw 0\u00b0 \u00b7 pitch -2\u00b0 \u00b7 cleaned scenes 1"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/3d-overlay.html",
+      "action": "recreate",
+      "errors": [],
+      "outputs": [
+        "Position 0.0, 1.6, 0.0 \u00b7 yaw 0\u00b0 \u00b7 pitch -2\u00b0 \u00b7 cleaned scenes 1"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/3d-foundation.html",
+      "action": "recreate",
+      "errors": [],
+      "outputs": [
+        "Position 8.0, 6.0, -12.0 \u00b7 yaw -29\u00b0 \u00b7 pitch -18\u00b0 \u00b7 cleaned scenes 1"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/3d-visibility.html",
+      "action": "recreate",
+      "errors": [],
+      "outputs": [
+        "Position 0.0, 0.0, -7.0 \u00b7 yaw 0\u00b0 \u00b7 pitch 0\u00b0 \u00b7 cleaned scenes 1"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/3d-model.html",
+      "action": "recreate",
+      "errors": [],
+      "outputs": [
+        "Loaded. Free camera: explore outside too; this asset is an open forward cabin.",
+        "Position 0.0, 1.5, 0.0 \u00b7 yaw 0\u00b0 \u00b7 pitch 0\u00b0 \u00b7 cleaned scenes 1"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/3d-lighting.html",
+      "action": "recreate",
+      "errors": [],
+      "outputs": [
+        "Position 0.0, 3.5, -11.0 \u00b7 yaw 0\u00b0 \u00b7 pitch -9\u00b0 \u00b7 cleaned scenes 1"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/3d-point-light.html",
+      "action": "recreate",
+      "errors": [],
+      "outputs": [
+        "Position 0.0, 4.0, -11.0 \u00b7 yaw 0\u00b0 \u00b7 pitch -13\u00b0 \u00b7 cleaned scenes 1"
+      ]
+    }
+  ],
+  "gpu": [
+    {
+      "url": "http://127.0.0.1:8092/webgl-triangle.html",
+      "diagnostic": "Center RGBA: 153, 168, 188, 255 \u00b7 GL error 0 (0 = no error)",
+      "restored": "WebGL2 ready \u00b7 1 triangle \u00b7 1 draw call \u00b7 1 vertex buffer (72 bytes) \u00b7 cleaned presentations 0",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-meshes.html",
+      "diagnostic": "Center RGBA depth on: 114,155,199,255 / reversed 114,155,199,255 \u00b7 depth off: 216,134,72,255 / reversed 114,155,199,255 \u00b7 GL error 0 (0 = no error). Check from the reset pose for an overlapping center pixel.",
+      "restored": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 0",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-lighting.html",
+      "diagnostic": "PASS \u00b7 red-channel samples: dark 0/0, unlit 255/255, ambient 137/137, directional front 137/137, back 0/0, point center 137/137, off-center 117/117, farther 71/71 (actual/expected, tolerance 2). GL error 0 (0 = no error).",
+      "restored": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 0",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-textures.html",
+      "diagnostic": "PASS \u00b7 top-left 255,0,0 \u2713 \u00b7 top-right 0,255,0 \u2713 \u00b7 bottom-left 0,0,255 \u2713 \u00b7 repeat 255,0,0 \u2713 \u00b7 clamp 0,255,0 \u2713 \u00b7 mirror 0,255,0 \u2713 \u00b7 linear sRGB mix 188,188,188 \u2713 \u00b7 lit white 137,137,137 \u2713 (RGB tolerance 2). GL error 0 (0 = no error).",
+      "restored": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 0",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-materials.html",
+      "diagnostic": "PASS \u00b7 dielectric r1 151/151 \u00b7 metal r1 80/80 \u00b7 metal r0.5 100/100 \u00b7 Lambert comparison 137/137 \u00b7 metal diffuse ambient 0/0 \u00b7 unlit 255/255 \u00b7 back light 0/0 \u00b7 facing 100/100 \u00b7 view moved 36 < 50 (actual/expected red, tolerance 2). GL error 0 (0 = no error).",
+      "restored": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 0",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-material-maps.html",
+      "diagnostic": "PASS \u00b7 linear G 128/128 \u00b7 linear B 192/192 \u00b7 AO R 64/64 \u00b7 G \u00d7 0.5 64/64 \u00b7 B \u00d7 0.5 96/96 \u00b7 AO strength 0.5 159/160 \u00b7 neutral absent map 255/255 \u00b7 AO ambient 71/71 \u00b7 AO disabled 137/137 \u00b7 AO leaves emission 137/137 \u00b7 AO leaves direct 84/84 (actual/expected red, tolerance 2). GL error 0 (0 = no error).",
+      "restored": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 0",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-normals.html",
+      "diagnostic": "PASS \u00b7 flat 128,127,0/128,127,0 \u00b7 +T 204,127,25/204,127,25 \u00b7 +B 128,51,25/128,51,25 \u00b7 hand -1 128,204,25/128,204,25 \u00b7 mirror X 51,127,25/51,127,25 \u00b7 rotate Z 128,204,25/128,204,25 \u00b7 nonuniform 204,127,25/204,127,25 \u00b7 shear 196,161,25/196,161,25 \u00b7 strength 0 127,127,0/128,128,0 \u00b7 disabled 127,127,0/128,128,0 \u00b7 Lambert mapped 203,203,203/203,203,203 \u00b7 Lambert disabled 0,0,0/0,0,0 (actual/expected RGB, tolerance 2). GL error 0 (0 = no error).",
+      "restored": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 0",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-environment.html",
+      "diagnostic": "PASS \u00b7 constant environment 137/188/224 \u2248 137/188/225 \u00b7 zero strength 0/0/0 (tolerance 4 RGB8) \u00b7 GL error 0",
+      "restored": "Environment renderer ready \u00b7 cleaned presentations 0",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-shadows.html",
+      "diagnostic": "PASS \u00b7 shadow 89/89 \u00b7 lit 218/218 (\u00b13 RGB8) \u00b7 visibility 0/0 \u00b7 caster off 255/255 \u00b7 receiver off 255/255 \u00b7 GL error 0",
+      "restored": "Shadow renderer ready \u00b7 cleaned presentations 0",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-dynamic-textures.html",
+      "diagnostic": "PASS \u00b7 red 255/0/0 \u2192 green 0/255/0 \u00b7 unchanged draw adds zero updates. Diagnostic swaps textures; normal display is restored next frame. \u00b7 GL error 0",
+      "restored": "Dynamic texture renderer ready \u00b7 cleaned presentations 0",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-bloom.html",
+      "diagnostic": "PASS \u00b7 halo 5 \u2192 65 \u00b7 sharp center 255/255 \u00b7 threshold 1 5 \u00b7 extraction outside 0 \u00b7 GL error 0",
+      "restored": "Bloom ready \u00b7 cleaned presentations 1",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-asteroids.html",
+      "diagnostic": null,
+      "restored": "Ready \u00b7 cleaned presentations 1",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-cockpit.html",
+      "diagnostic": "PASS \u00b7 flat 128,127,0/128,127,0 \u00b7 +T 204,127,25/204,127,25 \u00b7 +B 128,51,25/128,51,25 \u00b7 hand -1 128,204,25/128,204,25 \u00b7 mirror X 51,127,25/51,127,25 \u00b7 rotate Z 128,204,25/128,204,25 \u00b7 nonuniform 204,127,25/204,127,25 \u00b7 shear 196,161,25/196,161,25 \u00b7 strength 0 127,127,0/128,128,0 \u00b7 disabled 127,127,0/128,128,0 \u00b7 Lambert mapped 203,203,203/203,203,203 \u00b7 Lambert disabled 0,0,0/0,0,0 (actual/expected RGB, tolerance 2). GL error 0 (0 = no error).",
+      "restored": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 1",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-cockpit-environment.html",
+      "diagnostic": "PASS \u00b7 flat 128,127,0/128,127,0 \u00b7 +T 204,127,25/204,127,25 \u00b7 +B 128,51,25/128,51,25 \u00b7 hand -1 128,204,25/128,204,25 \u00b7 mirror X 51,127,25/51,127,25 \u00b7 rotate Z 128,204,25/128,204,25 \u00b7 nonuniform 204,127,25/204,127,25 \u00b7 shear 196,161,25/196,161,25 \u00b7 strength 0 127,127,0/128,128,0 \u00b7 disabled 127,127,0/128,128,0 \u00b7 Lambert mapped 203,203,203/203,203,203 \u00b7 Lambert disabled 0,0,0/0,0,0 (actual/expected RGB, tolerance 2). GL error 0 (0 = no error).",
+      "restored": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 1",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-cockpit-shadows.html",
+      "diagnostic": "PASS \u00b7 flat 128,127,0/128,127,0 \u00b7 +T 204,127,25/204,127,25 \u00b7 +B 128,51,25/128,51,25 \u00b7 hand -1 128,204,25/128,204,25 \u00b7 mirror X 51,127,25/51,127,25 \u00b7 rotate Z 128,204,25/128,204,25 \u00b7 nonuniform 204,127,25/204,127,25 \u00b7 shear 196,161,25/196,161,25 \u00b7 strength 0 127,127,0/128,128,0 \u00b7 disabled 127,127,0/128,128,0 \u00b7 Lambert mapped 203,203,203/203,203,203 \u00b7 Lambert disabled 0,0,0/0,0,0 (actual/expected RGB, tolerance 2). GL error 0 (0 = no error).",
+      "restored": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 1",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-cockpit-displays.html",
+      "diagnostic": "PASS \u00b7 flat 128,127,0/128,127,0 \u00b7 +T 204,127,25/204,127,25 \u00b7 +B 128,51,25/128,51,25 \u00b7 hand -1 128,204,25/128,204,25 \u00b7 mirror X 51,127,25/51,127,25 \u00b7 rotate Z 128,204,25/128,204,25 \u00b7 nonuniform 204,127,25/204,127,25 \u00b7 shear 196,161,25/196,161,25 \u00b7 strength 0 127,127,0/128,128,0 \u00b7 disabled 127,127,0/128,128,0 \u00b7 Lambert mapped 203,203,203/203,203,203 \u00b7 Lambert disabled 0,0,0/0,0,0 (actual/expected RGB, tolerance 2). GL error 0 (0 = no error).",
+      "restored": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 1",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-cockpit-bloom.html",
+      "diagnostic": "PASS \u00b7 flat 128,127,0/128,127,0 \u00b7 +T 204,127,25/204,127,25 \u00b7 +B 128,51,25/128,51,25 \u00b7 hand -1 128,204,25/128,204,25 \u00b7 mirror X 51,127,25/51,127,25 \u00b7 rotate Z 128,204,25/128,204,25 \u00b7 nonuniform 204,127,25/204,127,25 \u00b7 shear 196,161,25/196,161,25 \u00b7 strength 0 127,127,0/128,128,0 \u00b7 disabled 127,127,0/128,128,0 \u00b7 Lambert mapped 203,203,203/203,203,203 \u00b7 Lambert disabled 0,0,0/0,0,0 (actual/expected RGB, tolerance 2). GL error 0 (0 = no error).",
+      "restored": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 1",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-cockpit-spill.html",
+      "diagnostic": "PASS \u00b7 flat 128,127,0/128,127,0 \u00b7 +T 204,127,25/204,127,25 \u00b7 +B 128,51,25/128,51,25 \u00b7 hand -1 128,204,25/128,204,25 \u00b7 mirror X 51,127,25/51,127,25 \u00b7 rotate Z 128,204,25/128,204,25 \u00b7 nonuniform 204,127,25/204,127,25 \u00b7 shear 196,161,25/196,161,25 \u00b7 strength 0 127,127,0/128,128,0 \u00b7 disabled 127,127,0/128,128,0 \u00b7 Lambert mapped 203,203,203/203,203,203 \u00b7 Lambert disabled 0,0,0/0,0,0 (actual/expected RGB, tolerance 2). GL error 0 (0 = no error).",
+      "restored": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 1",
+      "logs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/webgl-cockpit-asteroids.html",
+      "diagnostic": "PASS \u00b7 flat 128,127,0/128,127,0 \u00b7 +T 204,127,25/204,127,25 \u00b7 +B 128,51,25/128,51,25 \u00b7 hand -1 128,204,25/128,204,25 \u00b7 mirror X 51,127,25/51,127,25 \u00b7 rotate Z 128,204,25/128,204,25 \u00b7 nonuniform 204,127,25/204,127,25 \u00b7 shear 196,161,25/196,161,25 \u00b7 strength 0 127,127,0/128,128,0 \u00b7 disabled 127,127,0/128,128,0 \u00b7 Lambert mapped 203,203,203/203,203,203 \u00b7 Lambert disabled 0,0,0/0,0,0 (actual/expected RGB, tolerance 2). GL error 0 (0 = no error).",
+      "restored": "WebGL2 mesh renderer ready \u00b7 cleaned presentations 1",
+      "logs": []
+    }
+  ],
+  "functional": [
+    {
+      "url": "http://127.0.0.1:8092/",
+      "steps": ["replace-arm", "restart"],
+      "logs": [],
+      "outputs": ["3 arms cleaned up"]
+    },
+    {
+      "url": "http://127.0.0.1:8092/fixed.html",
+      "steps": ["fixed-stall", "fixed-pause", "fixed-pause"],
+      "logs": [],
+      "outputs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/physics.html",
+      "steps": ["physics-spawn", "physics-remove", "physics-reset"],
+      "logs": [],
+      "outputs": [
+        "11 body nodes cleaned \u00b7 previous world: 0 bodies / 0 contacts / 0 listeners"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/api-experiment.html",
+      "steps": ["remove", "previous"],
+      "logs": [],
+      "outputs": [
+        "Current home \u00b7 history empty \u00b7 created 1 / disposed 0",
+        "Kept home: Error: No previous scene"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/scene-composition.html",
+      "steps": ["hangar", "back"],
+      "logs": [],
+      "outputs": [
+        "API EXPERIMENT / SECOND PASS",
+        "Hangar #2 \u00b7 x 360 \u00b7 updates 40 \u00b7 disposed",
+        "Created 2 \u00b7 disposed 1 \u00b7 live 1 \u00b7 1 canvas",
+        "The bridge keeps its position and camera. Every hangar visit starts a new instance. During loading the old scene stays interactive. Switch again to cancel a slow load. After a failed load, click Hangar to retry. Keys held across a switch must be released and pressed again.",
+        "Both scenes have their own camera, world layers and screen HUD. One canvas, one Rocket loop. Dispose releases every scene and input binding; the final created/disposed counts must match."
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/tiles.html",
+      "steps": ["close-detail", "restart-board"],
+      "logs": [],
+      "outputs": ["1 board presentations cleaned up"]
+    },
+    {
+      "url": "http://127.0.0.1:8092/streaming.html",
+      "steps": ["stream-far", "stream-back", "stream-restart"],
+      "logs": [],
+      "outputs": ["IndexedDB committed \u00b7 16 overrides restored or saved"]
+    },
+    {
+      "url": "http://127.0.0.1:8092/terrain.html",
+      "steps": ["terrain-east", "terrain-apply"],
+      "logs": [],
+      "outputs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/terrain-tiles.html",
+      "steps": ["legacy-behind", "legacy-front"],
+      "logs": [],
+      "outputs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/terrain-streaming.html",
+      "steps": ["world-far", "world-back", "world-reset"],
+      "logs": [],
+      "outputs": [
+        "Error: none",
+        "Passes: 1 \u00b7 Backend: main thread \u00b7 generation 0.045 ms mean \u00b7 peak 0.200 ms"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/camera-terrain.html",
+      "steps": ["camera-close", "camera-reset"],
+      "logs": [],
+      "outputs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/terrain-workers.html",
+      "steps": ["world-far", "world-back", "world-reset"],
+      "logs": [],
+      "outputs": [
+        "Error: none",
+        "Passes: 1 \u00b7 Backend: 2 native workers \u00b7 generation 0.103 ms mean \u00b7 round trip 0.37 ms / peak 2.40",
+        "Pool task-reported compute 0.103 ms \u00b7 censored deadline/disposed attempts 0/0 (excluded from response means)"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/sprites.html",
+      "steps": ["sprite-flip", "sprite-close", "sprite-recreate"],
+      "logs": [],
+      "outputs": [
+        "One cached image, two binding-owned leases \u00b7 released leases 2 \u00b7 completions 0 \u00b7 indexed sprites 2"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/sprite-layers.html",
+      "steps": [
+        "shirt",
+        {
+          "id": "verify",
+          "error": "Error: Error: Playwright selector deadline exceeded\nlocator.waitFor(visible) timed out for selector #verify:not([disabled])\nLocator diagnostics: {\"kind\":\"no_visible_match\",\"action\":\"waitFor\",\"locator\":\"#verify:not([disab"
+        }
+      ],
+      "logs": [],
+      "outputs": [
+        "active clocks 1 \u00b7 active control scopes 1 \u00b7 created 1 / destroyed 0"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/navigation.html",
+      "steps": ["navigation-go", "navigation-cancel", "navigation-gate"],
+      "logs": [],
+      "outputs": [
+        "Close the gate during a journey to replan around the wall ends. Unknown data blocks movement until restored. A failed complete search reports unreachable; retry does not restart a terminal journey\u2014issue a new destination. Closing a view keeps movement alive. Clearance includes the actor's full radius; no rigid-body physics or crowd avoidance is involved."
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/navigation-streaming.html",
+      "steps": ["walker-go", "walker-cancel", "walker-reset"],
+      "logs": [],
+      "outputs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/ui-panels.html",
+      "steps": ["open-note", "close-first-view"],
+      "logs": [],
+      "outputs": [
+        "First view and its two panels disposed. The second view still observes the same simulation."
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/ui-chat.html",
+      "steps": ["fail-reply", "new-session", "dispose-second-view"],
+      "logs": [],
+      "outputs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/examples/inventory/context.html",
+      "steps": ["equip-sword", "equip-hat", "wrong-slot", "wait"],
+      "logs": [],
+      "outputs": ["Restore checkpoint"]
+    },
+    {
+      "url": "http://127.0.0.1:8092/workshop.html",
+      "steps": [
+        "factory-pause",
+        {
+          "id": "factory-smelter",
+          "error": "Error: Error: Playwright selector deadline exceeded\nlocator.waitFor(visible) timed out for selector #factory-smelter:not([disabled])\nLocator diagnostics: {\"kind\":\"no_matches\",\"action\":\"waitFor\",\"locator\":\"#factory-smelte"
+        }
+      ],
+      "logs": [],
+      "outputs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/factory-terrain.html",
+      "steps": [
+        "factory-world-far",
+        "factory-world-home",
+        "factory-world-recreate"
+      ],
+      "logs": [],
+      "outputs": [
+        "3/3 nearby building/site visuals \u00b7 3 visible buildings \u00b7 3 built / 0 released \u00b7 3 domain facilities \u00b7 zoom 1.00\u00d7 \u00b7 \u2026 FPS",
+        "Previous views released: 0 demand owners, 0 chunks, 0 artwork regions, 0 building visuals, 0 camera controllers. Workshop tick 13 preserved.",
+        "1280 \u00d7 720 terrain canvas: 80 \u00d7 45 visible tiles, four times the original area. Click terrain to focus WASD / arrow panning with inertia; wheel zoom anchors beneath the cursor (0.75\u20134\u00d7). Buildings and vegetation share feet sorting. Storage is capped at 20 per material; collect parts to unblock a full stockpile. Select a building to preview a 3 \u00d7 2 tile footprint; water, unloaded terrain and occupied footprints are rejected. Construction is free and uses the shared stockpile. Save factory keeps buildings and production in this browser. Reload restores the last explicit checkpoint without offline progression. Later unsaved changes are lost."
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/factory-terrain.html?transport=1",
+      "steps": [
+        "factory-world-route-disconnect",
+        "factory-world-route-connect",
+        "factory-world-recreate"
+      ],
+      "logs": [],
+      "outputs": [
+        "3/3 nearby building/site visuals \u00b7 3 visible buildings/cargo \u00b7 3 built / 0 released \u00b7 3 domain facilities \u00b7 zoom 1.00\u00d7 \u00b7 \u2026 FPS",
+        "Previous views released: 0 demand owners, 0 chunks, 0 artwork regions, 0 building visuals, 0 camera controllers. Workshop tick 11 preserved.",
+        "Transport mode: each facility has separate input/output buffers (capacity 20 each). Two initial routes connect Mine \u2192 Smelter \u2192 Press with 2s journeys. New buildings need a compatible supply route: choose endpoints and Connect. Travel time follows straight-line distance at 64 pixels/s (minimum 0.5s); routes cross water and terrain freely. Orange cargo carries ore; blue carries alloy; red waits for unloading. Collect withdraws finished parts from all Press outputs and salvaged stock. Inspect a building to Drain/Resume or remove it after work and cargo finish. Disconnect stops dispatch and lets active cargo unload. Removal salvages materials into shared stock (capacity 20); empty private buffers are retired by Workshop. Save restores cargo and arrival deadlines in a separate checkpoint slot."
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/factory-terrain.html?transport=1&workshop=1",
+      "steps": [
+        {
+          "id": "factory-world-supply",
+          "error": "Error: Error: Playwright selector deadline exceeded\nlocator.waitFor(visible) timed out for selector #factory-world-supply:not([disabled])\nLocator diagnostics: {\"kind\":\"no_visible_match\",\"action\":\"waitFor\",\"locator\":\"#fac"
+        }
+      ],
+      "logs": [],
+      "outputs": [
+        "Restored tick 3596. No offline progression. Save explicitly to keep later changes.",
+        "4/4 nearby building/site visuals \u00b7 4 visible buildings/cargo \u00b7 4 built / 0 released \u00b7 4 domain facilities \u00b7 zoom 1.00\u00d7 \u00b7 144 FPS"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/navigation-workshop.html",
+      "steps": ["staffing-smelter", "staffing-off"],
+      "logs": [],
+      "outputs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/navigation-workshop-streaming.html",
+      "steps": ["assign-smelter", "release"],
+      "logs": [],
+      "outputs": [
+        "Restored tick 1071, worker (240.0, 30.0). No offline time applied; attendance waits for ready terrain.",
+        "Yellow squares are workplace entrances. Grey tiles block walking; purple tiles are still loading. Seal the passage before assigning the Press to see a blocked route. Open it and assign again. Block an entrance while the worker is on site: attendance and work pause immediately; restoring that entrance resumes work. Closing both views preserves the worker, assignment and production."
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/navigation-staffing.html",
+      "steps": ["assign-press", "release"],
+      "logs": [],
+      "outputs": [
+        "Restored tick 260, 2 workers and 2 reservations. No offline time applied; attendance waits for ready terrain.",
+        "Yellow squares are workplace entrances. Grey tiles block walking; purple tiles are still loading. Seal the passage before assigning the Press to see a blocked route. Open it and assign again. Block an entrance while the worker is on site: attendance and work pause immediately; restoring that entrance resumes work. Closing both views preserves workers, reservations and production. Release or dispose a worker to free its slot. Terminal route failure frees its reservation; retry decisions remain yours. There is no crowd collision or automatic staffing assignment in this proof."
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/factory-terrain.html?stress=6000&range=128",
+      "steps": [
+        "factory-world-far",
+        "factory-world-home",
+        "factory-world-recreate"
+      ],
+      "logs": [],
+      "outputs": [
+        "429/6000 nearby building/site visuals \u00b7 353 visible buildings \u00b7 429 built / 0 released \u00b7 6000 domain facilities \u00b7 zoom 1.00\u00d7 \u00b7 \u2026 FPS",
+        "Previous views released: 0 demand owners, 0 chunks, 0 artwork regions, 0 building visuals, 0 camera controllers. Workshop tick 12 preserved."
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/character-dialogue.html",
+      "steps": ["open-mara", "walk-grove", "return-mara"],
+      "logs": [],
+      "outputs": []
+    },
+    {
+      "url": "http://127.0.0.1:8092/character-sprites.html",
+      "steps": ["pause", "close-detail", "recreate"],
+      "logs": [],
+      "outputs": [
+        "12 independent players / 6 shared image leases \u00b7 released 6"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/character-control.html",
+      "steps": ["pause", "pause", "close-second", "recreate"],
+      "logs": [],
+      "outputs": [
+        "Position 128.0, 176.0 \u00b7 idle-front",
+        "Walk 80 px/s \u00b7 run 136 px/s \u00b7 run playback 1.5\u00d7 \u00b7 released leases 6"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/character-work.html",
+      "steps": ["takeover", "release", "recreate"],
+      "logs": [],
+      "outputs": [
+        "Restore checkpoint",
+        "No checkpoint saved. Restore resets keyboard control and replans work.",
+        "Workshop parts completed 0 \u00b7 inventory {\"ore\":12,\"alloy\":0,\"parts\":0} \u00b7 released sheets 2"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/character-situations.html",
+      "steps": ["talk", "recreate"],
+      "logs": [],
+      "outputs": [
+        "CFW authored choices \u00b7 no AI \u00b7 volatile host journal \u00b7 released sheets 2"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/character-grove.html",
+      "steps": ["arm", "panel", "fresh"],
+      "logs": [],
+      "outputs": [
+        " \u00b7 released sheets 1",
+        "History unavailability stays unknown; restoring it retains the original cursor. Lost reveal replies reconcile the same effect. The game journal and evidence are volatile; this is not process-crash durability."
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/character-encounter.html",
+      "steps": ["panel", "fresh"],
+      "logs": [],
+      "outputs": [
+        "Restore the watchtower route.",
+        "History available \u00b7 consequence executions 0 \u00b7 event sequence 0 \u00b7 released sheets 1"
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/quest-consumer.html",
+      "steps": ["panel", "fresh"],
+      "logs": [],
+      "outputs": []
+    }
+  ],
+  "extraInventories": [
+    {
+      "url": "http://127.0.0.1:8092/examples/inventory/inventory.html",
+      "steps": [
+        "take-water",
+        "store-water",
+        "take-tool",
+        "save",
+        "expand",
+        "restore"
+      ],
+      "logs": [],
+      "outputs": [
+        "Water: 0",
+        "Tool: 1",
+        "Water: 5",
+        "Tool: 0",
+        "Water: 0",
+        "Tool: 0",
+        "Water: 25",
+        "Tool: 0",
+        "Restored the saved world. Contents, item identity and attachments are preserved."
+      ]
+    },
+    {
+      "url": "http://127.0.0.1:8092/examples/inventory/operations.html",
+      "steps": [
+        "buy",
+        "draw",
+        "fill",
+        "eat",
+        "reject",
+        "save",
+        "expand-weight",
+        "restore"
+      ],
+      "logs": [],
+      "outputs": [
+        "Coins: 2",
+        "Full bucket: 1",
+        "Coins: 3",
+        "Tool: 1",
+        "Water: 25",
+        "Restored the saved inventory world and its matching activity view."
+      ]
+    }
+  ],
+  "journal": {
+    "logs": [
+      {
+        "id": "status",
+        "text": "{\n  \"identity\": {\n    \"gameId\": \"rocket-encounter\",\n    \"saveId\": \"browser-proof\",\n    \"timelineId\": \"timeline-1\"\n  },\n  \"capturedAt\": \"2026-10-16T08:"
+      },
+      {
+        "id": "journal",
+        "text": "{\n  \"gameId\": \"rocket-encounter\",\n  \"saveId\": \"browser-proof\",\n  \"timelineId\": \"timeline-1\",\n  \"durability\": \"volatile\",\n  \"head\": 20,\n  \"earliestSequ"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "",
+        "text": "Episode B confirmed: red. Both beacons lit; two evidence-backed mission reports, no AI."
+      }
+    ]
+  },
+  "workerRecovery": {
+    "status": "Selection (-2,-2) rock \u00b7 56 active overrides \u00b7 228/228 ready",
+    "text": [
+      "WASD / arrows pan all presentations. Click a ready tile to cycle its biome override; elevation displays the generated height field. Dark chunks are pending, pink chunks have failed.",
+      "3 views \u00b7 228/240 chunks \u00b7 0/4 jobs \u00b7 0 queued \u00b7 0 failed",
+      "Error: none",
+      "Pool: 2 workers \u00b7 0 physical occupied \u00b7 0 cancelled occupied \u00b7 0/4 queued \u00b7 0 cancellations \u00b7 0:idle / 1:idle"
+    ]
+  },
+  "inputProof": {
+    "moved": "Position 161.3, 176.0 \u00b7 idle-side",
+    "chatFocused": "Position 161.3, 176.0 \u00b7 idle-side",
+    "typed": "d"
+  },
+  "corrections": [
+    {
+      "page": "sprite-layers.html",
+      "result": "Expanded deterministic browser checks: PASS, 230 assertions, 10 cycles, 30 released sources"
+    },
+    {
+      "page": "workshop.html",
+      "result": "Retested enabled smelter, close view and reset successfully; paused controls intentionally disabled"
+    },
+    {
+      "page": "factory-terrain.html?transport=1&workshop=1",
+      "result": "Resumed production then recreated: zero previous owners/chunks/artwork/buildings/controllers, tick3602 preserved; supply lives inside hidden inspector"
+    }
+  ]
+}
