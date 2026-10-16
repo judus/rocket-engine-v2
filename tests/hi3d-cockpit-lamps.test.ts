@@ -131,3 +131,31 @@ void test('rectangular button spill follows fit and power independently of round
   for (let i = 0; i < 4; i++) lamps.setPowered(i, false);
   assert.deepEqual(lamps.buttonLights(), []);
 });
+
+void test('round alert rim glow and spill track individual power, color and fitted size', () => {
+  const lamps = hi3dCockpitLamps();
+  const initial = lamps.alertLights();
+  assert.equal(initial.length, 2);
+  assert.notDeepEqual(initial[0]!.color, initial[1]!.color);
+  for (const node of lamps.root.children.slice(4)) {
+    const pixels =
+      node.mesh!.materials[0]!.baseColorTexture!.image.copyPixels();
+    const value = (x: number, y: number) => pixels[(y * 64 + x) * 4]!;
+    assert.ok(
+      value(60, 32) > value(48, 32),
+      'near-border annulus is brighter than inner glass',
+    );
+  }
+  lamps.setSize(4, 0.5);
+  assert.equal(lamps.alertLights()[0]!.intensity, initial[0]!.intensity * 0.25);
+  lamps.setColor(4, '#00ff00');
+  assert.deepEqual(lamps.alertLights()[0]!.color, [0, 1, 0]);
+  lamps.setPowered(4, false);
+  assert.deepEqual(lamps.alertLights(), [initial[1]]);
+  const off = lamps.root.children[4]!.mesh;
+  lamps.setPowered(4, true);
+  lamps.setPowered(4, false);
+  assert.equal(lamps.root.children[4]!.mesh, off);
+  lamps.setPowered(5, false);
+  assert.deepEqual(lamps.alertLights(), []);
+});

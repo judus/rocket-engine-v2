@@ -735,8 +735,7 @@ mesh with shared geometry. Off keeps a dark lens in place to cover the baked
 glow; it does not hide the overlay and reveal the old bright texture.
 
 The two opaque procedural glass textures are shared across the four lenses.
-The shared bloom pass gives bright lenses a halo; the four rectangular buttons also cast a restrained warm spill. Round R1/R2
-lighting remains deferred. There is no extra clock or alarm logic. Control listeners use
+The shared bloom pass gives bright lenses a halo; the four rectangular buttons also cast a restrained warm spill. R1/R2 have their own stronger colored spill and powered rim glow. There is no extra clock or alarm logic. Control listeners use
 the existing application abort signal; recreation reuses checkbox state and
 retires the old renderer/resources. Tests cover independent switching, opaque
 dark coverage, retained geometry and cached meshes. Browser checks cover the
@@ -769,32 +768,47 @@ rebaking the imprint. Real blending remains on the roadmap.
 
 The preview reuses the original cockpit bloom controls, diagnostic views and
 render-target lifecycle. Five lights follow the fitted instrument centers and
-shared screen power, using five of twelve available light slots (three more for scene lighting and
-four for rectangular buttons).
+shared screen power, using five of fourteen available light slots (three for scene lighting,
+four for rectangular buttons and two for round alert lights).
 The Hi3D default spill strength is 0.4, with turquoise light matching the
 overhead readouts. Sources sit 0.45 units ahead of the faces and use a 0.65-unit
 minimum falloff distance to soften concentrated bezel hotspots. The original
 cockpit retains its previous lighting profile. Spill is approximate and has no
 occlusion or shadows. All bright lenses receive bloom. Rectangular buttons also have independent
-point lights; round alert lights remain deferred. Tests cover fitted centers, warm/cool assignment
+point lights; round alerts add stronger colored spill. Tests cover fitted centers, warm/cool assignment
 and power; browser checks verify both toggles and the combined presentation.
 
 ### Hi3D rectangular button illumination
 
 The four rectangular buttons each contribute a warm point light while powered.
 Their existing checkboxes control lens and light together, independently of screen
-power. Lights follow the fitted lens transforms. R1/R2 geometry, artwork and
-lighting are unchanged. Screen isolation excludes the button lights.
+power. Lights follow the fitted lens transforms. R1/R2 retain independent fitting, colors and power. Screen isolation excludes the button lights.
 
-The GPU light bound is now twelve, shared by uniform packing and both Lambert
+The GPU light bound is now fourteen, shared by uniform packing and both Lambert
 and GGX shader sources. No light is silently dropped. Button light intensity is
 0.7 times its authored face area, with a 0.18-unit forward offset and 0.25-unit minimum
 falloff distance. This is approximate spill without occlusion or shadows.
 
 Validation: full check passes 494 tests and coverage; browser checks cover all
-twelve lights together, independent switching, screen power, both shading paths
+fourteen lights together, independent switching, screen power, both shading paths
 and renderer recreation with cleanup.
 
 Rectangular powered lens artwork has an 18% brightness boost (clamped) for a
 slightly fuller bloom halo. Off textures, screen bloom settings and round alert
 lenses are unchanged.
+
+### Round alert lamp seating glow
+
+Powered R1/R2 lenses retain their worn center and independent texture patterns,
+with a bright narrow annulus at 91% radius. The shared bloom pass spreads this
+near-border source over the seating edge. Off artwork and fitted geometry are
+unchanged. Each round alert also supplies a colored point light, stronger than a
+rectangular button at the accepted size, following power, live color and size.
+Intensity is face area times size squared times 0.9, with a 0.14-unit forward
+offset and 0.25-unit minimum falloff distance. Screen isolation excludes this spill.
+These remain opaque inserts; the glow visually blends their seating without
+modifying the GLB or adding transparency. Spill still has no occlusion/shadows.
+
+Validation: 495 tests and coverage pass. Tests cover rim emphasis, independent
+power/color/size and bounded GPU packing; browser checks cover combined fourteen
+lights, separate R1/R2 switching and visible seating glow without console errors.

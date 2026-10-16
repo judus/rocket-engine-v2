@@ -806,9 +806,10 @@ async function start() {
         const buttons = screenLightOnly?.checked
           ? []
           : hi3dLamps.buttonLights();
-        lights.push(...buttons);
+        const alerts = screenLightOnly?.checked ? [] : hi3dLamps.alertLights();
+        lights.push(...buttons, ...alerts);
         document.querySelector('#button-light-status')!.textContent =
-          `${buttons.length}/4 rectangular button lights · warm local spill · R1/R2 lighting deferred${screenLightOnly?.checked ? ' · excluded during screen isolation' : ''}`;
+          `${buttons.length}/4 button lights · ${alerts.length}/2 alert lights · rim glow on powered R1/R2${screenLightOnly?.checked ? ' · spill excluded during screen isolation' : ''}`;
       }
       if (screenLights) {
         const spill = screenLights(

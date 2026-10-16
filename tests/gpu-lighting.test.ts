@@ -68,26 +68,26 @@ void test('GPU light packing normalizes directions, preserves world positions an
   assert.equal(packed.minimums[2], 0.5);
   assert.equal(lightUniforms([]).count, 0);
   const full = lightUniforms(
-    Array.from({ length: 12 }, (_, i) => ({
+    Array.from({ length: 14 }, (_, i) => ({
       kind: 'point' as const,
       position: { x: i, y: 0, z: 0 },
       color: [1, 0.5, 0.1] as const,
       intensity: i + 1,
     })),
   );
-  assert.equal(full.count, 12);
-  assert.equal(full.vectors[44], 11);
-  assert.equal(full.colors[47], 12);
+  assert.equal(full.count, 14);
+  assert.equal(full.vectors[52], 13);
+  assert.equal(full.colors[55], 14);
   assert.throws(
     () =>
       lightUniforms(
-        Array.from({ length: 13 }, () => ({
+        Array.from({ length: 15 }, () => ({
           kind: 'ambient',
           color: [1, 1, 1],
           intensity: 1,
         })),
       ),
-    /at most 12/,
+    /at most 14/,
   );
   assert.throws(
     () =>
