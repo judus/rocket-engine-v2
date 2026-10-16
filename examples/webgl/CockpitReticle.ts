@@ -34,7 +34,7 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
     });
   };
   const parts: Node3D[] = [];
-  const takePart = (name: string, opacity = 0.5) => {
+  const takePart = (name: string, opacity = 0.25) => {
     const part = new Node3D(name);
     part.mesh = new Mesh3D(new MeshGeometry(vertices, faces), [
       {
@@ -138,9 +138,9 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
       // Broad low-alpha fringes keep the glow visible even below bloom's
       // luminance threshold, without increasing spill from the instruments.
       for (const [spread, opacity] of [
-        [4, 0.025],
-        [2.5, 0.045],
-        [1.6, 0.075],
+        [4, 0.012],
+        [2.5, 0.022],
+        [1.6, 0.035],
       ] as const) {
         draw(half * spread);
         const halo = takePart(`${name} glow`, opacity);

@@ -95,5 +95,5 @@ under the rigid pilot rig, independent of nonuniform model fitting and cosmetic
 cockpit sway. It neither casts nor receives shadows; existing bloom can glow
 around it. The turquoise flight-reticle checkbox controls visibility. This is
 a visual flight reference only; target selection/locking is not implemented.
-The reticle now uses 50% material opacity and separate fixed/aim/range parts;
+The reticle now uses 25% material opacity and separate fixed/aim/range parts;
 see [WebGL transparency](./WEBGL-TRANSPARENCY.md).
