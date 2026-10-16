@@ -30,7 +30,7 @@ Plain scenes can implement `fixedUpdate(dt, tick)` too. Registering a fixed scen
 1. Services publish frame input with `beforeUpdate(frame, activeScenes)`.
 2. For each due fixed step: services run `beforeFixedUpdate(tick, fixedScenes)`, then each still-active fixed scene runs `fixedUpdate(dt, tick)` in registration order.
 3. Each active scene runs its ordinary update once; Scene2D then runs its existing tree behaviors once.
-4. All views render, including independent draw-only presentations of the same simulation data.
+4. When the independent presentation cap admits a draw, all views render, including independent draw-only presentations of the same simulation data.
 
 Fixed hooks are synchronous, enforced by TypeScript and runtime checks. Two views of one scene do not duplicate fixed steps. Activity is rechecked during catch-up; stop, disposal and errors suppress later work. Fixed-step CPU work is included in the optional performance monitor's update cost.
 
@@ -59,3 +59,5 @@ Blur/focus transfer, pause, visibility changes, inactive scenes, scope disposal 
 `/fixed.html` shows a fixed-step dot and an independent diagnostics canvas. Click its motion canvas or focus it and press Space to reverse direction. “Test 250 ms stall” deliberately blocks one browser task to exercise overload dropping; Pause/Resume excludes suspended time. Arm and tile demos remain available and keep frame-domain updates.
 
 Strict TypeScript, lint, format, build and all 68 tests pass. Controlled clocks cover 60/144 Hz parity, service/fixed/frame/render ordering, catch-up limits/remainders, dropped time, pause/visibility baselines and stop/error guards. Input tests cover zero-step retention, keyboard/pointer short taps, held state, catch-up edge suppression, overload and blur/view/pause cleanup. These are timing contracts, not physics accuracy or cross-browser certification.
+
+The fixed demo now exposes render caps down to 1 FPS alongside callback/render cadence and fixed-tick counters. Simulation is admitted per RAF, so a low render cap does not manufacture simulation overload. Actual RAF stalls still invoke the bounded catch-up/drop policy.

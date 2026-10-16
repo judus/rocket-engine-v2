@@ -539,7 +539,7 @@ async function start() {
         previousCache = cache;
       },
       update(dt) {
-        spikes.begin(dt, application.maxFps);
+        spikes.begin(dt, null); // Updates now follow RAF, independently of the render cap.
         // Advance independently of camera demand, loaded terrain, and visual lifetime.
         spikes.measure('domain', () => {
           factory.advance(dt);

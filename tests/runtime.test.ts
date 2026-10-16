@@ -728,7 +728,7 @@ void test('performance averages application frames, updates once and includes bo
     await app.dispose();
   }));
 
-void test('frame limits retain elapsed time, update a shared scene once and skip both views together', () =>
+void test('render limits retain per-callback updates and gate both views together', () =>
   withBrowser(async (host) => {
     const app = new Rocket({ maxFps: 30 });
     let elapsed = 0,
@@ -747,17 +747,17 @@ void test('frame limits retain elapsed time, update a shared scene once and skip
     app.view({ target: host.target, scene });
     await app.start();
     for (let i = 0; i <= 144; i++) host.frame((i * 1000) / 144);
-    assert.equal(updates, 31);
+    assert.equal(updates, 145);
     assert.equal(draws, 62);
     assert.ok(Math.abs(elapsed - 1) < 1e-9);
     host.frame(5000);
-    assert.equal(updates, 32);
+    assert.equal(updates, 146);
     assert.ok(Math.abs(elapsed - 5) < 1e-9);
     host.frame(5001);
-    assert.equal(updates, 32);
+    assert.equal(updates, 147);
     app.maxFps = null;
     host.frame(5002);
-    assert.equal(updates, 33);
+    assert.equal(updates, 148);
     app.stop();
     app.maxFps = 60;
     await app.start();
@@ -800,18 +800,18 @@ void test('all demo frame limits preserve their target average on a 144 Hz callb
   withBrowser(async (host) => {
     for (const limit of [100, 80, 60, 30]) {
       const app = new Rocket({ maxFps: limit });
-      let updates = 0;
+      let draws = 0;
       app.view({
         target: host.target,
         scene: app.scene({
-          update() {
-            updates++;
+          draw() {
+            draws++;
           },
         }),
       });
       await app.start();
       for (let i = 0; i <= 144; i++) host.frame((i * 1000) / 144);
-      assert.equal(updates, limit + 1);
+      assert.equal(draws, limit + 1);
       await app.dispose();
     }
   }));
@@ -1875,4 +1875,175 @@ void test('reentrant disposal retains suspension and cleanup errors without dupl
       return true;
     });
     assert.deepEqual([scenes, services], [1, 1]);
+  }));
+
+void test('render caps preserve healthy fixed simulation across refresh rates and expose both cadences', () =>
+  withBrowser(async (host) => {
+    for (const hz of [60, 120, 144, 165, 240])
+      for (const cap of [1, 5, 10, 30, 23.5]) {
+        const app = new Rocket({ fixed: {}, maxFps: cap, performance: true });
+        let ticks = 0,
+          updates = 0,
+          draws = 0,
+          renderElapsed = 0;
+        const scene = app.scene({
+          fixedUpdate() {
+            ticks++;
+          },
+          update() {
+            updates++;
+          },
+          draw(_ctx, frame) {
+            draws++;
+            renderElapsed += frame.dt;
+          },
+        });
+        app.view({ target: host.target, scene });
+        await app.start();
+        for (let n = 0; n <= hz * 10; n++) host.frame((n * 1000) / hz);
+        assert.equal(ticks, 600, `${hz} Hz, cap ${cap}`);
+        assert.equal(updates, hz * 10 + 1);
+        assert.equal(draws, cap * 10 + 1);
+        assert.ok(Math.abs(renderElapsed - 10) < 1e-8);
+        assert.equal(app.fixed!.droppedTime, 0);
+        assert.ok(Math.abs(app.performance!.fps! - hz) < 1e-6);
+        assert.ok(Math.abs(app.renderPerformance!.fps! - cap) < 3); // Non-divisor cadence varies within a short window.
+        assert.equal(host.frames.size, 1);
+        await app.dispose();
+        assert.equal(host.frames.size, 0);
+      }
+  }));
+
+void test('a service stopping before fixed admission cannot repopulate the resume accumulator', () =>
+  withBrowser(async (host) => {
+    const app = new Rocket({ fixed: { step: 0.01, maxSteps: 3 } });
+    let stop = true,
+      ticks = 0;
+    class Stopper {
+      beforeUpdate(frame: Frame): undefined {
+        if (stop && frame.dt > 0) app.stop();
+      }
+    }
+    app.use(Stopper);
+    app.scene(
+      {
+        fixedUpdate() {
+          ticks++;
+        },
+      },
+      { keepAlive: true },
+    );
+    await app.start();
+    host.frame(0);
+    host.frame(105);
+    assert.equal(app.fixed!.alpha, 0);
+    assert.equal(app.fixed!.droppedTime, 0);
+    assert.equal(ticks, 0);
+    stop = false;
+    await app.start();
+    host.frame(1000);
+    host.frame(1005);
+    assert.equal(ticks, 0);
+    host.frame(1010);
+    assert.equal(ticks, 1);
+    await app.dispose();
+  }));
+
+void test('stop and disposal at every frame phase suppress later work and leave one clean resume chain', () =>
+  withBrowser(async (host) => {
+    for (const phase of [
+      'beforeUpdate',
+      'beforeFixedUpdate',
+      'fixedUpdate',
+      'update',
+      'render',
+    ])
+      for (const action of ['stop', 'dispose']) {
+        const app = new Rocket({ fixed: { step: 0.01, maxSteps: 3 } });
+        const calls: string[] = [];
+        let armed = false,
+          completion: Promise<void> | undefined;
+        const hook = (name: string) => {
+          if (!armed) return;
+          calls.push(name);
+          if (name === phase) {
+            if (action === 'stop') app.stop();
+            else completion = app.dispose();
+          }
+        };
+        class Phases {
+          beforeUpdate(): undefined {
+            hook('beforeUpdate');
+          }
+          beforeFixedUpdate(): undefined {
+            hook('beforeFixedUpdate');
+          }
+        }
+        app.use(Phases);
+        const scene = app.scene({
+          fixedUpdate() {
+            hook('fixedUpdate');
+          },
+          update() {
+            hook('update');
+          },
+        });
+        app.presentation({
+          scene,
+          render() {
+            hook('render');
+          },
+        });
+        app.presentation({
+          scene,
+          render() {
+            hook('later render');
+          },
+        });
+        await app.start();
+        host.frame(0);
+        armed = true;
+        host.frame(105);
+        assert.equal(calls.at(-1), phase, `${phase}/${action}`);
+        assert.equal(app.fixed!.alpha, 0);
+        assert.equal(host.frames.size, 0);
+        if (action === 'dispose') await completion;
+        else {
+          armed = false;
+          await app.start();
+          host.frame(1000);
+          host.frame(1005);
+          assert.equal(app.fixed!.steps, 0);
+          assert.equal(host.frames.size, 1);
+          await app.dispose();
+        }
+      }
+  }));
+
+void test('render elapsed time follows actual draws through cap changes and jitter without replay bursts', () =>
+  withBrowser(async (host) => {
+    const app = new Rocket({ maxFps: 10, fixed: {} });
+    const frames: Frame[] = [];
+    const scene = app.scene({ fixedUpdate() {} });
+    app.presentation({
+      scene,
+      render(frame) {
+        frames.push(frame);
+      },
+    });
+    await app.start();
+    for (const now of [0, 7, 17, 40, 99, 105, 110, 390, 391]) host.frame(now);
+    assert.equal(frames.length, 3);
+    assert.ok(Math.abs(frames[1]!.dt - 0.105) < 1e-9);
+    assert.ok(Math.abs(frames[2]!.dt - 0.285) < 1e-9);
+    assert.ok(app.fixed!.droppedTime > 0); // Real stalls still use bounded catch-up.
+    app.maxFps = null;
+    host.frame(392);
+    assert.ok(Math.abs(frames.at(-1)!.dt - 0.002) < 1e-9);
+    app.stop();
+    await app.start();
+    host.frame(10000);
+    assert.equal(frames.at(-1)!.dt, 0);
+    assert.equal(host.frames.size, 1);
+    await app.dispose();
   }));

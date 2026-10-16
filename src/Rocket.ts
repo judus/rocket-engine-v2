@@ -34,6 +34,7 @@ export class Rocket {
   #disposed = false;
   #frameId: number | null = null;
   #lastTime: number | null = null;
+  #lastRenderTime: number | null = null;
   #time = 0;
   #startPromise: Promise<void> | null = null;
   #disposePromise: Promise<void> | null = null;
@@ -43,14 +44,17 @@ export class Rocket {
   #document: Document | undefined;
   #owner = Symbol('scene owner');
   #monitor: PerformanceMonitor | null;
+  #renderMonitor: PerformanceMonitor | null;
   #fixed: FixedClock | null;
   #maxFps: number | null = null;
   #nextFrame: number | null = null;
   #visibilityChanged = () => {
     this.#lastTime = null;
+    this.#lastRenderTime = null;
     this.#nextFrame = null;
     this.#fixed?.reset();
     this.#monitor?.reset();
+    this.#renderMonitor?.reset();
   };
 
   constructor({
@@ -68,6 +72,7 @@ export class Rocket {
     this.#fixed = fixed === undefined ? null : new FixedClock(fixed);
     this.maxFps = maxFps;
     this.#monitor = monitor ? new PerformanceMonitor() : null;
+    this.#renderMonitor = monitor ? new PerformanceMonitor() : null;
     this.#onError = onError;
     this.#document = globalThis.document;
     this.#document?.addEventListener(
@@ -87,6 +92,10 @@ export class Rocket {
   }
   get performance() {
     return this.#monitor?.stats ?? null;
+  }
+  /** Actual presentation cadence/cost, independent of callback/update cadence. */
+  get renderPerformance() {
+    return this.#renderMonitor?.stats ?? null;
   }
   get maxFps() {
     return this.#maxFps;
@@ -203,8 +212,10 @@ export class Rocket {
         if (generation !== this.#generation || this.#disposed)
           throw new Error('Start was cancelled');
         this.#lastTime = null;
+        this.#lastRenderTime = null;
         this.#nextFrame = null;
         this.#monitor?.reset();
+        this.#renderMonitor?.reset();
         for (const service of this.#services.values()) {
           this.#startedServices.add(service);
           invokeSynchronous(
@@ -244,9 +255,11 @@ export class Rocket {
     if (this.#frameId !== null) cancelAnimationFrame(this.#frameId);
     this.#frameId = null;
     this.#lastTime = null;
+    this.#lastRenderTime = null;
     this.#nextFrame = null;
     this.#fixed?.reset();
     this.#monitor?.reset();
+    this.#renderMonitor?.reset();
     const errors: unknown[] = [];
     for (const service of [...this.#startedServices].reverse()) {
       this.#startedServices.delete(service);
@@ -335,20 +348,6 @@ export class Rocket {
     const generation = this.#generation;
     try {
       if (!this.#document?.hidden) {
-        if (this.#maxFps !== null) {
-          if (this.#nextFrame !== null && now + 1e-7 < this.#nextFrame) {
-            this.#frameId = requestAnimationFrame(this.#tick);
-            return;
-          }
-          const interval = 1000 / this.#maxFps;
-          // Preserve cadence without replaying frames after an overload.
-          this.#nextFrame =
-            this.#nextFrame === null
-              ? now + interval
-              : this.#nextFrame +
-                (Math.floor((now - this.#nextFrame + 1e-7) / interval) + 1) *
-                  interval;
-        }
         const dt =
           this.#lastTime === null
             ? 0
@@ -367,6 +366,7 @@ export class Rocket {
             'service.beforeUpdate',
           );
         }
+        if (!this.#running || generation !== this.#generation) return;
         if (this.#fixed) {
           const fixedScenes = new Set(
             [...active].filter(
@@ -409,23 +409,53 @@ export class Rocket {
           if (!this.#isActive(scene)) continue;
           invokeSynchronous(scene.update, scene, [dt, frame], 'scene.update');
         }
+        if (!this.#running || generation !== this.#generation) return;
         const renderStart = this.#monitor ? performance.now() : 0;
-        for (const view of this.#views) {
-          if (!this.#running || generation !== this.#generation) return;
-          view.render(frame);
+        const shouldRender =
+          this.#maxFps === null ||
+          this.#nextFrame === null ||
+          now + 1e-7 >= this.#nextFrame;
+        if (shouldRender) {
+          if (this.#maxFps !== null) {
+            const interval = 1000 / this.#maxFps;
+            this.#nextFrame =
+              this.#nextFrame === null
+                ? now + interval
+                : this.#nextFrame +
+                  (Math.floor((now - this.#nextFrame + 1e-7) / interval) + 1) *
+                    interval;
+          }
+          const renderDt =
+            this.#lastRenderTime === null
+              ? 0
+              : Math.max(0, (now - this.#lastRenderTime) / 1000);
+          this.#lastRenderTime = now;
+          const renderFrame = Object.freeze({ dt: renderDt, time: this.#time });
+          for (const view of this.#views) {
+            if (!this.#running || generation !== this.#generation) return;
+            view.render(renderFrame);
+          }
+          if (this.#running && generation === this.#generation)
+            this.#renderMonitor?.record(
+              renderDt,
+              0,
+              performance.now() - renderStart,
+            );
         }
         if (this.#monitor && this.#running && generation === this.#generation) {
           this.#monitor.record(
             dt,
             renderStart - updateStart,
-            performance.now() - renderStart,
+            shouldRender ? performance.now() - renderStart : 0,
           );
         }
       } else {
         this.#nextFrame = null;
         this.#fixed?.reset();
         this.#lastTime = null;
+        this.#lastRenderTime = null;
         this.#monitor?.reset();
+        this.#renderMonitor?.reset();
       }
       if (this.#running && generation === this.#generation)
         this.#frameId = requestAnimationFrame(this.#tick);

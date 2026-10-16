@@ -113,3 +113,19 @@ The browser example verifies actual Canvas 2D rendering, shared state in differe
 ## Explicit simulation without views
 
 `app.scene(definition, { keepAlive: true })` opts a registered scene into preparation and frame/fixed updates even with zero views. Multiple views still update it once. Default scenes keep their existing last-view pause policy. App stop, document visibility and fixed catch-up limits still apply; no second clock or worker is introduced. SceneOptions must be supplied while the runtime is stopped, like other composition. See [actor-owned streaming proof](STREAMED-NAVIGATION.md).
+
+## Independent presentation cap
+
+`maxFps` (null or 1–240, including fractional values) gates presentations only.
+Services, input, fixed steps and ordinary updates run on every visible RAF callback.
+`update` receives that callback’s elapsed seconds; `draw`/presentation receives elapsed
+seconds since its last admitted application draw, with the same elapsed `time`.
+Start/resume/visibility reset both baselines. Cap changes preserve elapsed draw time
+and allow the next callback to draw. Stalls do not replay overdue presentations.
+
+With performance enabled, `app.performance` measures callback cadence and average
+update/submission cost per callback (zero submission on skipped draws).
+`app.renderPerformance` separately measures actual draw cadence and submission cost
+per draw, with update cost zero. Both use their own half-second sampling windows.
+Neither certifies screen presentation or uniform pacing across mismatched refresh
+rates. No extra timer, automatic interpolation or unlimited fixed catch-up is added.

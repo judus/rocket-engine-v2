@@ -10,6 +10,7 @@ const pause = element('#fixed-pause', HTMLButtonElement);
 const stall = element('#fixed-stall', HTMLButtonElement);
 const app = new Rocket({
   fixed: {},
+  performance: true,
   onError(error) {
     status.textContent = String(error);
   },
@@ -32,6 +33,10 @@ const scene = app.scene(
       }
     },
     update() {
+      const callback = app.performance?.fps,
+        render = app.renderPerformance?.fps;
+      document.querySelector('#timing-cadence')!.textContent =
+        `Callbacks ${callback?.toFixed(1) ?? '…'} FPS · draws ${render?.toFixed(1) ?? '…'} FPS · fixed ticks ${app.fixed!.totalSteps} · simulated ${app.fixed!.time.toFixed(2)} s`;
       const message = `${reversals} input reversals · ${app.running ? 'running' : 'paused'}`;
       if (status.textContent !== message) status.textContent = message;
     },
@@ -103,4 +108,14 @@ stall.addEventListener('click', () => {
     /* intentionally stall */
   }
 });
+element('#fixed-cap', HTMLSelectElement).addEventListener('change', (event) => {
+  app.maxFps = Number((event.currentTarget as HTMLSelectElement).value) || null;
+});
+window.addEventListener(
+  'pagehide',
+  () => {
+    void app.dispose();
+  },
+  { once: true },
+);
 await app.start();

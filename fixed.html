@@ -30,6 +30,20 @@
         Catch-up is limited to five steps; excess whole steps are dropped.
         Pause/resume excludes paused time.
       </p>
+      <p id="timing-cadence">Measuring callback and presentation cadence…</p>
+      <label for="fixed-cap">Render cap</label>
+      <select id="fixed-cap">
+        <option value="0">Uncapped</option>
+        <option value="1">1 FPS</option>
+        <option value="5">5 FPS</option>
+        <option value="10">10 FPS</option>
+        <option value="30">30 FPS</option>
+        <option value="60">60 FPS</option>
+      </select>
+      <p>
+        The cap only gates drawing. Fixed simulation and input continue on
+        browser callbacks.
+      </p>
       <section class="views" aria-label="Fixed simulation and diagnostics">
         <article>
           <h2>Motion <span>fixed-step state</span></h2>
