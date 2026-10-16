@@ -33,6 +33,23 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
       material: 0,
     });
   };
+  const parts: Node3D[] = [];
+  const takePart = (name: string) => {
+    const part = new Node3D(name);
+    part.mesh = new Mesh3D(new MeshGeometry(vertices, faces), [
+      {
+        color: '#86ead6',
+        unlit: true,
+        opacity: 0.75,
+        metallicFactor: 0,
+        roughnessFactor: 1,
+      },
+    ]);
+    part.castsShadow = part.receivesShadow = false;
+    parts.push(part);
+    vertices.length = 0;
+    faces.length = 0;
+  };
   const arc = (
     radius: number,
     start: number,
@@ -60,6 +77,7 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
       centre = 0.07,
       half = 0.0025;
     arc(outer, 0, Math.PI * 2, 192, half);
+    takePart('outer reference ring');
     for (let q = 0; q < 4; q++) {
       const angle = (q * Math.PI) / 2;
       arc(inner, angle + 0.18, angle + Math.PI / 2 - 0.18, 24, half);
@@ -73,6 +91,12 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
           half,
         );
       }
+    }
+    takePart('projectile direction ring');
+    arc(centre, 0, Math.PI * 2, 40, half);
+    takePart('context range ring');
+    for (let q = 0; q < 4; q++) {
+      const angle = (q * Math.PI) / 2;
       strip(
         Math.cos(angle) * 0.065,
         Math.sin(angle) * 0.065,
@@ -81,8 +105,8 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
         half,
       );
     }
-    arc(centre, 0, Math.PI * 2, 40, half);
     strip(-0.004, 0, 0.004, 0, 0.004);
+    takePart('fixed cross and dot');
   } else {
     // Four interrupted arcs and short cardinal ticks leave the view open.
     for (let quadrant = 0; quadrant < 4; quadrant++) {
@@ -108,14 +132,18 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
     strip(-0.009, 0, 0.009, 0, 0.009);
   }
   const node = new Node3D('cockpit forward reticle');
-  node.mesh = new Mesh3D(new MeshGeometry(vertices, faces), [
-    {
-      color: style === 'hi3d' ? '#86ead6' : '#68bda9',
-      unlit: true,
-      metallicFactor: 0,
-      roughnessFactor: 1,
-    },
-  ]);
+  if (style === 'hi3d') {
+    for (const part of parts) node.add(part);
+    node.transform = { ...node.transform, scale: { x: 0.9, y: 0.9, z: 0.9 } };
+  } else
+    node.mesh = new Mesh3D(new MeshGeometry(vertices, faces), [
+      {
+        color: '#68bda9',
+        unlit: true,
+        metallicFactor: 0,
+        roughnessFactor: 1,
+      },
+    ]);
   node.transform = { ...node.transform, position: { x: 0, y: 1.5, z: -8 } };
   node.castsShadow = false;
   node.receivesShadow = false;

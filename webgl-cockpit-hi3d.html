@@ -48,7 +48,10 @@
     <script type="importmap">
       {
         "imports": {
-          "./dist/src/webgl/ShadowShader.js": "./dist/src/webgl/ShadowShader.js?v=receiver-plane-1"
+          "./dist/src/webgl/ShadowShader.js": "./dist/src/webgl/ShadowShader.js?v=receiver-plane-1",
+          "./dist/src/webgl/ColorRenderer.js": "./dist/src/webgl/ColorRenderer.js?v=opacity-1",
+          "./dist/src/webgl/MeshRenderer3D.js": "./dist/src/webgl/MeshRenderer3D.js?v=opacity-1",
+          "./dist/src/3d/Mesh3D.js": "./dist/src/3d/Mesh3D.js?v=opacity-1"
         }
       }
     </script>
@@ -375,6 +378,13 @@
         ><input id="reticle-enabled" type="checkbox" checked /> Turquoise flight
         reticle</label
       >
+      <details>
+        <summary>Transparency diagnostic</summary>
+        <button id="check-opacity">Check alpha blending and occlusion</button
+        ><output id="opacity-status"
+          >Not run · pixel readback pauses the GPU briefly.</output
+        >
+      </details>
       <fieldset>
         <legend>Hi3D instruments</legend>
         <p>
@@ -1131,7 +1141,7 @@ Loading…</pre>
     </main>
     <script
       type="module"
-      src="./dist/examples/webgl/cockpit.js?v=turquoise-reticle"
+      src="./dist/examples/webgl/cockpit.js?v=translucent-reticle-2"
     ></script>
   </body>
 </html>

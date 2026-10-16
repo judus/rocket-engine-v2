@@ -88,10 +88,12 @@ Keep the current rendering settings until that investigation is resumed.
 
 ## Turquoise flight reticle
 
-The Hi3D cockpit uses Julien's sketch: a thin outer circle, four interrupted
+The Hi3D cockpit uses Julien's sketch, now reduced by 10%: a thin outer circle, four interrupted
 inner arcs with paired radial ticks, a small centre ring/cross and dot. Colour
 is the same `#86ead6` as the instruments. The reticle is ordinary unlit geometry
 under the rigid pilot rig, independent of nonuniform model fitting and cosmetic
 cockpit sway. It neither casts nor receives shadows; existing bloom can glow
 around it. The turquoise flight-reticle checkbox controls visibility. This is
 a visual flight reference only; target selection/locking is not implemented.
+The reticle now uses 75% material opacity and separate fixed/aim/range parts;
+see [WebGL transparency](./WEBGL-TRANSPARENCY.md).

@@ -1,3 +1,4 @@
+import { opacityProbe } from './OpacityProbe.js';
 import { loadAsteroidFamily } from '../space/AsteroidFamily.js';
 import { originalAsteroidField } from '../space/OriginalAsteroidField.js';
 import { distantSun } from '../space/DistantSun.js';
@@ -263,8 +264,24 @@ async function start() {
     },
   });
   const { canvas, gl } = surface;
+  const opacityCheck =
+    document.querySelector<HTMLButtonElement>('#check-opacity');
+
   const events = new AbortController(),
     signal = events.signal;
+  opacityCheck?.addEventListener(
+    'click',
+    () => {
+      const result =
+        document.querySelector<HTMLOutputElement>('#opacity-status')!;
+      try {
+        result.value = opacityProbe(gl);
+      } catch (error) {
+        result.value = String(error);
+      }
+    },
+    { signal },
+  );
   window.addEventListener('pagehide', () => events.abort(), {
     once: true,
     signal,

@@ -10,6 +10,8 @@ export interface GeometryFace {
 }
 export interface Material3D {
   readonly color: string;
+  /** WebGL straight-alpha coverage, 0..1; opaque by default. */
+  readonly opacity?: number;
   /** GPU surface bypasses illumination; depth and perspective remain active. */
   readonly unlit?: boolean;
   readonly baseColorTexture?: TextureBinding3D;
@@ -160,6 +162,11 @@ export class Mesh3D {
           (!Number.isFinite(m.normalScale) || Math.abs(m.normalScale) > 1e6)
         )
           throw new Error('Invalid normal scale');
+        if (
+          m.opacity !== undefined &&
+          (!Number.isFinite(m.opacity) || m.opacity < 0 || m.opacity > 1)
+        )
+          throw new Error('Material opacity must be finite in 0..1');
         if (m.unlit !== undefined && typeof m.unlit !== 'boolean')
           throw new Error('Invalid unlit material flag');
         return Object.freeze({

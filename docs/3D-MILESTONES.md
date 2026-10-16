@@ -673,7 +673,7 @@ LOD, GPU instancing, asteroid shadows, radar binding or new lighting techniques.
 
 Recorded at Julien’s request on 2026-10-16:
 
-- WebGL transparency: explicit material alpha modes, blend/depth state and transparent ordering; needed for translucent lamps and future glass. Roadmap only; current materials remain opaque.
+- WebGL transparency: scalar material opacity, blend/depth state and primitive ordering now support the reticle; see [material opacity](./WEBGL-TRANSPARENCY.md). Texture alpha, glTF alpha modes and glass/refraction remain future work.
 - HDR rendering, exposure and tone mapping.
 - Area lights and local-light occlusion/shadows, including reducing cockpit light leaks.
 

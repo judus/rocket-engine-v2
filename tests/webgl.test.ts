@@ -55,6 +55,10 @@ function fixture(failure = '') {
       'LESS',
       'CULL_FACE',
       'BLEND',
+      'FUNC_ADD',
+      'SRC_ALPHA',
+      'ONE_MINUS_SRC_ALPHA',
+      'ONE',
       'RASTERIZER_DISCARD',
       'COLOR_BUFFER_BIT',
       'TRIANGLES',
@@ -1380,4 +1384,111 @@ void test('sky pass rejects invalid inputs and cleans failed program allocations
   assert.throws(() => pass.render(view), /unavailable/);
   pass.dispose();
   assert.throws(() => pass.render(view), /unavailable/);
+});
+
+void test('opacity validates early, opaque draws precede alpha draws, and blend/depth state is restored', () => {
+  const f = fixture(),
+    renderer = new WebGLColorRenderer(f.gl);
+  const mesh = renderer.upload(vertices);
+  for (const opacity of [-1, 1.1, NaN, Infinity])
+    assert.throws(
+      () => renderer.drawFrame([{ mesh, transform: identityMatrix, opacity }]),
+      /opacity/,
+    );
+  renderer.drawFrame([
+    { mesh, transform: identityMatrix, opacity: 0.4 },
+    { mesh, transform: identityMatrix },
+    { mesh, transform: identityMatrix, opacity: 0 },
+  ]);
+  assert.equal(f.draws, 2);
+  assert.deepEqual(
+    f.calls.filter((c) => c.name === 'uniform1f').map((c) => c.args[1]),
+    [1, 0.4],
+  );
+  assert.deepEqual(
+    f.calls.filter((c) => c.name === 'depthMask').map((c) => c.args[0]),
+    [true, false, true],
+  );
+  assert.ok(
+    f.calls.some(
+      (c) =>
+        c.name === 'blendFuncSeparate' &&
+        c.args[0] === f.gl.SRC_ALPHA &&
+        c.args[1] === f.gl.ONE_MINUS_SRC_ALPHA,
+    ),
+  );
+  assert.equal(
+    f.calls.filter((c) => c.name === 'disable' && c.args[0] === f.gl.BLEND)
+      .length,
+    2,
+  );
+  renderer.dispose();
+});
+
+void test('transparent primitives sort by transformed bounds depth, share uploads and skip zero opacity', async () => {
+  const { Mesh3D, MeshGeometry, Node3D, PerspectiveCamera } =
+    await import('../src/3d/index.js');
+  const f = fixture(),
+    renderer = new WebGLMeshRenderer3D(f.gl),
+    root = new Node3D(),
+    camera = new PerspectiveCamera();
+  const geometry = new MeshGeometry(
+    vertices.map((v) => v.position),
+    [{ id: 'tri', indices: [0, 1, 2], material: 0 }],
+  );
+  const opaque = new Mesh3D(geometry, [{ color: '#ffffff' }]);
+  for (const opacity of [-0.1, 2, NaN])
+    assert.throws(
+      () => new Mesh3D(geometry, [{ color: '#ffffff', opacity }]),
+      /opacity/,
+    );
+  const near = new Node3D(),
+    far = new Node3D(),
+    wall = new Node3D(),
+    hidden = new Node3D();
+  near.mesh = new Mesh3D(geometry, [{ color: '#ffffff', opacity: 0.5 }]);
+  far.mesh = new Mesh3D(geometry, [{ color: '#ffffff', opacity: 0.25 }]);
+  wall.mesh = opaque;
+  hidden.mesh = new Mesh3D(geometry, [{ color: '#ffffff', opacity: 0 }]);
+  near.transform = { ...near.transform, position: { x: 0, y: 0, z: 2 } };
+  far.transform = { ...far.transform, position: { x: 0, y: 0, z: 6 } };
+  wall.transform = { ...wall.transform, position: { x: 0, y: 0, z: 8 } };
+  root.add(near).add(far).add(wall).add(hidden);
+  const first = renderer.render(root, camera, 640, 360, { reverseOrder: true });
+  assert.equal(first.drawCalls, 3);
+  assert.deepEqual(
+    f.calls.filter((c) => c.name === 'uniform1f').map((c) => c.args[1]),
+    [1, 0.25, 0.5],
+  );
+  const allocations = f.calls.filter((c) => c.name === 'createBuffer').length;
+  camera.z = 10;
+  camera.yaw = Math.PI;
+  const start = f.calls.length;
+  renderer.render(root, camera, 640, 360);
+  assert.deepEqual(
+    f.calls
+      .slice(start)
+      .filter((c) => c.name === 'uniform1f')
+      .map((c) => c.args[1]),
+    [1, 0.5, 0.25],
+  );
+  assert.equal(
+    f.calls.filter((c) => c.name === 'createBuffer').length,
+    allocations,
+  );
+  root.mesh = new Mesh3D(
+    new MeshGeometry(
+      vertices.map((v) => v.position),
+      [
+        { id: 'a', indices: [0, 1, 2], material: 0 },
+        { id: 'b', indices: [0, 1, 2], material: 1 },
+      ],
+    ),
+    [{ color: '#ffffff', opacity: 0 }, { color: '#ffffff' }],
+  );
+  assert.throws(
+    () => renderer.render(root, camera, 640, 360),
+    /Split different material opacities/,
+  );
+  renderer.dispose();
 });

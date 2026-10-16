@@ -9,8 +9,9 @@ import type {
   PerspectiveCamera,
   Light3D,
   LinearColor,
+  Vec3,
 } from '../3d/index.js';
-import { multiplyMatrices } from '../3d/Matrix4.js';
+import { matrixPoint, multiplyMatrices } from '../3d/Matrix4.js';
 import { WebGLColorRenderer } from './ColorRenderer.js';
 import type { ColorMesh, ColorDraw, ColorVertex } from './ColorRenderer.js';
 
@@ -133,6 +134,8 @@ export interface MeshRenderStats {
 export class WebGLMeshRenderer3D {
   readonly #renderer: WebGLColorRenderer;
   #cache = new Map<Mesh3D, ColorMesh>();
+  #centers = new WeakMap<Mesh3D, Vec3>();
+  #opacities = new WeakMap<Mesh3D, number>();
   #disposed = false;
   readonly #lighting: boolean;
   readonly #textures: boolean;
@@ -208,12 +211,27 @@ export class WebGLMeshRenderer3D {
     const background = options.background
       ? skyBackgroundView(options.background, camera, width, height)
       : undefined;
+    const depths = new Map<ColorDraw, number>();
     const used = new Set<Mesh3D>(),
       draws: ColorDraw[] = [];
     root.traverse((node, world) => {
       if (!node.mesh || !node.mesh.geometry.faces.length) return;
       const material =
         node.mesh.materials[node.mesh.geometry.faces[0]!.material]!;
+      let opacity = this.#opacities.get(node.mesh);
+      if (opacity === undefined) {
+        opacity = material.opacity ?? 1;
+        if (
+          node.mesh.geometry.faces.some(
+            (f) => (node.mesh!.materials[f.material]!.opacity ?? 1) !== opacity,
+          )
+        )
+          throw new Error(
+            'Split different material opacities into separate primitives',
+          );
+        this.#opacities.set(node.mesh, opacity);
+      }
+      if (opacity === 0) return;
       const texture = material.baseColorTexture,
         metallicRoughnessTexture = material.metallicRoughnessTexture,
         occlusionTexture = material.occlusionTexture,
@@ -311,8 +329,9 @@ export class WebGLMeshRenderer3D {
         );
         this.#cache.set(node.mesh, mesh);
       }
-      draws.push({
+      const draw: ColorDraw = {
         mesh,
+        opacity,
         unlit: material.unlit ?? false,
         castsShadow: node.castsShadow,
         receivesShadow: node.receivesShadow,
@@ -328,7 +347,33 @@ export class WebGLMeshRenderer3D {
         ...(material.occlusionStrength !== undefined
           ? { occlusionStrength: material.occlusionStrength }
           : {}),
-      });
+      };
+      draws.push(draw);
+      if (opacity < 1) {
+        let center = this.#centers.get(node.mesh);
+        if (!center) {
+          const min = { x: Infinity, y: Infinity, z: Infinity },
+            max = { x: -Infinity, y: -Infinity, z: -Infinity };
+          for (const v of node.mesh.geometry.vertices)
+            for (const axis of ['x', 'y', 'z'] as const) {
+              min[axis] = Math.min(min[axis], v[axis]);
+              max[axis] = Math.max(max[axis], v[axis]);
+            }
+          center = {
+            x: (min.x + max.x) / 2,
+            y: (min.y + max.y) / 2,
+            z: (min.z + max.z) / 2,
+          };
+          this.#centers.set(node.mesh, center);
+        }
+        const p = matrixPoint(world, center);
+        depths.set(
+          draw,
+          (p.x - camera.x) * Math.sin(camera.yaw) * Math.cos(camera.pitch) +
+            (p.y - camera.y) * Math.sin(camera.pitch) +
+            (p.z - camera.z) * Math.cos(camera.yaw) * Math.cos(camera.pitch),
+        );
+      }
     });
     for (const [source, mesh] of this.#cache) {
       if (used.has(source)) continue;
@@ -336,6 +381,11 @@ export class WebGLMeshRenderer3D {
       this.#cache.delete(source);
     }
     if (options.reverseOrder) draws.reverse();
+    const opaque = draws.filter((d) => d.opacity === 1);
+    const translucent = draws.filter((d) => d.opacity! < 1);
+    // Primitive bounds-centre sorting; intersecting surfaces need content splitting.
+    translucent.sort((a, b) => depths.get(b)! - depths.get(a)!);
+    draws.splice(0, draws.length, ...opaque, ...translucent);
     const triangles = this.#renderer.drawFrame(
       draws,
       options.depthTest ?? true,

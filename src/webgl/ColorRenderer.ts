@@ -56,6 +56,8 @@ void main(){
   pixel=vec4(srgb,1.0);
 }`;
 export interface ColorDraw {
+  /** Straight alpha. Caller orders translucent draws back-to-front. */
+  readonly opacity?: number;
   readonly unlit?: boolean;
   readonly mesh: ColorMesh;
   readonly transform: Matrix4;
@@ -78,6 +80,7 @@ interface Allocation {
 export class WebGLColorRenderer {
   #program: WebGLProgram;
   #transform: WebGLUniformLocation;
+  #opacity: WebGLUniformLocation;
   #meshes = new Map<ColorMesh, Allocation>();
   #disposed = false;
   #skyPass: WebGLSkyBackgroundPass | undefined;
@@ -161,12 +164,16 @@ export class WebGLColorRenderer {
         const shader = gl.createShader(kind);
         if (!shader) throw new Error('WebGL shader allocation failed');
         shaders.push(shader);
-        gl.shaderSource(
-          shader,
+        let code =
           kind === gl.FRAGMENT_SHADER && this.#shadows
             ? shadowFragmentSource(source, this.#materialResponse)
-            : source,
-        );
+            : source;
+        if (kind === gl.FRAGMENT_SHADER) {
+          code =
+            code.replace('void main()', 'void surfaceMain()') +
+            '\nuniform float drawOpacity;\nvoid main(){surfaceMain();pixel.a*=drawOpacity;}';
+        }
+        gl.shaderSource(shader, code);
         gl.compileShader(shader);
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
           throw new Error(
@@ -181,6 +188,9 @@ export class WebGLColorRenderer {
         throw new Error(
           `WebGL program linking failed: ${gl.getProgramInfoLog(program) ?? 'no diagnostic'}`,
         );
+      const opacity = gl.getUniformLocation(program, 'drawOpacity');
+      if (opacity === null) throw new Error('Missing opacity uniform');
+      this.#opacity = opacity;
       const transform = gl.getUniformLocation(program, 'transform');
       if (transform === null) throw new Error('Missing transform uniform');
       if (this.#lighting) {
@@ -462,7 +472,7 @@ export class WebGLColorRenderer {
   draw(mesh: ColorMesh, transform: Matrix4 = identityMatrix): number {
     return this.drawFrame([{ mesh, transform }], false);
   }
-  /** Clears once, then submits opaque draws in supplied order. GPU performs clipping and depth testing. */
+  /** Clears once; opaque draws first, then caller-ordered translucent draws. GPU performs clipping and depth testing. */
   drawFrame(
     draws: readonly ColorDraw[],
     depthTest = true,
@@ -525,6 +535,17 @@ export class WebGLColorRenderer {
         Math.abs(environment.rotation ?? 0) > 1e6)
     )
       throw new Error('Invalid environment light or disabled pipeline');
+    // Validate before sorting or touching GL state. Preserve caller order within each pass.
+    for (const draw of draws) {
+      const opacity = draw.opacity ?? 1;
+      if (!Number.isFinite(opacity) || opacity < 0 || opacity > 1)
+        throw new Error('Draw opacity must be finite in 0..1');
+    }
+    const translucent = draws.filter(
+      (d) => (d.opacity ?? 1) < 1 && (d.opacity ?? 1) > 0,
+    );
+    const blending = translucent.length > 0;
+    draws = [...draws.filter((d) => (d.opacity ?? 1) === 1), ...translucent];
     const shadow = lighting.shadow;
     if (shadow) {
       if (!this.#shadows) throw new Error('Shadow pipeline is not enabled');
@@ -589,12 +610,16 @@ export class WebGLColorRenderer {
     }
     const gl = this.gl;
     this.#shadowPass?.render(
-      draws.map((d) => ({
-        vao: this.#meshes.get(d.mesh)!.vao,
-        vertexCount: d.mesh.vertexCount,
-        ...(d.world ? { world: d.world } : {}),
-        ...(d.castsShadow !== undefined ? { castsShadow: d.castsShadow } : {}),
-      })),
+      draws
+        .filter((d) => (d.opacity ?? 1) === 1)
+        .map((d) => ({
+          vao: this.#meshes.get(d.mesh)!.vao,
+          vertexCount: d.mesh.vertexCount,
+          ...(d.world ? { world: d.world } : {}),
+          ...(d.castsShadow !== undefined
+            ? { castsShadow: d.castsShadow }
+            : {}),
+        })),
       shadow,
     );
     if (lighting.target) lighting.target.bind(gl);
@@ -718,8 +743,21 @@ export class WebGLColorRenderer {
           normalScale,
           receivesShadow,
           unlit,
+          opacity = 1,
         },
       ] of draws.entries()) {
+        if (opacity < 1) {
+          gl.enable(gl.BLEND);
+          gl.blendEquation(gl.FUNC_ADD);
+          gl.blendFuncSeparate(
+            gl.SRC_ALPHA,
+            gl.ONE_MINUS_SRC_ALPHA,
+            gl.ONE,
+            gl.ONE_MINUS_SRC_ALPHA,
+          );
+          gl.depthMask(false);
+        }
+        gl.uniform1f(this.#opacity, opacity);
         if (this.#lighting)
           gl.uniform1i(
             this.#litUniforms.lightingEnabled!,
@@ -780,6 +818,10 @@ export class WebGLColorRenderer {
         triangles += mesh.vertexCount / 3;
       }
     } finally {
+      if (blending) {
+        gl.disable(gl.BLEND);
+        gl.depthMask(true);
+      }
       this.#textureStore?.end();
       this.#environmentStore?.end();
       this.#shadowPass?.unbind();
