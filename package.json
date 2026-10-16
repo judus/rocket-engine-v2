@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./input/style.css": "./src/virtual-controls.css",
     "./ui": {
       "types": "./dist/src/ui/index.d.ts",
       "import": "./dist/src/ui/index.js"

@@ -72,7 +72,7 @@ movement, separate jump height/gravity, eastward scrolling and ground-depth draw
 order. The shadow stays at ground position when airborne; movement can continue
 in the air. Decorative actors demonstrate occlusion rather than collision. Attack
 is a brief visual preview with an event counter; no damage or combat is implied.
-The preset owns none of those game rules. Virtual controllers follow as a separate slice.
+The preset owns none of those game rules. Virtual controllers use the same named actions.
 
 `flightInput` defines forward (W/S), right (D/A), local up (Left Alt/Ctrl), yaw
 (left/right arrows), pitch (up/down arrows), roll (E/Q), boost (Shift), reset
@@ -179,10 +179,10 @@ snapshot consumers; existing demos keep their previous capture policy.
 - `/input-flight.html`: keyboard-first six-axis free flight, full pitch/yaw/roll,
   optional mouse look, gates and a world-axis orientation guide. Includes boost
   remapping, HTML UI isolation and recreation cleanup. The existing spaceship
-  demo remains separate. Virtual controllers are the next input milestone.
+  demo remains separate. Virtual controls can be enabled alongside keyboard controls.
 
 This slice does not implement a key-recording/rebinding editor, persisted player
-profiles, touch/gamepad mappings, context priority stacks or the spaceship UI.
+profiles, gamepad mappings, context priority stacks or the spaceship UI.
 Those can build on the same action/mapping contract after the basic API is tested.
 
 ## Verification for this slice
@@ -201,3 +201,61 @@ Browser checks cover forward motion, roll/local-up, keyboard yaw/pitch, boost
 remapping, UI isolation and recreation. Captured mouse deltas plus keyboard axes
 are checked with the deterministic capture host. The embedded browser refuses
 native Pointer Lock; successful mouse-flight interaction still needs Chrome.
+
+## Virtual sticks and button containers
+
+Import `rocket-engine-v2/input/style.css` (the demos use `src/virtual-controls.css`).
+The game owns placement: each mount targets an ordinary HTML container. Combine
+one/two sticks with any number of button groups, or mount everything together.
+Bind the viewport first. Touch does not require Pointer Lock; use focus capture.
+
+```ts
+const controls = app.use(Input).actions(scene).use(platformerInput);
+controls.bind(view, { capture: 'focus' });
+const move = controls.virtual({
+  target: leftContainer,
+  sticks: [{ label: 'Move', x: 'horizontal' }],
+});
+const actions = controls.virtual({
+  target: rightContainer,
+  buttons: [
+    { label: 'Jump', action: 'jump' },
+    { label: 'Attack', action: 'attack' },
+    { label: 'Run', action: 'sprint' },
+  ],
+});
+// Flight: mount a second stick in rightContainer with x:'yaw', y:'pitch'.
+// Mount Up/Down, Roll, Fire, etc. into other containers wherever the game needs.
+```
+
+`virtualInputLayouts` supplies templates for all five existing presets. The demos
+show a Virtual controls checkbox, enabled initially for coarse-pointer devices.
+Each stick has positive X right, positive Y up, normalized radial travel and a
+configurable dead zone (default 0.15). Stick values are continuous action axes,
+not mouse delta angles: first-person look maps to turn/tilt; flight to yaw/pitch.
+Buttons hold an action until released; press actions fire once per gesture and
+retain short taps between frames. Axis buttons can set a signed value, e.g.
+`{ label: 'Down', action: 'up', value: -1 }`.
+
+Independent pointer IDs let movement, rotation and buttons operate together.
+Each control captures its pointer; pointerup releases its own contribution,
+pointercancel/lost capture clears it. Page blur, visibility changes, UI disable,
+scene exit, stop, remap and disposal reset sources and visible controls. After
+cancellation the old pointer cannot resume a hold: a new gesture is required.
+Only the controls disable browser touch scrolling; the rest of the page scrolls.
+Buttons also accept Space/Enter when focused. Dispose any returned controller to
+remove its DOM and listeners; context/view/application cleanup also owns it.
+
+For a custom device adapter, `controls.source()` returns an independent source:
+`source.set('horizontal', 0.5)` or `source.set('jump', 1)`. `release()` releases its
+values while retaining short press edges, `clear()` cancels them, and `dispose()`
+retires the source. Axis contributions add and clamp to [-1,1]; button contributions
+combine as held-or. Physical keys/mouse and virtual sources share the existing
+frame dispatch and handlers. No synthetic keyboard/mouse events, new clock or
+movement system is introduced. Remapping a physical key does not remap a virtual
+control's named action; customize the virtual layout separately.
+
+Automated verification uses simultaneous pointer IDs, dead zones, diagonal
+normalization, held-source composition, short taps and cancellation/cleanup tests.
+Desktop browser checks cover actual drag/button routing and responsive layouts;
+physical multi-touch phone/tablet testing remains separate from those checks.

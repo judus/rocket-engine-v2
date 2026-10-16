@@ -6,18 +6,24 @@
     <title>Rocket · Free-flight input</title>
     <link rel="stylesheet" href="./examples/style.css" />
     <link rel="stylesheet" href="./examples/demo-navigation.css?v=2" />
-    <link rel="stylesheet" href="./examples/input/demo.css" />
+    <link
+      rel="stylesheet"
+      href="./examples/input/demo.css?v=virtual-controls"
+    />
+    <link rel="stylesheet" href="./src/virtual-controls.css" />
     <script type="importmap">
       {
         "imports": {
-          "./dist/src/index.js": "./dist/src/index.js?v=topdown-mouse",
-          "./dist/src/InputPresets.js": "./dist/src/InputPresets.js?v=topdown-mouse"
+          "./dist/src/ActionContext.js": "./dist/src/ActionContext.js?v=virtual-controls",
+          "./dist/src/InputActivation.js": "./dist/src/InputActivation.js?v=virtual-controls",
+          "./dist/src/index.js": "./dist/src/index.js?v=virtual-controls",
+          "./dist/src/InputPresets.js": "./dist/src/InputPresets.js?v=virtual-controls"
         }
       }
     </script>
     <script
       type="module"
-      src="./dist/examples/demo-navigation.js?v=topdown-mouse"
+      src="./dist/examples/demo-navigation.js?v=virtual-controls"
     ></script>
   </head>
   <body class="demo-layout" data-input-demo="flight">
@@ -35,6 +41,9 @@
         <a href="./docs/INPUT-ACTIONS.md">API and behaviour</a>
       </p>
       <div class="toolbar">
+        <label
+          ><input id="touch-mode" type="checkbox" /> Virtual controls</label
+        >
         <button id="restart">Recreate demo</button
         ><button id="ui-toggle">Open UI context</button
         ><button id="remap">Remap action to G</button
@@ -88,7 +97,7 @@
     </main>
     <script
       type="module"
-      src="./dist/examples/input/demo.js?v=topdown-mouse"
+      src="./dist/examples/input/demo.js?v=virtual-controls"
     ></script>
   </body>
 </html>

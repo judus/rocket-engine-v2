@@ -464,6 +464,16 @@
       "coveredLinePercent": 85,
       "coveredBranchPercent": 75,
       "coveredFunctionPercent": 90
+    },
+    "ActionSource.js": {
+      "coveredLinePercent": 90,
+      "coveredBranchPercent": 80,
+      "coveredFunctionPercent": 90
+    },
+    "VirtualController.js": {
+      "coveredLinePercent": 85,
+      "coveredBranchPercent": 75,
+      "coveredFunctionPercent": 90
     }
   }
 }

@@ -8,6 +8,7 @@ import {
   platformerInput,
   beltScrollerInput,
   flightInput,
+  virtualInputLayouts,
 } from '../../src/index.js';
 import {
   CanvasRenderer3D,
@@ -38,6 +39,8 @@ const platformer = document.body.dataset.inputDemo === 'platformer';
 const firstPerson = document.body.dataset.inputDemo === 'first-person';
 const button = (id: string) =>
   document.querySelector<HTMLButtonElement>(`#${id}`)!;
+const touchMode = document.querySelector<HTMLInputElement>('#touch-mode')!;
+touchMode.checked = window.matchMedia('(pointer: coarse)').matches;
 const captureMode = document.querySelector<HTMLInputElement>('#capture-mode')!;
 const ui = document.querySelector<HTMLElement>('#ui-panel')!;
 const status = document.querySelector<HTMLOutputElement>('#demo-status')!;
@@ -61,6 +64,7 @@ async function start() {
   button('restart').disabled = true;
   await current?.dispose();
   ui.hidden = true;
+  captureMode.disabled = touchMode.checked;
   const app = new Rocket({
     ...(platformer || beltScroller ? { fixed: {} } : {}),
     onError: (error) => {
@@ -430,8 +434,36 @@ async function start() {
   );
   controls.bind(view, {
     capture:
-      (firstPerson || flight) && captureMode.checked ? 'pointer-lock' : 'focus',
+      (firstPerson || flight) && captureMode.checked && !touchMode.checked
+        ? 'pointer-lock'
+        : 'focus',
   });
+  if (touchMode.checked) {
+    const layout =
+      virtualInputLayouts[
+        document.body.dataset.inputDemo as keyof typeof virtualInputLayouts
+      ];
+    const deck = document.createElement('div');
+    deck.className = `demo-touch-deck${layout.sticks.length > 1 ? ' dual-stick' : ''}`;
+    const left = document.createElement('div'),
+      right = document.createElement('div'),
+      actions = document.createElement('div');
+    left.className = 'demo-touch-left';
+    right.className = 'demo-touch-right';
+    actions.className = 'demo-touch-actions';
+    deck.append(left, actions, right);
+    document.querySelector<HTMLElement>('#input-viewport')!.append(deck);
+    controls.virtual({ target: left, sticks: [layout.sticks[0]!] });
+    if (layout.sticks[1])
+      controls.virtual({ target: right, sticks: [layout.sticks[1]] });
+    controls.virtual({ target: actions, buttons: layout.buttons });
+    view.own({
+      dispose: () => {
+        deck.remove();
+        return undefined;
+      },
+    });
+  }
   const eventController = new AbortController();
   scene.own(() => {
     eventController.abort();
@@ -482,6 +514,9 @@ async function start() {
   button('restart').disabled = false;
 }
 button('restart').addEventListener('click', () => {
+  void start();
+});
+touchMode.addEventListener('change', () => {
   void start();
 });
 captureMode.addEventListener('change', () => {

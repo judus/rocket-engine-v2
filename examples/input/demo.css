@@ -65,3 +65,39 @@ th {
     grid-template-columns: 1fr;
   }
 }
+
+.demo-touch-deck {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background: #102332;
+}
+.demo-touch-deck.dual-stick {
+  grid-template-columns: 1fr 2fr 1fr;
+}
+.demo-touch-deck .rocket-virtual-controls {
+  border: 0;
+  padding: 4px;
+}
+.demo-touch-right:empty {
+  display: none;
+}
+@media (max-width: 480px) {
+  .demo-touch-deck.dual-stick {
+    grid-template-columns: 1fr 1fr;
+  }
+  .dual-stick .demo-touch-left {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dual-stick .demo-touch-right {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .dual-stick .demo-touch-actions {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}

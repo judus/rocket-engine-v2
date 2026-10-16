@@ -9,6 +9,7 @@ export class InputActivation {
   constructor(
     readonly binding: ViewInput<InputTarget>,
     readonly enabled: () => boolean,
+    readonly virtual: () => boolean = () => false,
   ) {
     const canvas = binding.view.canvas,
       document = canvas.ownerDocument;
@@ -74,11 +75,13 @@ export class InputActivation {
           ? 'Mouse capture unavailable'
           : capture?.state === 'requesting'
             ? 'Connecting controls…'
-            : connected
-              ? capture
-                ? 'Controls connected · Esc releases mouse capture'
-                : 'Keyboard connected · Click outside to release'
-              : 'Controls disconnected · Click viewport or Activate controls';
+            : this.virtual()
+              ? 'Touch controls ready · Keyboard/mouse may also be used'
+              : connected
+                ? capture
+                  ? 'Controls connected · Esc releases mouse capture'
+                  : 'Keyboard connected · Click outside to release'
+                : 'Controls disconnected · Click viewport or Activate controls';
     if (this.#status.textContent !== message)
       this.#status.textContent = message;
     this.#button.hidden = connected;

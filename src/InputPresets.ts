@@ -1,3 +1,4 @@
+import type { VirtualLayout } from './VirtualController.js';
 import type { InputPreset } from './ActionContext.js';
 /** Bindings and action semantics only; movement/physics remain game-owned. */
 export const firstPersonInput: InputPreset = {
@@ -128,3 +129,67 @@ export const flightInput: InputPreset = {
     reset: { kind: 'press', mapping: { code: 'KeyR', modifiers: ['Control'] } },
   },
 };
+
+/** Touch templates map directly to intentions, never to physical key codes. */
+export const virtualInputLayouts = {
+  'first-person': {
+    sticks: [
+      { label: 'Move', x: 'right', y: 'forward' },
+      { label: 'Look', x: 'turn', y: 'tilt' },
+    ],
+    buttons: [
+      { label: 'Run', action: 'sprint' },
+      { label: 'Crouch', action: 'crouch' },
+      { label: 'Jump', action: 'jump' },
+      { label: 'Fire', action: 'fire' },
+      { label: 'Reload', action: 'reload' },
+      { label: 'Interact', action: 'interact' },
+      { label: 'Health', action: 'health' },
+    ],
+  },
+  'top-down': {
+    sticks: [{ label: 'Move', x: 'east', y: 'north' }],
+    buttons: [
+      { label: 'Run', action: 'sprint' },
+      { label: 'Fire', action: 'fire' },
+      { label: 'Interact', action: 'interact' },
+      { label: 'Health', action: 'health' },
+    ],
+  },
+  platformer: {
+    sticks: [{ label: 'Move', x: 'horizontal' }],
+    buttons: [
+      { label: 'Run', action: 'sprint' },
+      { label: 'Jump', action: 'jump' },
+      { label: 'Attack', action: 'attack' },
+      { label: 'Interact', action: 'interact' },
+      { label: 'Health', action: 'health' },
+    ],
+  },
+  'belt-scroller': {
+    sticks: [{ label: 'Move', x: 'horizontal', y: 'depth' }],
+    buttons: [
+      { label: 'Run', action: 'sprint' },
+      { label: 'Jump', action: 'jump' },
+      { label: 'Attack', action: 'attack' },
+      { label: 'Interact', action: 'interact' },
+      { label: 'Health', action: 'health' },
+    ],
+  },
+  flight: {
+    sticks: [
+      { label: 'Thrust', x: 'right', y: 'forward' },
+      { label: 'Rotate', x: 'yaw', y: 'pitch' },
+    ],
+    buttons: [
+      { label: 'Up', action: 'up' },
+      { label: 'Down', action: 'up', value: -1 },
+      { label: 'Roll left', action: 'roll', value: -1 },
+      { label: 'Roll right', action: 'roll' },
+      { label: 'Boost', action: 'boost' },
+      { label: 'Fire', action: 'fire' },
+      { label: 'Interact', action: 'interact' },
+      { label: 'Health', action: 'health' },
+    ],
+  },
+} satisfies Record<string, VirtualLayout>;

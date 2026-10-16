@@ -7,6 +7,9 @@ import type {
 } from './Input.js';
 import type { Scene } from './types.js';
 import { assertSynchronous, invokeSynchronous } from './synchronous.js';
+import { ActionSource } from './ActionSource.js';
+import { VirtualController } from './VirtualController.js';
+import type { VirtualControllerOptions } from './VirtualController.js';
 import { InputActivation } from './InputActivation.js';
 
 export interface ActionEvent {
@@ -42,6 +45,9 @@ interface Action {
 export class ActionContext {
   #actions = new Map<string, Action>();
   #disposed = false;
+  #active = false;
+  #sources = new Set<ActionSource>();
+  #controllers = new Set<VirtualController>();
   #capture: 'focus' | 'pointer-lock' = 'focus';
   #feedback = new Set<InputActivation>();
   constructor(
@@ -150,9 +156,43 @@ export class ActionContext {
       pointerLock: (options.capture ?? this.#capture) === 'pointer-lock',
       mouseButtons: true,
     });
-    const feedback = view.own(new InputActivation(binding, () => this.enabled));
+    const feedback = view.own(
+      new InputActivation(
+        binding,
+        () => this.enabled,
+        () => this.#sources.size > 0,
+      ),
+    );
     this.#feedback.add(feedback);
     return binding;
+  }
+  kind(name: string): ActionKind {
+    return this.#action(name).kind;
+  }
+  /** Attach a device contribution; independent sources compose without stealing releases. */
+  source(onReset?: () => void): ActionSource {
+    this.#live();
+    const source = new ActionSource(
+      (name) => this.kind(name),
+      () => this.enabled && this.#active,
+      () => this.#sources.delete(source),
+      onReset,
+    );
+    this.#sources.add(source);
+    return source;
+  }
+  virtual(options: VirtualControllerOptions): VirtualController {
+    this.#live();
+    const binding = this.scope.views.find((v) => !v.disposed);
+    if (!binding)
+      throw new Error('Bind a live viewport before mounting virtual controls');
+    if (options.target.ownerDocument !== binding.view.canvas.ownerDocument)
+      throw new Error('Virtual controls must share the viewport document');
+    const controller = new VirtualController(this, options, () =>
+      this.#controllers.delete(controller),
+    );
+    this.#controllers.add(controller);
+    return binding.view.own(controller);
   }
   activate(): void {
     this.#live();
@@ -174,7 +214,14 @@ export class ActionContext {
     invokeSynchronous(action.handler, undefined, [event], 'input action');
   }
   cancel(): void {
+    this.#active = false;
     const errors: unknown[] = [];
+    for (const source of this.#sources)
+      try {
+        source.clear();
+      } catch (error) {
+        errors.push(error);
+      }
     for (const [name, action] of this.#actions)
       if (action.value !== 0) {
         action.value = 0;
@@ -196,8 +243,10 @@ export class ActionContext {
   /** Engine service hook; games read values or register handlers instead. */
   update(dt: number, active: boolean): void {
     this.#live();
+    this.#active =
+      active && this.enabled && this.scope.views.some((v) => !v.disposed);
     for (const feedback of this.#feedback) feedback.refresh();
-    if (!active || !this.enabled) {
+    if (!this.#active) {
       this.cancel();
       return;
     }
@@ -208,40 +257,61 @@ export class ActionContext {
         ? v.capture.active
         : v.view.canvas.ownerDocument.activeElement === v.view.canvas,
     );
-    if (!connected) {
+    if (!connected && !this.#sources.size) {
       this.cancel();
       return;
     }
-    for (const [name, action] of this.#actions) {
-      const mapping = action.mapping,
-        previous = action.value;
-      let value = 0;
-      if (mapping && typeof mapping === 'object' && 'pointer' in mapping)
-        value = motion[mapping.pointer] * (mapping.scale ?? 1);
-      else if (action.kind === 'axis')
+    try {
+      for (const [name, action] of this.#actions) {
+        const mapping = action.mapping,
+          previous = action.value;
+        let value = 0;
+        if (mapping && typeof mapping === 'object' && 'pointer' in mapping)
+          value = motion[mapping.pointer] * (mapping.scale ?? 1);
+        else if (action.kind === 'axis')
+          value =
+            Number(this.scope.down(`${name}:positive`)) -
+            Number(this.scope.down(`${name}:negative`));
+        else value = Number(this.scope.down(`${name}:positive`));
+        const sources = [...this.#sources];
+        const virtual = sources.reduce(
+          (sum, source) => sum + source.value(name),
+          0,
+        );
+        const pointer =
+          mapping && typeof mapping === 'object' && 'pointer' in mapping;
         value =
-          Number(this.scope.down(`${name}:positive`)) -
-          Number(this.scope.down(`${name}:negative`));
-      else value = Number(this.scope.down(`${name}:positive`));
-      action.value = value;
-      if (action.kind === 'press') {
-        if (this.scope.pressed(`${name}:positive`))
-          this.#emit(action, { action: name, value: 1, dt, cancelled: false });
-      } else if (
-        action.kind === 'axis' ||
-        previous !== value ||
-        this.scope.pressed(`${name}:positive`)
-      ) {
-        // A short hold tap still emits its start and end in order.
-        if (
-          action.kind === 'hold' &&
-          !value &&
-          !previous &&
-          this.scope.pressed(`${name}:positive`)
-        )
-          this.#emit(action, { action: name, value: 1, dt, cancelled: false });
-        this.#emit(action, { action: name, value, dt, cancelled: false });
+          action.kind === 'axis'
+            ? pointer
+              ? value + virtual
+              : Math.max(-1, Math.min(1, value + virtual))
+            : Number(value !== 0 || virtual !== 0);
+        const pressed =
+          this.scope.pressed(`${name}:positive`) ||
+          sources.some((source) => source.pressed(name));
+        action.value = value;
+        if (action.kind === 'press') {
+          if (pressed)
+            this.#emit(action, {
+              action: name,
+              value: 1,
+              dt,
+              cancelled: false,
+            });
+        } else if (action.kind === 'axis' || previous !== value || pressed) {
+          // A short hold tap still emits its start and end in order.
+          if (action.kind === 'hold' && !value && !previous && pressed)
+            this.#emit(action, {
+              action: name,
+              value: 1,
+              dt,
+              cancelled: false,
+            });
+          this.#emit(action, { action: name, value, dt, cancelled: false });
+        }
       }
+    } finally {
+      for (const source of this.#sources) source.finishFrame();
     }
   }
   dispose(): undefined {
@@ -253,6 +323,14 @@ export class ActionContext {
       errors.push(error);
     }
     this.#disposed = true;
+    for (const resource of [...this.#controllers, ...this.#sources])
+      try {
+        resource.dispose();
+      } catch (error) {
+        errors.push(error);
+      }
+    this.#controllers.clear();
+    this.#sources.clear();
     for (const feedback of this.#feedback)
       try {
         feedback.dispose();

@@ -38,6 +38,14 @@ export type { AssetLease } from './AssetPool.js';
 export { PointerLockCapture } from './PointerLockCapture.js';
 export type { CaptureState } from './PointerLockCapture.js';
 
+export { ActionSource } from './ActionSource.js';
+export { VirtualController } from './VirtualController.js';
+export type {
+  VirtualLayout,
+  VirtualStick,
+  VirtualButton,
+  VirtualControllerOptions,
+} from './VirtualController.js';
 export { ActionContext } from './ActionContext.js';
 export type {
   ActionEvent,
@@ -52,6 +60,7 @@ export {
   platformerInput,
   beltScrollerInput,
   flightInput,
+  virtualInputLayouts,
 } from './InputPresets.js';
 export type {
   InputModifier,
