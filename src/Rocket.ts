@@ -264,15 +264,6 @@ export class Rocket {
     if (this.#disposePromise) return this.#disposePromise;
     this.#disposed = true;
     const errors: unknown[] = [];
-    try {
-      this.stop();
-    } catch (error) {
-      errors.push(error);
-    }
-    this.#document?.removeEventListener(
-      'visibilitychange',
-      this.#visibilityChanged,
-    );
     this.#disposePromise = Promise.resolve().then(async () => {
       // Remove views before waiting for preparation and scene cleanup.
       for (const view of this.#views) {
@@ -305,6 +296,17 @@ export class Rocket {
       if (errors.length)
         throw new AggregateError(errors, 'Application cleanup failed');
     });
+    // Publish the shared completion before stop invokes any consumer callbacks.
+    // The queued cleanup starts only after synchronous suspension has finished.
+    try {
+      this.stop();
+    } catch (error) {
+      errors.push(error);
+    }
+    this.#document?.removeEventListener(
+      'visibilitychange',
+      this.#visibilityChanged,
+    );
     return this.#disposePromise;
   }
 

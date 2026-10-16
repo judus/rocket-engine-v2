@@ -9,6 +9,21 @@ The cockpit/asteroid integration is complete as a bounded renderer demonstration
 Gameplay expansion is outside this consolidation. Preserve the simple callback path
 and optional advanced modules; do not create services merely to rename helpers.
 
+## Current execution order — Julien’s subsequent steering
+
+1. Fix material bugs first.
+2. Bring in the new Production-Workshop and Sprite-Animation features by copying or
+   importing into Rocket for now. Keep upstream fixes coordinated in their channels;
+   no submodules or elaborate repository migration.
+3. Work through Rocket’s consolidation list, excluding packaging, acceptance and
+   compatibility work from this pass. Normal tests/static checks still accompany changes.
+4. Evaluate Julien and Steve’s API ergonomics ideas after consolidation.
+
+Use local Git with straightforward commits from this point. Favor practical progress
+and concrete failures over speculative edge-case expansion. Steve owns independent
+review; peer projects own their fixes. Items below remain recorded even when excluded
+or deferred by this execution order.
+
 ## 1. Runtime correctness first
 
 Source: Steve’s timing request 643 and CORE-001 follow-up 644. Steve relays Julien’s
@@ -29,7 +44,7 @@ bounded v2 timing/lifecycle request; retain its exact scope. Leave legacy
       caps, changes, jitter, stalls and zero-origin timestamps. Healthy 60 Hz input
       must preserve 600 fixed ticks per 10 seconds at low render caps; never remove
       the bounded overload policy to force that result.
-- [ ] CORE-001: reserve the shared disposal completion before user teardown can
+- [x] CORE-001: reserve the shared disposal completion before user teardown can
       re-enter; repeated/reentrant dispose must return the same completion and
       clean each owned scene once, preserving cleanup-error reporting.
 - [ ] Report exact changed files/fingerprints, timing contract, tests and native

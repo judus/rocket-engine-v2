@@ -98,6 +98,8 @@ Start awaits preparation once per active scene after successful preparation. Con
 
 Stop aborts pending preparation and cancels the frame. A pending cancelled start must settle before another start is attempted. Hooks that ignore abort can delay disposal: dispose waits for preparation to settle before releasing scene resources. Late resources remain the hook's responsibility.
 
+Repeated and reentrant `app.dispose()` calls share the same completion promise, reserved before service stop callbacks run. Each owned scene, presentation and service is cleaned once; synchronous suspension still happens immediately and cleanup failures are aggregated.
+
 Stop preserves time and scene state. Dispose is final and idempotent: mark disposed, stop, remove visibility listener, remove/release canvases, wait for preparation, dispose all registered scenes in reverse registration order and clear registries. Application disposal owns scene cleanup even for never-viewed scenes. Standalone view.dispose() removes only that view, unregisters it and releases its scene/overlay/context references; view.scene becomes null. Removing the last view deactivates a scene but does not dispose it. Custom scene callbacks and DOM handlers remain application-owned; register synchronous cleanup with scene/view own() where appropriate. View-bound input handlers clean up automatically. Installed services dispose after all scenes.
 
 ## Verification

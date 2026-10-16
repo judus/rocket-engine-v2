@@ -1795,3 +1795,84 @@ void test('presentation failures halt the shared loop and cleanup errors do not 
     assert.equal(cleaned, true);
     assert.equal(slot.disposed, true);
   }));
+
+void test('reentrant application disposal shares one completion before service suspension', () =>
+  withBrowser(async () => {
+    const app = new Rocket();
+    const completions: Promise<void>[] = [];
+    let scenes = 0,
+      services = 0,
+      presentations = 0;
+    class ReentrantService {
+      stop(): undefined {
+        completions.push(app.dispose());
+      }
+      dispose(): undefined {
+        services++;
+        completions.push(app.dispose());
+      }
+    }
+    app.use(ReentrantService);
+    const scene = app.scene({
+      dispose() {
+        scenes++;
+        completions.push(app.dispose());
+      },
+    });
+    app.presentation({
+      scene,
+      render() {},
+      dispose() {
+        presentations++;
+        completions.push(app.dispose());
+      },
+    });
+    await app.start();
+    const completion = app.dispose();
+    assert.equal(app.running, false);
+    assert.equal(app.disposed, true);
+    await completion;
+    assert.equal(completions.length, 4);
+    assert.ok(completions.every((promise) => promise === completion));
+    assert.equal(app.dispose(), completion);
+    assert.deepEqual([scenes, services, presentations], [1, 1, 1]);
+  }));
+
+void test('reentrant disposal retains suspension and cleanup errors without duplicate teardown', () =>
+  withBrowser(async () => {
+    const app = new Rocket();
+    let nested: Promise<void> | undefined;
+    let scenes = 0,
+      services = 0;
+    class FailingStop {
+      stop(): undefined {
+        nested = app.dispose();
+        throw new Error('stop failure');
+      }
+      dispose(): undefined {
+        services++;
+      }
+    }
+    app.use(FailingStop);
+    app.scene(
+      {
+        dispose() {
+          scenes++;
+          throw new Error('scene cleanup failure');
+        },
+      },
+      { keepAlive: true },
+    );
+    await app.start();
+    const completion = app.dispose();
+    // Attach before assertion so a regressing implementation cannot leak rejection.
+    const settled = Promise.allSettled([completion, nested!]);
+    await settled;
+    assert.equal(nested, completion);
+    await assert.rejects(completion, (error: unknown) => {
+      assert.ok(error instanceof AggregateError);
+      assert.equal(error.errors.length, 2);
+      return true;
+    });
+    assert.deepEqual([scenes, services], [1, 1]);
+  }));
