@@ -72,9 +72,9 @@
     "fake-indexeddb": "6.2.5",
     "matter-js": "0.20.0",
     "prettier": "3.9.10",
-    "production-workshop": "file:vendor/production-workshop-2.0.0.tgz",
+    "production-workshop": "file:vendor/production-workshop-2.4.0.tgz",
     "rocket-workers": "file:vendor/rocket-workers-0.4.0.tgz",
-    "sprite-animation": "file:vendor/sprite-animation-0.2.1.tgz",
+    "sprite-animation": "file:vendor/sprite-animation-0.3.0.tgz",
     "sprite-animation-baseline": "file:vendor/sprite-animation-0.2.0.tgz",
     "typescript": "6.0.3",
     "typescript-eslint": "8.71.1"
@@ -82,7 +82,7 @@
   "peerDependencies": {
     "@modelcontextprotocol/sdk": "1.32.1",
     "matter-js": "0.20.0",
-    "sprite-animation": "0.2.1"
+    "sprite-animation": "0.3.0"
   },
   "peerDependenciesMeta": {
     "matter-js": {

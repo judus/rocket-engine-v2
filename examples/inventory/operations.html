@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Inventory operations · Production Workshop</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px;
+      }
+      .inventory-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 18px;
+        margin: 24px 0;
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .panel h2 {
+        font-size: 22px;
+        margin: 0 0 12px;
+      }
+      .panel ul {
+        padding-left: 20px;
+        line-height: 1.8;
+      }
+      .panel p {
+        color: var(--green);
+      }
+      #message {
+        min-height: 50px;
+        border-left: 3px solid var(--orange);
+        padding: 14px;
+        margin: 24px 0;
+      }
+      a {
+        color: var(--green);
+      }
+      #activity {
+        line-height: 1.8;
+        padding-left: 20px;
+        max-height: 240px;
+        overflow: auto;
+      }
+      button {
+        cursor: pointer;
+      }
+      h1 {
+        margin: 16px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <p>
+      <a href="../../index.html">← Rocket demos</a> ·
+      <a href="inventory.html">Object inventories</a> ·
+      <a href="operations.html">Atomic operations</a> ·
+      <a href="context.html">Context and equipment</a>
+    </p>
+    <main>
+      <a href="inventory.html">← Object inventories</a>
+      <p class="eyebrow">TRADE · TRANSFORM · ACCOUNT</p>
+      <h1>One committed change.</h1>
+      <p>
+        Buy food, gather water and fill your bucket. Slots, weight, volume and
+        resource restrictions are checked together.
+      </p>
+      <div class="actions">
+        <button id="buy">Buy food · 3 coins</button
+        ><button id="draw">Take 5 water</button
+        ><button id="fill">Fill bucket · 5 water</button
+        ><button id="eat">Eat one food</button
+        ><button id="reject">Try tool into lake</button>
+      </div>
+      <div id="stores" class="inventory-grid"></div>
+      <p id="message" role="status" aria-live="polite">
+        You have 5 coins and an empty bucket. Buying food transfers payment and
+        goods together.
+      </p>
+      <div class="actions">
+        <button id="expand-weight">Add 5 weight capacity</button
+        ><button id="save">Save checkpoint</button
+        ><button id="restore" disabled>Restore checkpoint</button
+        ><button id="reset">Reset example</button>
+      </div>
+      <section class="panel" style="margin-top: 24px">
+        <h2>Activity</h2>
+        <p>
+          Only committed changes appear here. A refused action leaves both
+          stores unchanged.
+        </p>
+        <ol id="activity">
+          <li>No changes yet.</li>
+        </ol>
+      </section>
+      <p>
+        Weight and volume use the example's own integer units. The lake accepts
+        only water. Filling consumes the empty bucket and issues a full bucket;
+        its durability is preserved. This demo keeps checkpoints in memory.
+      </p>
+      <p><a href="context.html">Try modifiers, metadata and equipment →</a></p>
+    </main>
+    <script type="module" src="operations-app.js"></script>
+  </body>
+</html>

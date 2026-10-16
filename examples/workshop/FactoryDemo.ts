@@ -118,8 +118,8 @@ export class FactoryDemo {
   }
   constructor(chains = 1, transport = false, workshop = false) {
     const version: unknown = this.#simulation.save().version;
-    if (version !== 4)
-      throw new Error('Workshop 2.0.0 save format 4 is required');
+    if (version !== 7)
+      throw new Error('Workshop 2.4.0 save format 7 is required');
     if (!Number.isInteger(chains) || chains < 1 || chains > 2000)
       throw new RangeError('Invalid chain count');
     if (transport && chains !== 1)

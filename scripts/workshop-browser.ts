@@ -14,13 +14,13 @@ if (
   !manifest ||
   typeof manifest !== 'object' ||
   !('version' in manifest) ||
-  manifest.version !== '2.0.0'
+  manifest.version !== '2.4.0'
 )
-  throw new Error('Expected pinned Production Workshop 2.0.0');
+  throw new Error('Expected pinned Production Workshop 2.4.0');
 await mkdir(new URL('../vendor/', import.meta.url), { recursive: true });
 await cp(
   new URL('../../node_modules/production-workshop/dist/', import.meta.url),
-  new URL('../vendor/production-workshop-2.0.0/', import.meta.url),
+  new URL('../vendor/production-workshop-2.4.0/', import.meta.url),
   { recursive: true },
 );
 // Publish the exact accepted CFW browser bundle, including its validators and notices.
@@ -35,7 +35,7 @@ await cp(
 
 // Integration demos consume exact installed packages at native browser ESM URLs.
 for (const [name, directory, version] of [
-  ['sprite-animation', 'sprite-animation-0.2.1', '0.2.1'],
+  ['sprite-animation', 'sprite-animation-0.3.0', '0.3.0'],
   ['sprite-animation-baseline', 'sprite-animation-0.2.0', '0.2.0'],
   ['rocket-workers', 'rocket-workers-0.4.0', '0.4.0'],
 ] as const) {

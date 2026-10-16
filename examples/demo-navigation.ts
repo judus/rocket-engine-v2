@@ -14,6 +14,7 @@ const groups: readonly { title: string; pages: readonly DemoPage[] }[] = [
           { title: 'Fixed timing', href: './fixed.html' },
           { title: 'Physics sandbox', href: './physics.html' },
           { title: 'Sprite animation', href: './sprites.html' },
+          { title: 'Synchronized sprite layers', href: './sprite-layers.html' },
         ],
       },
     ],
@@ -95,6 +96,10 @@ const groups: readonly { title: string; pages: readonly DemoPage[] }[] = [
   {
     title: 'Production',
     pages: [
+      {
+        title: 'Inventory & equipment',
+        href: './examples/inventory/context.html',
+      },
       {
         title: 'Workshop basics',
         href: './workshop.html',

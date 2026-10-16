@@ -179,7 +179,7 @@ void test('Workshop 2 retirement keeps only live private buffers and restores mo
       assert.equal(f.read().summary.inventoryCount, 1);
     }
     const saved = f.save();
-    assert.equal(saved.simulation.version, 4);
+    assert.equal(saved.simulation.version, 7);
     const restored = FactoryDemo.restore(saved);
     f.dispose();
     f = restored;
