@@ -31,8 +31,8 @@ The Hi3D reticle is 10% smaller and uses 25% opacity in the displays' turquoise.
 Lines and the round dot are roughly 3 CSS pixels at the default 60-degree FOV
 and 750px canvas height. Joined annular segments close the outer ring cleanly.
 Three faint, wider geometry fringes give each part a soft glow without changing
-the global instrument bloom. The HUD is centered on the pilot sightline. A closer plane preserves angular size while
-keeping the lower ring ahead of the dashboard.
+the global instrument bloom. The HUD is centered on the pilot sightline. Its plane sits behind the dashboard, with proportional scale preserving angular
+size; ordinary depth testing lets the cockpit hide overlapping lines and glow.
 Its four child nodes separate the outer reference ring, projectile-direction
 ring, context/range ring, and fixed cross/dot. The latter stays fixed while
 future game data can independently move or scale the other rings. Desired

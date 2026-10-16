@@ -177,7 +177,7 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
     for (const part of parts) node.add(part);
     node.transform = {
       ...node.transform,
-      scale: { x: 0.3375, y: 0.3375, z: 0.3375 },
+      scale: { x: 0.9, y: 0.9, z: 0.9 },
     };
   } else
     node.mesh = new Mesh3D(new MeshGeometry(vertices, faces), [

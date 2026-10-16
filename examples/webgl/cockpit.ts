@@ -595,8 +595,8 @@ async function start() {
     // Rigid ship reference, independent of the model's nonuniform fit and cosmetic sway.
     reticle.transform = {
       ...reticle.transform,
-      // Place the HUD on the pilot sightline, ahead of the dashboard.
-      position: { x: home.x, y: home.y, z: home.z + 1.5 },
+      // Keep the HUD on the pilot sightline, behind the dashboard for natural occlusion.
+      position: { x: home.x, y: home.y, z: home.z + 4 },
     };
     rig.add(reticle);
   }
