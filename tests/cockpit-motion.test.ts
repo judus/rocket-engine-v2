@@ -8,7 +8,7 @@ import {
 void test('cockpit movement leans slightly and settles exactly back to rest', () => {
   const motion = new CockpitMotion();
   for (let i = 0; i < 60; i++) motion.update(1 / 60, 1, 0, 1);
-  assert.ok(motion.x < -0.079 && motion.x >= -0.08);
+  assert.ok(motion.x < -0.149 && motion.x >= -0.15);
   assert.ok(motion.y < -0.11 && motion.y >= -0.12);
   for (let i = 0; i < 180; i++) motion.update(1 / 60, 0, 0, 0);
   assert.ok(Math.abs(motion.x) < 1e-10 && Math.abs(motion.y) < 1e-10);
@@ -22,7 +22,7 @@ void test('small impact and repeated large impulses stay bounded and reset clean
   for (let i = 0; i < 500; i++) {
     motion.kick(1e6, -1e6);
     motion.update(1 / 60, 1, -1, 1);
-    assert.ok(Math.abs(motion.x) <= 0.08 && Math.abs(motion.y) <= 0.25);
+    assert.ok(Math.abs(motion.x) <= 0.15 && Math.abs(motion.y) <= 0.15);
   }
   motion.reset();
   motion.update(1, 0, 0, 0);

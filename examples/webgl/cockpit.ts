@@ -575,8 +575,7 @@ async function start() {
     }
   };
   const look = (dx: number, dy: number) => {
-    if (motionEnabled?.checked && pilot.checked)
-      motion.kick(-dx * 6.4, dy * 20);
+    if (motionEnabled?.checked && pilot.checked) motion.kick(-dx * 12, dy * 12);
     cameraYaw.value = String(
       ((Number(cameraYaw.value) + (dx * 180) / Math.PI + 540) % 360) - 180,
     );
@@ -904,7 +903,7 @@ async function start() {
   document.querySelector('#cockpit-motion-bump')?.addEventListener(
     'click',
     () => {
-      if (motionEnabled?.checked && pilot.checked) motion.kick(1.6, -6);
+      if (motionEnabled?.checked && pilot.checked) motion.kick(3.6, -3.6);
     },
     { signal },
   );

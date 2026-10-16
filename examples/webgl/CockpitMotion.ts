@@ -14,7 +14,7 @@ export class CockpitMotion {
   }
   update(dt: number, right: number, up: number, forward: number): void {
     if (!Number.isFinite(dt) || dt <= 0) return;
-    const targets = [-right * 0.08, up * 0.25 - forward * 0.12];
+    const targets = [-right * 0.15, up * 0.15 - forward * 0.12];
     const step = (
       value: number,
       velocity: number,
@@ -35,8 +35,8 @@ export class CockpitMotion {
         (velocity - omega * c * dt) * decay,
       ] as const;
     };
-    [this.x, this.#vx] = step(this.x, this.#vx, targets[0]!, 0.08);
-    [this.y, this.#vy] = step(this.y, this.#vy, targets[1]!, 0.25);
+    [this.x, this.#vx] = step(this.x, this.#vx, targets[0]!, 0.15);
+    [this.y, this.#vy] = step(this.y, this.#vy, targets[1]!, 0.15);
   }
 }
 
