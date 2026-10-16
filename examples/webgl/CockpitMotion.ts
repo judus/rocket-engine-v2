@@ -14,11 +14,16 @@ export class CockpitMotion {
   }
   update(dt: number, right: number, up: number, forward: number): void {
     if (!Number.isFinite(dt) || dt <= 0) return;
-    const targets = [-right * 0.25, up * 0.25 - forward * 0.12];
-    const step = (value: number, velocity: number, target: number) => {
+    const targets = [-right * 0.08, up * 0.25 - forward * 0.12];
+    const step = (
+      value: number,
+      velocity: number,
+      target: number,
+      limit: number,
+    ) => {
       target = Math.max(
-        -0.25,
-        Math.min(0.25, Number.isFinite(target) ? target : 0),
+        -limit,
+        Math.min(limit, Number.isFinite(target) ? target : 0),
       );
       // Exact critically damped spring for a constant target over this update.
       const omega = 12,
@@ -26,12 +31,12 @@ export class CockpitMotion {
       const c = velocity + omega * offset,
         decay = Math.exp(-omega * dt);
       return [
-        Math.max(-0.25, Math.min(0.25, target + (offset + c * dt) * decay)),
+        Math.max(-limit, Math.min(limit, target + (offset + c * dt) * decay)),
         (velocity - omega * c * dt) * decay,
       ] as const;
     };
-    [this.x, this.#vx] = step(this.x, this.#vx, targets[0]!);
-    [this.y, this.#vy] = step(this.y, this.#vy, targets[1]!);
+    [this.x, this.#vx] = step(this.x, this.#vx, targets[0]!, 0.08);
+    [this.y, this.#vy] = step(this.y, this.#vy, targets[1]!, 0.25);
   }
 }
 
