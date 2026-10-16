@@ -160,16 +160,36 @@ void test('browser model decode budgets pass through isolated asset pools withou
     raw.set(binary, 28 + padded);
     await assert.rejects(decodeTexturedGlb(packed), /32 image budget/);
     const defaultPool = new WebGLAssets(),
-      restricted = new WebGLAssets({ maxImagePixels: 3 }),
+      restricted = new WebGLAssets({ maxImagePixels: 3, maxTexturePixels: 3 }),
       large = new WebGLAssets({
         maxImagePixels: 67108864,
         maxTotalPixels: 134217728,
+        maxTexturePixels: 4,
       });
     try {
       await assert.rejects(
         restricted.acquireModel('/cockpit.glb'),
         /exceeds pixel budget/,
       );
+      await assert.rejects(
+        restricted.acquireTexture('/sky.png'),
+        /exceeds pixel budget/,
+      );
+      await assert.rejects(
+        restricted.acquireTexture('/sky-linear.png', { colorSpace: 'linear' }),
+        /exceeds pixel budget/,
+      );
+      const sky = await large.acquireTexture('/sky.png');
+      const linearSky = await large.acquireTexture('/sky-linear.png', {
+        colorSpace: 'linear',
+      });
+      const defaultSky = await defaultPool.acquireTexture('/default.png');
+      assert.equal(sky.value.width, 2);
+      assert.equal(sky.value.colorSpace, 'srgb');
+      assert.equal(linearSky.value.colorSpace, 'linear');
+      sky.dispose();
+      linearSky.dispose();
+      defaultSky.dispose();
       const normal = await defaultPool.acquireModel('/cockpit.glb');
       const big = await large.acquireModel('/cockpit.glb');
       assert.ok(normal.value.triangles > 0);

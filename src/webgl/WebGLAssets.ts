@@ -8,7 +8,23 @@ export class WebGLAssets {
   constructor({
     maxImagePixels,
     maxTotalPixels,
-  }: Omit<GlbDecodeOptions, 'signal'> = {}) {
+    maxTexturePixels,
+  }: Omit<GlbDecodeOptions, 'signal'> & {
+    /** Standalone texture decode budget, separate from embedded model images. */
+    readonly maxTexturePixels?: number;
+  } = {}) {
+    const textureOptions =
+      maxTexturePixels === undefined ? {} : { maxPixels: maxTexturePixels };
+    this.#textures = new AssetPool((url, signal) =>
+      loadTextureImage(url, { signal, ...textureOptions }),
+    );
+    this.#linear = new AssetPool((url, signal) =>
+      loadTextureImage(url, {
+        signal,
+        colorSpace: 'linear',
+        ...textureOptions,
+      }),
+    );
     this.#models = new AssetPool((url, signal) =>
       loadTexturedGlb(url, {
         signal,
@@ -17,12 +33,8 @@ export class WebGLAssets {
       }),
     );
   }
-  readonly #textures = new AssetPool((url, signal) =>
-    loadTextureImage(url, { signal }),
-  );
-  readonly #linear = new AssetPool((url, signal) =>
-    loadTextureImage(url, { signal, colorSpace: 'linear' }),
-  );
+  readonly #textures: AssetPool<Awaited<ReturnType<typeof loadTextureImage>>>;
+  readonly #linear: AssetPool<Awaited<ReturnType<typeof loadTextureImage>>>;
   acquireModel(url: string | URL, options: { signal?: AbortSignal } = {}) {
     return this.#models.acquire(new URL(url, document.baseURI).href, options);
   }

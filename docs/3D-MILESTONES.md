@@ -912,3 +912,11 @@ The existing sun and its directional illumination remain independent. This is LD
 background artwork, not HDR environment lighting or navigable stars. The initial
 implementation supports panoramas; cubemap input and environment-light baking
 remain separate concerns. Panorama wrap gradients are corrected in the shader.
+
+Hi3D now defaults to TonyS / Space Spheremaps' original 10000×5000 Galactic
+Plane 1 panorama, yaw +90°. Credit and download provenance accompany the asset.
+The generic `WebGLAssets` option `maxTexturePixels` explicitly raises standalone
+image decode budgets for this preview (64 Mi pixels); defaults remain 16 Mi
+pixels. It applies consistently to sRGB and linear texture pools, separately
+from embedded model budgets. The sky costs roughly 254.3 MiB in RGBA8 with
+mipmaps; loading/CPU decode storage is additional. No silent resampling.

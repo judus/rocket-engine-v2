@@ -118,11 +118,12 @@ const directionalDefault = hi3dDisplays
       : '1';
 const pointDefault =
   hi3dDisplays || shadowsEnabled ? '0' : environment ? '6' : '12';
-const assets = new WebGLAssets(
-  host.dataset.largeTextures === 'true'
+const assets = new WebGLAssets({
+  ...(host.dataset.largeTextures === 'true'
     ? { maxImagePixels: 67108864, maxTotalPixels: 134217728 }
-    : {},
-);
+    : {}),
+  ...(hi3dDisplays ? { maxTexturePixels: 67108864 } : {}),
+});
 let app: Rocket | undefined,
   retired = 0;
 async function start() {
@@ -319,7 +320,7 @@ async function start() {
     model = modelLease.value;
     if (hi3dDisplays) {
       skyLease = await assets.acquireTexture(
-        './examples/3d/assets/space-skybox-v1/space-equirectangular.png',
+        './examples/3d/assets/galactic-plane-1/galactic-plane-1.png',
         { signal },
       );
     }
@@ -883,7 +884,7 @@ async function start() {
           ...(hi3dDisplays ? { clearColor: [0, 0, 0] as const } : {}),
           ...(skyLease &&
           document.querySelector<HTMLInputElement>('#sky-enabled')!.checked
-            ? { background: { image: skyLease.value } }
+            ? { background: { image: skyLease.value, yaw: Math.PI / 2 } }
             : {}),
           ...(shadow
             ? { shadow, shadowDebug: shadowInput('shadow-debug').checked }
@@ -968,7 +969,7 @@ async function start() {
         if (skyLease) {
           const skyStats = renderer.backgroundStats;
           document.querySelector('#sky-status')!.textContent = skyStats
-            ? `Distant panorama · 1 fullscreen triangle · ${(skyStats.textureBytes / 1048576).toFixed(2)} MiB including mipmaps · no lighting or shadow contribution`
+            ? `Galactic Plane 1 · 10000 × 5000 · 1 fullscreen triangle · ${(skyStats.textureBytes / 1048576).toFixed(2)} MiB including mipmaps · no lighting or shadow contribution`
             : 'Sky disabled · black space · background GPU resources released';
         }
         const resources = renderer.textureStats!;
