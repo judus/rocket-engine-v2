@@ -15,7 +15,8 @@ json_size = struct.unpack_from('<I', source, 12)[0]
 doc = json.loads(source[20:20 + json_size])
 binary = bytearray(source[28 + json_size:])
 primitive = doc['meshes'][0]['primitives'][0]
-assert len(doc['meshes']) == 1 and len(doc['meshes'][0]['primitives']) == 1
+# The original cockpit remains mesh 0; appended coverage meshes are preserved.
+assert len(doc['meshes'][0]['primitives']) == 1
 assert 'TANGENT' not in primitive['attributes']
 
 
