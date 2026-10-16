@@ -384,7 +384,7 @@ async function start() {
       const apply = () => {
         lamps.setPowered(i, control.checked);
         document.querySelector<HTMLOutputElement>(`#lamp-${id}-status`)!.value =
-          control.checked ? 'On' : 'Off';
+          control.checked ? 'On' : i >= 4 ? 'Standby 5%' : 'Off';
       };
       control.addEventListener('change', apply, { signal });
       const color = document.querySelector<HTMLInputElement>(
@@ -809,7 +809,7 @@ async function start() {
         const alerts = screenLightOnly?.checked ? [] : hi3dLamps.alertLights();
         lights.push(...buttons, ...alerts);
         document.querySelector('#button-light-status')!.textContent =
-          `${buttons.length}/4 button lights · ${alerts.length}/2 alert lights · rim glow on powered R1/R2${screenLightOnly?.checked ? ' · spill excluded during screen isolation' : ''}`;
+          `${buttons.length}/4 button lights · ${alerts.length}/2 alert lights · R1/R2 off = 5% standby glow${screenLightOnly?.checked ? ' · spill excluded during screen isolation' : ''}`;
       }
       if (screenLights) {
         const spill = screenLights(

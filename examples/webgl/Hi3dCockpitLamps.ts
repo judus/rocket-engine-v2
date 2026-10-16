@@ -72,13 +72,24 @@ export function hi3dCockpitLamps() {
           // A fixed 10% source-texture luminance imprint, not alpha blending.
           const surface = 0.9 * finish + 0.1 * hi3dLampUnderlay(name, u, v);
           // A narrow bright annulus blends the lit lens into its metal seating.
-          // Keep the worn center and distinct patterns; off lenses retain their old finish.
+          // Keep the worn center and distinct patterns in both active and standby states.
           const rimGlow = Math.exp(-Math.pow((radius - 0.91) / 0.085, 2));
           const litSurface =
             surface * (1 - rimGlow) + (0.94 + 0.06 * smudge) * rimGlow;
-          const value = powered
-            ? Math.round(255 * Math.min(1, litSurface))
-            : Math.round(18 * surface);
+          const encoded = Math.min(1, litSurface);
+          const linear =
+            encoded <= 0.04045
+              ? encoded / 12.92
+              : ((encoded + 0.055) / 1.055) ** 2.4;
+          const standby = linear * 0.05;
+          const value = Math.round(
+            255 *
+              (powered
+                ? encoded
+                : standby <= 0.0031308
+                  ? 12.92 * standby
+                  : 1.055 * standby ** (1 / 2.4) - 0.055),
+          );
           const i = (y * size + x) * 4;
           pixels.set([value, value, value, 255], i);
         }
@@ -271,13 +282,14 @@ export function hi3dCockpitLamps() {
         };
       },
       alertLight(): PointLight3D | undefined {
-        if (!round || !powered) return undefined;
+        if (!round) return undefined;
         const factor = bright.materials[0]!.baseColorFactor!;
         return {
           kind: 'point',
           position: matrixPoint(node.worldMatrix(), { x: 0, y: 0, z: 0.14 }),
           color: [factor[0]!, factor[1]!, factor[2]!],
-          intensity: spec.width * spec.height * size * size * 0.9,
+          intensity:
+            spec.width * spec.height * size * size * 0.9 * (powered ? 1 : 0.05),
           minimumDistance: 0.25,
         };
       },

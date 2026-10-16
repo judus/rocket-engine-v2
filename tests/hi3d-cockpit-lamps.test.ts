@@ -151,11 +151,29 @@ void test('round alert rim glow and spill track individual power, color and fitt
   lamps.setColor(4, '#00ff00');
   assert.deepEqual(lamps.alertLights()[0]!.color, [0, 1, 0]);
   lamps.setPowered(4, false);
-  assert.deepEqual(lamps.alertLights(), [initial[1]]);
+  assert.equal(
+    lamps.alertLights()[0]!.intensity,
+    initial[0]!.intensity * 0.25 * 0.05,
+  );
+  assert.deepEqual(lamps.alertLights()[1], initial[1]);
   const off = lamps.root.children[4]!.mesh;
+  const standbyPixel =
+    off!.materials[0]!.baseColorTexture!.image.copyPixels()[
+      (32 * 64 + 60) * 4
+    ]! / 255;
+  const decode = (v: number) =>
+    v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  lamps.setPowered(4, true);
+  const activePixel =
+    lamps.root.children[4]!.mesh!.materials[0]!.baseColorTexture!.image.copyPixels()[
+      (32 * 64 + 60) * 4
+    ]! / 255;
+  assert.ok(
+    Math.abs(decode(standbyPixel) / decode(activePixel) - 0.05) < 0.002,
+  );
   lamps.setPowered(4, true);
   lamps.setPowered(4, false);
   assert.equal(lamps.root.children[4]!.mesh, off);
   lamps.setPowered(5, false);
-  assert.deepEqual(lamps.alertLights(), []);
+  assert.equal(lamps.alertLights()[1]!.intensity, initial[1]!.intensity * 0.05);
 });

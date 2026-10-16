@@ -812,3 +812,8 @@ modifying the GLB or adding transparency. Spill still has no occlusion/shadows.
 Validation: 495 tests and coverage pass. Tests cover rim emphasis, independent
 power/color/size and bounded GPU packing; browser checks cover combined fourteen
 lights, separate R1/R2 switching and visible seating glow without console errors.
+
+Round alert off switches select 5% standby output: lens brightness is scaled in
+linear color space before sRGB encoding, and colored spill is also reduced to 5%.
+The fitted coverage, worn texture and faint rim remain visible; full bloom stays
+associated with the active state. Rectangular button off behavior is unchanged.
