@@ -920,3 +920,35 @@ image decode budgets for this preview (64 Mi pixels); defaults remain 16 Mi
 pixels. It applies consistently to sRGB and linear texture pools, separately
 from embedded model budgets. The sky costs roughly 254.3 MiB in RGBA8 with
 mipmaps; loading/CPU decode storage is additional. No silent resampling.
+
+### Explicit flight capture (control layout unchanged)
+
+`InputScope.bind(view, { pointerLock: true })` opts into explicit capture.
+`binding.capture` exposes `request()`, `release()`, `state`, `active`, and
+`consumeMovement()` (relative mouse pixels accumulated since the previous read).
+`PointerLockCapture` is also exported for independent browser adapters. Call
+`request()` only in a user click/key handler. A browser grant event establishes
+capture; focus alone does not. Unsupported/refused capture stays visibly released,
+with no silent drag fallback. No keyboard-lock API, fullscreen or permissions prompt
+is requested by the engine.
+
+While captured, bound keyboard actions route through the document independently
+of canvas focus, except typing into editable controls. Outside capture they do not
+consume page keys. Escape, window blur, hidden document, context loss, input reset
+and binding disposal clear/release capture. Late asynchronous grants after release
+or disposal are relinquished. Existing focus/drag bindings remain the default for
+other demos. No new clock or pause policy; the game owns simulation and movement.
+
+Hi3D has a viewport status banner and Start flight button. Click the viewport or
+press Space while it is focused. Mouse motion turns without dragging. Escape
+releases for the existing inspection page controls. The world and current velocity
+continue updating; held thrust and turn inputs clear. The existing cruise checkbox
+only supplies thrust during capture. Ship layout and future windshield-panel UI
+are deliberately separate milestones.
+
+Browser check (2026-10-16): the Codex embedded browser rejects Pointer Lock
+with Chromium `UnknownError: If you see this error we have a bug. Please report
+this bug to chromium.` The refusal/retry state and continued simulation were
+verified there; successful native capture, document keyboard routing and release
+are covered by deterministic host tests, but still need Julien's normal Chrome
+run. No fallback silently claims to be captured.

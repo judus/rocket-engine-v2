@@ -157,7 +157,11 @@ async function start() {
         const forward =
             keys('KeyW') -
             keys('KeyS') +
-            Number(asteroidWorld && fieldControl('cruise').checked),
+            Number(
+              asteroidWorld &&
+                keys.connected() &&
+                fieldControl('cruise').checked,
+            ),
           right = keys('KeyD') - keys('KeyA'),
           up = keys('KeyE') - keys('KeyQ');
         const yaw = (Number(cameraYaw.value) * Math.PI) / 180,
@@ -251,7 +255,7 @@ async function start() {
   const surface = new WebGLSurface({
     target: host,
     scene,
-    label: `GPU lighting: ${modelLabel}. Click to focus. WASD moves, Q/E changes height, Shift speeds up, drag or arrows turn, R returns home.`,
+    label: `GPU lighting: ${modelLabel}. ${hi3dDisplays ? 'Click or press Space to capture flight controls. Esc releases. Mouse or arrows turn.' : 'Click to focus. Drag or arrows turn.'} WASD moves, Q/E changes height, Shift speeds up, R returns home.`,
     onError: (error) => {
       status.value = String(error);
     },
@@ -712,9 +716,63 @@ async function start() {
       ),
     );
   };
-  const keys = explorationInput(application, scene, surface, look, () =>
-    document.querySelector<HTMLButtonElement>('#reset-triangle')!.click(),
+  const keys = explorationInput(
+    application,
+    scene,
+    surface,
+    look,
+    () => document.querySelector<HTMLButtonElement>('#reset-triangle')!.click(),
+    hi3dDisplays,
   );
+  if (keys.capture) {
+    const capture = keys.capture;
+    const start = document.querySelector<HTMLButtonElement>('#capture-start')!;
+    const banner = document.querySelector<HTMLElement>('#capture-banner')!;
+    const messages = {
+      released:
+        'Controls disconnected · Click or focus the viewport and press Space to fly',
+      requesting: 'Connecting flight controls…',
+      captured: 'Flight controls connected · Esc to release',
+      error:
+        'Capture refused · Click Start flight to retry (after Esc, the browser may require another click)',
+      unavailable: 'Mouse capture is unavailable in this browser',
+    };
+    const request = () => {
+      void capture.request();
+    };
+    start.addEventListener('click', request, { signal });
+    canvas.addEventListener('click', request, { signal });
+    canvas.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.code === 'Space' && !event.repeat && !capture.active) {
+          event.preventDefault();
+          request();
+        }
+      },
+      { signal },
+    );
+    const previousUpdate = keys.update;
+    keys.update = () => {
+      previousUpdate();
+      const message =
+        messages[capture.state] +
+        (capture.state === 'error' && capture.reason
+          ? ` · ${capture.reason}`
+          : '');
+      if (banner.textContent !== message) {
+        banner.textContent = message;
+        banner.dataset.state = capture.state;
+      }
+      start.hidden = capture.active;
+      start.disabled =
+        capture.state === 'requesting' || capture.state === 'unavailable';
+      start.textContent =
+        capture.state === 'error'
+          ? 'Retry flight capture'
+          : 'Start flight · Space';
+    };
+  }
   application.presentation({
     scene,
     render() {

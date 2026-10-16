@@ -444,6 +444,11 @@
       "coveredLinePercent": 99.5,
       "coveredBranchPercent": 97,
       "coveredFunctionPercent": 99.5
+    },
+    "PointerLockCapture.js": {
+      "coveredLinePercent": 95,
+      "coveredBranchPercent": 85,
+      "coveredFunctionPercent": 95
     }
   }
 }

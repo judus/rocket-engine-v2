@@ -34,3 +34,6 @@ export { Presentation } from './Presentation.js';
 export type { PresentationOptions } from './Presentation.js';
 export { AssetPool } from './AssetPool.js';
 export type { AssetLease } from './AssetPool.js';
+
+export { PointerLockCapture } from './PointerLockCapture.js';
+export type { CaptureState } from './PointerLockCapture.js';

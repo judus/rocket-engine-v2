@@ -1,3 +1,4 @@
+import { PointerLockCapture } from './PointerLockCapture.js';
 import type { View } from './View.js';
 import type { Frame, FixedFrame, Point, Scene } from './types.js';
 import type { Cleanup } from './ResourceScope.js';
@@ -83,7 +84,10 @@ export class InputScope<A extends string> {
   get views(): readonly ViewInput<InputTarget>[] {
     return [...this.#views];
   }
-  bind<T extends InputTarget>(view: T): ViewInput<T> {
+  bind<T extends InputTarget>(
+    view: T,
+    options: { readonly pointerLock?: boolean } = {},
+  ): ViewInput<T> {
     if (this.#disposed) throw new Error('Input scope is disposed');
     if (view.disposed || view.scene !== this.scene)
       throw new Error('Bind a live view of this scope scene');
@@ -100,6 +104,7 @@ export class InputScope<A extends string> {
         this.#views.delete(owner);
         if (this.#keyboardOwner === owner) this.#resetKeys();
       },
+      options,
     );
     this.#views.add(binding);
     return view.own(binding);
@@ -263,6 +268,7 @@ function ownCanvas(canvas: HTMLCanvasElement): () => void {
 /** A view-owned primary pointer and canvas keyboard routing. */
 export class ViewInput<T extends InputTarget = View> {
   readonly view: T;
+  readonly capture: PointerLockCapture | undefined;
   #resources: (() => void)[] = [];
   #pointer: PointerState = emptyPointer();
   #fixedPointer: PointerState = emptyPointer();
@@ -286,6 +292,7 @@ export class ViewInput<T extends InputTarget = View> {
     ) => void,
     blur: (binding: ViewInput<InputTarget>) => void,
     onDispose: (binding: ViewInput<InputTarget>) => void,
+    options: { readonly pointerLock?: boolean } = {},
   ) {
     this.view = view;
     this.#onDispose = onDispose;
@@ -295,16 +302,41 @@ export class ViewInput<T extends InputTarget = View> {
       canvas.addEventListener(type, callback);
       this.#resources.push(() => canvas.removeEventListener(type, callback));
     };
-    listen('keydown', (event) => {
-      if (event.target === canvas) key(this, event as KeyboardEvent, true);
-    });
-    listen('keyup', (event) => {
-      if (event.target === canvas) key(this, event as KeyboardEvent, false);
-    });
+    this.capture = options.pointerLock
+      ? new PointerLockCapture(canvas, () => {
+          if (!this.capture?.active) blur(this);
+        })
+      : undefined;
+    const keyboardTarget = this.capture ? canvas.ownerDocument : canvas;
+    const onKeyDown = (raw: Event) => {
+      const event = raw as KeyboardEvent;
+      const target = event.target as HTMLElement | null;
+      if (
+        this.capture
+          ? this.capture.active &&
+            !target?.isContentEditable &&
+            !/^(INPUT|TEXTAREA|SELECT)$/.test(target?.tagName ?? '')
+          : event.target === canvas
+      )
+        key(this, event, true);
+    };
+    const onKeyUp = (raw: Event) => {
+      if (this.capture ? this.capture.active : raw.target === canvas)
+        key(this, raw as KeyboardEvent, false);
+    };
+    keyboardTarget.addEventListener('keydown', onKeyDown);
+    keyboardTarget.addEventListener('keyup', onKeyUp);
+    this.#resources.push(
+      () => keyboardTarget.removeEventListener('keydown', onKeyDown),
+      () => keyboardTarget.removeEventListener('keyup', onKeyUp),
+    );
     listen('blur', () => {
+      // Pointer lock owns the session; incidental canvas focus changes do not end it.
+      if (this.capture?.active) return;
       blur(this);
       this.reset();
     });
+    if (this.capture) return;
     listen('pointerdown', (raw) => {
       const event = raw as PointerEvent;
       if (
@@ -396,6 +428,7 @@ export class ViewInput<T extends InputTarget = View> {
     this.#fixedPress = this.#fixedRelease = false;
   }
   reset(): void {
+    this.capture?.release();
     this.#releaseCapture();
     this.#client = null;
     this.#down = this.#pressed = this.#released = false;
@@ -406,6 +439,7 @@ export class ViewInput<T extends InputTarget = View> {
   dispose(): undefined {
     if (this.#disposed) return;
     this.#disposed = true;
+    this.capture?.dispose();
     const errors: unknown[] = [];
     try {
       this.reset();
@@ -427,7 +461,7 @@ export class ViewInput<T extends InputTarget = View> {
   }
 }
 
-/** Install once per app. No global key capture; events only come from bound canvases. */
+/** Install once per app. Canvas focus routing by default; document keys only for explicitly locked bindings. */
 export class Input {
   #scopes = new Set<
     Pick<
