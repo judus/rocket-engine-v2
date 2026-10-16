@@ -1,0 +1,106 @@
+ROCKET
+Engine demos
+RUNTIME
+Arms & cameras
+Fixed timing
+Physics sandbox
+Sprite animation
+TERRAIN
+Tile board
+Chunk streaming
+Terrain fields
+Classic tiles & vegetation
+Streamed terrain
+Worker comparison
+Camera controls
+PRODUCTION
+Workshop basics
+Streamed factory
+Transport
+Construction & staffing
+6,000-facility stress test
+MOVEMENT
+Finite navigation
+Actor streaming & corridors
+Workplace journeys
+Streamed workplaces
+Two-worker staffing
+UI & CHARACTERS
+Basic panels
+Chat box
+Mara & the Old Grove
+Archived character sprites
+WASD character control
+Work → takeover → resume
+Authored guide dialogue
+Grove evidence & pickup
+Watchtower quest
+Generated quest consumer
+
+ROCKET ENGINE / PROCEDURAL TERRAIN · STEP TWO
+
+Same terrain, native workers.
+
+WASD / arrows pan all presentations. Click a ready tile to cycle its biome override; elevation displays the generated height field. Dark chunks are pending, pink chunks have failed.
+
+Seed
+Scale
+Open world
+Delay (ms)
+Visit far away
+Return to edit
+Close elevation
+Close classic tiles
+Recreate stream
+Fail next chunk
+Retry
+Selection click a ready tile · 54 active overrides · 216/216 ready
+
+Compare with the main-thread baseline using the same seed/scale, saved edits and camera route, one active tab at a time. Leave delay at zero for workload comparisons. Only base biome generation moves to workers: height artwork, tile resolution and decorations still run on the main thread.
+
+One shared 240-chunk limit and four job slots. Three demand owners share cached biome/elevation artwork. Saves are separate for every generator version, seed and scale; wait for zero uncommitted changes before reload.
+
+Classic edits map water → tier 2, shore → 3, grassland → 5, forest → 6, rock → 10, snow → 11. Unedited tiles use shaped generated heights. Returning a cell to its generated biome removes the override. The classic view is zoomed in at 16 pixels per tile; the other views use 5. Blue-gray regions wait for ready neighbors or their artwork budget.
+
+Generation passes
+1
+16
+64
+256
+1024
+Run repeatable route
+Cancel benchmark
+
+Passes repeat identical generation without changing tiles (synthetic CPU load; applies on Run/Recreate). The benchmark starts with fresh caches, zero delay and unedited terrain without deleting saves. Six fixed camera stops, two seconds each, then up to 15 seconds to finish the last stop. Keep this tab visible and other demos paused/closed. Switching tabs invalidates the run. Compare the same seed, scale and passes on both pages.
+
+WORKERS · 256 passes · COMPLETE · 12.0s · stop 6/6
+Frames: 1726 · mean 6.96 ms · p95 ≤8 ms · worst 27.60 ms
+Spikes >16.7ms: 1 (0.1%) · >33.3ms: 0 (0.0%) · >50ms: 0 (0.0%)
+Chunk readiness: 960/960 observed ready · mean 285.3 ms · worst 582.9 ms
+Unready when leaving stop: 0 · final pending: 0 (means include observed-ready chunks only)
+All viewport chunks ready per stop: 1: 560ms · 2: 557ms · 3: 583ms · 4: 555ms · 5: 556ms · 6: 555ms
+Ready means published terrain data, not completed artwork. Other demo tabs/processes can affect results.
+Run data (JSON)
+
+gradient-terrain-v1;seed=42;scale=96
+3 views · 216/240 chunks · 0/4 jobs · 0 queued · 0 failed
+272 evictions · 4 discarded results · 160 shared artwork regions (1.95 MiB RGBA) · 144 FPS
+Classic: 30 artwork regions · 144 object records · 58 builds · 0.10 ms last / 6.40 ms peak per region
+Storage: ready · 0 uncommitted changes · 54 saved overrides
+Error: none
+Passes: 256 · Backend: 2 native workers · generation 3.503 ms mean · round trip 3.76 ms / peak 10.90
+Frame 6.95 ms / max 7.10 ms (0.5s window) · update 0.36 ms · render 0.74 ms
+Pool: 2 workers · 0 physical occupied · 0 cancelled occupied · 0/4 queued · 2 cancellations · 0:idle / 1:idle
+Declared cell-pass reservations 0/98304 · occupied 0 · cancelled occupied 0 · queued 0 (not heap bytes)
+Host queue wait 0.067 ms · active validated response 3.683 ms · cancelled physical response 5.500 ms
+Pool task-reported compute 3.503 ms · censored deadline/disposed attempts 0/0 (excluded from response means)
+
+Previous stream: 0 owners, 0 chunks, 0 jobs · artwork: 0 regions · classic: 0 regions / 0 records · pool 0 workers / 0 occupied / 0 queued
+
+Biomes
+six categories / editable overrides
+Elevation
+same world / generated height
+Classic tiles
+16 × 16 / cached decorations / same world
+Versioned procedural saves · Bounded jobs and artwork · Worker generation · Production Workshop remains separate

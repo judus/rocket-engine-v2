@@ -1,0 +1,27 @@
+{
+  "status": "Rocket implementation verified; real CAI association/session handoff pending",
+  "tests": 319,
+  "modelCalls": 0,
+  "liveReadOnlyContextTools": 33,
+  "liveReadOnlyExamples": 17,
+  "normalCaiObserved": {
+    "enabledAssociations": 0,
+    "gameSessions": 0,
+    "model": "gpt-6-luna",
+    "queue": "redis",
+    "maxSteps": 96,
+    "maxCalls": 128,
+    "maxOutputTokens": 4096
+  },
+  "files": {
+    "examples/quest-authoring/GenerationBridge.ts": "80382ec84f439a8be2f414f5421d6ab00cd022afb1ec36a6ac567d776a0da5f3",
+    "examples/quest-authoring/GenerationPanel.ts": "a578e1175bc73ad7247443f43bddf0f4538c45e4077ee0faf9ff5719b73f95dd",
+    "examples/quest-authoring/Loopback.ts": "d0bb14eb42de5f5e9170320c485d740daf4314bcacf471e6f868b96f9bc5ffa7",
+    "examples/quest-authoring/combined-server.ts": "85c7a5808dee1eebf93e96ad9240e0970d92ad6b3040f99086c6dd05c727b00d",
+    "examples/quest-authoring/consumer.ts": "44d05efd8ad9443f068789774b166c44d5e7191676ce427c10b0897262f63747",
+    "quest-consumer.html": "bf1f3ee6293a22ab5b969c5c0ecf349ab280a56f7327db352ebb560d0a82bd65",
+    "tests/generation-bridge.test.ts": "a8006bd614f68bd59f0b5d81d5b6dc99ce28ffdd600c26487ad05ab639d607de",
+    "tests/context-tools.test.ts": "b4e9b9414eda3528d56967a1561db6650a142c5292952f1bd4ab5cfb8a08ffcf",
+    "docs/QUEST-GENERATION-DEMO.md": "55d15cf15267c2c53f4d709bc58980b55f5a8b0481e0159a14295b7b767e481b"
+  }
+}

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Rocket v2 · Streamed workplace journeys</title>
+    <link rel="stylesheet" href="./examples/style.css" />
+    <link rel="stylesheet" href="./examples/demo-navigation.css" />
+    <script type="module" src="./dist/examples/demo-navigation.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "production-workshop": "./dist/vendor/production-workshop-2.0.0/index.js"
+        }
+      }
+    </script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <header>
+        <p class="eyebrow">ROCKET / STREAMING + WORKPLACE JOURNEYS</p>
+        <h1>Travel first. Work on arrival.</h1>
+        <p>
+          Assign the Smelter and wait for alloy production, then assign the
+          Press. The worker takes the upper passage around the wall. Attendance
+          is zero during travel or a blocked journey. The autonomous mine and
+          timed material deliveries continue on Workshop's clock.
+        </p>
+      </header>
+      <div class="toolbar">
+        <button id="assign-smelter">Assign Smelter</button
+        ><button id="assign-press">Assign Press</button
+        ><button id="release">Release assignment</button
+        ><button id="gate">Seal upper passage</button
+        ><button id="entrance">Block assigned entrance</button
+        ><button id="views">Close both views</button>
+        <button id="save-worker">Save worker + Workshop</button>
+        <button id="retry-start">Reload saved checkpoint</button>
+      </div>
+      <output aria-live="polite">Starting…</output>
+      <p id="checkpoint-status" aria-live="polite">
+        Loading checkpoint before simulation starts…
+      </p>
+      <p>
+        Yellow squares are workplace entrances. Grey tiles block walking; purple
+        tiles are still loading. Seal the passage before assigning the Press to
+        see a blocked route. Open it and assign again. Block an entrance while
+        the worker is on site: attendance and work pause immediately; restoring
+        that entrance resumes work. Closing both views preserves the worker,
+        assignment and production.
+      </p>
+      <section class="views">
+        <article>
+          <h2>Shared streamed terrain</h2>
+          <div id="journey-world" class="canvas-host"></div>
+        </article>
+        <article>
+          <h2>Attendance and production</h2>
+          <div id="journey-diagnostics" class="canvas-host"></div>
+        </article>
+      </section>
+      <details>
+        <summary>Loading and save diagnostics</summary>
+        <div class="toolbar">
+          <button id="fail">Fail next chunk load</button
+          ><button id="retry-loads">Retry failed loads</button>
+          <button id="fail-save">Fail next Save</button>
+        </div>
+        <p>
+          Arm a failure before exploring an unloaded route. Failed chunks stay
+          unknown until retried. Four shared load slots and 64 retained chunks;
+          no saved chunk caches or physical cargo vehicles in this proof.
+          Explicit Save includes Workshop state, worker pose/assignment and
+          terrain edits in one atomic slot. Reload applies no offline time.
+          Travelling routes are rebuilt; arrived workers wait for ready terrain;
+          unreachable assignments stay stopped until reassigned.
+        </p>
+      </details>
+    </main>
+    <script
+      type="module"
+      src="./dist/examples/workshop/streamed-navigation.js"
+    ></script>
+  </body>
+</html>

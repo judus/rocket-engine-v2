@@ -1,0 +1,98 @@
+{
+  "name": "rocket-engine-v2",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./ui": {
+      "types": "./dist/src/ui/index.d.ts",
+      "import": "./dist/src/ui/index.js"
+    },
+    "./ui/style.css": "./src/ui/style.css",
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    },
+    "./physics/matter": {
+      "types": "./dist/src/physics/matter.d.ts",
+      "import": "./dist/src/physics/matter.js"
+    },
+    "./navigation": {
+      "types": "./dist/src/navigation/index.d.ts",
+      "import": "./dist/src/navigation/index.js"
+    },
+    "./mcp": {
+      "types": "./dist/src/mcp/index.d.ts",
+      "import": "./dist/src/mcp/index.js"
+    },
+    "./sprites": {
+      "types": "./dist/src/sprites/index.d.ts",
+      "import": "./dist/src/sprites/index.js"
+    },
+    "./journal": {
+      "types": "./dist/src/journal/index.d.ts",
+      "import": "./dist/src/journal/index.js"
+    },
+    "./journal/sqlite": {
+      "types": "./dist/src/journal/sqlite.d.ts",
+      "import": "./dist/src/journal/sqlite.js"
+    },
+    "./journal/mcp": {
+      "types": "./dist/src/journal/mcp.d.ts",
+      "import": "./dist/src/journal/mcp.js"
+    },
+    "./3d": {
+      "types": "./dist/src/3d/index.d.ts",
+      "import": "./dist/src/3d/index.js"
+    },
+    "./webgl": {
+      "types": "./dist/src/webgl/index.d.ts",
+      "import": "./dist/src/webgl/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node dist/scripts/workshop-browser.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "npm run build && node --test --test-isolation=none dist/tests/*.test.js",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm test",
+    "start": "npm run build && python3 -m http.server 8092 --bind 127.0.0.1",
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "proof:journal": "npm run build && node dist/examples/journal/proof.js"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "@types/matter-js": "0.20.2",
+    "@types/node": "24.19.2",
+    "cfw-authoring-candidate": "file:vendor/character-framework-0.1.0-6692be8fd4e3.tgz",
+    "character-framework": "file:vendor/character-framework-0.1.0-6692be8fd4e3.tgz",
+    "eslint": "10.12.0",
+    "fake-indexeddb": "6.2.5",
+    "matter-js": "0.20.0",
+    "prettier": "3.9.10",
+    "production-workshop": "file:vendor/production-workshop-2.0.0.tgz",
+    "rocket-workers": "file:vendor/rocket-workers-0.4.0.tgz",
+    "sprite-animation": "file:vendor/sprite-animation-0.2.1.tgz",
+    "sprite-animation-baseline": "file:vendor/sprite-animation-0.2.0.tgz",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.1"
+  },
+  "peerDependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "matter-js": "0.20.0",
+    "sprite-animation": "0.2.1"
+  },
+  "peerDependenciesMeta": {
+    "matter-js": {
+      "optional": true
+    },
+    "@modelcontextprotocol/sdk": {
+      "optional": true
+    },
+    "sprite-animation": {
+      "optional": true
+    }
+  }
+}

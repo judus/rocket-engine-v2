@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.idea/
+.aws/
+.codex/
+.agents/
+.env
+.env.*

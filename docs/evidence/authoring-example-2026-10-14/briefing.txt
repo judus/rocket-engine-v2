@@ -1,0 +1,67 @@
+GAME TYPE
+Watchtower recovery is a story-led 2D top-down action/RPG prototype.
+
+SETTING
+A small fantasy watchtower, its courtyard and two ridge beacons. No magic system or dungeon mechanics are currently implemented.
+
+STORY AND CONTEXT
+The watchtower needs recovery. Sentries occupy the courtyard; a watchkeeper offers a choice of coloured seals. Blue belongs at Beacon A and red at Beacon B. No larger world history, factions or supernatural conflict have been established.
+
+YOUR ASSIGNMENT
+Invent a coherent short quest, motivations and dialogue using the supported world references and mechanics. Give choices understandable reasons and consequences. Do not invent executable capabilities, entities or established world history. Publication does not start gameplay.
+
+GAME MECHANICS
+WASD moves; Shift runs. E or a nearby click interacts within 42 pixels. Combat in this prototype is one interaction to defeat a revealed sentry. Revealed seals can be collected and carried to their matching beacon. Delivery consumes custody but lighting is a separate quest consequence. The watchkeeper must be revealed and within 48 pixels for guarded choices. A closed ridge gate blocks its rectangle but can be walked around.
+
+SUPPORTED GAME PRIMITIVES
+- game_location (inspection): Inspect whether the protagonist is inside or has visited a location; count entries for new-event conditions.
+- game_encounter (inspection): Inspect remaining enemies in a group; count confirmed defeats. The protagonist defeats enemies through ordinary interaction, not an authoring action.
+- game_entity (inspection): Inspect proximity, visibility and collection state of an entity; count confirmed pickups.
+- game_activate_group (action): Reveal undefeated enemies in an existing group when entering a quest stage.
+- game_reveal (action): Reveal an existing entity unless it was already defeated or collected.
+- game_open_gate (action): Open an existing gate as a quest consequence.
+- game_light_beacon (action): Light an existing beacon as a quest consequence; this does not itself deliver an item.
+- game_delivery (inspection): Inspect whether a specific item reached its matching destination; count confirmed deliveries.
+
+BEFORE AUTHORING
+You must gather context before creating a quest. You can:
+- Review confirmed game events (game_journal_read).
+- Inspect current world and quest status (game_status_read).
+- List characters, items, locations, spawn locations and buildings, filtering known/unknown to the protagonist (game_entities_list).
+- Read details of an exact reference (game_entity_details).
+- Verify map accessibility (game_location_accessibility).
+- Calculate straight-line or navigable-route distances (game_distance).
+- Read executable capability schemas (read_quest_draft, section catalogue).
+See your native MCP tools for parameters and further instructions.
+Authored initial protagonist knowledge for this fixture. Knowledge is explicit, independent of current visibility and never inferred from it. No automatic discovery/memory progression is implemented. The author is permitted to inspect both known and unknown records.
+These tools inspect this independent authoring fixture, not the browser world. Journal storage is volatile and initially empty; empty history is not a prior adventure.
+
+HOW TO AUTHOR
+Build stages, dialogue, fact/event conditions, transitions, choices, objectives and ordered entry consequences. Inspect and revise the draft, review findings, then publish. CFW constructs runtime JSON; retain returned IDs and revisions. Publication does not activate gameplay.
+For a usage example of the authoring tools, use your tool: show_authoring_example.
+Available authoring tools:
+- create_quest_draft: Create persistent quest intent without an implicit stage. Return draft ID and revision.
+- update_quest_intent: Revise title and premise before publication. Requires the latest draft revision.
+- list_quest_drafts: Read draft IDs/revisions/titles and recent durable command identities for recovery.
+- inspect_quest_draft: Read exact saved authoring logic, condition users, publication marker and semantic Mermaid at one revision; never runtime JSON.
+- add_stage: Add purpose/title and optional dialogue; return a stable stage ID. Incomplete drafts are saveable.
+- update_stage: Replace stage title/purpose/dialogue, retaining identity/connections. Null dialogue removes prose.
+- remove_stage: Remove an unreferenced stage. References reject with IDs; no silent cascade or retarget.
+- set_start_stage: Select an existing entry stage explicitly.
+- create_fact_condition: Create a typed current-fact condition from a granted inspection. Return condition ID; use comparison.path for nested output.
+- create_event_condition: Create a typed event condition since quest_start or a named stage entry. Final validation requires that boundary on every consuming path.
+- update_condition: Replace a condition and explicitly acknowledge its complete affectedRecordIds from inspection, including shared interaction users.
+- remove_condition: Remove an unused condition. Referenced conditions reject with their users; no silent cascade.
+- add_transition: Connect existing stages automatically using a condition ID and explicit ascending priority. Return stable record ID.
+- add_choice: Add a player-selected destination and optional condition. Shared stage interaction requirements also apply.
+- add_entry_consequence: Append a granted action to stage entry, in order. Authoring does not execute it.
+- add_objective: Add observed progress text and condition to a stage. Objectives do not implicitly gate routes or endings.
+- from_action_result: Read a typed authoring argument reference to an entry consequence output. No mutation; producer availability/types validated before publication.
+- edit_record: Replace/remove a transition, choice, consequence or objective by stable ID. Replacement retains identity/order; never leaves old behavior attached.
+- set_interaction_requirement: Set/remove a fact or event requirement shared by stage dialogue and every choice; distinct choice guards must also pass.
+- declare_ending: Mark/unmark intentional terminal authoring intent. Ending stages cannot have outgoing connections.
+- review_quest_draft: Read readiness and actionable findings, including event/result provenance. Does not mutate or assess narrative quality.
+- publish_quest_draft: Atomically save an immutable definition, frozen draft marker and original command receipt. Does not activate gameplay.
+- read_quest_draft: Read ONLY the currently granted game capability catalogue/reference vocabulary. Other sections are unavailable to this provider.
+- get_authoring_command_outcome: Read an original durable command outcome by trusted commandId, without retrying a mutation.
+Native MCP discovery supplies detailed descriptions and parameters.

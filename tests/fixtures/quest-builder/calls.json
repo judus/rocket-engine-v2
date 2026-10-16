@@ -1,0 +1,915 @@
+[
+  {
+    "tool": "create_quest_draft",
+    "arguments": {
+      "title": "Recover the watchtower beacon",
+      "premise": "Choose a seal, recover it if not already collected, and complete matching delivery."
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_stage",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 1
+      },
+      "title": "approach",
+      "purpose": "Watchtower approach progression",
+      "dialogue": "Enter the courtyard to investigate the ruined watchtower."
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_stage",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 2
+      },
+      "title": "encounter",
+      "purpose": "Watchtower encounter progression",
+      "dialogue": "The sentries awaken. Move close to each and press E or click to defeat it."
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_stage",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 3
+      },
+      "title": "watchkeeper",
+      "purpose": "Watchtower watchkeeper progression",
+      "dialogue": "The watchkeeper appears. Approach to learn the route to the beacon."
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_stage",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 4
+      },
+      "title": "offer",
+      "purpose": "Watchtower offer progression",
+      "dialogue": "Watchkeeper: The tower has two paths. Do you want the blue seal or the red seal? Blue belongs at Beacon Ridge A; red belongs at Beacon Ridge B."
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_stage",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 5
+      },
+      "title": "blue-router",
+      "purpose": "Watchtower blue-router progression"
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_stage",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 6
+      },
+      "title": "blue-pickup",
+      "purpose": "Watchtower blue-pickup progression",
+      "dialogue": "Watchkeeper: You chose blue. Recover the blue seal, then carry it to Beacon Ridge A."
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_stage",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 7
+      },
+      "title": "blue-delivery",
+      "purpose": "Watchtower blue-delivery progression",
+      "dialogue": "Watchkeeper: Deliver the blue seal to Beacon Ridge A. Stand by Beacon A and press E or click it. The other beacon cannot accept this seal."
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_stage",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 8
+      },
+      "title": "blue-complete",
+      "purpose": "Watchtower blue-complete progression",
+      "dialogue": "The blue seal reached Beacon Ridge A. Beacon A is lit. Your chosen mission is complete."
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_stage",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 9
+      },
+      "title": "red-router",
+      "purpose": "Watchtower red-router progression"
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_stage",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 10
+      },
+      "title": "red-pickup",
+      "purpose": "Watchtower red-pickup progression",
+      "dialogue": "Watchkeeper: You chose red. Recover the red seal, then carry it to Beacon Ridge B."
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_stage",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 11
+      },
+      "title": "red-delivery",
+      "purpose": "Watchtower red-delivery progression",
+      "dialogue": "Watchkeeper: Deliver the red seal to Beacon Ridge B. Stand by Beacon B and press E or click it. The other beacon cannot accept this seal."
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_stage",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 12
+      },
+      "title": "red-complete",
+      "purpose": "Watchtower red-complete progression",
+      "dialogue": "The red seal reached Beacon Ridge B. Beacon B is lit. Your chosen mission is complete."
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "set_start_stage",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 13
+      },
+      "stageId": "s1"
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "review_quest_draft",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 14
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "publish_quest_draft",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 14
+      }
+    },
+    "expectedStatus": "rejected"
+  },
+  {
+    "tool": "create_event_condition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 14
+      },
+      "capability": "game_location",
+      "arguments": {
+        "locationRef": "courtyard"
+      },
+      "comparison": {
+        "field": "count",
+        "operator": "at_least",
+        "value": 1
+      },
+      "since": "quest_start"
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_transition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 15
+      },
+      "from": "s1",
+      "to": "s2",
+      "conditionId": "c13",
+      "priority": 10
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "create_event_condition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 16
+      },
+      "capability": "game_encounter",
+      "arguments": {
+        "groupRef": "sentries"
+      },
+      "comparison": {
+        "field": "count",
+        "operator": "at_least",
+        "value": 3
+      },
+      "since": {
+        "stageId": "s2"
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_transition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 17
+      },
+      "from": "s2",
+      "to": "s3",
+      "conditionId": "c15",
+      "priority": 10
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_entry_consequence",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 18
+      },
+      "stageId": "s2",
+      "capability": "game_activate_group",
+      "arguments": {
+        "groupRef": "sentries"
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "create_fact_condition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 19
+      },
+      "capability": "game_entity",
+      "arguments": {
+        "entityRef": "guide"
+      },
+      "comparison": {
+        "field": "near",
+        "operator": "equals",
+        "value": true
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_transition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 20
+      },
+      "from": "s3",
+      "to": "s4",
+      "conditionId": "c18",
+      "priority": 10
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_entry_consequence",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 21
+      },
+      "stageId": "s3",
+      "capability": "game_reveal",
+      "arguments": {
+        "entityRef": "guide"
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_entry_consequence",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 22
+      },
+      "stageId": "s3",
+      "capability": "game_open_gate",
+      "arguments": {
+        "entityRef": "gate"
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "set_interaction_requirement",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 23
+      },
+      "stageId": "s4",
+      "conditionId": "c18"
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_choice",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 24
+      },
+      "from": "s4",
+      "to": "s5",
+      "label": "Blue seal \u2014 Beacon Ridge A",
+      "conditionId": "c18"
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_choice",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 25
+      },
+      "from": "s4",
+      "to": "s9",
+      "label": "Red seal \u2014 Beacon Ridge B",
+      "conditionId": "c18"
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "create_fact_condition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 26
+      },
+      "capability": "game_entity",
+      "arguments": {
+        "entityRef": "blue-seal"
+      },
+      "comparison": {
+        "field": "collected",
+        "operator": "equals",
+        "value": true
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_transition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 27
+      },
+      "from": "s5",
+      "to": "s7",
+      "conditionId": "c24",
+      "priority": 10
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "create_fact_condition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 28
+      },
+      "capability": "game_entity",
+      "arguments": {
+        "entityRef": "blue-seal"
+      },
+      "comparison": {
+        "field": "collected",
+        "operator": "equals",
+        "value": false
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_transition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 29
+      },
+      "from": "s5",
+      "to": "s6",
+      "conditionId": "c26",
+      "priority": 20
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "create_event_condition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 30
+      },
+      "capability": "game_entity",
+      "arguments": {
+        "entityRef": "blue-seal"
+      },
+      "comparison": {
+        "field": "count",
+        "operator": "at_least",
+        "value": 1
+      },
+      "since": {
+        "stageId": "s6"
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_transition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 31
+      },
+      "from": "s6",
+      "to": "s7",
+      "conditionId": "c28",
+      "priority": 10
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_entry_consequence",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 32
+      },
+      "stageId": "s6",
+      "capability": "game_reveal",
+      "arguments": {
+        "entityRef": "blue-seal"
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "create_fact_condition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 33
+      },
+      "capability": "game_delivery",
+      "arguments": {
+        "itemRef": "blue-seal",
+        "destinationRef": "beacon-a"
+      },
+      "comparison": {
+        "field": "delivered",
+        "operator": "equals",
+        "value": true
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_transition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 34
+      },
+      "from": "s7",
+      "to": "s8",
+      "conditionId": "c31",
+      "priority": 10
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_entry_consequence",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 35
+      },
+      "stageId": "s8",
+      "capability": "game_light_beacon",
+      "arguments": {
+        "entityRef": "beacon-a"
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "declare_ending",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 36
+      },
+      "stageId": "s8",
+      "ending": true
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "create_fact_condition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 37
+      },
+      "capability": "game_entity",
+      "arguments": {
+        "entityRef": "red-seal"
+      },
+      "comparison": {
+        "field": "collected",
+        "operator": "equals",
+        "value": true
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_transition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 38
+      },
+      "from": "s9",
+      "to": "s11",
+      "conditionId": "c34",
+      "priority": 10
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "create_fact_condition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 39
+      },
+      "capability": "game_entity",
+      "arguments": {
+        "entityRef": "red-seal"
+      },
+      "comparison": {
+        "field": "collected",
+        "operator": "equals",
+        "value": false
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_transition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 40
+      },
+      "from": "s9",
+      "to": "s10",
+      "conditionId": "c36",
+      "priority": 20
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "create_event_condition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 41
+      },
+      "capability": "game_entity",
+      "arguments": {
+        "entityRef": "red-seal"
+      },
+      "comparison": {
+        "field": "count",
+        "operator": "at_least",
+        "value": 1
+      },
+      "since": {
+        "stageId": "s10"
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_transition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 42
+      },
+      "from": "s10",
+      "to": "s11",
+      "conditionId": "c38",
+      "priority": 10
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_entry_consequence",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 43
+      },
+      "stageId": "s10",
+      "capability": "game_reveal",
+      "arguments": {
+        "entityRef": "red-seal"
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "create_fact_condition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 44
+      },
+      "capability": "game_delivery",
+      "arguments": {
+        "itemRef": "red-seal",
+        "destinationRef": "beacon-b"
+      },
+      "comparison": {
+        "field": "delivered",
+        "operator": "equals",
+        "value": true
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_transition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 45
+      },
+      "from": "s11",
+      "to": "s12",
+      "conditionId": "c41",
+      "priority": 10
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "add_entry_consequence",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 46
+      },
+      "stageId": "s12",
+      "capability": "game_light_beacon",
+      "arguments": {
+        "entityRef": "beacon-b"
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "declare_ending",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 47
+      },
+      "stageId": "s12",
+      "ending": true
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "inspect_quest_draft",
+    "arguments": {
+      "draftId": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769"
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "inspect_quest_draft",
+    "arguments": {
+      "draftId": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769"
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "edit_record",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 48
+      },
+      "recordId": "r32",
+      "change": {
+        "operation": "replace",
+        "kind": "transition",
+        "value": {
+          "from": "s7",
+          "to": "s12",
+          "conditionId": "c31",
+          "priority": 10
+        }
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "inspect_quest_draft",
+    "arguments": {
+      "draftId": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769"
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "edit_record",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 49
+      },
+      "recordId": "r32",
+      "change": {
+        "operation": "replace",
+        "kind": "transition",
+        "value": {
+          "from": "s7",
+          "to": "s8",
+          "conditionId": "c31",
+          "priority": 10
+        }
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "edit_record",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 50
+      },
+      "recordId": "r33",
+      "change": {
+        "operation": "replace",
+        "kind": "consequence",
+        "value": {
+          "stageId": "s8",
+          "capability": "game_light_beacon",
+          "arguments": {
+            "entityRef": "beacon-b"
+          }
+        }
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "inspect_quest_draft",
+    "arguments": {
+      "draftId": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769"
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "edit_record",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 51
+      },
+      "recordId": "r33",
+      "change": {
+        "operation": "replace",
+        "kind": "consequence",
+        "value": {
+          "stageId": "s8",
+          "capability": "game_light_beacon",
+          "arguments": {
+            "entityRef": "beacon-a"
+          }
+        }
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "remove_stage",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 52
+      },
+      "stageId": "s8"
+    },
+    "expectedStatus": "rejected"
+  },
+  {
+    "tool": "update_condition",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 52
+      },
+      "conditionId": "c18",
+      "replacement": {
+        "mode": "fact",
+        "capability": "game_entity",
+        "arguments": {
+          "entityRef": "guide"
+        },
+        "comparison": {
+          "field": "near",
+          "operator": "equals",
+          "value": true
+        }
+      },
+      "affectedRecordIds": []
+    },
+    "expectedStatus": "rejected"
+  },
+  {
+    "tool": "review_quest_draft",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 52
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "publish_quest_draft",
+    "arguments": {
+      "draft": {
+        "id": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769",
+        "revision": 52
+      }
+    },
+    "expectedStatus": "completed"
+  },
+  {
+    "tool": "inspect_quest_draft",
+    "arguments": {
+      "draftId": "draft-cad6eb49-3b98-4f0f-a12c-8bae1964f769"
+    },
+    "expectedStatus": "completed"
+  }
+]

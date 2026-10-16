@@ -1,0 +1,49 @@
+#grid-view {
+  width: 100%;
+  touch-action: none;
+}
+#camera-status {
+  display: block;
+  margin: 1rem 0;
+  font-variant-numeric: tabular-nums;
+}
+#fov-value {
+  margin: 0;
+  min-width: 3em;
+}
+.performance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+}
+.performance-grid div {
+  padding: 0.8rem;
+  border: 1px solid #2b3a4d;
+  border-radius: 6px;
+  background: #101b2b;
+}
+.performance-grid dt {
+  color: #9caec2;
+  font-size: 12px;
+}
+.performance-grid dd {
+  margin: 0.4rem 0 0;
+  font-size: 19px;
+  font-variant-numeric: tabular-nums;
+}
+#perf-fps {
+  color: #80dbbd;
+}
+#perf-resolution {
+  font-variant-numeric: tabular-nums;
+}
+.axis-x {
+  color: #ef987f;
+}
+.axis-y {
+  color: #80dbbd;
+}
+.axis-z {
+  color: #83b9f5;
+}

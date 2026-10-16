@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket · Environment reflections</title>
+    <link rel="stylesheet" href="./examples/style.css" />
+    <link rel="stylesheet" href="./examples/demo-navigation.css" />
+    <script
+      type="module"
+      src="./dist/examples/demo-navigation.js?v=18-cockpit"
+    ></script>
+    <link rel="stylesheet" href="./examples/3d/line-demo.css" />
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <div class="eyebrow">3D · MILESTONE 19</div>
+      <h1>Light from the surroundings</h1>
+      <p>
+        Materials reflect their surroundings even without a direct lamp. This
+        standalone slice adds reusable image-based lighting: compare sharp metal
+        reflections, rough surfaces and diffuse color under the same procedural
+        environment.
+      </p>
+      <section aria-labelledby="performance-title">
+        <h2 id="performance-title">Performance</h2>
+        <dl class="performance-grid">
+          <div>
+            <dt>Callback FPS</dt>
+            <dd id="perf-fps">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame interval</dt>
+            <dd id="perf-frame">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Peak frame interval</dt>
+            <dd id="perf-peak">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Shortest interval</dt>
+            <dd id="perf-minimum">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame jitter</dt>
+            <dd id="perf-jitter">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Update CPU</dt>
+            <dd id="perf-update">Warming up…</dd>
+          </div>
+          <div>
+            <dt id="perf-render-label">CPU submission</dt>
+            <dd id="perf-render">Warming up…</dd>
+          </div>
+          <div>
+            <dt>GPU draw average</dt>
+            <dd id="perf-gpu">Pending…</dd>
+          </div>
+          <div>
+            <dt>GPU draw peak</dt>
+            <dd id="perf-gpu-peak">—</dd>
+          </div>
+        </dl>
+        <p id="perf-gpu-samples">Waiting for GPU timing…</p>
+        <p>
+          Callback FPS counts animation callbacks, not confirmed screen
+          presentations. Uneven frame pacing can feel choppy despite a high
+          average.
+        </p>
+        <p id="perf-resolution">Measuring canvas size…</p>
+        <details>
+          <summary>Reading the metrics</summary>
+          <p>
+            FPS, frame intervals and CPU times come from Rocket’s rolling
+            half-second monitor. Peak is the longest frame interval in that
+            window. Frame jitter is the standard deviation of those intervals;
+            lower means more even pacing. A very short minimum alongside a much
+            longer peak indicates callbacks arriving in bursts. CPU timings
+            measure JavaScript work; they do not measure GPU execution or
+            browser compositing. GPU draw average and peak cover the last 32
+            valid asynchronous timer-query samples of the clear and triangle
+            draw. Results arrive on later frames; a maximum of four queries can
+            be pending. Invalid (disjoint) samples are discarded. Unsupported
+            browsers show “unsupported” rather than an estimated GPU time. These
+            measurements exclude display latency and compositing; CPU and GPU
+            times overlap and must not be added together.
+          </p>
+          <p>
+            For comparisons, keep the same canvas size, display scale, camera
+            pose and field of view, and keep this tab in the foreground. FPS is
+            capped by the browser/display refresh rate; CPU times can increase
+            before FPS drops. Recreate demo starts a fresh measurement window.
+          </p>
+        </details>
+      </section>
+      <div id="gpu-view" class="canvas-host"></div>
+      <p>
+        Left: silver metal · middle: gold metal · right: blue dielectric.
+        Compare roughness with identical surrounding light. Disable the
+        environment with direct light off: the materials have nothing to
+        reflect.
+      </p>
+      <div class="toolbar">
+        <label
+          ><input id="environment-enabled" type="checkbox" checked />
+          Environment lighting</label
+        >
+        <label
+          ><input id="direct-light" type="checkbox" /> Direct light
+          comparison</label
+        >
+        <label
+          ><input id="animate-environment" type="checkbox" /> Rotate
+          environment</label
+        >
+      </div>
+      <div class="toolbar">
+        <label
+          >Strength
+          <input
+            id="environment-strength"
+            type="range"
+            min="0"
+            max="200"
+            value="100"
+        /></label>
+        <label
+          >Environment yaw
+          <input
+            id="environment-rotation"
+            type="range"
+            min="-180"
+            max="180"
+            value="0"
+        /></label>
+      </div>
+      <div class="toolbar">
+        <label
+          >Silver roughness
+          <input
+            id="roughness-0"
+            type="range"
+            min="0"
+            max="100"
+            value="8" /><output id="value-0"></output
+        ></label>
+        <label
+          >Gold roughness
+          <input
+            id="roughness-1"
+            type="range"
+            min="0"
+            max="100"
+            value="35" /><output id="value-1"></output
+        ></label>
+        <label
+          >Dielectric roughness
+          <input
+            id="roughness-2"
+            type="range"
+            min="0"
+            max="100"
+            value="65" /><output id="value-2"></output
+        ></label>
+      </div>
+      <div class="toolbar">
+        <label
+          >Camera X
+          <input
+            id="camera-x"
+            type="range"
+            min="-4"
+            max="4"
+            step="0.05"
+            value="0"
+        /></label>
+        <label
+          >Camera Y
+          <input
+            id="camera-y"
+            type="range"
+            min="-3"
+            max="3"
+            step="0.05"
+            value="0"
+        /></label>
+        <label
+          >Camera Z
+          <input
+            id="camera-z"
+            type="range"
+            min="-12"
+            max="-4"
+            step="0.05"
+            value="-6"
+        /></label>
+        <label
+          >Camera yaw
+          <input id="camera-yaw" type="range" min="-30" max="30" value="0"
+        /></label>
+        <label
+          >Camera pitch
+          <input id="camera-pitch" type="range" min="-20" max="20" value="0"
+        /></label>
+      </div>
+      <p id="environment-status"></p>
+      <div class="toolbar">
+        <button id="reset-view">Reset view</button
+        ><button id="restart">Recreate demo</button>
+        <button id="lose-context">Simulate context loss</button
+        ><button id="restore-context" disabled>Restore context</button>
+        <button id="read-pixel">Check environment lighting</button>
+      </div>
+      <p><output id="gpu-status">Preparing environment…</output></p>
+      <p id="mesh-stats"></p>
+      <p>
+        <output id="gpu-diagnostic"
+          >Readback runs only when requested, outside performance
+          comparisons.</output
+        >
+      </p>
+      <h2>What the surfaces reflect</h2>
+      <p>
+        Six faces of a procedural studio environment: warm and cool panels, a
+        ceiling panel, sky and ground fill. These are directions at infinity,
+        independent of camera position and scene meshes. Yaw rotates lighting;
+        the source preview stays unrotated.
+      </p>
+      <div id="environment-preview" class="toolbar"></div>
+      <p id="bake-status"></p>
+      <p>
+        GGX-prefiltered specular levels, cosine-weighted diffuse irradiance and
+        a correlated-Smith BRDF lookup. Linear RGBA8, single scattering, no HDR
+        or tone mapping. Specular AO, scene reflections, local probes, parallax
+        correction, shadows and skybox rendering are outside this slice. This is
+        a small correctness demo, not a stress benchmark.
+      </p>
+      <p><a href="./docs/3D-MILESTONES.md">Milestones and boundaries</a></p>
+    </main>
+    <script type="module" src="./dist/examples/webgl/environment.js"></script>
+  </body>
+</html>

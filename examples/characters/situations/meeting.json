@@ -1,0 +1,118 @@
+{
+  "proposalVersion": "cfw-situations-draft-2",
+  "id": "rocket-guide-meeting",
+  "start": "greeting",
+  "situations": [
+    {
+      "id": "greeting",
+      "dialogue": {
+        "text": "Welcome. Which path interests you?",
+        "requires": {
+          "tool": "rocket_interaction",
+          "arguments": {
+            "npcRef": "guide"
+          },
+          "expect": {
+            "path": ["allowed"],
+            "operator": "equals",
+            "value": true
+          },
+          "evidence": {
+            "mode": "fact"
+          }
+        }
+      },
+      "choices": [
+        {
+          "id": "grove",
+          "label": "Tell me about the grove",
+          "next": "grove"
+        },
+        {
+          "id": "work",
+          "label": "Tell me about the workshop",
+          "next": "workshop"
+        },
+        {
+          "id": "leave",
+          "label": "Say goodbye",
+          "next": "farewell"
+        }
+      ]
+    },
+    {
+      "id": "grove",
+      "dialogue": {
+        "text": "The old grove lies east of here.",
+        "requires": {
+          "tool": "rocket_interaction",
+          "arguments": {
+            "npcRef": "guide"
+          },
+          "expect": {
+            "path": ["allowed"],
+            "operator": "equals",
+            "value": true
+          },
+          "evidence": {
+            "mode": "fact"
+          }
+        }
+      },
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Thanks",
+          "next": "farewell"
+        }
+      ]
+    },
+    {
+      "id": "workshop",
+      "dialogue": {
+        "text": "The operators can show you their workshop.",
+        "requires": {
+          "tool": "rocket_interaction",
+          "arguments": {
+            "npcRef": "guide"
+          },
+          "expect": {
+            "path": ["allowed"],
+            "operator": "equals",
+            "value": true
+          },
+          "evidence": {
+            "mode": "fact"
+          }
+        }
+      },
+      "choices": [
+        {
+          "id": "continue",
+          "label": "Thanks",
+          "next": "farewell"
+        }
+      ]
+    },
+    {
+      "id": "farewell",
+      "dialogue": {
+        "text": "Safe travels.",
+        "requires": {
+          "tool": "rocket_interaction",
+          "arguments": {
+            "npcRef": "guide"
+          },
+          "expect": {
+            "path": ["allowed"],
+            "operator": "equals",
+            "value": true
+          },
+          "evidence": {
+            "mode": "fact"
+          }
+        }
+      }
+    }
+  ]
+}

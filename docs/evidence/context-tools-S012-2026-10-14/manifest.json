@@ -1,0 +1,10 @@
+{
+  "finding": "S012 filtered-empty journal wording",
+  "tests": 316,
+  "negativeControl": "world:1 location/courtyard; filter quest.mission_report returns no matches with head1 and retained query/page metadata; unfiltered record preserved",
+  "sourceSha256": {
+    "examples/quest-authoring/ContextProvider.ts": "8f7659b50967325d29000261da027eb704106ea437a23f87d9d30367fd5a55b6",
+    "tests/context-tools.test.ts": "f62bfc14e8982b813910b16cb29e5b9170002163817718a574b994c11d4b9f7f",
+    "docs/GAME-CONTEXT-TOOLS.md": "cb55b7bde4e8998c97a4af5bfb76631f0932e599a3ff6ea88332913af1bcdaef"
+  }
+}

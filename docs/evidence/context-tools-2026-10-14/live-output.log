@@ -1,0 +1,3 @@
+(node:1740621) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"passed":true,"tools":32,"plainTextExamples":15,"modelCalls":0,"output":"/home/maduser/Documents/Codex/2026-10-11/h/tool-outputs/context"}

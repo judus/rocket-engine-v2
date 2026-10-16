@@ -1,0 +1,530 @@
+[
+  {
+    "first": "blue",
+    "second": "red",
+    "restarted": true,
+    "parentRun": "659256e8-8a75-469e-a57d-4556d4847359",
+    "journalHead": 20,
+    "reports": [
+      {
+        "eventId": "659256e8-8a75-469e-a57d-4556d4847359:outcome",
+        "type": "quest.mission_report",
+        "version": 1,
+        "subjectRefs": ["blue-seal", "beacon-a"],
+        "correlation": {
+          "questRunId": "659256e8-8a75-469e-a57d-4556d4847359"
+        },
+        "payload": {
+          "episode": "A",
+          "questRunId": "659256e8-8a75-469e-a57d-4556d4847359",
+          "definitionId": "watchtower-recovery",
+          "definitionDigest": "ba547c2f23096885149c299e0f7029ec929ec563a2ae516c1bb78c60041a2e05",
+          "outcome": "completed",
+          "endingRef": "blue-complete",
+          "choiceRefs": ["sit/659256e8-8a75-469e-a57d-4556d4847359/11/0"],
+          "choiceHistory": "recorded",
+          "evidence": [
+            {
+              "source": "watchtower-quests",
+              "eventId": "effect:659256e8-8a75-469e-a57d-4556d4847359/7/light-matching-beacon"
+            },
+            {
+              "source": "watchtower-game",
+              "eventId": "world:7"
+            }
+          ],
+          "confirmedEffects": [
+            {
+              "entityRef": "beacon-a",
+              "lit": true
+            }
+          ]
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "proof",
+        "timelineId": "blue",
+        "schemaVersion": 1,
+        "source": "watchtower-quests",
+        "recordedAt": "2026-10-14T15:06:47.501Z",
+        "sequence": 14
+      },
+      {
+        "eventId": "cebc7492-84b2-401f-a229-7743f5e7be79:outcome",
+        "type": "quest.mission_report",
+        "version": 1,
+        "subjectRefs": ["red-seal", "beacon-b"],
+        "correlation": {
+          "questRunId": "cebc7492-84b2-401f-a229-7743f5e7be79"
+        },
+        "payload": {
+          "episode": "B",
+          "questRunId": "cebc7492-84b2-401f-a229-7743f5e7be79",
+          "definitionId": "continuation-after-659256e8-8a75-469e-a57d-4556d4847359",
+          "definitionDigest": "ff40a852484785632a6b90529b54cd55f9ed5c31072cf3b03b56ccf2197fa420",
+          "outcome": "completed",
+          "endingRef": "red-complete",
+          "choiceRefs": [],
+          "choiceHistory": "not_applicable",
+          "evidence": [
+            {
+              "source": "watchtower-quests",
+              "eventId": "effect:cebc7492-84b2-401f-a229-7743f5e7be79/3/light-matching-beacon"
+            },
+            {
+              "source": "watchtower-game",
+              "eventId": "world:10"
+            }
+          ],
+          "confirmedEffects": [
+            {
+              "entityRef": "beacon-b",
+              "lit": true
+            }
+          ]
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "proof",
+        "timelineId": "blue",
+        "schemaVersion": 1,
+        "source": "watchtower-quests",
+        "recordedAt": "2026-10-14T15:06:47.601Z",
+        "sequence": 20
+      }
+    ],
+    "status": {
+      "status": "completed",
+      "data": {
+        "identity": {
+          "gameId": "rocket-encounter",
+          "saveId": "proof",
+          "timelineId": "blue"
+        },
+        "capturedAt": "2026-10-14T15:06:47.648Z",
+        "head": 20,
+        "atomic": false,
+        "domains": {
+          "world": {
+            "revision": 26,
+            "recordedThrough": 20,
+            "availability": "available",
+            "data": {
+              "position": {
+                "x": 688,
+                "y": 304
+              },
+              "entities": [
+                {
+                  "id": "sentry-a",
+                  "label": "West sentry",
+                  "kind": "enemy",
+                  "group": "sentries",
+                  "x": 240,
+                  "y": 208,
+                  "visible": false,
+                  "defeated": true,
+                  "collected": false,
+                  "open": false,
+                  "lit": false,
+                  "deliveredTo": null
+                },
+                {
+                  "id": "sentry-b",
+                  "label": "Middle sentry",
+                  "kind": "enemy",
+                  "group": "sentries",
+                  "x": 304,
+                  "y": 208,
+                  "visible": false,
+                  "defeated": true,
+                  "collected": false,
+                  "open": false,
+                  "lit": false,
+                  "deliveredTo": null
+                },
+                {
+                  "id": "sentry-c",
+                  "label": "East sentry",
+                  "kind": "enemy",
+                  "group": "sentries",
+                  "x": 368,
+                  "y": 208,
+                  "visible": false,
+                  "defeated": true,
+                  "collected": false,
+                  "open": false,
+                  "lit": false,
+                  "deliveredTo": null
+                },
+                {
+                  "id": "guide",
+                  "label": "Watchkeeper",
+                  "kind": "guide",
+                  "group": "people",
+                  "x": 448,
+                  "y": 208,
+                  "visible": true,
+                  "defeated": false,
+                  "collected": false,
+                  "open": false,
+                  "lit": false,
+                  "deliveredTo": null
+                },
+                {
+                  "id": "gate",
+                  "label": "Ridge gate",
+                  "kind": "gate",
+                  "group": "doors",
+                  "x": 608,
+                  "y": 208,
+                  "visible": true,
+                  "defeated": false,
+                  "collected": false,
+                  "open": true,
+                  "lit": false,
+                  "deliveredTo": null
+                },
+                {
+                  "id": "blue-seal",
+                  "label": "Blue seal",
+                  "kind": "item",
+                  "group": "items",
+                  "x": 528,
+                  "y": 176,
+                  "visible": false,
+                  "defeated": false,
+                  "collected": true,
+                  "open": false,
+                  "lit": false,
+                  "deliveredTo": "beacon-a"
+                },
+                {
+                  "id": "beacon-a",
+                  "label": "Beacon A",
+                  "kind": "beacon",
+                  "group": "lights",
+                  "x": 688,
+                  "y": 112,
+                  "visible": true,
+                  "acceptsItemRef": "blue-seal",
+                  "defeated": false,
+                  "collected": false,
+                  "open": false,
+                  "lit": true,
+                  "deliveredTo": null
+                },
+                {
+                  "id": "red-seal",
+                  "label": "Red seal",
+                  "kind": "item",
+                  "group": "items",
+                  "x": 528,
+                  "y": 240,
+                  "visible": false,
+                  "defeated": false,
+                  "collected": true,
+                  "open": false,
+                  "lit": false,
+                  "deliveredTo": "beacon-b"
+                },
+                {
+                  "id": "beacon-b",
+                  "label": "Beacon B",
+                  "kind": "beacon",
+                  "group": "lights",
+                  "x": 688,
+                  "y": 304,
+                  "visible": true,
+                  "acceptsItemRef": "red-seal",
+                  "defeated": false,
+                  "collected": false,
+                  "open": false,
+                  "lit": true,
+                  "deliveredTo": null
+                }
+              ],
+              "historyComplete": true
+            }
+          },
+          "quests": {
+            "revision": 9,
+            "recordedThrough": 20,
+            "availability": "available",
+            "data": {
+              "runId": "cebc7492-84b2-401f-a229-7743f5e7be79",
+              "definitionId": "continuation-after-659256e8-8a75-469e-a57d-4556d4847359",
+              "stage": "red-complete",
+              "status": "closed",
+              "episode": "B"
+            }
+          }
+        }
+      }
+    },
+    "tools": ["game_journal_read", "game_status_read"],
+    "transport": "official MCP client through actual Rocket handle (in process; not TCP)"
+  },
+  {
+    "first": "red",
+    "second": "blue",
+    "restarted": true,
+    "parentRun": "fecff450-f7e6-4dca-a4b3-d0f437e96085",
+    "journalHead": 20,
+    "reports": [
+      {
+        "eventId": "fecff450-f7e6-4dca-a4b3-d0f437e96085:outcome",
+        "type": "quest.mission_report",
+        "version": 1,
+        "subjectRefs": ["red-seal", "beacon-b"],
+        "correlation": {
+          "questRunId": "fecff450-f7e6-4dca-a4b3-d0f437e96085"
+        },
+        "payload": {
+          "episode": "A",
+          "questRunId": "fecff450-f7e6-4dca-a4b3-d0f437e96085",
+          "definitionId": "watchtower-recovery",
+          "definitionDigest": "ba547c2f23096885149c299e0f7029ec929ec563a2ae516c1bb78c60041a2e05",
+          "outcome": "completed",
+          "endingRef": "red-complete",
+          "choiceRefs": ["sit/fecff450-f7e6-4dca-a4b3-d0f437e96085/11/1"],
+          "choiceHistory": "recorded",
+          "evidence": [
+            {
+              "source": "watchtower-quests",
+              "eventId": "effect:fecff450-f7e6-4dca-a4b3-d0f437e96085/7/light-matching-beacon"
+            },
+            {
+              "source": "watchtower-game",
+              "eventId": "world:7"
+            }
+          ],
+          "confirmedEffects": [
+            {
+              "entityRef": "beacon-b",
+              "lit": true
+            }
+          ]
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "proof",
+        "timelineId": "red",
+        "schemaVersion": 1,
+        "source": "watchtower-quests",
+        "recordedAt": "2026-10-14T15:06:47.895Z",
+        "sequence": 14
+      },
+      {
+        "eventId": "ff196cf5-1ce4-4185-a813-fe3a9eece335:outcome",
+        "type": "quest.mission_report",
+        "version": 1,
+        "subjectRefs": ["blue-seal", "beacon-a"],
+        "correlation": {
+          "questRunId": "ff196cf5-1ce4-4185-a813-fe3a9eece335"
+        },
+        "payload": {
+          "episode": "B",
+          "questRunId": "ff196cf5-1ce4-4185-a813-fe3a9eece335",
+          "definitionId": "continuation-after-fecff450-f7e6-4dca-a4b3-d0f437e96085",
+          "definitionDigest": "ffa94d019e357c9d8620a117553f03f3ce211612e55537b4c51a4f9e90ec8007",
+          "outcome": "completed",
+          "endingRef": "blue-complete",
+          "choiceRefs": [],
+          "choiceHistory": "not_applicable",
+          "evidence": [
+            {
+              "source": "watchtower-quests",
+              "eventId": "effect:ff196cf5-1ce4-4185-a813-fe3a9eece335/3/light-matching-beacon"
+            },
+            {
+              "source": "watchtower-game",
+              "eventId": "world:10"
+            }
+          ],
+          "confirmedEffects": [
+            {
+              "entityRef": "beacon-a",
+              "lit": true
+            }
+          ]
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "proof",
+        "timelineId": "red",
+        "schemaVersion": 1,
+        "source": "watchtower-quests",
+        "recordedAt": "2026-10-14T15:06:47.978Z",
+        "sequence": 20
+      }
+    ],
+    "status": {
+      "status": "completed",
+      "data": {
+        "identity": {
+          "gameId": "rocket-encounter",
+          "saveId": "proof",
+          "timelineId": "red"
+        },
+        "capturedAt": "2026-10-14T15:06:47.991Z",
+        "head": 20,
+        "atomic": false,
+        "domains": {
+          "world": {
+            "revision": 26,
+            "recordedThrough": 20,
+            "availability": "available",
+            "data": {
+              "position": {
+                "x": 688,
+                "y": 112
+              },
+              "entities": [
+                {
+                  "id": "sentry-a",
+                  "label": "West sentry",
+                  "kind": "enemy",
+                  "group": "sentries",
+                  "x": 240,
+                  "y": 208,
+                  "visible": false,
+                  "defeated": true,
+                  "collected": false,
+                  "open": false,
+                  "lit": false,
+                  "deliveredTo": null
+                },
+                {
+                  "id": "sentry-b",
+                  "label": "Middle sentry",
+                  "kind": "enemy",
+                  "group": "sentries",
+                  "x": 304,
+                  "y": 208,
+                  "visible": false,
+                  "defeated": true,
+                  "collected": false,
+                  "open": false,
+                  "lit": false,
+                  "deliveredTo": null
+                },
+                {
+                  "id": "sentry-c",
+                  "label": "East sentry",
+                  "kind": "enemy",
+                  "group": "sentries",
+                  "x": 368,
+                  "y": 208,
+                  "visible": false,
+                  "defeated": true,
+                  "collected": false,
+                  "open": false,
+                  "lit": false,
+                  "deliveredTo": null
+                },
+                {
+                  "id": "guide",
+                  "label": "Watchkeeper",
+                  "kind": "guide",
+                  "group": "people",
+                  "x": 448,
+                  "y": 208,
+                  "visible": true,
+                  "defeated": false,
+                  "collected": false,
+                  "open": false,
+                  "lit": false,
+                  "deliveredTo": null
+                },
+                {
+                  "id": "gate",
+                  "label": "Ridge gate",
+                  "kind": "gate",
+                  "group": "doors",
+                  "x": 608,
+                  "y": 208,
+                  "visible": true,
+                  "defeated": false,
+                  "collected": false,
+                  "open": true,
+                  "lit": false,
+                  "deliveredTo": null
+                },
+                {
+                  "id": "blue-seal",
+                  "label": "Blue seal",
+                  "kind": "item",
+                  "group": "items",
+                  "x": 528,
+                  "y": 176,
+                  "visible": false,
+                  "defeated": false,
+                  "collected": true,
+                  "open": false,
+                  "lit": false,
+                  "deliveredTo": "beacon-a"
+                },
+                {
+                  "id": "beacon-a",
+                  "label": "Beacon A",
+                  "kind": "beacon",
+                  "group": "lights",
+                  "x": 688,
+                  "y": 112,
+                  "visible": true,
+                  "acceptsItemRef": "blue-seal",
+                  "defeated": false,
+                  "collected": false,
+                  "open": false,
+                  "lit": true,
+                  "deliveredTo": null
+                },
+                {
+                  "id": "red-seal",
+                  "label": "Red seal",
+                  "kind": "item",
+                  "group": "items",
+                  "x": 528,
+                  "y": 240,
+                  "visible": false,
+                  "defeated": false,
+                  "collected": true,
+                  "open": false,
+                  "lit": false,
+                  "deliveredTo": "beacon-b"
+                },
+                {
+                  "id": "beacon-b",
+                  "label": "Beacon B",
+                  "kind": "beacon",
+                  "group": "lights",
+                  "x": 688,
+                  "y": 304,
+                  "visible": true,
+                  "acceptsItemRef": "red-seal",
+                  "defeated": false,
+                  "collected": false,
+                  "open": false,
+                  "lit": true,
+                  "deliveredTo": null
+                }
+              ],
+              "historyComplete": true
+            }
+          },
+          "quests": {
+            "revision": 9,
+            "recordedThrough": 20,
+            "availability": "available",
+            "data": {
+              "runId": "ff196cf5-1ce4-4185-a813-fe3a9eece335",
+              "definitionId": "continuation-after-fecff450-f7e6-4dca-a4b3-d0f437e96085",
+              "stage": "blue-complete",
+              "status": "closed",
+              "episode": "B"
+            }
+          }
+        }
+      }
+    },
+    "tools": ["game_journal_read", "game_status_read"],
+    "transport": "official MCP client through actual Rocket handle (in process; not TCP)"
+  }
+]

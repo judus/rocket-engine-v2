@@ -1,0 +1,20 @@
+{
+  "identity": "Watchtower recovery is a story-led 2D top-down action/RPG prototype.",
+  "setting": "A small fantasy watchtower, its courtyard and two ridge beacons. No magic system or dungeon mechanics are currently implemented.",
+  "story": "The watchtower needs recovery. Sentries occupy the courtyard; a watchkeeper offers a choice of coloured seals. Blue belongs at Beacon A and red at Beacon B. No larger world history, factions or supernatural conflict have been established.",
+  "assignment": "Invent a coherent short quest, motivations and dialogue using the supported world references and mechanics. Give choices understandable reasons and consequences. Do not invent executable capabilities, entities or established world history. Publication does not start gameplay.",
+  "mechanics": "WASD moves; Shift runs. E or a nearby click interacts within 42 pixels. Combat in this prototype is one interaction to defeat a revealed sentry. Revealed seals can be collected and carried to their matching beacon. Delivery consumes custody but lighting is a separate quest consequence. The watchkeeper must be revealed and within 48 pixels for guarded choices. A closed ridge gate blocks its rectangle but can be walked around.",
+  "vocabulary": {
+    "game_location": "Inspect whether the protagonist is inside or has visited a location; count entries for new-event conditions.",
+    "game_encounter": "Inspect remaining enemies in a group; count confirmed defeats. The protagonist defeats enemies through ordinary interaction, not an authoring action.",
+    "game_entity": "Inspect proximity, visibility and collection state of an entity; count confirmed pickups.",
+    "game_delivery": "Inspect whether a specific item reached its matching destination; count confirmed deliveries.",
+    "game_activate_group": "Reveal undefeated enemies in an existing group when entering a quest stage.",
+    "game_reveal": "Reveal an existing entity unless it was already defeated or collected.",
+    "game_open_gate": "Open an existing gate as a quest consequence.",
+    "game_light_beacon": "Light an existing beacon as a quest consequence; this does not itself deliver an item."
+  },
+  "knownEntityRefs": ["gate", "beacon-a", "beacon-b"],
+  "knownLocationRefs": [],
+  "knowledgeDescription": "Authored initial protagonist knowledge for this fixture. Knowledge is explicit, independent of current visibility and never inferred from it. No automatic discovery/memory progression is implemented. The author is permitted to inspect both known and unknown records."
+}

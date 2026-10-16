@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Rocket v2 · Workplace journeys</title>
+    <link rel="stylesheet" href="./examples/style.css" />
+    <link rel="stylesheet" href="./examples/demo-navigation.css" />
+    <script type="module" src="./dist/examples/demo-navigation.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "production-workshop": "./dist/vendor/production-workshop-2.0.0/index.js"
+        }
+      }
+    </script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <header>
+        <p class="eyebrow">ROCKET / NAVIGATION + WORKSHOP</p>
+        <h1>Work begins after arrival.</h1>
+        <p>
+          One operator can staff either the Smelter or Press. Assign the Smelter
+          first to make alloy, then walk to the Press to make parts. The
+          autonomous mine and timed goods routes continue while the operator
+          walks.
+        </p>
+      </header>
+      <div class="toolbar">
+        <button id="staffing-smelter">Assign Smelter</button
+        ><button id="staffing-press">Assign Press</button
+        ><button id="staffing-off">Release assignment</button
+        ><button id="staffing-retry">Retry journey</button
+        ><button id="staffing-gate">Close gate</button
+        ><button id="staffing-unknown">Make press terrain unknown</button
+        ><button id="staffing-collect">Collect parts</button
+        ><button id="staffing-view">Close diagnostics</button
+        ><output aria-live="polite">Starting…</output>
+      </div>
+      <p>
+        Yellow squares are reachable workplace entrances, separate from blocking
+        building footprints. Attendance clears immediately on reassignment or
+        release and is granted only after validated arrival. Unknown terrain
+        prevents staffing. A terminal unreachable journey needs a new
+        assignment. This finite proof has no worker population, streamed actor
+        demand, save/reload or physical cargo vehicles.
+      </p>
+      <section class="views">
+        <article>
+          <h2>Operator and workplaces</h2>
+          <div id="staffing-world" class="canvas-host"></div>
+        </article>
+        <article>
+          <h2>Workshop state</h2>
+          <div id="staffing-diagnostics" class="canvas-host"></div>
+        </article>
+      </section>
+    </main>
+    <script type="module" src="./dist/examples/workshop/navigation.js"></script>
+  </body>
+</html>

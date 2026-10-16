@@ -1,0 +1,137 @@
+{
+  "name": "Male1",
+  "imageURL": "./assets/dist/img/fantasy-forest/characters/Male1.png",
+  "tileW": 32,
+  "tileH": 48,
+  "frames": [],
+  "tiles": [
+    {
+      "name": "idle-side-1",
+      "index": [0, 0]
+    },
+    {
+      "name": "idle-side-2",
+      "index": [1, 0]
+    },
+    {
+      "name": "idle-side-3",
+      "index": [2, 0]
+    },
+    {
+      "name": "idle-side-4",
+      "index": [3, 0]
+    },
+    {
+      "name": "walk-side-1",
+      "index": [4, 0]
+    },
+    {
+      "name": "walk-side-2",
+      "index": [5, 0]
+    },
+    {
+      "name": "walk-side-3",
+      "index": [6, 0]
+    },
+    {
+      "name": "walk-side-4",
+      "index": [7, 0]
+    },
+    {
+      "name": "idle-front-1",
+      "index": [0, 1]
+    },
+    {
+      "name": "idle-front-2",
+      "index": [1, 1]
+    },
+    {
+      "name": "idle-front-3",
+      "index": [2, 1]
+    },
+    {
+      "name": "idle-front-4",
+      "index": [3, 1]
+    },
+    {
+      "name": "walk-front-1",
+      "index": [4, 1]
+    },
+    {
+      "name": "walk-front-2",
+      "index": [5, 1]
+    },
+    {
+      "name": "walk-front-3",
+      "index": [6, 1]
+    },
+    {
+      "name": "walk-front-4",
+      "index": [7, 1]
+    },
+    {
+      "name": "idle-back-1",
+      "index": [0, 2]
+    },
+    {
+      "name": "idle-back-2",
+      "index": [1, 2]
+    },
+    {
+      "name": "idle-back-3",
+      "index": [2, 2]
+    },
+    {
+      "name": "idle-back-4",
+      "index": [3, 2]
+    },
+    {
+      "name": "walk-back-1",
+      "index": [4, 2]
+    },
+    {
+      "name": "walk-back-2",
+      "index": [5, 2]
+    },
+    {
+      "name": "walk-back-3",
+      "index": [6, 2]
+    },
+    {
+      "name": "walk-back-4",
+      "index": [7, 2]
+    }
+  ],
+  "animations": [
+    {
+      "name": "idle-side",
+      "frameLen": 0.5,
+      "frames": ["idle-side-1", "idle-side-2", "idle-side-3", "idle-side-4"]
+    },
+    {
+      "name": "walk-side",
+      "frameLen": 0.2,
+      "frames": ["walk-side-1", "walk-side-2", "walk-side-3", "walk-side-4"]
+    },
+    {
+      "name": "idle-front",
+      "frameLen": 0.5,
+      "frames": ["idle-front-1", "idle-front-2", "idle-front-3", "idle-front-4"]
+    },
+    {
+      "name": "walk-front",
+      "frameLen": 0.2,
+      "frames": ["walk-front-1", "walk-front-2", "walk-front-3", "walk-front-4"]
+    },
+    {
+      "name": "idle-back",
+      "frameLen": 0.5,
+      "frames": ["idle-back-1", "idle-back-2", "idle-back-3", "idle-back-4"]
+    },
+    {
+      "name": "walk-back",
+      "frameLen": 0.2,
+      "frames": ["walk-back-1", "walk-back-2", "walk-back-3", "walk-back-4"]
+    }
+  ]
+}

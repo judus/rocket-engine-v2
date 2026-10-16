@@ -1,0 +1,4 @@
+(node:1776374) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+MCP fixture: http://127.0.0.1:8098/mcp (credential configured, not printed)
+{"passed":true,"tools":33,"plainTextExamples":17,"modelCalls":0,"output":"/home/maduser/Documents/Codex/2026-10-11/h/tool-outputs/context"}

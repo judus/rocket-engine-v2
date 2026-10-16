@@ -1,0 +1,21 @@
+{
+  "identity": "A story-driven 2D top-down action RPG.",
+  "setting": "A small rural settlement in a fantasy world where magic exists.",
+  "story": "The protagonist is travelling through the settlement. No quest, conflict, solution or sequence of events is established.",
+  "assignment": "Invent a short playable quest with an original purpose, dialogue and meaningful choices. Gather context through the tools and use only discovered references and supported capabilities. Publication does not start gameplay.",
+  "mechanics": "WASD moves; Shift runs. E or a nearby click interacts. Select a carried item to use it on a nearby target or give it to a nearby character. NPC-to-protagonist transfers can be authored as consequences. Carrying a required weapon permits combat. Closed barriers and buildings block movement. Inspect discovered details and native schemas for supported interactions and prerequisites.",
+  "vocabulary": {
+    "game_location": "Inspect whether the protagonist is inside or has visited a location; count entries for new-event conditions.",
+    "game_encounter": "Inspect remaining enemies in a group; count confirmed defeats. The protagonist defeats enemies through ordinary interaction, not an authoring action.",
+    "game_activate_group": "Reveal undefeated enemies in an existing group when entering a quest stage.",
+    "game_reveal": "Reveal an existing entity unless it was already defeated or collected.",
+    "game_open_gate": "Open an existing gate as a quest consequence.",
+    "inventory_item": "Inspect an item’s holder, quantity, contents and remaining uses; count protagonist acquisitions.",
+    "entity_state": "Inspect a supported boolean state of an entity; count times that state became true.",
+    "give_item": "Transfer an available item between its current holder and a nearby character. One endpoint must be the protagonist.",
+    "use_item": "Use a carried item on a nearby supported target. The game validates contents, remaining uses and target prerequisites before applying effects."
+  },
+  "knownEntityRefs": ["friend"],
+  "knownLocationRefs": ["village-square"],
+  "knowledgeDescription": "The protagonist initially knows their friend and the square. Other records may be inspected by the author, including those unknown to the protagonist. Knowledge is independent of visibility."
+}

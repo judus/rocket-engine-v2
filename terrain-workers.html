@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket · Worker terrain comparison</title>
+    <link rel="stylesheet" href="./examples/style.css" />
+    <link rel="stylesheet" href="./examples/demo-navigation.css" />
+    <script type="module" src="./dist/examples/demo-navigation.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "rocket-workers": "./dist/vendor/rocket-workers-0.4.0/index.js"
+        }
+      }
+    </script>
+  </head>
+  <body data-workers="true" class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <header>
+        <p class="eyebrow">ROCKET ENGINE / PROCEDURAL TERRAIN · STEP TWO</p>
+        <h1>Same terrain, native workers.</h1>
+        <p>
+          WASD / arrows pan all presentations. Click a ready tile to cycle its
+          biome override; elevation displays the generated height field. Dark
+          chunks are pending, pink chunks have failed.
+        </p>
+      </header>
+      <div class="toolbar">
+        <label
+          >Seed
+          <input
+            id="world-seed"
+            type="number"
+            min="0"
+            max="4294967295"
+            value="42" /></label
+        ><label
+          >Scale
+          <input
+            id="world-scale"
+            type="number"
+            min="1"
+            max="8192"
+            value="96" /></label
+        ><button id="world-apply" type="button">Open world</button
+        ><label
+          >Delay (ms)
+          <input
+            id="world-delay"
+            type="range"
+            min="0"
+            max="1000"
+            step="50"
+            value="0"
+        /></label>
+      </div>
+      <div class="toolbar">
+        <button id="world-far" type="button">Visit far away</button
+        ><button id="world-back" type="button">Return to edit</button
+        ><button id="world-close" type="button">Close elevation</button
+        ><button id="world-close-classic" type="button">
+          Close classic tiles</button
+        ><button id="world-reset" type="button">Recreate stream</button
+        ><button id="world-fail" type="button">Fail next chunk</button
+        ><button id="world-retry" type="button" disabled>Retry</button
+        ><output id="world-status" aria-live="polite"
+          >Loading saved edits…</output
+        >
+      </div>
+      <p>
+        Compare with the main-thread baseline using the same seed/scale, saved
+        edits and camera route, one active tab at a time. Leave delay at zero
+        for workload comparisons. Only base biome generation moves to workers:
+        height artwork, tile resolution and decorations still run on the main
+        thread.
+      </p>
+      <p>
+        One shared 240-chunk limit and four job slots. Three demand owners share
+        cached biome/elevation artwork. Saves are separate for every generator
+        version, seed and scale; wait for zero uncommitted changes before
+        reload.
+      </p>
+      <p>
+        Classic edits map water → tier 2, shore → 3, grassland → 5, forest → 6,
+        rock → 10, snow → 11. Unedited tiles use shaped generated heights.
+        Returning a cell to its generated biome removes the override. The
+        classic view is zoomed in at 16 pixels per tile; the other views use 5.
+        Blue-gray regions wait for ready neighbors or their artwork budget.
+      </p>
+      <div class="toolbar">
+        <label
+          >Generation passes
+          <select id="benchmark-workload" disabled>
+            <option>1</option>
+            <option>16</option>
+            <option>64</option>
+            <option>256</option>
+            <option>1024</option>
+          </select></label
+        >
+        <button id="benchmark-run" type="button" disabled>
+          Run repeatable route
+        </button>
+        <button id="benchmark-cancel" type="button" disabled>
+          Cancel benchmark
+        </button>
+      </div>
+      <p>
+        Passes repeat identical generation without changing tiles (synthetic CPU
+        load; applies on Run/Recreate). The benchmark starts with fresh caches,
+        zero delay and unedited terrain without deleting saves. Six fixed camera
+        stops, two seconds each, then up to 15 seconds to finish the last stop.
+        Keep this tab visible and other demos paused/closed. Switching tabs
+        invalidates the run. Compare the same seed, scale and passes on both
+        pages.
+      </p>
+      <pre id="benchmark-results" aria-live="polite">No benchmark run yet.</pre>
+      <details>
+        <summary>Run data (JSON)</summary>
+        <pre id="benchmark-json"></pre>
+      </details>
+      <p id="world-details" class="terrain-details"></p>
+      <p id="world-cleanup">
+        Recreating releases stream, input and artwork while keeping edits.
+      </p>
+      <section class="views" aria-label="Three streamed terrain presentations">
+        <article>
+          <h2>Biomes <span>six categories / editable overrides</span></h2>
+          <div id="world-biomes" class="canvas-host"></div>
+        </article>
+        <article>
+          <h2>Elevation <span>same world / generated height</span></h2>
+          <div id="world-elevation" class="canvas-host"></div>
+        </article>
+        <article>
+          <h2>
+            Classic tiles <span>16 × 16 / cached decorations / same world</span>
+          </h2>
+          <div id="world-classic" class="canvas-host"></div>
+        </article>
+      </section>
+      <footer>
+        Versioned procedural saves · Bounded jobs and artwork · Worker
+        generation · Production Workshop remains separate
+      </footer>
+    </main>
+    <script type="module" src="./dist/examples/terrain/streaming.js"></script>
+  </body>
+</html>

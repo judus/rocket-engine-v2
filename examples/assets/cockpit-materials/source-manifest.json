@@ -1,0 +1,148 @@
+{
+  "version": 1,
+  "resolution": [1024, 1024],
+  "generation": "Deterministic periodic scalar fields; not AI-generated images or photos.",
+  "normalConvention": "Tangent-space +Y, glTF/OpenGL convention; RGB decoded to [-1,1]. Green follows increasing UV V; no image-loader Y flip for glTF.",
+  "glTFPacking": {
+    "R": "255 (neutral AO; no baked occlusion)",
+    "G": "roughness",
+    "B": "metallic"
+  },
+  "materials": {
+    "black-satin-coating": {
+      "seed": 126,
+      "color": [29, 30, 32],
+      "colorVariation": 0.7,
+      "roughness": 0.66,
+      "roughVariation": 0.022,
+      "metallic": 0.0,
+      "tileMetres": 0.5,
+      "heightMicrometres": 3.0,
+      "note": "Intact opaque paint is dielectric. No exposed chips or repeating damage.",
+      "heightEncoding": {
+        "format": "16-bit unsigned grayscale",
+        "zero": 0.5,
+        "fullRangeMetres": 1.5e-5,
+        "usedForDisplacement": false
+      },
+      "maps": {
+        "basecolor": {
+          "file": "materials/black-satin-coating/basecolor.png",
+          "colorSpace": "sRGB"
+        },
+        "roughness": {
+          "file": "materials/black-satin-coating/roughness.png",
+          "colorSpace": "linear/non-color"
+        },
+        "metallic": {
+          "file": "materials/black-satin-coating/metallic.png",
+          "colorSpace": "linear/non-color"
+        },
+        "normal": {
+          "file": "materials/black-satin-coating/normal.png",
+          "colorSpace": "linear/non-color"
+        },
+        "height": {
+          "file": "materials/black-satin-coating/height.png",
+          "colorSpace": "linear/non-color"
+        },
+        "orm": {
+          "file": "materials/black-satin-coating/orm.png",
+          "colorSpace": "linear/non-color"
+        }
+      },
+      "repeat": true,
+      "normalScale": 1.0
+    },
+    "rubber": {
+      "seed": 127,
+      "color": [18, 19, 20],
+      "colorVariation": 0.45,
+      "roughness": 0.87,
+      "roughVariation": 0.018,
+      "metallic": 0.0,
+      "tileMetres": 0.25,
+      "heightMicrometres": 1.4,
+      "note": "Fine isotropic matte rubber; modeled conduits keep their geometry.",
+      "heightEncoding": {
+        "format": "16-bit unsigned grayscale",
+        "zero": 0.5,
+        "fullRangeMetres": 7e-6,
+        "usedForDisplacement": false
+      },
+      "maps": {
+        "basecolor": {
+          "file": "materials/rubber/basecolor.png",
+          "colorSpace": "sRGB"
+        },
+        "roughness": {
+          "file": "materials/rubber/roughness.png",
+          "colorSpace": "linear/non-color"
+        },
+        "metallic": {
+          "file": "materials/rubber/metallic.png",
+          "colorSpace": "linear/non-color"
+        },
+        "normal": {
+          "file": "materials/rubber/normal.png",
+          "colorSpace": "linear/non-color"
+        },
+        "height": {
+          "file": "materials/rubber/height.png",
+          "colorSpace": "linear/non-color"
+        },
+        "orm": {
+          "file": "materials/rubber/orm.png",
+          "colorSpace": "linear/non-color"
+        }
+      },
+      "repeat": true,
+      "normalScale": 1.0
+    },
+    "dull-steel": {
+      "seed": 128,
+      "color": [128, 130, 132],
+      "colorVariation": 1.4,
+      "roughness": 0.59,
+      "roughVariation": 0.035,
+      "metallic": 1.0,
+      "tileMetres": 0.5,
+      "heightMicrometres": 2.0,
+      "note": "Neutral exposed replacement hardware, no brass/gold coloration.",
+      "heightEncoding": {
+        "format": "16-bit unsigned grayscale",
+        "zero": 0.5,
+        "fullRangeMetres": 9.999999999999999e-6,
+        "usedForDisplacement": false
+      },
+      "maps": {
+        "basecolor": {
+          "file": "materials/dull-steel/basecolor.png",
+          "colorSpace": "sRGB"
+        },
+        "roughness": {
+          "file": "materials/dull-steel/roughness.png",
+          "colorSpace": "linear/non-color"
+        },
+        "metallic": {
+          "file": "materials/dull-steel/metallic.png",
+          "colorSpace": "linear/non-color"
+        },
+        "normal": {
+          "file": "materials/dull-steel/normal.png",
+          "colorSpace": "linear/non-color"
+        },
+        "height": {
+          "file": "materials/dull-steel/height.png",
+          "colorSpace": "linear/non-color"
+        },
+        "orm": {
+          "file": "materials/dull-steel/orm.png",
+          "colorSpace": "linear/non-color"
+        }
+      },
+      "repeat": true,
+      "normalScale": 1.0
+    }
+  }
+}

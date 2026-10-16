@@ -1,0 +1,216 @@
+game_author_briefing()
+============================================================
+GAME TYPE
+Watchtower recovery is a story-led 2D top-down action/RPG prototype.
+
+SETTING
+A small fantasy watchtower, its courtyard and two ridge beacons. No magic system or dungeon mechanics are currently implemented.
+
+STORY AND CONTEXT
+The watchtower needs recovery. Sentries occupy the courtyard; a watchkeeper offers a choice of coloured seals. Blue belongs at Beacon A and red at Beacon B. No larger world history, factions or supernatural conflict have been established.
+
+YOUR ASSIGNMENT
+Invent a coherent short quest, motivations and dialogue using the supported world references and mechanics. Give choices understandable reasons and consequences. Do not invent executable capabilities, entities or established world history. Publication does not start gameplay.
+
+GAME MECHANICS
+WASD moves; Shift runs. E or a nearby click interacts within 42 pixels. Combat in this prototype is one interaction to defeat a revealed sentry. Revealed seals can be collected and carried to their matching beacon. Delivery consumes custody but lighting is a separate quest consequence. The watchkeeper must be revealed and within 48 pixels for guarded choices. A closed ridge gate blocks its rectangle but can be walked around.
+
+SUPPORTED GAME PRIMITIVES
+- game_location (inspection): Inspect whether the protagonist is inside or has visited a location; count entries for new-event conditions.
+- game_encounter (inspection): Inspect remaining enemies in a group; count confirmed defeats. The protagonist defeats enemies through ordinary interaction, not an authoring action.
+- game_entity (inspection): Inspect proximity, visibility and collection state of an entity; count confirmed pickups.
+- game_activate_group (action): Reveal undefeated enemies in an existing group when entering a quest stage.
+- game_reveal (action): Reveal an existing entity unless it was already defeated or collected.
+- game_open_gate (action): Open an existing gate as a quest consequence.
+- game_light_beacon (action): Light an existing beacon as a quest consequence; this does not itself deliver an item.
+- game_delivery (inspection): Inspect whether a specific item reached its matching destination; count confirmed deliveries.
+
+BEFORE AUTHORING
+You must gather context before creating a quest. You can:
+- Review confirmed game events (game_journal_read).
+- Inspect current world and quest status (game_status_read).
+- List characters, items, locations, spawn locations and buildings, filtering known/unknown to the protagonist (game_entities_list).
+- Read details of an exact reference (game_entity_details).
+- Verify map accessibility (game_location_accessibility).
+- Calculate straight-line or navigable-route distances (game_distance).
+- Read executable capability schemas (read_quest_draft, section catalogue).
+See your native MCP tools for parameters and further instructions.
+Authored initial protagonist knowledge for this fixture. Knowledge is explicit, independent of current visibility and never inferred from it. No automatic discovery/memory progression is implemented. The author is permitted to inspect both known and unknown records.
+These tools inspect this independent authoring fixture, not the browser world. Journal storage is volatile and initially empty; empty history is not a prior adventure.
+
+HOW TO AUTHOR
+Build stages, dialogue, fact/event conditions, transitions, choices, objectives and ordered entry consequences. Inspect and revise the draft, review findings, then publish. CFW constructs runtime JSON; retain returned IDs and revisions. Publication does not activate gameplay.
+Available authoring keywords:
+- create_quest_draft
+- update_quest_intent
+- list_quest_drafts
+- inspect_quest_draft
+- add_stage
+- update_stage
+- remove_stage
+- set_start_stage
+- create_fact_condition
+- create_event_condition
+- update_condition
+- remove_condition
+- add_transition
+- add_choice
+- add_entry_consequence
+- add_objective
+- from_action_result
+- edit_record
+- set_interaction_requirement
+- declare_ending
+- review_quest_draft
+- publish_quest_draft
+- read_quest_draft
+- get_authoring_command_outcome
+Native MCP discovery supplies detailed descriptions and parameters.
+
+game_author_briefing(section=vocabulary)
+============================================================
+SUPPORTED GAME PRIMITIVES
+- game_location (inspection): Inspect whether the protagonist is inside or has visited a location; count entries for new-event conditions.
+- game_encounter (inspection): Inspect remaining enemies in a group; count confirmed defeats. The protagonist defeats enemies through ordinary interaction, not an authoring action.
+- game_entity (inspection): Inspect proximity, visibility and collection state of an entity; count confirmed pickups.
+- game_activate_group (action): Reveal undefeated enemies in an existing group when entering a quest stage.
+- game_reveal (action): Reveal an existing entity unless it was already defeated or collected.
+- game_open_gate (action): Open an existing gate as a quest consequence.
+- game_light_beacon (action): Light an existing beacon as a quest consequence; this does not itself deliver an item.
+- game_delivery (inspection): Inspect whether a specific item reached its matching destination; count confirmed deliveries.
+
+game_author_briefing(section=context_tools)
+============================================================
+BEFORE AUTHORING
+You must gather context before creating a quest. You can:
+- Review confirmed game events (game_journal_read).
+- Inspect current world and quest status (game_status_read).
+- List characters, items, locations, spawn locations and buildings, filtering known/unknown to the protagonist (game_entities_list).
+- Read details of an exact reference (game_entity_details).
+- Verify map accessibility (game_location_accessibility).
+- Calculate straight-line or navigable-route distances (game_distance).
+- Read executable capability schemas (read_quest_draft, section catalogue).
+See your native MCP tools for parameters and further instructions.
+Authored initial protagonist knowledge for this fixture. Knowledge is explicit, independent of current visibility and never inferred from it. No automatic discovery/memory progression is implemented. The author is permitted to inspect both known and unknown records.
+These tools inspect this independent authoring fixture, not the browser world. Journal storage is volatile and initially empty; empty history is not a prior adventure.
+
+game_entities_list(category=character, knowledge=unknown)
+============================================================
+WORLD RECORDS
+Revision: 0. Category: character. Protagonist knowledge: unknown. Matching: 4.
+sentry-a — West sentry; character; unknown to protagonist; (240, 208).
+sentry-b — Middle sentry; character; unknown to protagonist; (304, 208).
+sentry-c — East sentry; character; unknown to protagonist; (368, 208).
+guide — Watchkeeper; character; unknown to protagonist; (448, 208).
+Next offset: none.
+Authored initial protagonist knowledge for this fixture. Knowledge is explicit, independent of current visibility and never inferred from it. No automatic discovery/memory progression is implemented. The author is permitted to inspect both known and unknown records.
+
+game_entities_list(category=character, knowledge=known)
+============================================================
+WORLD RECORDS
+Revision: 0. Category: character. Protagonist knowledge: known. Matching: 1.
+player — Protagonist; character; known to protagonist; (80, 208).
+Next offset: none.
+Authored initial protagonist knowledge for this fixture. Knowledge is explicit, independent of current visibility and never inferred from it. No automatic discovery/memory progression is implemented. The author is permitted to inspect both known and unknown records.
+
+game_entities_list(category=location)
+============================================================
+WORLD RECORDS
+Revision: 0. Category: location. Protagonist knowledge: all. Matching: 3.
+courtyard — COURTYARD; location; unknown to protagonist; (288, 208).
+ridge-a — BEACON RIDGE A; location; unknown to protagonist; (688, 112).
+ridge-b — BEACON RIDGE B; location; unknown to protagonist; (688, 304).
+Next offset: none.
+Authored initial protagonist knowledge for this fixture. Knowledge is explicit, independent of current visibility and never inferred from it. No automatic discovery/memory progression is implemented. The author is permitted to inspect both known and unknown records.
+
+game_entities_list(category=spawn_location)
+============================================================
+WORLD RECORDS
+Revision: 0. Category: spawn_location. Protagonist knowledge: all. Matching: 1.
+spawn:player — Player spawn; spawn_location; known to protagonist; (80, 208).
+Next offset: none.
+Authored initial protagonist knowledge for this fixture. Knowledge is explicit, independent of current visibility and never inferred from it. No automatic discovery/memory progression is implemented. The author is permitted to inspect both known and unknown records.
+
+game_entities_list(category=building)
+============================================================
+WORLD RECORDS
+Revision: 0. Category: building. Protagonist knowledge: all. Matching: 0.
+No matching records are authored.
+Next offset: none.
+Authored initial protagonist knowledge for this fixture. Knowledge is explicit, independent of current visibility and never inferred from it. No automatic discovery/memory progression is implemented. The author is permitted to inspect both known and unknown records.
+
+game_entity_details(ref=guide)
+============================================================
+WORLD DETAILS
+Revision: 0.
+guide — Watchkeeper; character; unknown to protagonist; (448, 208).
+Kind: guide. Group: people. Visible: false. Defeated: false. Collected: false. Open: false. Lit: false. Delivered to: none. Motives and relationships: not authored.
+Knowledge source: authored fixture declaration; visibility is separate.
+
+game_location_accessibility(toRef=beacon-a)
+============================================================
+ACCESSIBILITY
+Revision: 0. From (80, 208) to (688, 112).
+Navigation result: found.
+Navigable route length: 704 canvas pixels; Euclidean distance: 615.53.
+Existing four-neighbour grid search; 8-pixel actor radius plus 1-pixel clearance; current closed gates block their rectangles. A gate is not a world-spanning barrier. No movement occurred.
+
+game_location_accessibility(toRef=gate)
+============================================================
+ACCESSIBILITY
+Revision: 0. From (80, 208) to (608, 208).
+Navigation result: unreachable. Reason: invalid-goal.
+No confirmed navigable-route distance.
+Existing four-neighbour grid search; 8-pixel actor radius plus 1-pixel clearance; current closed gates block their rectangles. A gate is not a world-spanning barrier. No movement occurred.
+
+game_distance(toRef=beacon-a)
+============================================================
+DISTANCE
+Revision: 0. From (80, 208) to (688, 112).
+Euclidean distance: 615.53 canvas pixels. This does not establish accessibility.
+
+game_distance(toRef=beacon-a, metric=route)
+============================================================
+ROUTE DISTANCE
+Revision: 0. From (80, 208) to (688, 112).
+Navigation result: found.
+Navigable route length: 704 canvas pixels; Euclidean distance: 615.53.
+Existing four-neighbour grid search; 8-pixel actor radius plus 1-pixel clearance; current closed gates block their rectangles. A gate is not a world-spanning barrier. No movement occurred.
+
+game_journal_read()
+============================================================
+GAME JOURNAL
+Timeline: e038bb10-8752-4a0a-ae81-ef6cb941a0ec. Head: 0. History complete: true.
+No confirmed events are recorded in this authoring fixture.
+Storage: volatile. This is not the browser journal.
+
+game_status_read(domains=world,quests)
+============================================================
+CURRENT GAME STATUS
+
+identity: 
+  gameId: rocket-encounter
+  saveId: authoring-fixture
+  timelineId: e038bb10-8752-4a0a-ae81-ef6cb941a0ec
+capturedAt: 2026-10-14T16:23:21.019Z
+head: 0
+atomic: false
+domains: 
+  world: 
+    revision: 0
+    recordedThrough: 0
+    availability: available
+    data: 
+      position: 
+        x: 80
+        y: 208
+      events: 0
+      context: Independent authoring fixture; not the browser session.
+  quests: 
+    revision: 0
+    recordedThrough: 0
+    availability: available
+    data: 
+      activeRun: none
+      status: none
+      note: Published authoring drafts are not gameplay runs.

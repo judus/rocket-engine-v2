@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket · Mara and the Old Grove</title>
+    <link rel="stylesheet" href="./examples/style.css" />
+    <link rel="stylesheet" href="./examples/demo-navigation.css" />
+    <script type="module" src="./dist/examples/demo-navigation.js"></script>
+    <link rel="stylesheet" href="./src/ui/style.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "character-framework": "./dist/vendor/character-framework-0.1.0-6692be8fd4e3/index.js",
+          "character-framework/host": "./dist/vendor/character-framework-0.1.0-6692be8fd4e3/host.js"
+        }
+      }
+    </script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <header>
+        <p class="eyebrow">ROCKET / CHARACTER FRAMEWORK</p>
+        <h1>Mara and the Old Grove</h1>
+        <p>
+          Scripted dialogue, real CFW quests, Rocket movement. No live AI calls.
+        </p>
+      </header>
+      <label for="visit-policy"
+        >Quest scenario (changing it starts a fresh session)</label
+      >
+      <select id="visit-policy">
+        <option value="after-acceptance">
+          Require a new visit after acceptance
+        </option>
+        <option value="skip-if-visited">
+          Do not offer after an earlier visit
+        </option>
+      </select>
+      <p id="visit-policy-description"></p>
+      <ol>
+        <li>
+          <strong>Player visit:</strong> click <em>Walk to Old Grove</em> or
+          click inside the green grove area, and wait for arrival there. Click
+          <em>Return to Mara</em>, open her chat and send “hello”. Mara
+          acknowledges the recorded visit. Walking there freely does not create
+          or complete a quest.
+        </li>
+        <li>
+          <strong>Player quest:</strong> send “work”, then choose the CFW
+          offer's accept option. Use Walk to Old Grove or click inside the green
+          grove and wait for arrival; the active quest completes only when the
+          selected scenario's game-owned visit condition is satisfied. Send
+          “hello” for the completion reply. In the default scenario, earlier
+          visits do not count: leave the grove and arrive again after accepting.
+          In the alternate scenario, an earlier visit prevents the offer.
+        </li>
+        <li>
+          <strong>Mara's journey:</strong> send exactly “go to grove”. Mara
+          walks around the wall herself and replies after arrival, cancellation
+          or an unreachable outcome. Send “hello” after she arrives; she
+          acknowledges her own arrival. Her journey does not complete the
+          player's quest.
+        </li>
+      </ol>
+      <p>
+        Both chats share the same host state. This is a scripted local proof,
+        not a live AI conversation. Reload starts a fresh session and clears
+        visits, journeys and quests.
+      </p>
+      <p>
+        To test recovery, click <em>Lose next departure reply</em> before
+        sending “go to grove”. Wait for the injected error after the journey
+        settles, then click <em>Retry reply</em> in chat. The original outcome
+        is replayed without another journey.
+        <em>Fail next scripted reply</em> fails before an action starts.
+      </p>
+      <p>
+        <em>Stop waiting</em>, closing a chat and closing the diagnostic view
+        preserve movement. <em>Cancel Mara journey</em> cancels game movement;
+        <em>Retry Mara route</em> retries an existing blocked route.
+        <em>Remove Mara</em> retires the actor and prevents new journeys.
+        <em>Dispose proof</em> stops and disposes the whole demo. Reload to
+        start again.
+      </p>
+      <div class="toolbar">
+        <button id="open-mara">Open Mara</button
+        ><button id="open-mara-two">Open second chat</button
+        ><button id="walk-grove">Walk to Old Grove</button
+        ><button id="return-mara">Return to Mara</button
+        ><button id="fail-mara">Fail next scripted reply</button
+        ><button id="close-character-diagnostics">
+          Close diagnostic view + chat
+        </button>
+      </div>
+      <div class="toolbar">
+        <button id="cancel-mara-journey">Cancel Mara journey</button>
+        <button id="retry-mara-route">Retry Mara route</button>
+        <button id="lose-mara-reply">Lose next departure reply</button>
+        <button id="remove-mara">Remove Mara</button>
+        <button id="dispose-character-proof">Dispose proof</button>
+      </div>
+      <output id="character-status" class="terrain-details">Starting…</output>
+      <section class="views">
+        <article>
+          <h2>
+            Game world <span>click Mara to talk; click terrain to walk</span>
+          </h2>
+          <div id="character-world" class="canvas-host"></div>
+          <div id="character-chat" style="margin-top: 16px"></div>
+        </article>
+        <article>
+          <h2>
+            Shared state <span>another view, same character and quest</span>
+          </h2>
+          <div id="character-diagnostics" class="canvas-host"></div>
+          <div id="character-chat-two" style="margin-top: 16px"></div>
+        </article>
+      </section>
+      <footer>
+        Closing a chat only detaches presentation. Stop waiting preserves host
+        work and committed quest effects. Reply failure can be injected before
+        quest commands or after a terminal departure outcome. State is in
+        memory; reload starts a fresh proof. At most 128 retained host
+        deliveries per session.
+      </footer>
+    </main>
+    <script type="module" src="./dist/examples/characters/demo.js"></script>
+  </body>
+</html>

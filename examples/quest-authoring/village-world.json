@@ -1,0 +1,311 @@
+{
+  "spawn": {
+    "x": 540,
+    "y": 210
+  },
+  "locations": [
+    {
+      "id": "western-clearing",
+      "label": "WESTERN CLEARING",
+      "bounds": {
+        "minX": 32,
+        "minY": 48,
+        "maxX": 128,
+        "maxY": 368
+      }
+    },
+    {
+      "id": "village-square",
+      "label": "VILLAGE SQUARE",
+      "bounds": {
+        "minX": 320,
+        "minY": 145,
+        "maxX": 590,
+        "maxY": 275
+      }
+    },
+    {
+      "id": "herb-garden",
+      "label": "GARDEN",
+      "bounds": {
+        "minX": 590,
+        "minY": 288,
+        "maxX": 736,
+        "maxY": 392
+      }
+    },
+    {
+      "id": "cottage-yard",
+      "label": "HOUSE YARD",
+      "bounds": {
+        "minX": 590,
+        "minY": 96,
+        "maxX": 736,
+        "maxY": 160
+      }
+    }
+  ],
+  "entities": [
+    {
+      "id": "village-well",
+      "label": "Well",
+      "kind": "destination",
+      "group": "destinations",
+      "x": 400,
+      "y": 48,
+      "visible": true,
+      "acceptsItemRefs": ["cursed-stone", "bucket"],
+      "description": "An open stone-lined well containing water.",
+      "initialStates": {
+        "containsStone": false
+      }
+    },
+    {
+      "id": "fire-pit",
+      "label": "Fire pit",
+      "kind": "destination",
+      "group": "destinations",
+      "x": 360,
+      "y": 375,
+      "visible": true,
+      "acceptsItemRefs": ["fallen-log", "matchbox", "bucket"],
+      "description": "A cold, empty fire pit.",
+      "initialStates": {
+        "fueled": false,
+        "burning": false
+      }
+    },
+    {
+      "id": "iron-barrier",
+      "label": "Iron barrier",
+      "kind": "gate",
+      "group": "gates",
+      "x": 176,
+      "y": 208,
+      "visible": true,
+      "bounds": {
+        "minX": 160,
+        "minY": 0,
+        "maxX": 192,
+        "maxY": 416
+      },
+      "description": "A closed iron barrier spans the full north-south passage. Opening it connects the two sides."
+    },
+    {
+      "id": "mage",
+      "label": "Mage",
+      "kind": "guide",
+      "group": "guides",
+      "x": 224,
+      "y": 48,
+      "visible": true,
+      "description": "A practising mage. Reserved and precise."
+    },
+    {
+      "id": "friend",
+      "label": "Foolish friend",
+      "kind": "guide",
+      "group": "guides",
+      "x": 375,
+      "y": 225,
+      "visible": true,
+      "description": "The protagonist\u2019s friend. Impulsive, easily tempted and a bad influence."
+    },
+    {
+      "id": "elder",
+      "label": "Old woman",
+      "kind": "guide",
+      "group": "guides",
+      "x": 625,
+      "y": 120,
+      "visible": true,
+      "description": "An elderly village resident. Outspoken and stubborn."
+    },
+    {
+      "id": "cottage",
+      "label": "House",
+      "kind": "building",
+      "group": "buildings",
+      "x": 672,
+      "y": 55,
+      "visible": true,
+      "bounds": {
+        "minX": 608,
+        "minY": 16,
+        "maxX": 736,
+        "maxY": 80
+      },
+      "description": "A small village house. Its footprint is solid; the old woman stands outside."
+    },
+    {
+      "id": "cursed-stone",
+      "label": "Cursed stone",
+      "kind": "item",
+      "group": "items",
+      "x": 440,
+      "y": 150,
+      "visible": true,
+      "description": "A portable stone with a faint magical aura. No effects of its curse are established."
+    },
+    {
+      "id": "fallen-log",
+      "label": "Log",
+      "kind": "item",
+      "group": "items",
+      "x": 500,
+      "y": 320,
+      "visible": true,
+      "description": "A portable dry log."
+    },
+    {
+      "id": "iron-sword",
+      "label": "Sword",
+      "kind": "item",
+      "group": "items",
+      "x": 88,
+      "y": 200,
+      "visible": true,
+      "description": "A usable sword. Carrying it permits fighting the enemies."
+    },
+    {
+      "id": "garden-statue",
+      "label": "Garden statue",
+      "kind": "prop",
+      "group": "props",
+      "x": 675,
+      "y": 330,
+      "visible": true,
+      "description": "A weathered stone garden ornament."
+    },
+    {
+      "id": "raider-one",
+      "label": "Raider",
+      "kind": "enemy",
+      "group": "raiders",
+      "x": 390,
+      "y": 300,
+      "visible": false,
+      "requiresItemRef": "iron-sword"
+    },
+    {
+      "id": "raider-two",
+      "label": "Wolf",
+      "kind": "enemy",
+      "group": "wild-beasts",
+      "x": 440,
+      "y": 355,
+      "visible": false,
+      "requiresItemRef": "iron-sword"
+    },
+    {
+      "id": "raider-three",
+      "label": "Boar",
+      "kind": "enemy",
+      "group": "wild-beasts",
+      "x": 375,
+      "y": 360,
+      "visible": false,
+      "requiresItemRef": "iron-sword"
+    },
+    {
+      "id": "bucket",
+      "label": "Bucket",
+      "kind": "item",
+      "group": "items",
+      "x": 224,
+      "y": 48,
+      "visible": false,
+      "initialOwnerRef": "mage",
+      "initialContents": "empty",
+      "description": "A reusable bucket held by the mage."
+    },
+    {
+      "id": "matchbox",
+      "label": "Matchbox",
+      "kind": "item",
+      "group": "items",
+      "x": 625,
+      "y": 120,
+      "visible": false,
+      "initialOwnerRef": "elder",
+      "initialUses": 3,
+      "description": "A matchbox held by the old woman, containing three matches."
+    },
+    {
+      "id": "garden-bed",
+      "label": "Herb bed",
+      "kind": "prop",
+      "group": "props",
+      "x": 625,
+      "y": 360,
+      "visible": true,
+      "initialStates": {
+        "watered": false
+      },
+      "description": "An unwatered bed of herbs."
+    }
+  ],
+  "itemUses": [
+    {
+      "itemRef": "fallen-log",
+      "targetRef": "fire-pit",
+      "requiresStates": {
+        "fueled": false
+      },
+      "setsStates": {
+        "fueled": true
+      },
+      "consumesItem": true
+    },
+    {
+      "itemRef": "matchbox",
+      "targetRef": "fire-pit",
+      "requiresStates": {
+        "fueled": true,
+        "burning": false
+      },
+      "setsStates": {
+        "burning": true
+      },
+      "usesMatch": true
+    },
+    {
+      "itemRef": "bucket",
+      "targetRef": "village-well",
+      "requiresContents": "empty",
+      "setsContents": "water"
+    },
+    {
+      "itemRef": "bucket",
+      "targetRef": "fire-pit",
+      "requiresContents": "water",
+      "requiresStates": {
+        "burning": true
+      },
+      "setsContents": "empty",
+      "setsStates": {
+        "burning": false
+      }
+    },
+    {
+      "itemRef": "bucket",
+      "targetRef": "garden-bed",
+      "requiresContents": "water",
+      "requiresStates": {
+        "watered": false
+      },
+      "setsContents": "empty",
+      "setsStates": {
+        "watered": true
+      }
+    },
+    {
+      "itemRef": "cursed-stone",
+      "targetRef": "village-well",
+      "consumesItem": true,
+      "setsStates": {
+        "containsStone": true
+      }
+    }
+  ]
+}

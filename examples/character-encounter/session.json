@@ -1,0 +1,5 @@
+{
+  "world": "./world.json",
+  "quest": "./quest.json",
+  "startOn": "world-ready"
+}

@@ -1,0 +1,47 @@
+.ui-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+  align-items: start;
+}
+.ui-column {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.ui-stage {
+  position: relative;
+}
+.ui-float {
+  position: absolute;
+  top: 52px;
+  right: 16px;
+  width: 260px;
+  max-width: calc(100% - 32px);
+}
+.ui-stage canvas {
+  width: 100%;
+}
+.ui-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+.ui-status {
+  font: 13px/1.6 monospace;
+  min-height: 22px;
+  color: #80dbbd;
+}
+@media (max-width: 850px) {
+  .ui-columns {
+    grid-template-columns: 1fr;
+  }
+  .ui-float {
+    position: static;
+    width: auto;
+    max-width: none;
+    margin-top: 12px;
+  }
+}

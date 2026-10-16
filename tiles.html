@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket v2 · Tile board</title>
+    <link rel="stylesheet" href="./examples/style.css" />
+    <link rel="stylesheet" href="./examples/demo-navigation.css" />
+    <script type="module" src="./dist/examples/demo-navigation.js"></script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <header>
+        <p class="eyebrow">ROCKET ENGINE / SECOND CONSUMER</p>
+        <h1>One board. Three presentations.</h1>
+        <p>
+          Click a tile in either view to cycle slate → mint → sand. The pink
+          axes mark world zero; tiles extend into negative coordinates.
+        </p>
+      </header>
+      <div class="toolbar">
+        <button id="restart-board" type="button">Reset board</button>
+        <button id="close-detail" type="button">Close detail view</button>
+        <output id="board-status" aria-live="polite">Starting…</output>
+      </div>
+      <p>
+        Click or Tab into a view. WASD / arrows pan both cameras. Clicks outside
+        the finite board are ignored. Closing the detail view keeps your edits,
+        the world view and the counter; reset starts a fresh board with all
+        three canvases.
+      </p>
+      <p id="board-cleanup" aria-live="polite">
+        0 board presentations cleaned up
+      </p>
+      <p id="cache-status">Warming shared terrain cache…</p>
+      <p>
+        Each cached region covers 8 × 8 tiles. Pan to explore the larger board:
+        retained artwork is reused, new regions are built on demand, and old
+        regions are evicted at the 24-region limit. Edits rebuild only their
+        region.
+      </p>
+      <section class="views" aria-label="Shared tile board">
+        <article>
+          <h2>World view <span>128 × 80 tiles</span></h2>
+          <div id="board-world" class="canvas-host"></div>
+        </article>
+        <article>
+          <h2>Detail view <span>same data, closer camera</span></h2>
+          <div id="board-detail" class="canvas-host"></div>
+        </article>
+      </section>
+      <section class="second" aria-label="Tile activity">
+        <div>
+          <p class="eyebrow">SAME STATE / DIFFERENT DRAWING</p>
+          <h2>Tile activity.</h2>
+          <p>
+            Mint and sand tiles are active. This canvas reads the same board as
+            both editors, without advancing or copying its state. Cycle a tile
+            back to slate to reduce the count.
+          </p>
+        </div>
+        <div id="board-summary" class="canvas-host"></div>
+      </section>
+      <footer>Finite tile data · Native Canvas 2D · No persistence yet</footer>
+    </main>
+    <script type="module" src="./dist/examples/tiles.js"></script>
+  </body>
+</html>

@@ -1,0 +1,38 @@
+{
+  "stageMap": {
+    "approach": "s1",
+    "encounter": "s2",
+    "watchkeeper": "s3",
+    "offer": "s4",
+    "blue-router": "s5",
+    "blue-pickup": "s6",
+    "blue-delivery": "s7",
+    "blue-complete": "s8",
+    "red-router": "s9",
+    "red-pickup": "s10",
+    "red-delivery": "s11",
+    "red-complete": "s12"
+  },
+  "recordMap": {
+    "approach:new-arrival": "r14",
+    "encounter:three-new-defeats": "r16",
+    "encounter:wake-sentries": "r17",
+    "watchkeeper:approach-guide": "r19",
+    "watchkeeper:show-guide": "r20",
+    "watchkeeper:open-ridge-gate": "r21",
+    "offer:blue": "r22",
+    "offer:red": "r23",
+    "blue-router:prior-carried-seal": "r25",
+    "blue-router:recover-seal": "r27",
+    "blue-pickup:new-pickup": "r29",
+    "blue-pickup:show-selected-seal": "r30",
+    "blue-delivery:matching-delivery": "r32",
+    "blue-complete:light-matching-beacon": "r33",
+    "red-router:prior-carried-seal": "r35",
+    "red-router:recover-seal": "r37",
+    "red-pickup:new-pickup": "r39",
+    "red-pickup:show-selected-seal": "r40",
+    "red-delivery:matching-delivery": "r42",
+    "red-complete:light-matching-beacon": "r43"
+  }
+}

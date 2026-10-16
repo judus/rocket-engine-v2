@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket · 3D point lights</title>
+    <link rel="stylesheet" href="./examples/style.css" />
+    <link rel="stylesheet" href="./examples/demo-navigation.css" />
+    <script
+      type="module"
+      src="./dist/examples/demo-navigation.js?v=10"
+    ></script>
+    <link rel="stylesheet" href="./examples/3d/line-demo.css" />
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <div class="eyebrow">3D · MILESTONE 10</div>
+      <h1>A lamp with a position</h1>
+      <p>
+        Move the small lamp around the same reference shapes. Each surface
+        receives light according to its orientation and distance from the lamp.
+        The lamp marker is an ordinary unlit mesh; the point light is
+        independent scene data.
+      </p>
+      <section aria-labelledby="performance-title">
+        <h2 id="performance-title">Performance</h2>
+        <dl class="performance-grid">
+          <div>
+            <dt>Render FPS</dt>
+            <dd id="perf-fps">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame interval</dt>
+            <dd id="perf-frame">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Peak frame interval</dt>
+            <dd id="perf-peak">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Shortest interval</dt>
+            <dd id="perf-minimum">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame jitter</dt>
+            <dd id="perf-jitter">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Update CPU</dt>
+            <dd id="perf-update">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Render CPU</dt>
+            <dd id="perf-render">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Lines drawn / submitted</dt>
+            <dd id="perf-lines">Warming up…</dd>
+          </div>
+        </dl>
+        <p>
+          Render FPS counts animation callbacks, not confirmed screen
+          presentations. Uneven frame pacing can feel choppy despite a high
+          average.
+        </p>
+        <p id="perf-resolution">Measuring canvas size…</p>
+        <details>
+          <summary>Reading the metrics</summary>
+          <p>
+            FPS, frame intervals and CPU times come from Rocket’s rolling
+            half-second monitor. Peak is the longest frame interval in that
+            window. Frame jitter is the standard deviation of those intervals;
+            lower means more even pacing. A very short minimum alongside a much
+            longer peak indicates callbacks arriving in bursts. CPU timings
+            measure JavaScript work; they do not measure GPU execution or
+            browser compositing. Lines count the current frame after / before
+            clipping.
+          </p>
+          <p>
+            For comparisons, keep the same canvas size, display scale, camera
+            pose and field of view, and keep this tab in the foreground. FPS is
+            capped by the browser/display refresh rate; CPU times can increase
+            before FPS drops. Recreate demo starts a fresh measurement window.
+          </p>
+        </details>
+      </section>
+      <div id="grid-view" class="canvas-host"></div>
+      <div class="toolbar">
+        <button id="reset">Reset camera</button
+        ><label
+          >Field of view
+          <input id="fov" type="range" min="35" max="100" value="60" /><output
+            id="fov-value"
+            >60°</output
+          ></label
+        ><button id="restart">Recreate demo</button>
+      </div>
+      <div class="toolbar">
+        <label
+          >Lamp X
+          <input
+            id="lamp-x"
+            type="range"
+            min="-5"
+            max="5"
+            step="0.1"
+            value="-1"
+          /><output id="lamp-x-value">-1</output></label
+        >
+        <label
+          >Lamp Y
+          <input
+            id="lamp-y"
+            type="range"
+            min="-2"
+            max="7"
+            step="0.1"
+            value="3"
+          /><output id="lamp-y-value">3</output></label
+        >
+        <label
+          >Lamp Z
+          <input
+            id="lamp-z"
+            type="range"
+            min="-5"
+            max="5"
+            step="0.1"
+            value="-1.5"
+          /><output id="lamp-z-value">-1.5</output></label
+        >
+      </div>
+      <div class="toolbar">
+        <label
+          >Strength at 1 unit
+          <input
+            id="lamp-power"
+            type="range"
+            min="0"
+            max="20"
+            step="0.5"
+            value="8"
+          /><output id="power-value">8</output></label
+        >
+        <label
+          >Ambient fill
+          <input
+            id="ambient-fill"
+            type="range"
+            min="0"
+            max="50"
+            value="6"
+          /><output id="fill-value">6%</output></label
+        >
+        <label
+          >Lamp color
+          <select id="lamp-color">
+            <option value="warm">Warm</option>
+            <option value="white">White</option>
+            <option value="cool">Cool blue</option>
+          </select></label
+        >
+      </div>
+      <div class="toolbar">
+        <label
+          >Object yaw
+          <input
+            id="object-yaw"
+            type="range"
+            min="-180"
+            max="180"
+            value="0"
+          /><output id="yaw-value">0°</output></label
+        >
+        <label
+          >Floor sampling
+          <select id="floor-detail">
+            <option value="1">1 large face</option>
+            <option value="8">8 × 8 tiles</option>
+            <option value="16" selected>16 × 16 tiles</option>
+            <option value="32">32 × 32 tiles</option>
+          </select></label
+        >
+        <label><input id="orbit-lamp" type="checkbox" /> Orbit lamp</label
+        ><button id="reset-lamp">Reset lamp &amp; objects</button>
+      </div>
+      <p>
+        Twice the distance gives one quarter of the direct illumination when the
+        surface angle is unchanged. Close distances are clamped at 0.1 units to
+        avoid an infinite hotspot. Strength is a preview multiplier, not a
+        calibrated physical unit.
+      </p>
+      <p>
+        <strong>Flat shading:</strong> one sample at the average vertex position
+        of each face. The tiled floor reveals the falloff; choose one large face
+        to see why coarse geometry gives coarse lighting. No cast shadows: walls
+        and floors do not block light. Very strong values clip toward white.
+      </p>
+      <output id="point-status" aria-live="off"></output>
+      <output id="camera-status" aria-label="Camera position and orientation"
+        >Starting…</output
+      >
+      <p>
+        Click or Tab into the canvas. <strong>WASD</strong> moves across the
+        ground plane; <strong>Q / E</strong> lowers / raises the camera.
+        <strong>Drag or arrow keys</strong> to look,
+        <strong>Shift</strong> moves faster, <strong>R</strong> resets. Moving
+        focus out of the canvas releases keyboard control.
+      </p>
+      <p>
+        Flat Lambert-style diffuse only: no cast shadows, specular highlights,
+        metallic/roughness response, smooth shading, textures or WebGL.
+        <a href="./docs/3D-MILESTONES.md">Milestones and boundaries</a>
+      </p>
+    </main>
+    <script type="module" src="./dist/examples/3d/point-light.js"></script>
+  </body>
+</html>

@@ -1,0 +1,176 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui, sans-serif;
+  background: #0c1320;
+  color: #e5edf6;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 1400px;
+  margin: auto;
+  padding: 48px 32px 24px;
+}
+.eyebrow {
+  color: #80dbbd;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  font-weight: 700;
+}
+h1 {
+  font-size: clamp(28px, 4vw, 48px);
+  margin: 12px 0;
+  letter-spacing: -0.035em;
+}
+p {
+  color: #9caec2;
+  line-height: 1.6;
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 32px 0 20px;
+}
+button {
+  border: 1px solid #33465d;
+  border-radius: 6px;
+  background: #1b2a3d;
+  color: inherit;
+  padding: 10px 16px;
+  font: inherit;
+  cursor: pointer;
+}
+button:hover {
+  background: #2a4058;
+}
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #80dbbd;
+  outline-offset: 4px;
+}
+label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+input {
+  accent-color: #80dbbd;
+  width: 130px;
+}
+output {
+  margin-left: auto;
+  color: #80dbbd;
+  font-size: 14px;
+}
+.views {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+article {
+  min-width: 0;
+}
+h2 {
+  font-size: 17px;
+  font-weight: 600;
+}
+h2 span {
+  float: right;
+  font-size: 12px;
+  color: #9caec2;
+  font-weight: 400;
+  padding-top: 4px;
+}
+.canvas-host {
+  overflow: hidden;
+  border: 1px solid #2b3a4d;
+  border-radius: 8px;
+  background: #101b2b;
+}
+canvas {
+  display: block;
+  max-width: 100%;
+  height: auto !important;
+}
+.second {
+  margin-top: 36px;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 32px;
+  align-items: center;
+}
+.second h2 {
+  font-size: 24px;
+}
+footer {
+  color: #7b8da3;
+  font-size: 12px;
+  margin-top: 32px;
+}
+@media (max-width: 800px) {
+  main {
+    padding: 28px 16px;
+  }
+  .views,
+  .second {
+    grid-template-columns: 1fr;
+  }
+  h2 span {
+    float: none;
+    display: block;
+  }
+  output {
+    margin-left: 0;
+  }
+}
+
+canvas:focus-visible {
+  outline: 2px solid #80dbbd;
+  outline-offset: -3px;
+}
+
+a {
+  color: #80dbbd;
+}
+
+/* Reserve room for changing counter widths so edits never move the canvases. */
+#cache-status {
+  min-height: 4.8em;
+  font-size: 13px;
+  white-space: pre-line;
+}
+
+#chunk-varied {
+  width: auto;
+}
+
+#terrain-reverse {
+  width: auto;
+}
+.terrain-details {
+  white-space: pre-line;
+  font-size: 13px;
+  min-height: 6.4em;
+}
+
+.factory-wide .views {
+  grid-template-columns: 1fr;
+}
+.factory-wide .canvas-host {
+  width: fit-content;
+  max-width: 100%;
+}
+
+#benchmark-results,
+#benchmark-json {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}

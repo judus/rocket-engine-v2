@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "data": {
+    "publication": {
+      "definitionId": "definition-c0a6be97-092d-449e-9334-3c36669dfd21",
+      "digest": "7bb8cd077225c144ad6917e092b2583e471f6096ab093fa919d2b703de66fcf7",
+      "sourceRevision": 52
+    },
+    "draftId": "draft-5128789d-c07b-4ab8-a5f1-d85ac8fa0aba",
+    "revision": 52,
+    "commandId": "699f81320a38417a02c8b5c05eaec577231f0cdde3028974513af4c8b69d8cd2"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "tools": 32,
+  "tests": 320,
+  "plainTextExamples": 17,
+  "modelCalls": 0,
+  "removed": [
+    "WorldProvider.ts",
+    "game-only-server.ts",
+    "game-description.json",
+    "scripts/game-only-proof.mjs"
+  ],
+  "baselineUnchanged": true,
+  "historicalEvidencePreserved": true
+}

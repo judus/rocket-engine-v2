@@ -1,0 +1,123 @@
+{
+  "spawn": {
+    "x": 80,
+    "y": 208
+  },
+  "locations": [
+    {
+      "id": "courtyard",
+      "label": "COURTYARD",
+      "bounds": {
+        "minX": 192,
+        "minY": 144,
+        "maxX": 384,
+        "maxY": 272
+      }
+    },
+    {
+      "id": "ridge-a",
+      "label": "BEACON RIDGE A",
+      "bounds": {
+        "minX": 640,
+        "minY": 64,
+        "maxX": 736,
+        "maxY": 160
+      }
+    },
+    {
+      "id": "ridge-b",
+      "label": "BEACON RIDGE B",
+      "bounds": {
+        "minX": 640,
+        "minY": 256,
+        "maxX": 736,
+        "maxY": 352
+      }
+    }
+  ],
+  "entities": [
+    {
+      "id": "sentry-a",
+      "label": "West sentry",
+      "kind": "enemy",
+      "group": "sentries",
+      "x": 240,
+      "y": 208,
+      "visible": false
+    },
+    {
+      "id": "sentry-b",
+      "label": "Middle sentry",
+      "kind": "enemy",
+      "group": "sentries",
+      "x": 304,
+      "y": 208,
+      "visible": false
+    },
+    {
+      "id": "sentry-c",
+      "label": "East sentry",
+      "kind": "enemy",
+      "group": "sentries",
+      "x": 368,
+      "y": 208,
+      "visible": false
+    },
+    {
+      "id": "guide",
+      "label": "Watchkeeper",
+      "kind": "guide",
+      "group": "people",
+      "x": 448,
+      "y": 208,
+      "visible": false
+    },
+    {
+      "id": "gate",
+      "label": "Ridge gate",
+      "kind": "gate",
+      "group": "doors",
+      "x": 608,
+      "y": 208,
+      "visible": true
+    },
+    {
+      "id": "blue-seal",
+      "label": "Blue seal",
+      "kind": "item",
+      "group": "items",
+      "x": 528,
+      "y": 176,
+      "visible": false
+    },
+    {
+      "id": "beacon-a",
+      "label": "Beacon A",
+      "kind": "beacon",
+      "group": "lights",
+      "x": 688,
+      "y": 112,
+      "visible": true,
+      "acceptsItemRef": "blue-seal"
+    },
+    {
+      "id": "red-seal",
+      "label": "Red seal",
+      "kind": "item",
+      "group": "items",
+      "x": 528,
+      "y": 240,
+      "visible": false
+    },
+    {
+      "id": "beacon-b",
+      "label": "Beacon B",
+      "kind": "beacon",
+      "group": "lights",
+      "x": 688,
+      "y": 304,
+      "visible": true,
+      "acceptsItemRef": "red-seal"
+    }
+  ]
+}

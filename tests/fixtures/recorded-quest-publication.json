@@ -1,0 +1,220 @@
+{
+  "arguments": {
+    "draft": {
+      "id": "draft-563cb159-30fc-42bd-9066-e440df1c7f0a",
+      "revision": 22
+    }
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"status\":\"completed\",\"data\":{\"publication\":{\"definitionId\":\"definition-5a54dc7d-db26-4de2-9f84-cdb5e5bc3440\",\"digest\":\"036fb90b700d3ae50d027164997a15e5c8f9e21410d942c4661aa5aa41a3f14e\",\"sourceRevision\":22},\"draftId\":\"draft-563cb159-30fc-42bd-9066-e440df1c7f0a\",\"revision\":22,\"commandId\":\"c876009ebad51c134a267d4246e741bfa95b432bcae1c8e79ef806caeba35b11\"}}"
+      }
+    ],
+    "structuredContent": {
+      "status": "completed",
+      "data": {
+        "publication": {
+          "definitionId": "definition-5a54dc7d-db26-4de2-9f84-cdb5e5bc3440",
+          "digest": "036fb90b700d3ae50d027164997a15e5c8f9e21410d942c4661aa5aa41a3f14e",
+          "sourceRevision": 22
+        },
+        "draftId": "draft-563cb159-30fc-42bd-9066-e440df1c7f0a",
+        "revision": 22,
+        "commandId": "c876009ebad51c134a267d4246e741bfa95b432bcae1c8e79ef806caeba35b11"
+      }
+    },
+    "isError": false
+  },
+  "definition": {
+    "proposalVersion": "cfw-situations-draft-2",
+    "id": "definition-5a54dc7d-db26-4de2-9f84-cdb5e5bc3440",
+    "start": "s1",
+    "situations": [
+      {
+        "id": "s1",
+        "dialogue": {
+          "text": "Three sentries hold the courtyard. Clear them to reach the watchkeeper and hear the question about the ridge gate."
+        },
+        "routes": [
+          {
+            "id": "r13",
+            "priority": 10,
+            "when": {
+              "tool": "game_location",
+              "arguments": {
+                "locationRef": "courtyard"
+              },
+              "expect": {
+                "path": ["count"],
+                "operator": "at_least",
+                "value": 1
+              },
+              "evidence": {
+                "mode": "events",
+                "after": {
+                  "kind": "run-start"
+                }
+              }
+            },
+            "next": "s2"
+          }
+        ]
+      },
+      {
+        "id": "s2",
+        "dialogue": {
+          "text": "The sentries are in the way. Move close to each revealed sentry and interact to defeat it. When the courtyard is clear, find the watchkeeper."
+        },
+        "routes": [
+          {
+            "id": "r14",
+            "priority": 10,
+            "when": {
+              "tool": "game_encounter",
+              "arguments": {
+                "groupRef": "sentries"
+              },
+              "expect": {
+                "path": ["remaining"],
+                "operator": "equals",
+                "value": 0
+              },
+              "evidence": {
+                "mode": "fact"
+              }
+            },
+            "next": "s3"
+          }
+        ],
+        "onEnter": [
+          {
+            "id": "r7",
+            "tool": "game_activate_group",
+            "arguments": {
+              "groupRef": "sentries"
+            }
+          }
+        ]
+      },
+      {
+        "id": "s3",
+        "dialogue": {
+          "text": "Watchkeeper: \u201cThank you. I\u2019d like a direct passage from here toward the ridges, but the choice is yours. Open the gate and that passage is clear. Leave it shut and you can still walk around it; nothing forces you to use the gate.\u201d"
+        },
+        "routes": [
+          {
+            "id": "r15",
+            "priority": 10,
+            "when": {
+              "tool": "game_entity",
+              "arguments": {
+                "entityRef": "guide"
+              },
+              "expect": {
+                "path": ["near"],
+                "operator": "equals",
+                "value": true
+              },
+              "evidence": {
+                "mode": "fact"
+              }
+            },
+            "next": "s4"
+          }
+        ],
+        "onEnter": [
+          {
+            "id": "r8",
+            "tool": "game_reveal",
+            "arguments": {
+              "entityRef": "guide"
+            }
+          }
+        ]
+      },
+      {
+        "id": "s4",
+        "dialogue": {
+          "text": "Watchkeeper: \u201cDo you want me to open the gate for the direct passage, or leave it closed and take the walk-around route? Opening it changes the gate; leaving it shut keeps it as it is.\u201d",
+          "requires": {
+            "tool": "game_entity",
+            "arguments": {
+              "entityRef": "guide"
+            },
+            "expect": {
+              "path": ["near"],
+              "operator": "equals",
+              "value": true
+            },
+            "evidence": {
+              "mode": "fact"
+            }
+          }
+        },
+        "choices": [
+          {
+            "id": "r16",
+            "label": "Open the gate \u2014 make the direct passage usable; the gate will be opened.",
+            "when": {
+              "tool": "game_entity",
+              "arguments": {
+                "entityRef": "guide"
+              },
+              "expect": {
+                "path": ["near"],
+                "operator": "equals",
+                "value": true
+              },
+              "evidence": {
+                "mode": "fact"
+              }
+            },
+            "next": "s5"
+          },
+          {
+            "id": "r17",
+            "label": "Leave it closed \u2014 preserve the gate as it is and use the walk-around route if needed.",
+            "when": {
+              "tool": "game_entity",
+              "arguments": {
+                "entityRef": "guide"
+              },
+              "expect": {
+                "path": ["near"],
+                "operator": "equals",
+                "value": true
+              },
+              "evidence": {
+                "mode": "fact"
+              }
+            },
+            "next": "s6"
+          }
+        ]
+      },
+      {
+        "id": "s5",
+        "dialogue": {
+          "text": "Watchkeeper: \u201cAll right. The gate is open, so you have a direct passage toward the ridges.\u201d"
+        },
+        "onEnter": [
+          {
+            "id": "r9",
+            "tool": "game_open_gate",
+            "arguments": {
+              "entityRef": "gate"
+            }
+          }
+        ]
+      },
+      {
+        "id": "s6",
+        "dialogue": {
+          "text": "Watchkeeper: \u201cThen it stays shut. The gate still blocks the direct passage, but you can walk around it if you need to reach the ridges.\u201d"
+        }
+      }
+    ]
+  }
+}

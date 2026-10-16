@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket · Cockpit overlay</title>
+    <link rel="stylesheet" href="./examples/style.css" />
+    <link rel="stylesheet" href="./examples/demo-navigation.css" />
+    <script type="module" src="./dist/examples/demo-navigation.js"></script>
+    <link rel="stylesheet" href="./examples/3d/line-demo.css" />
+    <style>
+      .grade-controls {
+        border: 1px solid #33465d;
+        border-radius: 6px;
+        padding: 1rem;
+        margin: 1rem 0;
+      }
+      .grade-controls label {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin: 0.6rem 0;
+      }
+      .grade-controls input[type='range'] {
+        flex: 1;
+        min-width: 0;
+      }
+      .grade-controls input[type='checkbox'] {
+        width: auto;
+      }
+      .grade-controls output {
+        min-width: 3rem;
+        margin: 0;
+      }
+      #overlay-status {
+        display: block;
+        margin: 1rem 0;
+        color: #f5d38b;
+        font-variant-numeric: tabular-nums;
+      }
+    </style>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <div class="eyebrow">3D · MILESTONE 05</div>
+      <h1>A window into the world.</h1>
+      <p>
+        A fixed cockpit image over the same 3D reference grid. Move the camera:
+        the outside world changes while the cockpit stays on screen.
+      </p>
+      <section aria-labelledby="performance-title">
+        <h2 id="performance-title">Performance</h2>
+        <dl class="performance-grid">
+          <div>
+            <dt>Render FPS</dt>
+            <dd id="perf-fps">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame interval</dt>
+            <dd id="perf-frame">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Peak frame interval</dt>
+            <dd id="perf-peak">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Shortest interval</dt>
+            <dd id="perf-minimum">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame jitter</dt>
+            <dd id="perf-jitter">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Update CPU</dt>
+            <dd id="perf-update">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Render CPU</dt>
+            <dd id="perf-render">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Lines drawn / submitted</dt>
+            <dd id="perf-lines">Warming up…</dd>
+          </div>
+        </dl>
+        <p>
+          Render FPS counts animation callbacks, not confirmed screen
+          presentations. Uneven frame pacing can feel choppy despite a high
+          average.
+        </p>
+        <p id="perf-resolution">Measuring canvas size…</p>
+        <details>
+          <summary>Reading the metrics</summary>
+          <p>
+            FPS, frame intervals and CPU times come from Rocket’s rolling
+            half-second monitor. Peak is the longest frame interval in that
+            window. Frame jitter is the standard deviation of those intervals;
+            lower means more even pacing. A very short minimum alongside a much
+            longer peak indicates callbacks arriving in bursts. CPU timings
+            measure JavaScript work; they do not measure GPU execution or
+            browser compositing. Lines count the current frame after / before
+            clipping.
+          </p>
+          <p>
+            For comparisons, keep the same canvas size, display scale, camera
+            pose and field of view, and keep this tab in the foreground. FPS is
+            capped by the browser/display refresh rate; CPU times can increase
+            before FPS drops. Recreate demo starts a fresh measurement window.
+          </p>
+        </details>
+      </section>
+      <div id="grid-view" class="canvas-host"></div>
+      <div class="toolbar">
+        <button id="reset">Seat view</button>
+        <label
+          >Vertical field of view
+          <input id="fov" type="range" min="35" max="100" value="50" /><output
+            id="fov-value"
+            for="fov"
+            >50°</output
+          ></label
+        >
+        <button id="restart">Recreate demo</button>
+      </div>
+      <div class="toolbar">
+        <label
+          ><input id="show-overlay" type="checkbox" checked /> Show cockpit
+          overlay</label
+        >
+      </div>
+      <fieldset class="grade-controls">
+        <legend>Cockpit color grade</legend>
+        <label
+          ><input id="grade-enabled" type="checkbox" checked /> Apply grade ·
+          uncheck for original</label
+        >
+        <label
+          >Darken curve
+          <input
+            id="grade-darkness"
+            type="range"
+            min="0"
+            max="100"
+            value="85"
+          /><output id="grade-darkness-value" for="grade-darkness"
+            >85%</output
+          ></label
+        >
+        <label
+          >Blue shadows / low mids
+          <input
+            id="grade-shadow-blue"
+            type="range"
+            min="0"
+            max="100"
+            value="50"
+          /><output id="grade-shadow-blue-value" for="grade-shadow-blue"
+            >50%</output
+          ></label
+        >
+        <label
+          >Yellow / orange highlights
+          <input
+            id="grade-highlight-warm"
+            type="range"
+            min="0"
+            max="100"
+            value="50"
+          /><output id="grade-highlight-warm-value" for="grade-highlight-warm"
+            >50%</output
+          ></label
+        >
+        <button id="reset-grade">Reset grade</button>
+        <p>
+          The curve lowers mids and highlights, with cool shadows and warm
+          highlights. Only cockpit RGB is graded; window transparency and the
+          outside world stay unchanged. Grading also affects the baked-in amber
+          lamps.
+        </p>
+      </fieldset>
+      <output id="camera-status" aria-label="Camera position and orientation"
+        >Starting…</output
+      >
+      <output id="overlay-status" aria-label="Cockpit overlay status"></output>
+      <p>
+        Click or Tab into the canvas. <strong>WASD</strong> moves across the
+        ground plane; <strong>Q / E</strong> lowers / raises the camera.
+        <strong>Drag or arrow keys</strong> to look,
+        <strong>Shift</strong> moves faster, <strong>R</strong> resets. Moving
+        focus out of the canvas releases keyboard control.
+      </p>
+      <p>
+        <span class="axis-x">X · coral</span> &nbsp;
+        <span class="axis-y">Y · green · up</span> &nbsp;
+        <span class="axis-z">Z · blue</span>. The grid is finite; you can fly
+        beyond its edge or below it.
+      </p>
+      <p>
+        The cockpit is fixed screen-space artwork with transparent windows. Seat
+        view resets the outside camera. Toggle the overlay to compare with the
+        grid alone. Instruments are blank artwork for now.
+        <a href="./3d-cockpit.html">04 · 3D cockpit frame</a> remains a separate
+        experiment.
+      </p>
+      <details>
+        <summary>What this milestone covers</summary>
+        <p>
+          Rocket draws the 3D grid first, then the selected v14-relic PNG on the
+          same Canvas 2D view. The artwork scales with the 16:9 view and
+          preserves its original alpha. The color grade is cached at source
+          resolution and rebuilt only when its sliders change. CPU render timing
+          includes the image draw submission; line counts describe the outside
+          grid before cockpit occlusion. This is not a matched benchmark against
+          milestone 04.
+        </p>
+        <p>
+          Artwork: cockpit-2126-v14-relic from the cockpit asset project.
+          Instruments are blank artwork; no additional animation loop.
+          <a href="./docs/3D-MILESTONES.md">Milestones and boundaries</a>
+        </p>
+      </details>
+    </main>
+    <script type="module" src="./dist/examples/3d/overlay.js"></script>
+  </body>
+</html>

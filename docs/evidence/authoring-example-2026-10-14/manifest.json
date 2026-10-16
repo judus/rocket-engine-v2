@@ -1,0 +1,23 @@
+{
+  "tests": 318,
+  "tools": 33,
+  "nativeTextExamples": 17,
+  "recordedExampleCalls": 63,
+  "exampleSourceSha256": "ab50b775848e986b8ac37b5c5de0f46676e487513c39fb61a4dd03f85355e915",
+  "resultDiagramSha256": "900153a654228119053fd2bb2ad954d19543a0157ff309d2b5bec8490feb5e93",
+  "exampleBytes": 34124,
+  "executedExampleCalls": 0,
+  "modelCalls": 0,
+  "builderProof": "/tmp/rocket-quest-proof-rwZpJC",
+  "sourceSha256": {
+    "examples/quest-authoring/AuthoringExample.ts": "4721dc39cb70e26e2d41c50b17fb053f5e41ad802a74b89ed00a5ee0d7023e70",
+    "examples/quest-authoring/ContextProvider.ts": "f361ace4ab9a18b6d436ee542ebcae9e17692ba38b1294dd2d4c20508da367ec",
+    "examples/quest-authoring/CombinedFixture.ts": "96ff1ae3133f8372f1e9a6077dcc70ae83dcc447d7973e05f62a07cfb5ca17fe",
+    "tests/context-tools.test.ts": "83934af2a1f2bf0390cdd1e22ad26a380e0be5030cdd9f7c1f8e87e1965e4d54",
+    "scripts/context-tools-proof.mjs": "b1d9b12d095f89f4954c24583979b50c2844e8b39d9e28187fd176022ab6034c",
+    "scripts/quest-proof.mjs": "df988a87d80beb95fc01c2e96fa4496b975263635a60d4d404fc0b1003634855",
+    "docs/GAME-CONTEXT-TOOLS.md": "9fdf6ab880af76192ff5cdc19e04502ff2ba3f325b7d780fe22e9101e99c982b",
+    "examples/character-encounter/quest.json": "32aabc76aaf1c3f0a8cc57bb6a9287ac3f55eb46334c78a3ba6086be8d0c9f9d",
+    "examples/character-encounter/demo.ts": "921c721ee1917ba768f2fb0591fcec11ad3c6f937891bcddc9159cd98c9ec58d"
+  }
+}

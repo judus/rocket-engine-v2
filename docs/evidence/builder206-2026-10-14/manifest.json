@@ -1,0 +1,34 @@
+{
+  "archiveSha256": "8adb200bdb2001e0ab1fcb662885ac9f0fd9316c00bfb6cb57c52a3ed4317eee",
+  "peerSelectedFilesVerified": true,
+  "rocketTests": 312,
+  "packedNativeTests": 5,
+  "liveTools": 25,
+  "tcpProof": "/tmp/rocket-quest-proof-3s7RdI",
+  "journalProof": "/tmp/rocket-journal-proof-zp2mB0",
+  "endpoint": "http://127.0.0.1:8095/mcp",
+  "handoffMessage": 524,
+  "correctionMessage": 525,
+  "browser": "Blue A then red B;2reports;both beacons lit;no warn/error",
+  "limits": [
+    "Deterministic manual builder steps;no model calls",
+    "TCP proof recreates host in same process;SQLite closed/reopened",
+    "Packed native test independently verifies new-process recovery",
+    "CAI queued-worker evidence remains separate",
+    "No baseline or playable package change"
+  ],
+  "sha256": {
+    "package.json": "d3264ff79dc91db12720a6ed8307b35c340049fb1fc4b1287edeb01050d14912",
+    "package-lock.json": "4dd49f4bbe2c8db7f805730015de5e82cc03bd9787be94fdcbf0b396dd7e9f0b",
+    "examples/quest-authoring/CombinedFixture.ts": "d47caaf63e32368e8eb74238c49284fc7b5d3d7f2586d77147a0823380db412f",
+    "examples/quest-authoring/combined-server.ts": "12cc182d1ae8394b31724326b8cc1276884e377bb0e9bf23ce8d355d84cdb430",
+    "scripts/quest-proof.mjs": "8cb717d8ec98731bc14943e611f515d46cb408c9d5db56150492d1a77b1650a4",
+    "tests/fixtures/quest-builder/calls.json": "0e92661e86f1e83fa987f19f0a31e06208b8e5d6b767c58dd6522266bd9e4322",
+    "tests/fixtures/quest-builder/id-mapping.json": "761334a4c9737da83c2ba8d17491778a651a91cee250dd272917d5f3d7dd6062",
+    "examples/journal/WatchtowerReporter.ts": "c42d0804f592cb6950f485ce06f6072ddb0bff48fb92e7a36d9f41a747558ea6",
+    "tests/journal-episodes.test.ts": "6c4173227a985982edd9318a57b2d762692fd69b5758837eb391976bca94ce01",
+    "docs/MCP.md": "25d52d3c12d0c9d1334bbcb4b9d50ea9db4c9411e7e03257c6a2b6906eeb9c73",
+    "docs/JOURNAL.md": "96707cbd181f4a025dd9dfc17b734e75c03259eedcd105f5b03fcc3502fda1f0",
+    "docs/ROADMAP.md": "02048ff8ce8097bf234f3bc62780954b5f38fc89da6536849a6596244cfb3573"
+  }
+}

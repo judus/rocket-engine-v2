@@ -1,0 +1,31 @@
+{
+  "rocketTests": 316,
+  "nativeTools": 32,
+  "textExamples": 15,
+  "endpoint": "http://127.0.0.1:8120/mcp",
+  "sameWorldJournal": true,
+  "worldMutationsByContextQueries": 0,
+  "modelCalls": 0,
+  "sourceSha256": {
+    "examples/quest-authoring/ContextProvider.ts": "ee8120f7ea42e4faaefc4ed1a35f378243c4bef4e0d47e660d25787721ba446a",
+    "examples/quest-authoring/author-context.json": "b95d95f1524684074352893fc34d6eac1a5a97e5a687f9b2a85f0e83170a1495",
+    "examples/quest-authoring/CombinedFixture.ts": "3938768ece4b3dcd5748912ec19f4617fbce5dba3fede166282280e1f8f1a938",
+    "examples/quest-authoring/combined-server.ts": "4b4afba46b14378df87a461f2028bf5cfc963da45e067a9db8dd13ebc70e2444",
+    "scripts/context-tools-proof.mjs": "0067a848914d672abc29797e82d0b94348f61f90dd0946eaae2067906f8b79e0",
+    "scripts/quest-proof.mjs": "b9355c85914d5076e08aec82d463625b9cb17b813af16c5bc782dc1cd746a444",
+    "tests/context-tools.test.ts": "b180ce38a2635202cfef466be0c500918ecb1ed6343a4ec54cccafb5bde2f265",
+    "docs/GAME-CONTEXT-TOOLS.md": "606106128caef9dfecca08eed930ee88aefabda6b04fbe742ff24f85787e4fcf",
+    "examples/character-encounter/quest.json": "32aabc76aaf1c3f0a8cc57bb6a9287ac3f55eb46334c78a3ba6086be8d0c9f9d",
+    "examples/character-encounter/demo.ts": "921c721ee1917ba768f2fb0591fcec11ad3c6f937891bcddc9159cd98c9ec58d"
+  },
+  "builderProof": "/tmp/rocket-quest-proof-N1Ydct",
+  "cleanupProof": "/tmp/rocket-context-final-proof",
+  "outputs": "/home/maduser/Documents/Codex/2026-10-11/h/tool-outputs/context",
+  "limits": [
+    "Independent authoring fixture;not browser state",
+    "Volatile initially empty journal",
+    "Authored initial protagonist knowledge;no inferred discovery",
+    "No buildings or general relationship/lore records invented",
+    "CAI owns briefing preflight integration"
+  ]
+}

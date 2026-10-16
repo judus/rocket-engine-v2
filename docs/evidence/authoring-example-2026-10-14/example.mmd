@@ -1,0 +1,26 @@
+flowchart TD
+  s1["s1: approach"]
+  s2["s2: encounter; enter r17: game_activate_group {&quot;groupRef&quot;:&quot;sentries&quot;}"]
+  s3["s3: watchkeeper; enter r20: game_reveal {&quot;entityRef&quot;:&quot;guide&quot;}; enter r21: game_open_gate {&quot;entityRef&quot;:&quot;gate&quot;}"]
+  s4["s4: offer; interaction c18: game_entity {&quot;entityRef&quot;:&quot;guide&quot;} near equals true; fact now"]
+  s5["s5: blue-router"]
+  s6["s6: blue-pickup; enter r30: game_reveal {&quot;entityRef&quot;:&quot;blue-seal&quot;}"]
+  s7["s7: blue-delivery"]
+  s8["s8: blue-complete (ending); enter r33: game_light_beacon {&quot;entityRef&quot;:&quot;beacon-a&quot;}"]
+  s9["s9: red-router"]
+  s10["s10: red-pickup; enter r40: game_reveal {&quot;entityRef&quot;:&quot;red-seal&quot;}"]
+  s11["s11: red-delivery"]
+  s12["s12: red-complete (ending); enter r43: game_light_beacon {&quot;entityRef&quot;:&quot;beacon-b&quot;}"]
+  s1 -->|"r14: c13: game_location {&quot;locationRef&quot;:&quot;courtyard&quot;} count at_least 1; events since quest start priority 10"| s2
+  s2 -->|"r16: c15: game_encounter {&quot;groupRef&quot;:&quot;sentries&quot;} count at_least 3; events since s2 entry priority 10"| s3
+  s3 -->|"r19: c18: game_entity {&quot;entityRef&quot;:&quot;guide&quot;} near equals true; fact now priority 10"| s4
+  s4 -->|"r22: choice Blue seal — Beacon Ridge A; c18: game_entity {&quot;entityRef&quot;:&quot;guide&quot;} near equals true; fact now"| s5
+  s4 -->|"r23: choice Red seal — Beacon Ridge B; c18: game_entity {&quot;entityRef&quot;:&quot;guide&quot;} near equals true; fact now"| s9
+  s5 -->|"r25: c24: game_entity {&quot;entityRef&quot;:&quot;blue-seal&quot;} collected equals true; fact now priority 10"| s7
+  s5 -->|"r27: c26: game_entity {&quot;entityRef&quot;:&quot;blue-seal&quot;} collected equals false; fact now priority 20"| s6
+  s6 -->|"r29: c28: game_entity {&quot;entityRef&quot;:&quot;blue-seal&quot;} count at_least 1; events since s6 entry priority 10"| s7
+  s7 -->|"r32: c31: game_delivery {&quot;itemRef&quot;:&quot;blue-seal&quot;,&quot;destinationRef&quot;:&quot;beacon-a&quot;} delivered equals true; fact now priority 10"| s8
+  s9 -->|"r35: c34: game_entity {&quot;entityRef&quot;:&quot;red-seal&quot;} collected equals true; fact now priority 10"| s11
+  s9 -->|"r37: c36: game_entity {&quot;entityRef&quot;:&quot;red-seal&quot;} collected equals false; fact now priority 20"| s10
+  s10 -->|"r39: c38: game_entity {&quot;entityRef&quot;:&quot;red-seal&quot;} count at_least 1; events since s10 entry priority 10"| s11
+  s11 -->|"r42: c41: game_delivery {&quot;itemRef&quot;:&quot;red-seal&quot;,&quot;destinationRef&quot;:&quot;beacon-b&quot;} delivered equals true; fact now priority 10"| s12

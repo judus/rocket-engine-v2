@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket v2 · Streamed factory</title>
+    <link rel="stylesheet" href="./examples/style.css?factory-wide=1" />
+    <link rel="stylesheet" href="./examples/demo-navigation.css" />
+    <script type="module" src="./dist/examples/demo-navigation.js"></script>
+    <link rel="stylesheet" href="./src/ui/style.css" />
+    <link rel="stylesheet" href="./examples/workshop/inspection.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "production-workshop": "./dist/vendor/production-workshop-2.0.0/index.js"
+        }
+      }
+    </script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main class="factory-wide">
+      <header>
+        <p class="eyebrow">ROCKET ENGINE / STREAMED FACTORY</p>
+        <h1>The terrain leaves. The factory stays.</h1>
+        <p>
+          Fixed facility IDs connect buildings to Workshop. Production continues
+          while terrain chunks are loading, evicted, or the terrain canvas is
+          closed. Hidden tabs and manual pause exclude inactive time.
+        </p>
+      </header>
+      <p>
+        Click terrain for WASD / arrow pan with inertia. Wheel zoom stays
+        anchored beneath the cursor; Set zoom anchors at the canvas center. Zoom
+        0.75–4×. Return to factory resets motion and zoom to 1×.
+      </p>
+      <div class="toolbar">
+        <label for="factory-world-camera-rendering">Camera rendering</label>
+        <select id="factory-world-camera-rendering">
+          <option value="fractional">Fractional</option>
+          <option value="snapped">Pixel-snapped</option>
+        </select>
+        <label for="factory-world-zoom">Set zoom</label>
+        <select id="factory-world-zoom" disabled>
+          <option value="0.75">0.75×</option>
+          <option value="1" selected>1×</option>
+          <option value="1.5">1.5×</option>
+          <option value="2">2×</option>
+          <option value="4">4×</option>
+        </select>
+        <label for="factory-world-fps">Frame limit</label>
+        <select id="factory-world-fps">
+          <option value="0">Uncapped</option>
+          <option value="100">100 FPS</option>
+          <option value="80">80 FPS</option>
+          <option value="60">60 FPS</option>
+          <option value="30">30 FPS</option>
+        </select>
+        <button id="factory-world-far" type="button">Visit far away</button
+        ><button id="factory-world-home" type="button">Return to factory</button
+        ><button id="factory-world-close" type="button">
+          Close terrain view</button
+        ><button id="factory-world-recreate" type="button">
+          Recreate views / resume</button
+        ><button id="factory-world-pause" type="button">Pause production</button
+        ><button id="factory-world-collect" type="button">
+          Collect finished parts
+        </button>
+      </div>
+      <div class="toolbar" id="factory-world-building-controls">
+        <label for="factory-world-building">Build</label>
+        <select id="factory-world-building">
+          <option value="pan">Pan / no building</option>
+          <option value="mine">Mine</option>
+          <option value="smelter">Smelter</option>
+          <option value="press">Press</option>
+        </select>
+        <output id="factory-world-building-status" aria-live="polite"
+          >Select a building, then click a green footprint to build.</output
+        >
+      </div>
+      <div class="toolbar">
+        <button id="factory-world-save" type="button" disabled>
+          Save factory
+        </button>
+        <button id="factory-world-retry-load" type="button" disabled>
+          Retry load
+        </button>
+        <output id="factory-world-save-status" aria-live="polite"
+          >Loading factory checkpoint…</output
+        >
+      </div>
+      <div class="toolbar" id="factory-world-route-controls" hidden>
+        <label for="factory-world-route-source">Source</label
+        ><select id="factory-world-route-source"></select>
+        <label for="factory-world-route-destination">Destination</label
+        ><select id="factory-world-route-destination"></select>
+        <button id="factory-world-route-connect" type="button">
+          Connect route
+        </button>
+        <button id="factory-world-route-disconnect" type="button" disabled>
+          Disconnect destination route
+        </button>
+        <output id="factory-world-route-status" aria-live="polite"
+          >Initial chain connected. One supply route per destination.</output
+        >
+      </div>
+      <div class="toolbar" id="factory-world-inspector-controls">
+        <label for="factory-world-selected">Inspect building</label>
+        <select id="factory-world-selected" disabled></select>
+        <button id="factory-world-open-inspector" type="button" disabled>
+          Open inspection panel
+        </button>
+        <button id="factory-world-drain" type="button" disabled>
+          Drain building
+        </button>
+        <button id="factory-world-remove" type="button" disabled>
+          Remove idle building
+        </button>
+      </div>
+      <div id="factory-world-inspector-host" hidden>
+        <div class="toolbar" id="factory-world-workshop-controls" hidden>
+          <button id="factory-world-site-cancel" type="button" disabled>
+            Cancel selected site
+          </button>
+          <button id="factory-world-facility-pause" type="button" disabled>
+            Pause building production
+          </button>
+          <button id="factory-world-operator" type="button" disabled>
+            Place operator on site
+          </button>
+          <button id="factory-world-supply" type="button" disabled>
+            Move up to 4 mine ore to depot
+          </button>
+        </div>
+        <output
+          id="factory-world-inspector"
+          style="display: block"
+          class="terrain-details"
+          aria-live="polite"
+          >Select a building to inspect.</output
+        >
+      </div>
+      <output
+        id="factory-world-pick-status"
+        style="display: block"
+        aria-live="polite"
+        >Click a building or tree to inspect.</output
+      >
+      <output id="factory-world-status" class="terrain-details"
+        >Loading…</output
+      >
+      <p id="factory-world-proof">
+        Travel far away: building visuals should reach zero while domain
+        facilities keep producing. Return to rebuild visuals with the same IDs.
+      </p>
+      <p id="factory-world-description">
+        1280 × 720 terrain canvas: 80 × 45 visible tiles, four times the
+        original area. Click terrain to focus WASD / arrow panning with inertia;
+        wheel zoom anchors beneath the cursor (0.75–4×). Buildings and
+        vegetation share feet sorting. Storage is capped at 20 per material;
+        collect parts to unblock a full stockpile. Select a building to preview
+        a 3 × 2 tile footprint; water, unloaded terrain and occupied footprints
+        are rejected. Construction is free and uses the shared stockpile. Save
+        factory keeps buildings and production in this browser. Reload restores
+        the last explicit checkpoint without offline progression. Later unsaved
+        changes are lost.
+      </p>
+      <details open>
+        <summary>Slow frames — last 12 samples (milliseconds)</summary>
+        <p>
+          Records gaps above 1.5× recent cadence (minimum 12 ms), or measured
+          work above 8 ms. Each gap is paired with the preceding frame and
+          generation between callbacks. Scene includes Workshop, camera/demand,
+          visuals and HUD; render includes both views. Unmeasured time includes
+          normal refresh waiting and may include browser scheduling, other work
+          or presentation. This cannot identify garbage collection or GPU time.
+        </p>
+        <button id="factory-world-clear-spikes" type="button">
+          Clear spike history
+        </button>
+        <pre id="factory-world-spikes" style="overflow-x: auto">
+No spikes recorded yet.</pre>
+      </details>
+      <section class="views">
+        <article>
+          <h2>Streamed terrain <span>view-owned building visuals</span></h2>
+          <div class="factory-map-stage">
+            <div id="factory-world" class="canvas-host"></div>
+            <div id="factory-world-panel"></div>
+          </div>
+        </article>
+        <article>
+          <h2>
+            Workshop diagnostics
+            <span>global production / stable facility IDs</span>
+          </h2>
+          <div id="factory-world-diagnostics" class="canvas-host"></div>
+        </article>
+      </section>
+      <footer>
+        224 retained chunks · eight jobs · up to four artwork builds / 3 ms per
+        update · one production clock · visibility-independent facilities
+      </footer>
+    </main>
+    <script
+      type="module"
+      src="./dist/examples/workshop/terrain.js?inspection=1"
+    ></script>
+  </body>
+</html>

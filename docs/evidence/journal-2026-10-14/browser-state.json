@@ -1,0 +1,667 @@
+{
+  "summary": "2 confirmed mission reports · Beacon A: lit · Beacon B: lit",
+  "output": "Episode B confirmed: blue. Both beacons lit; two evidence-backed mission reports, no AI.",
+  "journal": {
+    "gameId": "rocket-encounter",
+    "saveId": "browser-proof",
+    "timelineId": "timeline-2",
+    "durability": "volatile",
+    "head": 20,
+    "earliestSequence": 1,
+    "complete": true,
+    "events": [
+      {
+        "eventId": "world:1",
+        "type": "watchtower.world_event",
+        "version": 1,
+        "subjectRefs": ["courtyard"],
+        "payload": {
+          "kind": "location",
+          "ref": "courtyard",
+          "worldSequence": 1
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-game",
+        "recordedAt": "2026-10-14T15:07:14.205Z",
+        "sequence": 1
+      },
+      {
+        "eventId": "effect:317c377e-398d-465f-bd6b-f37b6bd73915/1/wake-sentries",
+        "type": "quest.action_confirmed",
+        "version": 1,
+        "subjectRefs": ["encounter"],
+        "correlation": {
+          "questRunId": "317c377e-398d-465f-bd6b-f37b6bd73915",
+          "operationId": "317c377e-398d-465f-bd6b-f37b6bd73915/1/wake-sentries"
+        },
+        "payload": {
+          "effectId": "317c377e-398d-465f-bd6b-f37b6bd73915/1/wake-sentries",
+          "stageRef": "encounter",
+          "actionRef": "wake-sentries",
+          "arguments": {
+            "groupRef": "sentries"
+          },
+          "result": {
+            "applied": true
+          }
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-quests",
+        "recordedAt": "2026-10-14T15:07:14.205Z",
+        "sequence": 2
+      },
+      {
+        "eventId": "world:2",
+        "type": "watchtower.world_event",
+        "version": 1,
+        "subjectRefs": ["sentry-a"],
+        "payload": {
+          "kind": "defeat",
+          "ref": "sentry-a",
+          "worldSequence": 2
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-game",
+        "recordedAt": "2026-10-14T15:07:14.214Z",
+        "sequence": 3
+      },
+      {
+        "eventId": "world:3",
+        "type": "watchtower.world_event",
+        "version": 1,
+        "subjectRefs": ["sentry-b"],
+        "payload": {
+          "kind": "defeat",
+          "ref": "sentry-b",
+          "worldSequence": 3
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-game",
+        "recordedAt": "2026-10-14T15:07:14.222Z",
+        "sequence": 4
+      },
+      {
+        "eventId": "world:4",
+        "type": "watchtower.world_event",
+        "version": 1,
+        "subjectRefs": ["sentry-c"],
+        "payload": {
+          "kind": "defeat",
+          "ref": "sentry-c",
+          "worldSequence": 4
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-game",
+        "recordedAt": "2026-10-14T15:07:14.231Z",
+        "sequence": 5
+      },
+      {
+        "eventId": "effect:317c377e-398d-465f-bd6b-f37b6bd73915/2/show-guide",
+        "type": "quest.action_confirmed",
+        "version": 1,
+        "subjectRefs": ["watchkeeper"],
+        "correlation": {
+          "questRunId": "317c377e-398d-465f-bd6b-f37b6bd73915",
+          "operationId": "317c377e-398d-465f-bd6b-f37b6bd73915/2/show-guide"
+        },
+        "payload": {
+          "effectId": "317c377e-398d-465f-bd6b-f37b6bd73915/2/show-guide",
+          "stageRef": "watchkeeper",
+          "actionRef": "show-guide",
+          "arguments": {
+            "entityRef": "guide"
+          },
+          "result": {
+            "applied": true
+          }
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-quests",
+        "recordedAt": "2026-10-14T15:07:14.231Z",
+        "sequence": 6
+      },
+      {
+        "eventId": "effect:317c377e-398d-465f-bd6b-f37b6bd73915/2/open-ridge-gate",
+        "type": "quest.action_confirmed",
+        "version": 1,
+        "subjectRefs": ["watchkeeper"],
+        "correlation": {
+          "questRunId": "317c377e-398d-465f-bd6b-f37b6bd73915",
+          "operationId": "317c377e-398d-465f-bd6b-f37b6bd73915/2/open-ridge-gate"
+        },
+        "payload": {
+          "effectId": "317c377e-398d-465f-bd6b-f37b6bd73915/2/open-ridge-gate",
+          "stageRef": "watchkeeper",
+          "actionRef": "open-ridge-gate",
+          "arguments": {
+            "entityRef": "gate"
+          },
+          "result": {
+            "applied": true
+          }
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-quests",
+        "recordedAt": "2026-10-14T15:07:14.231Z",
+        "sequence": 7
+      },
+      {
+        "eventId": "effect:317c377e-398d-465f-bd6b-f37b6bd73915/5/show-selected-seal",
+        "type": "quest.action_confirmed",
+        "version": 1,
+        "subjectRefs": ["red-pickup"],
+        "correlation": {
+          "questRunId": "317c377e-398d-465f-bd6b-f37b6bd73915",
+          "operationId": "317c377e-398d-465f-bd6b-f37b6bd73915/5/show-selected-seal"
+        },
+        "payload": {
+          "effectId": "317c377e-398d-465f-bd6b-f37b6bd73915/5/show-selected-seal",
+          "stageRef": "red-pickup",
+          "actionRef": "show-selected-seal",
+          "arguments": {
+            "entityRef": "red-seal"
+          },
+          "result": {
+            "applied": true
+          }
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-quests",
+        "recordedAt": "2026-10-14T15:07:14.248Z",
+        "sequence": 8
+      },
+      {
+        "eventId": "317c377e-398d-465f-bd6b-f37b6bd73915:choice:proof:red",
+        "type": "quest.choice_confirmed",
+        "version": 1,
+        "subjectRefs": ["offer", "red-router"],
+        "correlation": {
+          "questRunId": "317c377e-398d-465f-bd6b-f37b6bd73915",
+          "operationId": "proof:red"
+        },
+        "payload": {
+          "choiceRef": "sit/317c377e-398d-465f-bd6b-f37b6bd73915/11/1",
+          "choiceLabel": "Red seal — Beacon Ridge B",
+          "from": "offer",
+          "to": "red-router",
+          "acceptedRevision": 12
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-quests",
+        "recordedAt": "2026-10-14T15:07:14.248Z",
+        "sequence": 9
+      },
+      {
+        "eventId": "world:5",
+        "type": "watchtower.world_event",
+        "version": 1,
+        "subjectRefs": ["red-seal"],
+        "payload": {
+          "kind": "pickup",
+          "ref": "red-seal",
+          "worldSequence": 5
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-game",
+        "recordedAt": "2026-10-14T15:07:14.258Z",
+        "sequence": 10
+      },
+      {
+        "eventId": "world:6",
+        "type": "watchtower.world_event",
+        "version": 1,
+        "subjectRefs": ["ridge-b"],
+        "payload": {
+          "kind": "location",
+          "ref": "ridge-b",
+          "worldSequence": 6
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-game",
+        "recordedAt": "2026-10-14T15:07:14.260Z",
+        "sequence": 11
+      },
+      {
+        "eventId": "world:7",
+        "type": "watchtower.world_event",
+        "version": 1,
+        "subjectRefs": ["red-seal@beacon-b"],
+        "payload": {
+          "kind": "delivery",
+          "ref": "red-seal@beacon-b",
+          "worldSequence": 7
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-game",
+        "recordedAt": "2026-10-14T15:07:14.260Z",
+        "sequence": 12
+      },
+      {
+        "eventId": "effect:317c377e-398d-465f-bd6b-f37b6bd73915/7/light-matching-beacon",
+        "type": "quest.action_confirmed",
+        "version": 1,
+        "subjectRefs": ["red-complete"],
+        "correlation": {
+          "questRunId": "317c377e-398d-465f-bd6b-f37b6bd73915",
+          "operationId": "317c377e-398d-465f-bd6b-f37b6bd73915/7/light-matching-beacon"
+        },
+        "payload": {
+          "effectId": "317c377e-398d-465f-bd6b-f37b6bd73915/7/light-matching-beacon",
+          "stageRef": "red-complete",
+          "actionRef": "light-matching-beacon",
+          "arguments": {
+            "entityRef": "beacon-b"
+          },
+          "result": {
+            "applied": true
+          }
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-quests",
+        "recordedAt": "2026-10-14T15:07:14.260Z",
+        "sequence": 13
+      },
+      {
+        "eventId": "317c377e-398d-465f-bd6b-f37b6bd73915:outcome",
+        "type": "quest.mission_report",
+        "version": 1,
+        "subjectRefs": ["red-seal", "beacon-b"],
+        "correlation": {
+          "questRunId": "317c377e-398d-465f-bd6b-f37b6bd73915"
+        },
+        "payload": {
+          "episode": "A",
+          "questRunId": "317c377e-398d-465f-bd6b-f37b6bd73915",
+          "definitionId": "watchtower-recovery",
+          "definitionDigest": "ba547c2f23096885149c299e0f7029ec929ec563a2ae516c1bb78c60041a2e05",
+          "outcome": "completed",
+          "endingRef": "red-complete",
+          "choiceRefs": ["sit/317c377e-398d-465f-bd6b-f37b6bd73915/11/1"],
+          "choiceHistory": "recorded",
+          "evidence": [
+            {
+              "source": "watchtower-quests",
+              "eventId": "effect:317c377e-398d-465f-bd6b-f37b6bd73915/7/light-matching-beacon"
+            },
+            {
+              "source": "watchtower-game",
+              "eventId": "world:7"
+            }
+          ],
+          "confirmedEffects": [
+            {
+              "entityRef": "beacon-b",
+              "lit": true
+            }
+          ]
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-quests",
+        "recordedAt": "2026-10-14T15:07:14.260Z",
+        "sequence": 14
+      },
+      {
+        "eventId": "world:8",
+        "type": "watchtower.world_event",
+        "version": 1,
+        "subjectRefs": ["blue-seal"],
+        "payload": {
+          "kind": "pickup",
+          "ref": "blue-seal",
+          "worldSequence": 8
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-game",
+        "recordedAt": "2026-10-14T15:07:14.532Z",
+        "sequence": 15
+      },
+      {
+        "eventId": "effect:3231dad0-7d25-48ac-913c-f51b4bf3bb9b/1/show-selected-seal",
+        "type": "quest.action_confirmed",
+        "version": 1,
+        "subjectRefs": ["blue-pickup"],
+        "correlation": {
+          "questRunId": "3231dad0-7d25-48ac-913c-f51b4bf3bb9b",
+          "operationId": "3231dad0-7d25-48ac-913c-f51b4bf3bb9b/1/show-selected-seal"
+        },
+        "payload": {
+          "effectId": "3231dad0-7d25-48ac-913c-f51b4bf3bb9b/1/show-selected-seal",
+          "stageRef": "blue-pickup",
+          "actionRef": "show-selected-seal",
+          "arguments": {
+            "entityRef": "blue-seal"
+          },
+          "result": {
+            "applied": true
+          }
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-quests",
+        "recordedAt": "2026-10-14T15:07:14.532Z",
+        "sequence": 16
+      },
+      {
+        "eventId": "world:9",
+        "type": "watchtower.world_event",
+        "version": 1,
+        "subjectRefs": ["ridge-a"],
+        "payload": {
+          "kind": "location",
+          "ref": "ridge-a",
+          "worldSequence": 9
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-game",
+        "recordedAt": "2026-10-14T15:07:14.534Z",
+        "sequence": 17
+      },
+      {
+        "eventId": "world:10",
+        "type": "watchtower.world_event",
+        "version": 1,
+        "subjectRefs": ["blue-seal@beacon-a"],
+        "payload": {
+          "kind": "delivery",
+          "ref": "blue-seal@beacon-a",
+          "worldSequence": 10
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-game",
+        "recordedAt": "2026-10-14T15:07:14.534Z",
+        "sequence": 18
+      },
+      {
+        "eventId": "effect:3231dad0-7d25-48ac-913c-f51b4bf3bb9b/3/light-matching-beacon",
+        "type": "quest.action_confirmed",
+        "version": 1,
+        "subjectRefs": ["blue-complete"],
+        "correlation": {
+          "questRunId": "3231dad0-7d25-48ac-913c-f51b4bf3bb9b",
+          "operationId": "3231dad0-7d25-48ac-913c-f51b4bf3bb9b/3/light-matching-beacon"
+        },
+        "payload": {
+          "effectId": "3231dad0-7d25-48ac-913c-f51b4bf3bb9b/3/light-matching-beacon",
+          "stageRef": "blue-complete",
+          "actionRef": "light-matching-beacon",
+          "arguments": {
+            "entityRef": "beacon-a"
+          },
+          "result": {
+            "applied": true
+          }
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-quests",
+        "recordedAt": "2026-10-14T15:07:14.534Z",
+        "sequence": 19
+      },
+      {
+        "eventId": "3231dad0-7d25-48ac-913c-f51b4bf3bb9b:outcome",
+        "type": "quest.mission_report",
+        "version": 1,
+        "subjectRefs": ["blue-seal", "beacon-a"],
+        "correlation": {
+          "questRunId": "3231dad0-7d25-48ac-913c-f51b4bf3bb9b"
+        },
+        "payload": {
+          "episode": "B",
+          "questRunId": "3231dad0-7d25-48ac-913c-f51b4bf3bb9b",
+          "definitionId": "continuation-after-317c377e-398d-465f-bd6b-f37b6bd73915",
+          "definitionDigest": "356a482079b89851fb1b576710e3cddca62d9d2f67ed246bb5e77a109435c78d",
+          "outcome": "completed",
+          "endingRef": "blue-complete",
+          "choiceRefs": [],
+          "choiceHistory": "not_applicable",
+          "evidence": [
+            {
+              "source": "watchtower-quests",
+              "eventId": "effect:3231dad0-7d25-48ac-913c-f51b4bf3bb9b/3/light-matching-beacon"
+            },
+            {
+              "source": "watchtower-game",
+              "eventId": "world:10"
+            }
+          ],
+          "confirmedEffects": [
+            {
+              "entityRef": "beacon-a",
+              "lit": true
+            }
+          ]
+        },
+        "gameId": "rocket-encounter",
+        "saveId": "browser-proof",
+        "timelineId": "timeline-2",
+        "schemaVersion": 1,
+        "source": "watchtower-quests",
+        "recordedAt": "2026-10-14T15:07:14.534Z",
+        "sequence": 20
+      }
+    ],
+    "nextCursor": null
+  },
+  "status": {
+    "identity": {
+      "gameId": "rocket-encounter",
+      "saveId": "browser-proof",
+      "timelineId": "timeline-2"
+    },
+    "capturedAt": "2026-10-14T15:07:14.535Z",
+    "head": 20,
+    "atomic": false,
+    "domains": {
+      "world": {
+        "revision": 26,
+        "recordedThrough": 20,
+        "availability": "available",
+        "data": {
+          "position": {
+            "x": 688,
+            "y": 112
+          },
+          "entities": [
+            {
+              "id": "sentry-a",
+              "label": "West sentry",
+              "kind": "enemy",
+              "group": "sentries",
+              "x": 240,
+              "y": 208,
+              "visible": false,
+              "defeated": true,
+              "collected": false,
+              "open": false,
+              "lit": false,
+              "deliveredTo": null
+            },
+            {
+              "id": "sentry-b",
+              "label": "Middle sentry",
+              "kind": "enemy",
+              "group": "sentries",
+              "x": 304,
+              "y": 208,
+              "visible": false,
+              "defeated": true,
+              "collected": false,
+              "open": false,
+              "lit": false,
+              "deliveredTo": null
+            },
+            {
+              "id": "sentry-c",
+              "label": "East sentry",
+              "kind": "enemy",
+              "group": "sentries",
+              "x": 368,
+              "y": 208,
+              "visible": false,
+              "defeated": true,
+              "collected": false,
+              "open": false,
+              "lit": false,
+              "deliveredTo": null
+            },
+            {
+              "id": "guide",
+              "label": "Watchkeeper",
+              "kind": "guide",
+              "group": "people",
+              "x": 448,
+              "y": 208,
+              "visible": true,
+              "defeated": false,
+              "collected": false,
+              "open": false,
+              "lit": false,
+              "deliveredTo": null
+            },
+            {
+              "id": "gate",
+              "label": "Ridge gate",
+              "kind": "gate",
+              "group": "doors",
+              "x": 608,
+              "y": 208,
+              "visible": true,
+              "defeated": false,
+              "collected": false,
+              "open": true,
+              "lit": false,
+              "deliveredTo": null
+            },
+            {
+              "id": "blue-seal",
+              "label": "Blue seal",
+              "kind": "item",
+              "group": "items",
+              "x": 528,
+              "y": 176,
+              "visible": false,
+              "defeated": false,
+              "collected": true,
+              "open": false,
+              "lit": false,
+              "deliveredTo": "beacon-a"
+            },
+            {
+              "id": "beacon-a",
+              "label": "Beacon A",
+              "kind": "beacon",
+              "group": "lights",
+              "x": 688,
+              "y": 112,
+              "visible": true,
+              "acceptsItemRef": "blue-seal",
+              "defeated": false,
+              "collected": false,
+              "open": false,
+              "lit": true,
+              "deliveredTo": null
+            },
+            {
+              "id": "red-seal",
+              "label": "Red seal",
+              "kind": "item",
+              "group": "items",
+              "x": 528,
+              "y": 240,
+              "visible": false,
+              "defeated": false,
+              "collected": true,
+              "open": false,
+              "lit": false,
+              "deliveredTo": "beacon-b"
+            },
+            {
+              "id": "beacon-b",
+              "label": "Beacon B",
+              "kind": "beacon",
+              "group": "lights",
+              "x": 688,
+              "y": 304,
+              "visible": true,
+              "acceptsItemRef": "red-seal",
+              "defeated": false,
+              "collected": false,
+              "open": false,
+              "lit": true,
+              "deliveredTo": null
+            }
+          ],
+          "historyComplete": true
+        }
+      },
+      "quests": {
+        "revision": 9,
+        "recordedThrough": 20,
+        "availability": "available",
+        "data": {
+          "runId": "3231dad0-7d25-48ac-913c-f51b4bf3bb9b",
+          "definitionId": "continuation-after-317c377e-398d-465f-bd6b-f37b6bd73915",
+          "stage": "blue-complete",
+          "status": "closed",
+          "episode": "B"
+        }
+      }
+    }
+  },
+  "console": []
+}

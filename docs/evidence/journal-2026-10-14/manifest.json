@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-14",
+  "checks": {
+    "command": "npm run check",
+    "tests": 311,
+    "passed": 311,
+    "failed": 0
+  },
+  "durableProof": {
+    "command": "npm run proof:journal",
+    "artifact": "/tmp/rocket-journal-proof-YD22Xx",
+    "branches": 2,
+    "episodes": 4,
+    "durableRestart": true,
+    "transport": "official SDK Client through actual in-process Rocket HTTP handler"
+  },
+  "browser": {
+    "url": "http://127.0.0.1:8092/journal.html",
+    "durability": "volatile",
+    "branches": ["blue-red", "red-blue"],
+    "failureRetry": true,
+    "disposeReset": true,
+    "consoleWarningsErrors": 0
+  },
+  "files": {
+    "src/journal/Journal.ts": "042618fe636e2734c41655d5dcc275547666b2b7bc9ce1c900fa00b36359de8f",
+    "src/journal/value.ts": "a069a1f1cb7929ce2a512752123dfe07d9830819dc64a49a20feb155034c5837",
+    "src/journal/MemoryJournalStore.ts": "fe72dd1df489fef897c99e11ff4bab508975bc47777c35f3b88a8543a6bfee57",
+    "src/journal/contracts.ts": "c403d4c4fd0d7bba64a50525357096b8ef00d7c3958c7e228428a9d46ca3ab31",
+    "src/journal/index.ts": "13672421074a740eba9c22862b913296850a363cebc0fe304a9588392e560c7b",
+    "src/journal/sqlite.ts": "3852e6320910057afa8e87bfc28e517a5337ca8e62c035305b0bf3f8e67408a3",
+    "src/journal/mcp.ts": "4b284a21b53020ad1a51cd6c380d1a34f96e347ecefc9c66a93a18cfdbf9a8c3",
+    "examples/journal/proof.ts": "5fbde59202d6cfa8aa559a7fbfa1e16881083d05054a82fb7e9bf1bf8016c7d6",
+    "examples/journal/demo.ts": "42e2840856f75a9bc8ee12a16ca1563a16e7d2f7abdc6af342170e6542849e9b",
+    "examples/journal/WatchtowerReporter.ts": "7e5d034f4a5b25c835f5be6e59c092df6cdedd08fc963e2b4ff291a37288318a",
+    "examples/journal/episodes.ts": "7dad76a04ccf708121b7597570f1a9e4b0b2be3660c328b61ca5715959701ffb",
+    "examples/journal/HostTransport.ts": "349412399a8c06dc35afb9c69575075e446c6d8a8c966f6f533326be9bf041ee",
+    "tests/journal.test.ts": "fb1d25a6b87722a2c91e07e68d6349a480bf4321b0129748bd586d3fd425d95f",
+    "tests/journal-episodes.test.ts": "e45fe94cec70787c37ff82c9dbd867a0df311027f8a19c06d710cb434bb2a555",
+    "journal.html": "fc2151885ba7a82468be0cdac1277584e95ff7079a59402dd26dfbf1feb7404e",
+    "docs/JOURNAL.md": "95710d5f0f273b34c9fa442aae92bf288a7a33a6f8657666d5cb75f51820db31",
+    "package.json": "020ea08470707d56ba005723159755c6b60234b8007b8cdee5d164798828c967"
+  },
+  "baselineQuestSha256": "32aabc76aaf1c3f0a8cc57bb6a9287ac3f55eb46334c78a3ba6086be8d0c9f9d",
+  "baselineDemoSha256": "921c721ee1917ba768f2fb0591fcec11ad3c6f937891bcddc9159cd98c9ec58d"
+}

@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket · Cockpit asteroid field</title>
+    <link rel="stylesheet" href="./examples/style.css" />
+    <link rel="stylesheet" href="./examples/demo-navigation.css" />
+    <script
+      type="module"
+      src="./dist/examples/demo-navigation.js?v=29-asteroids"
+    ></script>
+    <link rel="stylesheet" href="./examples/3d/line-demo.css" />
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <div class="eyebrow">3D · MILESTONE 29</div>
+      <h1>Take the cockpit into the field</h1>
+      <p>
+        The v5 cockpit meets the seeded asteroid field. The cabin follows the
+        pilot; rocks stay in world space. Fly and turn to see them pass the
+        windshield, with the existing instruments, lighting and bloom.
+      </p>
+      <section aria-labelledby="performance-title">
+        <h2 id="performance-title">Performance</h2>
+        <dl class="performance-grid">
+          <div>
+            <dt>Callback FPS</dt>
+            <dd id="perf-fps">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame interval</dt>
+            <dd id="perf-frame">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Peak frame interval</dt>
+            <dd id="perf-peak">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Shortest interval</dt>
+            <dd id="perf-minimum">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame jitter</dt>
+            <dd id="perf-jitter">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Update CPU</dt>
+            <dd id="perf-update">Warming up…</dd>
+          </div>
+          <div>
+            <dt id="perf-render-label">CPU submission</dt>
+            <dd id="perf-render">Warming up…</dd>
+          </div>
+          <div>
+            <dt>GPU draw average</dt>
+            <dd id="perf-gpu">Pending…</dd>
+          </div>
+          <div>
+            <dt>GPU draw peak</dt>
+            <dd id="perf-gpu-peak">—</dd>
+          </div>
+        </dl>
+        <p id="perf-gpu-samples">Waiting for GPU timing…</p>
+        <p>
+          Callback FPS counts animation callbacks, not confirmed screen
+          presentations. Uneven frame pacing can feel choppy despite a high
+          average.
+        </p>
+        <p id="perf-resolution">Measuring canvas size…</p>
+        <details>
+          <summary>Reading the metrics</summary>
+          <p>
+            FPS, frame intervals and CPU times come from Rocket’s rolling
+            half-second monitor. Peak is the longest frame interval in that
+            window. Frame jitter is the standard deviation of those intervals;
+            lower means more even pacing. A very short minimum alongside a much
+            longer peak indicates callbacks arriving in bursts. CPU timings
+            measure JavaScript work; they do not measure GPU execution or
+            browser compositing. GPU draw average and peak cover the last 32
+            valid asynchronous timer-query samples of the scene, cabin shadow
+            pass and bloom. Results arrive on later frames; a maximum of four
+            queries can be pending. Invalid (disjoint) samples are discarded.
+            Unsupported browsers show “unsupported” rather than an estimated GPU
+            time. These measurements exclude display latency and compositing;
+            CPU and GPU times overlap and must not be added together.
+          </p>
+          <p>
+            For comparisons, keep the same canvas size, display scale, camera
+            pose and field of view, and keep this tab in the foreground. FPS is
+            capped by the browser/display refresh rate; CPU times can increase
+            before FPS drops. Recreate demo starts a fresh measurement window.
+          </p>
+        </details>
+      </section>
+      <div
+        id="gpu-view"
+        class="canvas-host"
+        data-model="./examples/3d/assets/cockpit-forward-v5-wear.glb"
+        data-model-label="Cockpit v5 fitted wear"
+        data-world="asteroids"
+      ></div>
+      <p>
+        Click the canvas to focus. WASD moves · Q/E down/up · Shift boost · drag
+        or arrow keys to turn · R returns home. Cruise advances along cockpit
+        forward while Move with cockpit is enabled. Navigation is direct, with
+        no inertia.
+      </p>
+      <fieldset>
+        <legend>Outside world</legend>
+        <div class="toolbar">
+          <label
+            ><input id="field-enabled" type="checkbox" checked /> Asteroid
+            field</label
+          >
+          <label><input id="cruise" type="checkbox" /> Cruise forward</label>
+          <label
+            >Seed
+            <input
+              id="field-seed"
+              type="number"
+              min="0"
+              max="4294967295"
+              step="1"
+              value="2126"
+              required
+          /></label>
+          <label
+            >Rocks
+            <select id="field-count">
+              <option>32</option>
+              <option selected>96</option>
+              <option>256</option>
+            </select></label
+          >
+          <button id="field-generate">Generate field</button>
+          <button id="field-home" type="button">Return home</button>
+        </div>
+        <p id="field-status"></p>
+        <p>
+          A finite field: no collisions, wrapping, streaming or asteroid motion.
+          You can fly through rocks and past the field. Radar contacts and lower
+          telemetry remain simulated; they do not track these rocks yet. Turning
+          off Move with cockpit lets the camera inspect the scene independently.
+        </p>
+      </fieldset>
+      <div class="toolbar">
+        <label
+          >Render scale
+          <input
+            id="render-scale"
+            type="range"
+            min="50"
+            max="200"
+            step="25"
+            value="100"
+          />
+          <output id="render-scale-value">100%</output>
+        </label>
+      </div>
+      <p>
+        100% uses the viewport size × device pixel ratio. Lower the scale for
+        speed; raise it for supersampling. The viewport stays the same size. GPU
+        dimension limits are reported above; shadow-map and instrument-texture
+        sizes remain independent.
+      </p>
+      <fieldset>
+        <legend>Screen illumination</legend>
+        <div class="toolbar">
+          <label
+            ><input id="screen-power" type="checkbox" checked /> Display
+            power</label
+          >
+          <label
+            ><input id="screen-light-enabled" type="checkbox" checked /> Screen
+            light spill</label
+          >
+          <label
+            ><input id="screen-light-only" type="checkbox" /> Isolate screen
+            lighting</label
+          >
+          <label
+            >Strength
+            <input
+              id="screen-light-strength"
+              type="range"
+              min="0"
+              max="8"
+              step="0.1"
+              value="1.5" /><output id="screen-light-value"></output
+          ></label>
+        </div>
+        <p id="screen-light-status"></p>
+        <p>
+          Isolate removes ambient, studio fill and the existing
+          directional/point lamps. Toggle bloom separately to distinguish a
+          screen halo from illumination on the nearby frame. Existing emissive
+          materials remain visible. Scene light controls retain their values
+          while isolation is active.
+        </p>
+        <p>
+          This reuses existing inverse-square point lights, offset in front of
+          the five display meshes. Representative green/amber colors and face
+          areas approximate backlight output. It does not sample the animated
+          pixels or simulate area lights. These lights have no shadows or
+          occlusion, so they can leak through cabin walls. Display power stops
+          their contribution and blacks out the five textures; pausing display
+          updates simply freezes the powered readouts.
+        </p>
+      </fieldset>
+      <fieldset>
+        <legend>Bloom</legend>
+        <div class="toolbar">
+          <label
+            ><input id="bloom-enabled" type="checkbox" checked /> Bloom</label
+          >
+          <label
+            >View
+            <select id="bloom-view">
+              <option value="composite">Composite</option>
+              <option value="scene">Sharp scene</option>
+              <option value="bright">Bright extraction</option>
+              <option value="bloom">Blurred glow</option>
+            </select></label
+          >
+          <label
+            >Threshold
+            <input
+              id="bloom-threshold"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.6" /><output id="bloom-threshold-value"></output
+          ></label>
+          <label
+            >Strength
+            <input
+              id="bloom-strength"
+              type="range"
+              min="0"
+              max="2"
+              step="0.05"
+              value="0.35" /><output id="bloom-strength-value"></output
+          ></label>
+          <label
+            >Radius
+            <input
+              id="bloom-radius"
+              type="range"
+              min="0"
+              max="8"
+              step="0.25"
+              value="1.5" /><output id="bloom-radius-value"></output
+          ></label>
+        </div>
+        <p id="bloom-status"></p>
+        <p>
+          The same reusable pass as milestone 25. All sufficiently bright
+          visible pixels can bloom: lamps, displays and reflections. It does not
+          illuminate nearby surfaces. Disable bloom in Composite view for a
+          comparison with identical scene resolution. Material, normal and
+          shadow diagnostic views automatically bypass bloom.
+        </p>
+        <p>
+          The scene uses an 8-bit offscreen target with depth and no multisample
+          antialiasing; native resolution and render scale still apply. Glow
+          buffers are half resolution. Existing scene highlights are already
+          clipped; no HDR or exposure yet. GPU timing includes the scene, shadow
+          pass and enabled post-processing.
+        </p>
+      </fieldset>
+      <p>
+        Click the canvas to focus. <strong>WASD</strong> moves,
+        <strong>Q / E</strong> lowers / raises, <strong>Shift</strong> speeds
+        up. <strong>Drag</strong> or use the arrow keys to turn;
+        <strong>R</strong> returns to the pilot seat. One world unit matches the
+        earlier asteroid demo. The optional grid spans 60 × 60 units and starts
+        hidden.
+      </p>
+      <div class="toolbar">
+        <label
+          ><input id="reference-grid" type="checkbox" /> World reference
+          grid</label
+        >
+        <label
+          ><input id="pilot-rig" type="checkbox" checked /> Move with
+          cockpit</label
+        >
+      </div>
+      <p>
+        Move with cockpit keeps you in the pilot seat. Turn it off to look
+        around independently; Inspect exterior resets the cockpit at the origin.
+        This is direct navigation, without flight physics or collision.
+      </p>
+      <div class="toolbar">
+        <label
+          ><input id="environment-enabled" type="checkbox" checked /> Studio
+          reflection map</label
+        >
+        <label
+          >Environment strength
+          <input
+            id="environment-strength"
+            type="range"
+            min="0"
+            max="200"
+            value="35"
+        /></label>
+        <label
+          >Environment yaw
+          <input
+            id="environment-yaw"
+            type="range"
+            min="-180"
+            max="180"
+            value="0"
+        /></label>
+      </div>
+      <p id="environment-status"></p>
+      <p>
+        This is distant environment lighting: the cockpit and asteroids do not
+        reflect each other, and the cabin does not block incoming environment
+        light. The map stays fixed in world orientation as you turn the ship.
+        Use the existing direct-light controls independently.
+      </p>
+      <div class="toolbar">
+        <label
+          ><input id="shadows-enabled" type="checkbox" checked /> Directional
+          shadows</label
+        >
+        <label
+          ><input id="shadow-pcf" type="checkbox" checked /> 3 × 3 PCF</label
+        >
+        <label
+          ><input id="shadow-debug" type="checkbox" /> Shadow visibility
+          mask</label
+        >
+        <label
+          >Shadow resolution
+          <select id="shadow-resolution">
+            <option>256</option>
+            <option>512</option>
+            <option selected>1024</option>
+            <option>2048</option>
+          </select></label
+        >
+      </div>
+      <div class="toolbar">
+        <label
+          >Light yaw
+          <input id="light-yaw" type="range" min="-180" max="180" value="-25"
+        /></label>
+        <label
+          >Light elevation
+          <input
+            id="light-elevation"
+            type="range"
+            min="-80"
+            max="80"
+            value="25"
+        /></label>
+        <label
+          >Shadow bias
+          <input id="shadow-bias" type="range" min="0" max="100" value="5"
+        /></label>
+        <label
+          >Slope bias
+          <input id="shadow-slope" type="range" min="0" max="100" value="10"
+        /></label>
+      </div>
+      <p id="shadow-status"></p>
+      <p>
+        The fitted shadow volume follows the moving cockpit; light direction
+        stays fixed in world space. The reference grid and asteroids are
+        excluded from shadow casting and receiving; the fitted shadow map covers
+        the cabin only. Only the directional light is shadowed:
+        environment/ambient fill, glowing surfaces and the point lamp are not.
+        Use the visibility mask to isolate the shadow result. Large bias can
+        detach shadows; low bias can expose self-shadow artifacts on thin trim.
+      </p>
+      <p id="model-details">Loading model…</p>
+      <div class="toolbar">
+        <button id="inspect-model">Inspect exterior</button>
+        <label
+          ><input id="normal-enabled" type="checkbox" checked /> Normal
+          mapping</label
+        >
+        <label
+          ><input id="normal-debug" type="checkbox" /> Show world normals</label
+        >
+        <label
+          ><input id="material-response" type="checkbox" checked /> GGX material
+          response</label
+        >
+        <label
+          >View
+          <select id="material-channel">
+            <option value="none">Shaded</option>
+            <option value="occlusion">Occlusion</option>
+            <option value="roughness">Roughness</option>
+            <option value="metallic">Metallic</option>
+          </select></label
+        >
+      </div>
+      <div class="toolbar">
+        <label
+          >Camera X <input id="camera-x" type="number" step="0.05" value="0"
+        /></label>
+        <label
+          >Camera Y <input id="camera-y" type="number" step="0.05" value="1.5"
+        /></label>
+        <label
+          >Camera Z <input id="camera-z" type="number" step="0.05" value="0"
+        /></label>
+      </div>
+      <div class="toolbar">
+        <label
+          ><input id="lighting-enabled" type="checkbox" checked /> Lighting
+          enabled</label
+        >
+        <label
+          ><input id="orbit-light" type="checkbox" /> Animate point light</label
+        >
+      </div>
+      <div class="toolbar">
+        <label
+          >Ambient
+          <input
+            id="ambient"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value="0.08"
+        /></label>
+        <label
+          >Directional
+          <input
+            id="directional"
+            type="range"
+            min="0"
+            max="2"
+            step="0.01"
+            value="0.35"
+        /></label>
+        <label
+          >Point strength
+          <input
+            id="point-strength"
+            type="range"
+            min="0"
+            max="20"
+            step="0.1"
+            value="6"
+        /></label>
+      </div>
+      <div class="toolbar">
+        <label
+          >Point X
+          <input
+            id="point-x"
+            type="range"
+            min="-30"
+            max="5"
+            step="0.1"
+            value="-1.5"
+        /></label>
+        <label
+          >Point Y
+          <input
+            id="point-y"
+            type="range"
+            min="-2"
+            max="5"
+            step="0.1"
+            value="2"
+        /></label>
+        <label
+          >Point Z
+          <input
+            id="point-z"
+            type="range"
+            min="-30"
+            max="5"
+            step="0.1"
+            value="-2"
+        /></label>
+      </div>
+      <p id="light-status">Preparing lights…</p>
+      <div class="toolbar">
+        <label
+          ><input id="depth-test" type="checkbox" checked /> Depth testing
+          (GPU)</label
+        >
+        <label
+          ><input id="reverse-order" type="checkbox" /> Reverse draw order
+          (GPU)</label
+        >
+      </div>
+      <div class="toolbar">
+        <label
+          >Camera yaw
+          <input id="camera-yaw" type="range" min="-180" max="180" value="-20"
+        /></label>
+        <label
+          >Camera pitch
+          <input id="camera-pitch" type="range" min="-75" max="75" value="-12"
+        /></label>
+      </div>
+      <div class="toolbar">
+        <button id="reset-triangle">Pilot seat</button
+        ><button id="restart">Recreate demo</button
+        ><label
+          ><input id="animate-triangle" type="checkbox" /> Animate
+          rotation</label
+        >
+      </div>
+      <div class="toolbar">
+        <label
+          >Rotation
+          <input
+            id="triangle-angle"
+            type="range"
+            min="-180"
+            max="180"
+            value="0"
+          /><output id="angle-value">0°</output></label
+        ><label
+          >Vertical FOV
+          <input
+            id="triangle-scale"
+            type="range"
+            min="35"
+            max="100"
+            value="60"
+          /><output id="scale-value">60°</output></label
+        >
+      </div>
+      <div class="toolbar">
+        <button id="lose-context">Simulate context loss</button
+        ><button id="restore-context" disabled>Restore context</button
+        ><button id="read-pixel">Check normal mapping</button>
+      </div>
+
+      <fieldset>
+        <legend>Instruments</legend>
+        <label
+          ><input id="reticle-enabled" type="checkbox" checked /> Cockpit
+          forward reticle</label
+        >
+        <p>
+          Upper displays, left to right: local X/Y/Z position, heading/pitch in
+          degrees, and navigation speed in world units per second (8 normally,
+          30 with Shift). These describe the current pilot/free-camera controls,
+          with no flight physics. Lower radar and ship telemetry remain
+          simulated. The reticle marks cockpit forward; it follows the cockpit
+          and can move out of view when inspecting independently.
+        </p>
+        <label
+          ><input id="instruments-running" type="checkbox" checked /> Run
+          displays</label
+        >
+        <label
+          >Display updates / second
+          <input id="instruments-rate" type="range" min="1" max="30" value="10"
+        /></label>
+        <button id="instruments-step">Advance displays once</button>
+        <output id="instruments-status" aria-live="polite"></output>
+      </fieldset>
+      <output id="gpu-status" aria-live="polite">Starting…</output>
+      <p>
+        The original 2,072 triangles and material maps are unchanged. Normal
+        detail is subtle at its authored strength. The cabin is intentionally
+        open; exterior views may expose its model boundaries. No local scene
+        reflections, point-light shadows or flight simulation yet.
+      </p>
+      <p id="mesh-stats">Preparing meshes…</p>
+      <output id="gpu-diagnostic" aria-live="polite"></output>
+      <p>
+        Render CPU measures JavaScript submission time, not GPU execution. Pixel
+        readback can stall the GPU; use the diagnostic separately from
+        performance comparisons. This small scene verifies correctness; it is
+        not a stress benchmark.
+      </p>
+      <p>
+        Context-loss testing releases the drawing context temporarily; restore
+        rebuilds programs, mesh buffers, textures and samplers. Recreate retires
+        the previous canvas and GPU resources. No WebGL1 or Canvas fallback is
+        silently substituted.
+      </p>
+      <details>
+        <summary>Where the reflections come from</summary>
+        <p>
+          The same six-face studio as milestone 19: warm panel, cool panel,
+          ceiling and sky/ground fill. This preview stays unrotated. It supplies
+          diffuse and roughness-filtered specular lighting without adding room
+          geometry.
+        </p>
+        <div id="environment-preview" class="toolbar"></div>
+      </details>
+      <p><a href="./docs/3D-MILESTONES.md">Milestones and boundaries</a></p>
+    </main>
+    <script
+      type="module"
+      src="./dist/examples/webgl/cockpit.js?v=29-asteroids"
+    ></script>
+  </body>
+</html>

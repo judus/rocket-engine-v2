@@ -1,0 +1,83 @@
+{
+  "proposalVersion": "cfw-situations-draft-2",
+  "id": "rocket-grove-events",
+  "start": "watch",
+  "situations": [
+    {
+      "id": "watch",
+      "dialogue": {
+        "text": "Explore the Old Grove."
+      },
+      "routes": [
+        {
+          "id": "visit",
+          "priority": 10,
+          "when": {
+            "tool": "rocket_inspect_grove",
+            "arguments": {
+              "locationRef": "grove"
+            },
+            "expect": {
+              "path": ["entries"],
+              "operator": "at_least",
+              "value": 1
+            },
+            "evidence": {
+              "mode": "events",
+              "after": {
+                "kind": "run-start"
+              }
+            }
+          },
+          "next": "pickup"
+        }
+      ]
+    },
+    {
+      "id": "pickup",
+      "dialogue": {
+        "text": "A survey marker is here. Pick it up with E or click it from nearby."
+      },
+      "onEnter": [
+        {
+          "id": "reveal-marker",
+          "tool": "rocket_reveal_marker",
+          "arguments": {
+            "existingItemRef": "survey-marker"
+          }
+        }
+      ],
+      "routes": [
+        {
+          "id": "new-pickup",
+          "priority": 10,
+          "when": {
+            "tool": "rocket_inspect_marker",
+            "arguments": {
+              "existingItemRef": "survey-marker"
+            },
+            "expect": {
+              "path": ["count"],
+              "operator": "at_least",
+              "value": 1
+            },
+            "evidence": {
+              "mode": "events",
+              "after": {
+                "kind": "situation-entry",
+                "situationRef": "pickup"
+              }
+            }
+          },
+          "next": "found"
+        }
+      ]
+    },
+    {
+      "id": "found",
+      "dialogue": {
+        "text": "Survey marker recovered. The situation is complete."
+      }
+    }
+  ]
+}

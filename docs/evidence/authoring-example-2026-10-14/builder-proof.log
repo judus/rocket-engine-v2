@@ -1,0 +1,5 @@
+(node:1776983) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+MCP fixture: http://127.0.0.1:8098/mcp (credential configured, not printed)
+MCP fixture: http://127.0.0.1:8098/mcp (credential configured, not printed)
+{"tcp":true,"tools":33,"builderSteps":63,"durablePublicationRecovery":true,"durableCommandRecovery":true,"conflictingRetryRejected":true,"catalogueOnly":true,"summary":true,"catalogue":true,"exactPublicationReplay":true,"authoringGameEvents":0,"cleanup":{"providers":0,"connections":0,"disposed":true},"branches":[{"color":"blue","status":"closed","path":["s1","s2","s3","s4","s5","s6","s7","s8"],"executions":5},{"color":"red","status":"closed","path":["s1","s2","s3","s4","s9","s10","s11","s12"],"executions":5}],"artifacts":"/tmp/rocket-quest-proof-rwZpJC"}

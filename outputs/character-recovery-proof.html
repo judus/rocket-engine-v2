@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" />
+  <title>Rocket saturated recovery proof</title>
+  <link rel="stylesheet" href="../src/ui/style.css" />
+  <h1>Saturated dialogue recovery proof</h1>
+  <p>
+    128 retained deliveries · JSON restore · actual HostChatPort and ChatBox ·
+    offline
+  </p>
+  <pre id="result">Preparing</pre>
+  <div id="a"></div>
+  <div id="b"></div>
+  <button id="cleanup">Dispose presentations and host</button>
+  <script type="importmap">
+    {
+      "imports": {
+        "character-framework/host": "../dist/vendor/character-framework-0.1.0-cc9267cf6a4d/host/index.js"
+      }
+    }
+  </script>
+  <script type="module">
+    import { CharacterHostPort } from 'character-framework/host';
+    import { HostChatPort } from '../dist/examples/characters/HostChatPort.js';
+    import { Panel, ChatBox } from '../dist/src/ui/index.js';
+    const output = document.querySelector('#result');
+    let lose = true,
+      finished = false;
+    const calls = [];
+    const driver = {
+      current() {},
+      choices: () => [],
+      async run(id, key) {
+        calls.push({ id, key });
+        if (id === 'last' && lose) {
+          lose = false;
+          throw Error('lost reply');
+        }
+        return 'Retained original reply';
+      },
+    };
+    const original = new CharacterHostPort(driver, () => {});
+    for (let i = 0; i < 127; i++)
+      await original.dispatch({
+        kind: 'dialogue',
+        requestId: 'done-' + i,
+        expectedRevision: original.read().revision,
+        message: 'Hello',
+      });
+    try {
+      await original.dispatch({
+        kind: 'dialogue',
+        requestId: 'last',
+        expectedRevision: original.read().revision,
+        message: 'Last request',
+      });
+    } catch (error) {
+      if (error.message !== 'lost reply') throw error;
+    }
+    const host = new CharacterHostPort(
+      driver,
+      () => {},
+      JSON.parse(JSON.stringify(original.save())),
+    );
+    original.dispose();
+    const chat = new HostChatPort(host, 'Guide');
+    const panels = ['a', 'b'].map(
+      (id) => new Panel({ target: '#' + id, title: 'Recovered ' + id }),
+    );
+    panels.forEach((panel) => new ChatBox(panel, chat));
+    const publish = () => {
+      const state = host.read(),
+        saved = host.save();
+      const ok =
+        state.state === 'idle' &&
+        saved.deliveries.length === 128 &&
+        calls.length === 129 &&
+        JSON.stringify(calls.at(-1)) === JSON.stringify(calls.at(-2)) &&
+        state.messages.filter((m) => m.id === 'last/player').length === 1;
+      finished ||= ok;
+      output.textContent = JSON.stringify(
+        {
+          status: ok ? 'PASS' : state.state,
+          deliveries: saved.deliveries.length,
+          driverCalls: calls.length,
+          originalEffectRetained: ok,
+          commands: state.commands,
+        },
+        null,
+        2,
+      );
+    };
+    const detach = host.subscribe(publish);
+    publish();
+    function cleanup() {
+      detach();
+      panels.forEach((panel) => panel.dispose());
+      chat.dispose();
+      host.dispose();
+      output.textContent = JSON.stringify({
+        status: finished ? 'PASS' : 'FAIL',
+        cleanup: true,
+        panelsDisposed: panels.every((panel) => panel.disposed),
+        hostState: host.read().state,
+      });
+    }
+    document
+      .querySelector('#cleanup')
+      .addEventListener('click', cleanup, { once: true });
+    window.addEventListener('pagehide', cleanup, { once: true });
+  </script>
+</html>

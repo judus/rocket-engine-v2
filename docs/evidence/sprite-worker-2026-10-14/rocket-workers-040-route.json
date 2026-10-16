@@ -1,0 +1,65 @@
+{
+  "backend": "workers",
+  "world": "gradient-terrain-v1;seed=42;scale=96",
+  "passes": 256,
+  "viewport": "3 × 640×360",
+  "route": "six-stops-v1",
+  "delayMs": 0,
+  "edits": "isolated unedited benchmark",
+  "state": "complete",
+  "reason": "",
+  "stop": 6,
+  "elapsedMs": 12006.800000071526,
+  "frames": 1726,
+  "meanFrameMs": 6.956315179619839,
+  "maxFrameMs": 27.600000023841858,
+  "p95FrameMsUpper": 8,
+  "p95Over499ms": false,
+  "over16ms": 1,
+  "over33ms": 0,
+  "over50ms": 0,
+  "requested": 960,
+  "ready": 960,
+  "unfinishedAtStop": 0,
+  "pending": 0,
+  "meanReadyMs": 285.31031252580385,
+  "maxReadyMs": 582.8999999761581,
+  "stops": [
+    {
+      "stop": 0,
+      "requested": 160,
+      "ready": 160,
+      "allReadyMs": 559.8000000715256
+    },
+    {
+      "stop": 1,
+      "requested": 160,
+      "ready": 160,
+      "allReadyMs": 556.5
+    },
+    {
+      "stop": 2,
+      "requested": 160,
+      "ready": 160,
+      "allReadyMs": 582.8999999761581
+    },
+    {
+      "stop": 3,
+      "requested": 160,
+      "ready": 160,
+      "allReadyMs": 555.4000000953674
+    },
+    {
+      "stop": 4,
+      "requested": 160,
+      "ready": 160,
+      "allReadyMs": 555.8999999761581
+    },
+    {
+      "stop": 5,
+      "requested": 160,
+      "ready": 160,
+      "allReadyMs": 555.3000000715256
+    }
+  ]
+}

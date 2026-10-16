@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket · Authored CFW dialogue</title>
+    <link rel="stylesheet" href="./examples/style.css" />
+    <link rel="stylesheet" href="./examples/demo-navigation.css" />
+    <link rel="stylesheet" href="./src/ui/style.css" />
+    <link rel="stylesheet" href="./examples/ui/demo.css" />
+    <script type="module" src="./dist/examples/demo-navigation.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "character-framework": "./dist/vendor/character-framework-0.1.0-6692be8fd4e3/index.js",
+          "sprite-animation": "./dist/vendor/sprite-animation-0.2.0/index.js",
+          "sprite-animation/canvas2d": "./dist/vendor/sprite-animation-0.2.0/canvas2d.js"
+        }
+      }
+    </script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <h1>A guide, authored choices, current game facts</h1>
+      <p>
+        Use WASD / Shift on the focused canvas. Move into the guide's circle,
+        then click the guide sprite or open the dialogue. CFW interprets the
+        JSON flow; Rocket validates proximity and owns movement, picking and
+        presentation.
+      </p>
+      <p>
+        This neutral conversation has three choices and converging paths. No AI,
+        mandatory quest acceptance, reward or inventory mutation is involved.
+      </p>
+      <div class="toolbar">
+        <button id="talk">Open guide dialogue</button>
+        <button id="fail">Fail next journal save</button>
+        <button id="hold">Hold next journal save</button>
+        <button id="unhold">Release held save</button>
+        <button id="remove">Remove guide</button>
+        <button id="dispose">Dispose</button>
+        <button id="recreate">Recreate</button>
+      </div>
+      <pre><output></output></pre>
+      <div class="ui-stage">
+        <div id="situation-world"></div>
+        <div id="situation-chat" class="ui-float"></div>
+      </div>
+      <p>
+        Close the panel to keep walking. Moving out of range hides dialogue and
+        choices; CFW revalidates game facts when a choice commits. Stop waiting
+        detaches the pending UI; it does not undo the CFW command. Release the
+        held save to let it settle. Retry preserves the original command
+        identity.
+      </p>
+      <p>
+        The journal is volatile. This demo proves local authored interaction,
+        not process-crash recovery.
+        <a href="./examples/characters/situations/meeting.json"
+          >Authored JSON</a
+        >
+        · Art: SzadiArt ·
+        <a href="./examples/character-sprites/LICENSE.txt">Asset licence</a>.
+      </p>
+    </main>
+    <script
+      type="module"
+      src="./dist/examples/character-situations/demo.js"
+    ></script>
+  </body>
+</html>

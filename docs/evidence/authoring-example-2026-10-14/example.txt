@@ -1,0 +1,292 @@
+CFW AUTHORING USAGE EXAMPLE
+Source: installed CFW QUEST-BUILDER-TOOLS-WALKTHROUGH.md. SHA256: ab50b775848e986b8ac37b5c5de0f46676e487513c39fb61a4dd03f85355e915.
+This is CFW's recorded Watchtower reconstruction (63 calls), not a new authoring execution. Calls and the final Mermaid are read from the same maintained document. Explanations use this binding's native tool descriptions. No resulting quest JSON is returned.
+The recorded draft/stage/condition IDs and revisions belong to this example. In a new quest, use your returned IDs and latest revision; do not guess them or batch dependent edits at one revision. Check current game context and catalogue first.
+The source records local builder responses. Return notes below are explanatory summaries; registered MCP success uses completed.data and mutations add a connector-owned commandId. Publication freezes the draft; it does not start gameplay.
+
+COMPLETE TOOL-CALL CHAIN
+The chain includes incomplete drafts, intentional rejections, inspection and repair. Follow the recorded order to see how the final structure was reached.
+
+1. create_quest_draft({"title":"Recover the watchtower beacon","premise":"Choose a seal, recover it if not already collected, and complete matching delivery."})
+   Explanation: Create persistent quest intent without an implicit stage. Return draft ID and revision.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 1; created.draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d.
+
+2. add_stage({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":1},"title":"approach","purpose":"Watchtower approach progression","dialogue":"Enter the courtyard to investigate the ruined watchtower."})
+   Explanation: Add purpose/title and optional dialogue; return a stable stage ID. Incomplete drafts are saveable.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 2; created.stageId: s1; changedId: s1; findings: 2 entries.
+
+3. add_stage({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":2},"title":"encounter","purpose":"Watchtower encounter progression","dialogue":"The sentries awaken. Move close to each and press E or click to defeat it."})
+   Explanation: Add purpose/title and optional dialogue; return a stable stage ID. Incomplete drafts are saveable.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 3; created.stageId: s2; changedId: s2; findings: 3 entries.
+
+4. add_stage({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":3},"title":"watchkeeper","purpose":"Watchtower watchkeeper progression","dialogue":"The watchkeeper appears. Approach to learn the route to the beacon."})
+   Explanation: Add purpose/title and optional dialogue; return a stable stage ID. Incomplete drafts are saveable.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 4; created.stageId: s3; changedId: s3; findings: 4 entries.
+
+5. add_stage({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":4},"title":"offer","purpose":"Watchtower offer progression","dialogue":"Watchkeeper: The tower has two paths. Do you want the blue seal or the red seal? Blue belongs at Beacon Ridge A; red belongs at Beacon Ridge B."})
+   Explanation: Add purpose/title and optional dialogue; return a stable stage ID. Incomplete drafts are saveable.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 5; created.stageId: s4; changedId: s4; findings: 5 entries.
+
+6. add_stage({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":5},"title":"blue-router","purpose":"Watchtower blue-router progression"})
+   Explanation: Add purpose/title and optional dialogue; return a stable stage ID. Incomplete drafts are saveable.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 6; created.stageId: s5; changedId: s5; findings: 6 entries.
+
+7. add_stage({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":6},"title":"blue-pickup","purpose":"Watchtower blue-pickup progression","dialogue":"Watchkeeper: You chose blue. Recover the blue seal, then carry it to Beacon Ridge A."})
+   Explanation: Add purpose/title and optional dialogue; return a stable stage ID. Incomplete drafts are saveable.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 7; created.stageId: s6; changedId: s6; findings: 7 entries.
+
+8. add_stage({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":7},"title":"blue-delivery","purpose":"Watchtower blue-delivery progression","dialogue":"Watchkeeper: Deliver the blue seal to Beacon Ridge A. Stand by Beacon A and press E or click it. The other beacon cannot accept this seal."})
+   Explanation: Add purpose/title and optional dialogue; return a stable stage ID. Incomplete drafts are saveable.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 8; created.stageId: s7; changedId: s7; findings: 8 entries.
+
+9. add_stage({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":8},"title":"blue-complete","purpose":"Watchtower blue-complete progression","dialogue":"The blue seal reached Beacon Ridge A. Beacon A is lit. Your chosen mission is complete."})
+   Explanation: Add purpose/title and optional dialogue; return a stable stage ID. Incomplete drafts are saveable.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 9; created.stageId: s8; changedId: s8; findings: 9 entries.
+
+10. add_stage({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":9},"title":"red-router","purpose":"Watchtower red-router progression"})
+   Explanation: Add purpose/title and optional dialogue; return a stable stage ID. Incomplete drafts are saveable.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 10; created.stageId: s9; changedId: s9; findings: 10 entries.
+
+11. add_stage({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":10},"title":"red-pickup","purpose":"Watchtower red-pickup progression","dialogue":"Watchkeeper: You chose red. Recover the red seal, then carry it to Beacon Ridge B."})
+   Explanation: Add purpose/title and optional dialogue; return a stable stage ID. Incomplete drafts are saveable.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 11; created.stageId: s10; changedId: s10; findings: 11 entries.
+
+12. add_stage({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":11},"title":"red-delivery","purpose":"Watchtower red-delivery progression","dialogue":"Watchkeeper: Deliver the red seal to Beacon Ridge B. Stand by Beacon B and press E or click it. The other beacon cannot accept this seal."})
+   Explanation: Add purpose/title and optional dialogue; return a stable stage ID. Incomplete drafts are saveable.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 12; created.stageId: s11; changedId: s11; findings: 12 entries.
+
+13. add_stage({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":12},"title":"red-complete","purpose":"Watchtower red-complete progression","dialogue":"The red seal reached Beacon Ridge B. Beacon B is lit. Your chosen mission is complete."})
+   Explanation: Add purpose/title and optional dialogue; return a stable stage ID. Incomplete drafts are saveable.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 13; created.stageId: s12; changedId: s12; findings: 13 entries.
+
+14. set_start_stage({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":13},"stageId":"s1"})
+   Explanation: Select an existing entry stage explicitly.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 14; changedId: s1; findings: 12 entries.
+
+15. review_quest_draft({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":14}})
+   Explanation: Read readiness and actionable findings, including event/result provenance. Does not mutate or assess narrative quality.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 14; technicalReady: false; findings: 12 entries.
+
+16. publish_quest_draft({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":14}})
+   Explanation: Atomically save an immutable definition, frozen draft marker and original command receipt. Does not activate gameplay.
+   Recorded result: rejected; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 14; technicalReady: false; findings: 12 entries. Intentional negative control: inspect the issue and repair; this call did not succeed.
+
+17. create_event_condition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":14},"capability":"game_location","arguments":{"locationRef":"courtyard"},"comparison":{"field":"count","operator":"at_least","value":1},"since":"quest_start"})
+   Explanation: Create a typed event condition since quest_start or a named stage entry. Final validation requires that boundary on every consuming path.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 15; created.conditionId: c13; changedId: c13; findings: 12 entries.
+
+18. add_transition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":15},"from":"s1","to":"s2","conditionId":"c13","priority":10})
+   Explanation: Connect existing stages automatically using a condition ID and explicit ascending priority. Return stable record ID.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 16; created.recordId: r14; changedId: r14; findings: 11 entries.
+
+19. create_event_condition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":16},"capability":"game_encounter","arguments":{"groupRef":"sentries"},"comparison":{"field":"count","operator":"at_least","value":3},"since":{"stageId":"s2"}})
+   Explanation: Create a typed event condition since quest_start or a named stage entry. Final validation requires that boundary on every consuming path.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 17; created.conditionId: c15; changedId: c15; findings: 11 entries.
+
+20. add_transition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":17},"from":"s2","to":"s3","conditionId":"c15","priority":10})
+   Explanation: Connect existing stages automatically using a condition ID and explicit ascending priority. Return stable record ID.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 18; created.recordId: r16; changedId: r16; findings: 10 entries.
+
+21. add_entry_consequence({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":18},"stageId":"s2","capability":"game_activate_group","arguments":{"groupRef":"sentries"}})
+   Explanation: Append a granted action to stage entry, in order. Authoring does not execute it.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 19; created.recordId: r17; changedId: r17; findings: 10 entries.
+
+22. create_fact_condition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":19},"capability":"game_entity","arguments":{"entityRef":"guide"},"comparison":{"field":"near","operator":"equals","value":true}})
+   Explanation: Create a typed current-fact condition from a granted inspection. Return condition ID; use comparison.path for nested output.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 20; created.conditionId: c18; changedId: c18; findings: 10 entries.
+
+23. add_transition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":20},"from":"s3","to":"s4","conditionId":"c18","priority":10})
+   Explanation: Connect existing stages automatically using a condition ID and explicit ascending priority. Return stable record ID.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 21; created.recordId: r19; changedId: r19; findings: 9 entries.
+
+24. add_entry_consequence({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":21},"stageId":"s3","capability":"game_reveal","arguments":{"entityRef":"guide"}})
+   Explanation: Append a granted action to stage entry, in order. Authoring does not execute it.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 22; created.recordId: r20; changedId: r20; findings: 9 entries.
+
+25. add_entry_consequence({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":22},"stageId":"s3","capability":"game_open_gate","arguments":{"entityRef":"gate"}})
+   Explanation: Append a granted action to stage entry, in order. Authoring does not execute it.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 23; created.recordId: r21; changedId: r21; findings: 9 entries.
+
+26. set_interaction_requirement({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":23},"stageId":"s4","conditionId":"c18"})
+   Explanation: Set/remove a fact or event requirement shared by stage dialogue and every choice; distinct choice guards must also pass.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 24; changedId: s4; findings: 9 entries.
+
+27. add_choice({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":24},"from":"s4","to":"s5","label":"Blue seal — Beacon Ridge A","conditionId":"c18"})
+   Explanation: Add a player-selected destination and optional condition. Shared stage interaction requirements also apply.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 25; created.recordId: r22; changedId: r22; findings: 8 entries.
+
+28. add_choice({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":25},"from":"s4","to":"s9","label":"Red seal — Beacon Ridge B","conditionId":"c18"})
+   Explanation: Add a player-selected destination and optional condition. Shared stage interaction requirements also apply.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 26; created.recordId: r23; changedId: r23; findings: 8 entries.
+
+29. create_fact_condition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":26},"capability":"game_entity","arguments":{"entityRef":"blue-seal"},"comparison":{"field":"collected","operator":"equals","value":true}})
+   Explanation: Create a typed current-fact condition from a granted inspection. Return condition ID; use comparison.path for nested output.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 27; created.conditionId: c24; changedId: c24; findings: 8 entries.
+
+30. add_transition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":27},"from":"s5","to":"s7","conditionId":"c24","priority":10})
+   Explanation: Connect existing stages automatically using a condition ID and explicit ascending priority. Return stable record ID.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 28; created.recordId: r25; changedId: r25; findings: 7 entries.
+
+31. create_fact_condition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":28},"capability":"game_entity","arguments":{"entityRef":"blue-seal"},"comparison":{"field":"collected","operator":"equals","value":false}})
+   Explanation: Create a typed current-fact condition from a granted inspection. Return condition ID; use comparison.path for nested output.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 29; created.conditionId: c26; changedId: c26; findings: 7 entries.
+
+32. add_transition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":29},"from":"s5","to":"s6","conditionId":"c26","priority":20})
+   Explanation: Connect existing stages automatically using a condition ID and explicit ascending priority. Return stable record ID.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 30; created.recordId: r27; changedId: r27; findings: 7 entries.
+
+33. create_event_condition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":30},"capability":"game_entity","arguments":{"entityRef":"blue-seal"},"comparison":{"field":"count","operator":"at_least","value":1},"since":{"stageId":"s6"}})
+   Explanation: Create a typed event condition since quest_start or a named stage entry. Final validation requires that boundary on every consuming path.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 31; created.conditionId: c28; changedId: c28; findings: 7 entries.
+
+34. add_transition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":31},"from":"s6","to":"s7","conditionId":"c28","priority":10})
+   Explanation: Connect existing stages automatically using a condition ID and explicit ascending priority. Return stable record ID.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 32; created.recordId: r29; changedId: r29; findings: 6 entries.
+
+35. add_entry_consequence({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":32},"stageId":"s6","capability":"game_reveal","arguments":{"entityRef":"blue-seal"}})
+   Explanation: Append a granted action to stage entry, in order. Authoring does not execute it.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 33; created.recordId: r30; changedId: r30; findings: 6 entries.
+
+36. create_fact_condition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":33},"capability":"game_delivery","arguments":{"itemRef":"blue-seal","destinationRef":"beacon-a"},"comparison":{"field":"delivered","operator":"equals","value":true}})
+   Explanation: Create a typed current-fact condition from a granted inspection. Return condition ID; use comparison.path for nested output.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 34; created.conditionId: c31; changedId: c31; findings: 6 entries.
+
+37. add_transition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":34},"from":"s7","to":"s8","conditionId":"c31","priority":10})
+   Explanation: Connect existing stages automatically using a condition ID and explicit ascending priority. Return stable record ID.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 35; created.recordId: r32; changedId: r32; findings: 5 entries.
+
+38. add_entry_consequence({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":35},"stageId":"s8","capability":"game_light_beacon","arguments":{"entityRef":"beacon-a"}})
+   Explanation: Append a granted action to stage entry, in order. Authoring does not execute it.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 36; created.recordId: r33; changedId: r33; findings: 5 entries.
+
+39. declare_ending({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":36},"stageId":"s8","ending":true})
+   Explanation: Mark/unmark intentional terminal authoring intent. Ending stages cannot have outgoing connections.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 37; changedId: s8; findings: 4 entries.
+
+40. create_fact_condition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":37},"capability":"game_entity","arguments":{"entityRef":"red-seal"},"comparison":{"field":"collected","operator":"equals","value":true}})
+   Explanation: Create a typed current-fact condition from a granted inspection. Return condition ID; use comparison.path for nested output.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 38; created.conditionId: c34; changedId: c34; findings: 4 entries.
+
+41. add_transition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":38},"from":"s9","to":"s11","conditionId":"c34","priority":10})
+   Explanation: Connect existing stages automatically using a condition ID and explicit ascending priority. Return stable record ID.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 39; created.recordId: r35; changedId: r35; findings: 3 entries.
+
+42. create_fact_condition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":39},"capability":"game_entity","arguments":{"entityRef":"red-seal"},"comparison":{"field":"collected","operator":"equals","value":false}})
+   Explanation: Create a typed current-fact condition from a granted inspection. Return condition ID; use comparison.path for nested output.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 40; created.conditionId: c36; changedId: c36; findings: 3 entries.
+
+43. add_transition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":40},"from":"s9","to":"s10","conditionId":"c36","priority":20})
+   Explanation: Connect existing stages automatically using a condition ID and explicit ascending priority. Return stable record ID.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 41; created.recordId: r37; changedId: r37; findings: 3 entries.
+
+44. create_event_condition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":41},"capability":"game_entity","arguments":{"entityRef":"red-seal"},"comparison":{"field":"count","operator":"at_least","value":1},"since":{"stageId":"s10"}})
+   Explanation: Create a typed event condition since quest_start or a named stage entry. Final validation requires that boundary on every consuming path.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 42; created.conditionId: c38; changedId: c38; findings: 3 entries.
+
+45. add_transition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":42},"from":"s10","to":"s11","conditionId":"c38","priority":10})
+   Explanation: Connect existing stages automatically using a condition ID and explicit ascending priority. Return stable record ID.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 43; created.recordId: r39; changedId: r39; findings: 2 entries.
+
+46. add_entry_consequence({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":43},"stageId":"s10","capability":"game_reveal","arguments":{"entityRef":"red-seal"}})
+   Explanation: Append a granted action to stage entry, in order. Authoring does not execute it.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 44; created.recordId: r40; changedId: r40; findings: 2 entries.
+
+47. create_fact_condition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":44},"capability":"game_delivery","arguments":{"itemRef":"red-seal","destinationRef":"beacon-b"},"comparison":{"field":"delivered","operator":"equals","value":true}})
+   Explanation: Create a typed current-fact condition from a granted inspection. Return condition ID; use comparison.path for nested output.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 45; created.conditionId: c41; changedId: c41; findings: 2 entries.
+
+48. add_transition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":45},"from":"s11","to":"s12","conditionId":"c41","priority":10})
+   Explanation: Connect existing stages automatically using a condition ID and explicit ascending priority. Return stable record ID.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 46; created.recordId: r42; changedId: r42; findings: 1 entries.
+
+49. add_entry_consequence({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":46},"stageId":"s12","capability":"game_light_beacon","arguments":{"entityRef":"beacon-b"}})
+   Explanation: Append a granted action to stage entry, in order. Authoring does not execute it.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 47; created.recordId: r43; changedId: r43; findings: 1 entries.
+
+50. declare_ending({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":47},"stageId":"s12","ending":true})
+   Explanation: Mark/unmark intentional terminal authoring intent. Ending stages cannot have outgoing connections.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 48; changedId: s12; findings: 0 entries.
+
+51. inspect_quest_draft({"draftId":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d"})
+   Explanation: Read exact saved authoring logic, condition users, publication marker and semantic Mermaid at one revision; never runtime JSON.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 48; publication: null; findings: 0 entries.
+
+52. inspect_quest_draft({"draftId":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d"})
+   Explanation: Read exact saved authoring logic, condition users, publication marker and semantic Mermaid at one revision; never runtime JSON.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 48; publication: null; findings: 0 entries.
+
+53. edit_record({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":48},"recordId":"r32","change":{"operation":"replace","kind":"transition","value":{"from":"s7","to":"s12","conditionId":"c31","priority":10}}})
+   Explanation: Replace/remove a transition, choice, consequence or objective by stable ID. Replacement retains identity/order; never leaves old behavior attached.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 49; changedId: r32; findings: 0 entries.
+
+54. inspect_quest_draft({"draftId":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d"})
+   Explanation: Read exact saved authoring logic, condition users, publication marker and semantic Mermaid at one revision; never runtime JSON.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 49; publication: null; findings: 0 entries.
+
+55. edit_record({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":49},"recordId":"r32","change":{"operation":"replace","kind":"transition","value":{"from":"s7","to":"s8","conditionId":"c31","priority":10}}})
+   Explanation: Replace/remove a transition, choice, consequence or objective by stable ID. Replacement retains identity/order; never leaves old behavior attached.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 50; changedId: r32; findings: 0 entries.
+
+56. edit_record({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":50},"recordId":"r33","change":{"operation":"replace","kind":"consequence","value":{"stageId":"s8","capability":"game_light_beacon","arguments":{"entityRef":"beacon-b"}}}})
+   Explanation: Replace/remove a transition, choice, consequence or objective by stable ID. Replacement retains identity/order; never leaves old behavior attached.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 51; changedId: r33; findings: 0 entries.
+
+57. inspect_quest_draft({"draftId":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d"})
+   Explanation: Read exact saved authoring logic, condition users, publication marker and semantic Mermaid at one revision; never runtime JSON.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 51; publication: null; findings: 0 entries.
+
+58. edit_record({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":51},"recordId":"r33","change":{"operation":"replace","kind":"consequence","value":{"stageId":"s8","capability":"game_light_beacon","arguments":{"entityRef":"beacon-a"}}}})
+   Explanation: Replace/remove a transition, choice, consequence or objective by stable ID. Replacement retains identity/order; never leaves old behavior attached.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 52; changedId: r33; findings: 0 entries.
+
+59. remove_stage({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":52},"stageId":"s8"})
+   Explanation: Remove an unreferenced stage. References reject with IDs; no silent cascade or retarget.
+   Recorded result: rejected; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 52; code: stage_referenced. Intentional negative control: inspect the issue and repair; this call did not succeed.
+
+60. update_condition({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":52},"conditionId":"c18","replacement":{"mode":"fact","capability":"game_entity","arguments":{"entityRef":"guide"},"comparison":{"field":"near","operator":"equals","value":true}},"affectedRecordIds":[]})
+   Explanation: Replace a condition and explicitly acknowledge its complete affectedRecordIds from inspection, including shared interaction users.
+   Recorded result: rejected; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 52; code: condition_users_changed. Intentional negative control: inspect the issue and repair; this call did not succeed.
+
+61. review_quest_draft({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":52}})
+   Explanation: Read readiness and actionable findings, including event/result provenance. Does not mutate or assess narrative quality.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 52; technicalReady: true; findings: 0 entries.
+
+62. publish_quest_draft({"draft":{"id":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d","revision":52}})
+   Explanation: Atomically save an immutable definition, frozen draft marker and original command receipt. Does not activate gameplay.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 52; publication.definitionId: definition-e980b960-aceb-43d6-a7c9-26d77959225d; publication.digest: 1b750e44d7a3782de73104ea141cb8efe7a85499c733576cafd375a848677744; publication.sourceRevision: 52.
+
+63. inspect_quest_draft({"draftId":"draft-1444993b-4130-4ec3-857f-7b9c7276b19d"})
+   Explanation: Read exact saved authoring logic, condition users, publication marker and semantic Mermaid at one revision; never runtime JSON.
+   Recorded result: completed; draftId: draft-1444993b-4130-4ec3-857f-7b9c7276b19d; revision: 52; publication.definitionId: definition-e980b960-aceb-43d6-a7c9-26d77959225d; publication.digest: 1b750e44d7a3782de73104ea141cb8efe7a85499c733576cafd375a848677744; publication.sourceRevision: 52; findings: 0 entries.
+
+RESULT OF THE COMPLETE RECORDED CHAIN
+This Mermaid describes the final saved example after its repairs, not the state after an individual page.
+
+```mermaid
+flowchart TD
+  s1["s1: approach"]
+  s2["s2: encounter; enter r17: game_activate_group {&quot;groupRef&quot;:&quot;sentries&quot;}"]
+  s3["s3: watchkeeper; enter r20: game_reveal {&quot;entityRef&quot;:&quot;guide&quot;}; enter r21: game_open_gate {&quot;entityRef&quot;:&quot;gate&quot;}"]
+  s4["s4: offer; interaction c18: game_entity {&quot;entityRef&quot;:&quot;guide&quot;} near equals true; fact now"]
+  s5["s5: blue-router"]
+  s6["s6: blue-pickup; enter r30: game_reveal {&quot;entityRef&quot;:&quot;blue-seal&quot;}"]
+  s7["s7: blue-delivery"]
+  s8["s8: blue-complete (ending); enter r33: game_light_beacon {&quot;entityRef&quot;:&quot;beacon-a&quot;}"]
+  s9["s9: red-router"]
+  s10["s10: red-pickup; enter r40: game_reveal {&quot;entityRef&quot;:&quot;red-seal&quot;}"]
+  s11["s11: red-delivery"]
+  s12["s12: red-complete (ending); enter r43: game_light_beacon {&quot;entityRef&quot;:&quot;beacon-b&quot;}"]
+  s1 -->|"r14: c13: game_location {&quot;locationRef&quot;:&quot;courtyard&quot;} count at_least 1; events since quest start priority 10"| s2
+  s2 -->|"r16: c15: game_encounter {&quot;groupRef&quot;:&quot;sentries&quot;} count at_least 3; events since s2 entry priority 10"| s3
+  s3 -->|"r19: c18: game_entity {&quot;entityRef&quot;:&quot;guide&quot;} near equals true; fact now priority 10"| s4
+  s4 -->|"r22: choice Blue seal — Beacon Ridge A; c18: game_entity {&quot;entityRef&quot;:&quot;guide&quot;} near equals true; fact now"| s5
+  s4 -->|"r23: choice Red seal — Beacon Ridge B; c18: game_entity {&quot;entityRef&quot;:&quot;guide&quot;} near equals true; fact now"| s9
+  s5 -->|"r25: c24: game_entity {&quot;entityRef&quot;:&quot;blue-seal&quot;} collected equals true; fact now priority 10"| s7
+  s5 -->|"r27: c26: game_entity {&quot;entityRef&quot;:&quot;blue-seal&quot;} collected equals false; fact now priority 20"| s6
+  s6 -->|"r29: c28: game_entity {&quot;entityRef&quot;:&quot;blue-seal&quot;} count at_least 1; events since s6 entry priority 10"| s7
+  s7 -->|"r32: c31: game_delivery {&quot;itemRef&quot;:&quot;blue-seal&quot;,&quot;destinationRef&quot;:&quot;beacon-a&quot;} delivered equals true; fact now priority 10"| s8
+  s9 -->|"r35: c34: game_entity {&quot;entityRef&quot;:&quot;red-seal&quot;} collected equals true; fact now priority 10"| s11
+  s9 -->|"r37: c36: game_entity {&quot;entityRef&quot;:&quot;red-seal&quot;} collected equals false; fact now priority 20"| s10
+  s10 -->|"r39: c38: game_entity {&quot;entityRef&quot;:&quot;red-seal&quot;} count at_least 1; events since s10 entry priority 10"| s11
+  s11 -->|"r42: c41: game_delivery {&quot;itemRef&quot;:&quot;red-seal&quot;,&quot;destinationRef&quot;:&quot;beacon-b&quot;} delivered equals true; fact now priority 10"| s12
+```

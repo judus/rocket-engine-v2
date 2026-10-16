@@ -1,0 +1,1368 @@
+[
+  {
+    "name": "create_quest_draft",
+    "description": "Create persistent quest intent without an implicit stage. Return draft ID and revision.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "premise": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      },
+      "required": ["title", "premise"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "update_quest_intent",
+    "description": "Revise title and premise before publication. Requires the latest draft revision.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "premise": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      },
+      "required": ["draft", "title", "premise"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "list_quest_drafts",
+    "description": "Read draft IDs/revisions/titles and recent durable command identities for recovery.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "inspect_quest_draft",
+    "description": "Read exact saved authoring logic, condition users, publication marker and semantic Mermaid at one revision; never runtime JSON.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draftId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      },
+      "required": ["draftId"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "add_stage",
+    "description": "Add purpose/title and optional dialogue; return a stable stage ID. Incomplete drafts are saveable.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "dialogue": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      },
+      "required": ["draft", "title", "purpose"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "update_stage",
+    "description": "Replace stage title/purpose/dialogue, retaining identity/connections. Null dialogue removes prose.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "stageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "dialogue": {
+          "type": ["string", "null"],
+          "maxLength": 2000
+        }
+      },
+      "required": ["draft", "stageId", "title", "purpose", "dialogue"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "remove_stage",
+    "description": "Remove an unreferenced stage. References reject with IDs; no silent cascade or retarget.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "stageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      },
+      "required": ["draft", "stageId"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "set_start_stage",
+    "description": "Select an existing entry stage explicitly.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "stageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      },
+      "required": ["draft", "stageId"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "create_fact_condition",
+    "description": "Create a typed current-fact condition from a granted inspection. Return condition ID; use comparison.path for nested output.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "capability": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "arguments": {
+          "type": "object"
+        },
+        "comparison": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                "operator": {
+                  "enum": ["equals", "at_least"]
+                },
+                "value": {
+                  "type": ["string", "number", "boolean", "null"]
+                }
+              },
+              "required": ["field", "operator", "value"],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160
+                  },
+                  "minItems": 1,
+                  "maxItems": 8
+                },
+                "operator": {
+                  "enum": ["equals", "at_least"]
+                },
+                "value": {
+                  "type": ["string", "number", "boolean", "null"]
+                }
+              },
+              "required": ["path", "operator", "value"],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": ["draft", "capability", "arguments", "comparison"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "create_event_condition",
+    "description": "Create a typed event condition since quest_start or a named stage entry. Final validation requires that boundary on every consuming path.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "capability": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "arguments": {
+          "type": "object"
+        },
+        "comparison": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                "operator": {
+                  "enum": ["equals", "at_least"]
+                },
+                "value": {
+                  "type": ["string", "number", "boolean", "null"]
+                }
+              },
+              "required": ["field", "operator", "value"],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160
+                  },
+                  "minItems": 1,
+                  "maxItems": 8
+                },
+                "operator": {
+                  "enum": ["equals", "at_least"]
+                },
+                "value": {
+                  "type": ["string", "number", "boolean", "null"]
+                }
+              },
+              "required": ["path", "operator", "value"],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "since": {
+          "oneOf": [
+            {
+              "const": "quest_start"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "stageId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                }
+              },
+              "required": ["stageId"],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": ["draft", "capability", "arguments", "comparison", "since"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "update_condition",
+    "description": "Replace a condition and explicitly acknowledge its complete affectedRecordIds from inspection, including shared interaction users.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "conditionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "replacement": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "capability": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                "arguments": {
+                  "type": "object"
+                },
+                "comparison": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 160
+                        },
+                        "operator": {
+                          "enum": ["equals", "at_least"]
+                        },
+                        "value": {
+                          "type": ["string", "number", "boolean", "null"]
+                        }
+                      },
+                      "required": ["field", "operator", "value"],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 160
+                          },
+                          "minItems": 1,
+                          "maxItems": 8
+                        },
+                        "operator": {
+                          "enum": ["equals", "at_least"]
+                        },
+                        "value": {
+                          "type": ["string", "number", "boolean", "null"]
+                        }
+                      },
+                      "required": ["path", "operator", "value"],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "mode": {
+                  "const": "fact"
+                }
+              },
+              "required": ["capability", "arguments", "comparison", "mode"],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "capability": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                "arguments": {
+                  "type": "object"
+                },
+                "comparison": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 160
+                        },
+                        "operator": {
+                          "enum": ["equals", "at_least"]
+                        },
+                        "value": {
+                          "type": ["string", "number", "boolean", "null"]
+                        }
+                      },
+                      "required": ["field", "operator", "value"],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 160
+                          },
+                          "minItems": 1,
+                          "maxItems": 8
+                        },
+                        "operator": {
+                          "enum": ["equals", "at_least"]
+                        },
+                        "value": {
+                          "type": ["string", "number", "boolean", "null"]
+                        }
+                      },
+                      "required": ["path", "operator", "value"],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "mode": {
+                  "const": "events"
+                },
+                "since": {
+                  "oneOf": [
+                    {
+                      "const": "quest_start"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "stageId": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 160
+                        }
+                      },
+                      "required": ["stageId"],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "capability",
+                "arguments",
+                "comparison",
+                "mode",
+                "since"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "affectedRecordIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": ["draft", "conditionId", "replacement", "affectedRecordIds"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "remove_condition",
+    "description": "Remove an unused condition. Referenced conditions reject with their users; no silent cascade.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "conditionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      },
+      "required": ["draft", "conditionId"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "add_transition",
+    "description": "Connect existing stages automatically using a condition ID and explicit ascending priority. Return stable record ID.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "from": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "to": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "conditionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": ["draft", "from", "to", "conditionId", "priority"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "add_choice",
+    "description": "Add a player-selected destination and optional condition. Shared stage interaction requirements also apply.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "from": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "to": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "conditionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      },
+      "required": ["draft", "from", "to", "label"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "add_entry_consequence",
+    "description": "Append a granted action to stage entry, in order. Authoring does not execute it.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "stageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "capability": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "arguments": {
+          "type": "object"
+        }
+      },
+      "required": ["draft", "stageId", "capability", "arguments"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "add_objective",
+    "description": "Add observed progress text and condition to a stage. Objectives do not implicitly gate routes or endings.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "stageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "conditionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      },
+      "required": ["draft", "stageId", "description", "conditionId"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "from_action_result",
+    "description": "Read a typed authoring argument reference to an entry consequence output. No mutation; producer availability/types validated before publication.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "recordId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "minItems": 1,
+          "maxItems": 8
+        }
+      },
+      "required": ["draft", "recordId", "path"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "edit_record",
+    "description": "Replace/remove a transition, choice, consequence or objective by stable ID. Replacement retains identity/order; never leaves old behavior attached.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "recordId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "change": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "operation": {
+                  "const": "remove"
+                }
+              },
+              "required": ["operation"],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "operation": {
+                  "const": "replace"
+                },
+                "kind": {
+                  "const": "transition"
+                },
+                "value": {
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    },
+                    "to": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    },
+                    "conditionId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    },
+                    "priority": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": ["from", "to", "conditionId", "priority"],
+                  "additionalProperties": false
+                }
+              },
+              "required": ["operation", "kind", "value"],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "operation": {
+                  "const": "replace"
+                },
+                "kind": {
+                  "const": "choice"
+                },
+                "value": {
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    },
+                    "to": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2000
+                    },
+                    "conditionId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    }
+                  },
+                  "required": ["from", "to", "label"],
+                  "additionalProperties": false
+                }
+              },
+              "required": ["operation", "kind", "value"],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "operation": {
+                  "const": "replace"
+                },
+                "kind": {
+                  "const": "consequence"
+                },
+                "value": {
+                  "type": "object",
+                  "properties": {
+                    "stageId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    },
+                    "capability": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    },
+                    "arguments": {
+                      "type": "object"
+                    }
+                  },
+                  "required": ["stageId", "capability", "arguments"],
+                  "additionalProperties": false
+                }
+              },
+              "required": ["operation", "kind", "value"],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "operation": {
+                  "const": "replace"
+                },
+                "kind": {
+                  "const": "objective"
+                },
+                "value": {
+                  "type": "object",
+                  "properties": {
+                    "stageId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    },
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1000
+                    },
+                    "conditionId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    }
+                  },
+                  "required": ["stageId", "description", "conditionId"],
+                  "additionalProperties": false
+                }
+              },
+              "required": ["operation", "kind", "value"],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": ["draft", "recordId", "change"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "set_interaction_requirement",
+    "description": "Set/remove a fact or event requirement shared by stage dialogue and every choice; distinct choice guards must also pass.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "stageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "conditionId": {
+          "type": ["string", "null"]
+        }
+      },
+      "required": ["draft", "stageId", "conditionId"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "declare_ending",
+    "description": "Mark/unmark intentional terminal authoring intent. Ending stages cannot have outgoing connections.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        },
+        "stageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "ending": {
+          "type": "boolean"
+        }
+      },
+      "required": ["draft", "stageId", "ending"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "review_quest_draft",
+    "description": "Read readiness and actionable findings, including event/result provenance. Does not mutate or assess narrative quality.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["draft"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "publish_quest_draft",
+    "description": "Atomically save an immutable definition, frozen draft marker and original command receipt. Does not activate gameplay.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": ["id", "revision"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["draft"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "read_quest_draft",
+    "description": "Read ONLY the currently granted game capability catalogue/reference vocabulary. Other sections are unavailable to this provider.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "section": {
+          "const": "catalogue"
+        }
+      },
+      "required": ["section"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_authoring_command_outcome",
+    "description": "Read an original durable command outcome by trusted commandId, without retrying a mutation.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "commandId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      },
+      "required": ["commandId"],
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "game_world_summary",
+    "description": "Read watchtower game description, exact world references, live state and interaction prerequisites. Distances are Euclidean pixels, not reachability.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  }
+]

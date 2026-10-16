@@ -1,0 +1,79 @@
+.walker-instructions {
+  padding: 16px 18px;
+  margin: 20px 0;
+  background: #172536;
+  border-left: 3px solid #68d5ff;
+  line-height: 1.6;
+}
+#walker-goal-x,
+#walker-goal-y {
+  width: 96px;
+}
+#walker-status {
+  display: block;
+  margin: 16px 0 0;
+  min-height: 3em;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #bfe9ff;
+}
+#walker-progress {
+  min-height: 1.5em;
+  font-size: 13px;
+  color: #97adbc;
+}
+.walker-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin: 20px 0;
+  font-size: 13px;
+  color: #c6d5e6;
+}
+.walker-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.walker-legend i {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+}
+.walker-legend .search {
+  border: 2px solid #68d5ff;
+  background: #294a41;
+}
+.walker-legend .outside {
+  background: #111d29;
+  border: 1px solid #405367;
+}
+.walker-legend .actor {
+  background: #a4f0cc;
+  border-radius: 50%;
+}
+.walker-legend .target {
+  background: #ffd884;
+}
+.walker-legend .wall {
+  background: #9cabb7;
+}
+.walker-legend .cost {
+  background: #6a593c;
+}
+.walker-caption {
+  min-height: 3em;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.walker-details {
+  margin: 18px 0;
+}
+.walker-details .toolbar {
+  margin: 16px 0;
+}
+#walker-counters {
+  color: #a8bbc9;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}

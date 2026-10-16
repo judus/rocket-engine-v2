@@ -1,0 +1,15 @@
+(node:1665576) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ registered builder discovers 24 typed tools with restricted catalogue and durable mutation replay (221.504243ms)
+✔ registered builder rejects publication outside granted reference categories (384.773503ms)
+✔ registered builder preserves the publication fragment budget (499.563459ms)
+✔ registered builder storage uses namespace capacity rather than the tool-message budget (447.22901ms)
+✔ builder publication and original edit receipts survive a new process and host-only definitions remain private (344.874754ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2077.725607

@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket · Solid cube</title>
+    <link rel="stylesheet" href="./examples/style.css" />
+    <link rel="stylesheet" href="./examples/demo-navigation.css" />
+    <script type="module" src="./dist/examples/demo-navigation.js"></script>
+    <link rel="stylesheet" href="./examples/3d/line-demo.css" />
+    <style>
+      .object-controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .object-controls fieldset {
+        border: 1px solid #33465d;
+        border-radius: 6px;
+        padding: 0.75rem;
+        min-width: 0;
+      }
+      .object-controls legend {
+        color: #f5d38b;
+        font-size: 14px;
+      }
+      .object-controls label {
+        margin: 0.7rem 0;
+      }
+      .object-controls input[type='range'] {
+        min-width: 0;
+        flex: 1;
+      }
+      .object-controls input[type='checkbox'] {
+        width: auto;
+      }
+      .object-controls output {
+        min-width: 3rem;
+        margin: 0;
+        text-align: right;
+      }
+      #cube-status {
+        display: block;
+        margin: 1rem 0;
+        color: #f5d38b;
+        font-variant-numeric: tabular-nums;
+      }
+    </style>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <div class="eyebrow">3D · MILESTONE 03</div>
+      <h1>Give the cube its faces.</h1>
+      <p>
+        Solid-colored faces, back-face culling and clipped polygons. Same cube,
+        transforms and camera; one more rendering step.
+      </p>
+      <section aria-labelledby="performance-title">
+        <h2 id="performance-title">Performance</h2>
+        <dl class="performance-grid">
+          <div>
+            <dt>Render FPS</dt>
+            <dd id="perf-fps">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame interval</dt>
+            <dd id="perf-frame">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Peak frame interval</dt>
+            <dd id="perf-peak">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Shortest interval</dt>
+            <dd id="perf-minimum">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame jitter</dt>
+            <dd id="perf-jitter">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Update CPU</dt>
+            <dd id="perf-update">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Render CPU</dt>
+            <dd id="perf-render">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Lines drawn / submitted</dt>
+            <dd id="perf-lines">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Faces drawn / submitted</dt>
+            <dd id="perf-faces">Warming up…</dd>
+          </div>
+        </dl>
+        <p>
+          Render FPS counts animation callbacks, not confirmed screen
+          presentations. Uneven frame pacing can feel choppy despite a high
+          average.
+        </p>
+        <p id="perf-resolution">Measuring canvas size…</p>
+        <details>
+          <summary>Reading the metrics</summary>
+          <p>
+            FPS, frame intervals and CPU times come from Rocket’s rolling
+            half-second monitor. Peak is the longest frame interval in that
+            window. Frame jitter is the standard deviation of those intervals;
+            lower means more even pacing. A very short minimum alongside a much
+            longer peak indicates callbacks arriving in bursts. CPU timings
+            measure JavaScript work; they do not measure GPU execution or
+            browser compositing. Lines count the current frame after / before
+            clipping.
+          </p>
+          <p>
+            For comparisons, keep the same canvas size, display scale, camera
+            pose and field of view, and keep this tab in the foreground. FPS is
+            capped by the browser/display refresh rate; CPU times can increase
+            before FPS drops. Recreate demo starts a fresh measurement window.
+          </p>
+        </details>
+      </section>
+      <div id="grid-view" class="canvas-host"></div>
+      <div class="toolbar">
+        <button id="reset">Reset camera</button>
+        <label
+          >Vertical field of view
+          <input id="fov" type="range" min="35" max="100" value="60" /><output
+            id="fov-value"
+            for="fov"
+            >60°</output
+          ></label
+        >
+        <button id="restart">Recreate demo</button>
+      </div>
+      <div class="object-controls" aria-label="Cube transform controls">
+        <fieldset>
+          <legend>Position</legend>
+          <label
+            >X
+            <input
+              id="cube-x"
+              aria-label="Cube position X"
+              type="range"
+              min="-10"
+              max="10"
+              step="0.5"
+              value="0"
+            /><output id="cube-x-value" for="cube-x">0</output></label
+          ><label
+            >Y
+            <input
+              id="cube-y"
+              aria-label="Cube position Y"
+              type="range"
+              min="-10"
+              max="10"
+              step="0.5"
+              value="1.5"
+            /><output id="cube-y-value" for="cube-y">1.5</output></label
+          ><label
+            >Z
+            <input
+              id="cube-z"
+              aria-label="Cube position Z"
+              type="range"
+              min="-10"
+              max="10"
+              step="0.5"
+              value="0"
+            /><output id="cube-z-value" for="cube-z">0</output></label
+          >
+        </fieldset>
+        <fieldset>
+          <legend>Base rotation</legend>
+          <label
+            >X
+            <input
+              id="rotate-x"
+              aria-label="Cube base rotation X"
+              type="range"
+              min="0"
+              max="360"
+              step="1"
+              value="0"
+            /><output id="rotate-x-value" for="rotate-x">0</output></label
+          ><label
+            >Y
+            <input
+              id="rotate-y"
+              aria-label="Cube base rotation Y"
+              type="range"
+              min="0"
+              max="360"
+              step="1"
+              value="25"
+            /><output id="rotate-y-value" for="rotate-y">25</output></label
+          ><label
+            >Z
+            <input
+              id="rotate-z"
+              aria-label="Cube base rotation Z"
+              type="range"
+              min="0"
+              max="360"
+              step="1"
+              value="0"
+            /><output id="rotate-z-value" for="rotate-z">0</output></label
+          >
+        </fieldset>
+        <fieldset>
+          <legend>Scale &amp; animation</legend>
+          <label
+            >Scale
+            <input
+              id="cube-scale"
+              aria-label="Cube scale"
+              type="range"
+              min="0.25"
+              max="4"
+              step="0.25"
+              value="1.5"
+            /><output id="cube-scale-value" for="cube-scale">1.5</output></label
+          ><label
+            ><input id="animate" type="checkbox" /> Animate Y rotation ·
+            35°/s</label
+          ><button id="reset-cube">Reset cube</button
+          ><label
+            ><input id="outlines" type="checkbox" checked /> Visible face
+            outlines</label
+          >
+        </fieldset>
+      </div>
+      <output id="camera-status" aria-label="Camera position and orientation"
+        >Starting…</output
+      >
+      <output id="cube-status" aria-label="Cube geometry and rotation"></output>
+      <p>
+        Click or Tab into the canvas. <strong>WASD</strong> moves across the
+        ground plane; <strong>Q / E</strong> lowers / raises the camera.
+        <strong>Drag or arrow keys</strong> to look,
+        <strong>Shift</strong> moves faster, <strong>R</strong> resets. Moving
+        focus out of the canvas releases keyboard control.
+      </p>
+      <p>
+        <span class="axis-x">X · coral</span> &nbsp;
+        <span class="axis-y">Y · green · up</span> &nbsp;
+        <span class="axis-z">Z · blue</span>. The grid is finite; you can fly
+        beyond its edge or below it.
+      </p>
+      <p>
+        Each face has a fixed color; no lighting yet. Faces turned away from you
+        are culled, and visible polygons are drawn far to near. Toggle outlines
+        to compare. Animation adds to the base Y rotation; pausing retains its
+        angle. Reset cube clears it.
+        <a href="./docs/3D-MILESTONES.md">Milestones and boundaries</a>
+      </p>
+      <details>
+        <summary>What this milestone covers</summary>
+        <p>
+          This is one convex solid. Face ordering is sufficient here; it is not
+          a depth buffer or an intersection solver for arbitrary overlapping
+          objects. The grid and world axes are reference lines drawn before the
+          cube, without depth testing. Outlines mark clipped polygon boundaries.
+        </p>
+        <p>
+          You can fly through the cube: there is no collision. From inside, its
+          outward-facing surfaces are culled. The near plane cuts surfaces
+          without adding a cap.
+        </p>
+      </details>
+    </main>
+    <script type="module" src="./dist/examples/3d/solid.js"></script>
+  </body>
+</html>

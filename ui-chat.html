@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Rocket v2 · Full chat box</title>
+    <link rel="stylesheet" href="./examples/style.css" />
+    <link rel="stylesheet" href="./examples/demo-navigation.css" />
+    <script type="module" src="./dist/examples/demo-navigation.js"></script>
+    <link rel="stylesheet" href="./src/ui/style.css" />
+    <link rel="stylesheet" href="./examples/ui/demo.css" />
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <header>
+        <p class="eyebrow">ROCKET / OPTIONAL CHAT PRESENTATION</p>
+        <h1>A chat window. One conversation.</h1>
+        <p>
+          Scrollable messages, quick responses, a composer, pending replies,
+          cancellation and retry. A scripted station guide supplies replies.
+          Both windows share the conversation; each Send dispatches once. Click
+          a canvas for WASD, then type in chat to test focus.
+        </p>
+      </header>
+      <div class="ui-actions">
+        <button id="open-chat-1">Open first chat</button
+        ><button id="open-chat-2">Open second chat</button
+        ><button id="fail-reply">Fail next reply</button
+        ><button id="new-session">New conversation</button
+        ><button id="dispose-second-view">Dispose second view + chat</button>
+      </div>
+      <p id="simulation-status" class="ui-status"></p>
+      <p id="chat-proof" class="ui-status"></p>
+      <section class="ui-columns">
+        <article class="ui-column">
+          <h2>First view</h2>
+          <div id="world-one" class="canvas-host"></div>
+          <div id="chat-one"></div>
+        </article>
+        <article class="ui-column">
+          <h2>Independent presentation</h2>
+          <div id="world-two" class="canvas-host"></div>
+          <div id="chat-two"></div>
+        </article>
+      </section>
+    </main>
+    <script type="module" src="./dist/examples/ui/chat.js"></script>
+  </body>
+</html>

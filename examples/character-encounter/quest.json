@@ -1,0 +1,432 @@
+{
+  "proposalVersion": "cfw-situations-draft-2",
+  "id": "watchtower-recovery",
+  "start": "approach",
+  "situations": [
+    {
+      "id": "approach",
+      "dialogue": {
+        "text": "Enter the courtyard to investigate the ruined watchtower."
+      },
+      "routes": [
+        {
+          "id": "new-arrival",
+          "priority": 10,
+          "when": {
+            "tool": "game_location",
+            "arguments": {
+              "locationRef": "courtyard"
+            },
+            "expect": {
+              "path": ["count"],
+              "operator": "at_least",
+              "value": 1
+            },
+            "evidence": {
+              "mode": "events",
+              "after": {
+                "kind": "run-start"
+              }
+            }
+          },
+          "next": "encounter"
+        }
+      ]
+    },
+    {
+      "id": "encounter",
+      "dialogue": {
+        "text": "The sentries awaken. Move close to each and press E or click to defeat it."
+      },
+      "routes": [
+        {
+          "id": "three-new-defeats",
+          "priority": 10,
+          "when": {
+            "tool": "game_encounter",
+            "arguments": {
+              "groupRef": "sentries"
+            },
+            "expect": {
+              "path": ["count"],
+              "operator": "at_least",
+              "value": 3
+            },
+            "evidence": {
+              "mode": "events",
+              "after": {
+                "kind": "situation-entry",
+                "situationRef": "encounter"
+              }
+            }
+          },
+          "next": "watchkeeper"
+        }
+      ],
+      "onEnter": [
+        {
+          "id": "wake-sentries",
+          "tool": "game_activate_group",
+          "arguments": {
+            "groupRef": "sentries"
+          }
+        }
+      ]
+    },
+    {
+      "id": "watchkeeper",
+      "dialogue": {
+        "text": "The watchkeeper appears. Approach to learn the route to the beacon."
+      },
+      "routes": [
+        {
+          "id": "approach-guide",
+          "priority": 10,
+          "when": {
+            "tool": "game_entity",
+            "arguments": {
+              "entityRef": "guide"
+            },
+            "expect": {
+              "path": ["near"],
+              "operator": "equals",
+              "value": true
+            },
+            "evidence": {
+              "mode": "fact"
+            }
+          },
+          "next": "offer"
+        }
+      ],
+      "onEnter": [
+        {
+          "id": "show-guide",
+          "tool": "game_reveal",
+          "arguments": {
+            "entityRef": "guide"
+          }
+        },
+        {
+          "id": "open-ridge-gate",
+          "tool": "game_open_gate",
+          "arguments": {
+            "entityRef": "gate"
+          }
+        }
+      ]
+    },
+    {
+      "id": "offer",
+      "dialogue": {
+        "text": "Watchkeeper: The tower has two paths. Do you want the blue seal or the red seal? Blue belongs at Beacon Ridge A; red belongs at Beacon Ridge B.",
+        "requires": {
+          "tool": "game_entity",
+          "arguments": {
+            "entityRef": "guide"
+          },
+          "expect": {
+            "path": ["near"],
+            "operator": "equals",
+            "value": true
+          },
+          "evidence": {
+            "mode": "fact"
+          }
+        }
+      },
+      "choices": [
+        {
+          "id": "blue",
+          "label": "Blue seal \u2014 Beacon Ridge A",
+          "when": {
+            "tool": "game_entity",
+            "arguments": {
+              "entityRef": "guide"
+            },
+            "expect": {
+              "path": ["near"],
+              "operator": "equals",
+              "value": true
+            },
+            "evidence": {
+              "mode": "fact"
+            }
+          },
+          "next": "blue-router"
+        },
+        {
+          "id": "red",
+          "label": "Red seal \u2014 Beacon Ridge B",
+          "when": {
+            "tool": "game_entity",
+            "arguments": {
+              "entityRef": "guide"
+            },
+            "expect": {
+              "path": ["near"],
+              "operator": "equals",
+              "value": true
+            },
+            "evidence": {
+              "mode": "fact"
+            }
+          },
+          "next": "red-router"
+        }
+      ]
+    },
+    {
+      "id": "blue-router",
+      "routes": [
+        {
+          "id": "prior-carried-seal",
+          "priority": 10,
+          "when": {
+            "tool": "game_entity",
+            "arguments": {
+              "entityRef": "blue-seal"
+            },
+            "expect": {
+              "path": ["collected"],
+              "operator": "equals",
+              "value": true
+            },
+            "evidence": {
+              "mode": "fact"
+            }
+          },
+          "next": "blue-delivery"
+        },
+        {
+          "id": "recover-seal",
+          "priority": 20,
+          "when": {
+            "tool": "game_entity",
+            "arguments": {
+              "entityRef": "blue-seal"
+            },
+            "expect": {
+              "path": ["collected"],
+              "operator": "equals",
+              "value": false
+            },
+            "evidence": {
+              "mode": "fact"
+            }
+          },
+          "next": "blue-pickup"
+        }
+      ]
+    },
+    {
+      "id": "blue-pickup",
+      "dialogue": {
+        "text": "Watchkeeper: You chose blue. Recover the blue seal, then carry it to Beacon Ridge A."
+      },
+      "onEnter": [
+        {
+          "id": "show-selected-seal",
+          "tool": "game_reveal",
+          "arguments": {
+            "entityRef": "blue-seal"
+          }
+        }
+      ],
+      "routes": [
+        {
+          "id": "new-pickup",
+          "priority": 10,
+          "when": {
+            "tool": "game_entity",
+            "arguments": {
+              "entityRef": "blue-seal"
+            },
+            "expect": {
+              "path": ["count"],
+              "operator": "at_least",
+              "value": 1
+            },
+            "evidence": {
+              "mode": "events",
+              "after": {
+                "kind": "situation-entry",
+                "situationRef": "blue-pickup"
+              }
+            }
+          },
+          "next": "blue-delivery"
+        }
+      ]
+    },
+    {
+      "id": "blue-delivery",
+      "dialogue": {
+        "text": "Watchkeeper: Deliver the blue seal to Beacon Ridge A. Stand by Beacon A and press E or click it. The other beacon cannot accept this seal."
+      },
+      "routes": [
+        {
+          "id": "matching-delivery",
+          "priority": 10,
+          "when": {
+            "tool": "game_delivery",
+            "arguments": {
+              "itemRef": "blue-seal",
+              "destinationRef": "beacon-a"
+            },
+            "expect": {
+              "path": ["delivered"],
+              "operator": "equals",
+              "value": true
+            },
+            "evidence": {
+              "mode": "fact"
+            }
+          },
+          "next": "blue-complete"
+        }
+      ]
+    },
+    {
+      "id": "blue-complete",
+      "dialogue": {
+        "text": "The blue seal reached Beacon Ridge A. Beacon A is lit. Your chosen mission is complete."
+      },
+      "onEnter": [
+        {
+          "id": "light-matching-beacon",
+          "tool": "game_light_beacon",
+          "arguments": {
+            "entityRef": "beacon-a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "red-router",
+      "routes": [
+        {
+          "id": "prior-carried-seal",
+          "priority": 10,
+          "when": {
+            "tool": "game_entity",
+            "arguments": {
+              "entityRef": "red-seal"
+            },
+            "expect": {
+              "path": ["collected"],
+              "operator": "equals",
+              "value": true
+            },
+            "evidence": {
+              "mode": "fact"
+            }
+          },
+          "next": "red-delivery"
+        },
+        {
+          "id": "recover-seal",
+          "priority": 20,
+          "when": {
+            "tool": "game_entity",
+            "arguments": {
+              "entityRef": "red-seal"
+            },
+            "expect": {
+              "path": ["collected"],
+              "operator": "equals",
+              "value": false
+            },
+            "evidence": {
+              "mode": "fact"
+            }
+          },
+          "next": "red-pickup"
+        }
+      ]
+    },
+    {
+      "id": "red-pickup",
+      "dialogue": {
+        "text": "Watchkeeper: You chose red. Recover the red seal, then carry it to Beacon Ridge B."
+      },
+      "onEnter": [
+        {
+          "id": "show-selected-seal",
+          "tool": "game_reveal",
+          "arguments": {
+            "entityRef": "red-seal"
+          }
+        }
+      ],
+      "routes": [
+        {
+          "id": "new-pickup",
+          "priority": 10,
+          "when": {
+            "tool": "game_entity",
+            "arguments": {
+              "entityRef": "red-seal"
+            },
+            "expect": {
+              "path": ["count"],
+              "operator": "at_least",
+              "value": 1
+            },
+            "evidence": {
+              "mode": "events",
+              "after": {
+                "kind": "situation-entry",
+                "situationRef": "red-pickup"
+              }
+            }
+          },
+          "next": "red-delivery"
+        }
+      ]
+    },
+    {
+      "id": "red-delivery",
+      "dialogue": {
+        "text": "Watchkeeper: Deliver the red seal to Beacon Ridge B. Stand by Beacon B and press E or click it. The other beacon cannot accept this seal."
+      },
+      "routes": [
+        {
+          "id": "matching-delivery",
+          "priority": 10,
+          "when": {
+            "tool": "game_delivery",
+            "arguments": {
+              "itemRef": "red-seal",
+              "destinationRef": "beacon-b"
+            },
+            "expect": {
+              "path": ["delivered"],
+              "operator": "equals",
+              "value": true
+            },
+            "evidence": {
+              "mode": "fact"
+            }
+          },
+          "next": "red-complete"
+        }
+      ]
+    },
+    {
+      "id": "red-complete",
+      "dialogue": {
+        "text": "The red seal reached Beacon Ridge B. Beacon B is lit. Your chosen mission is complete."
+      },
+      "onEnter": [
+        {
+          "id": "light-matching-beacon",
+          "tool": "game_light_beacon",
+          "arguments": {
+            "entityRef": "beacon-b"
+          }
+        }
+      ]
+    }
+  ]
+}

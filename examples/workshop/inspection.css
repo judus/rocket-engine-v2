@@ -1,0 +1,28 @@
+/* Presentation belongs to the demo; domain commands remain in FactoryDemo. */
+.factory-map-stage {
+  position: relative;
+}
+#factory-world-panel {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: min(430px, calc(100% - 32px));
+}
+.factory-inspection-panel .rocket-panel-content {
+  max-height: 540px;
+}
+.factory-inspection-panel .terrain-details {
+  white-space: pre-wrap;
+  margin: 0;
+  font: inherit;
+}
+.factory-inspection-panel .toolbar {
+  margin: 0;
+}
+@media (max-width: 850px) {
+  #factory-world-panel {
+    position: static;
+    width: auto;
+    margin-top: 12px;
+  }
+}
