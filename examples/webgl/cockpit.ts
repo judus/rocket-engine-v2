@@ -809,7 +809,7 @@ async function start() {
         const alerts = screenLightOnly?.checked ? [] : hi3dLamps.alertLights();
         lights.push(...buttons, ...alerts);
         document.querySelector('#button-light-status')!.textContent =
-          `${buttons.length}/4 button lights · ${alerts.length}/2 alert lights · R1/R2 off = 5% standby glow${screenLightOnly?.checked ? ' · spill excluded during screen isolation' : ''}`;
+          `${buttons.length}/4 button lights · ${alerts.length}/2 alert lights · R1/R2 off = 2% standby glow${screenLightOnly?.checked ? ' · spill excluded during screen isolation' : ''}`;
       }
       if (screenLights) {
         const spill = screenLights(

@@ -81,7 +81,7 @@ export function hi3dCockpitLamps() {
             encoded <= 0.04045
               ? encoded / 12.92
               : ((encoded + 0.055) / 1.055) ** 2.4;
-          const standby = linear * 0.05;
+          const standby = linear * 0.02;
           const value = Math.round(
             255 *
               (powered
@@ -289,7 +289,7 @@ export function hi3dCockpitLamps() {
           position: matrixPoint(node.worldMatrix(), { x: 0, y: 0, z: 0.14 }),
           color: [factor[0]!, factor[1]!, factor[2]!],
           intensity:
-            spec.width * spec.height * size * size * 0.9 * (powered ? 1 : 0.05),
+            spec.width * spec.height * size * size * 0.9 * (powered ? 1 : 0.02),
           minimumDistance: 0.25,
         };
       },
