@@ -707,3 +707,16 @@ enabled on this preview. The source GLB, baked texture lighting and accepted fit
 remain unchanged. Tests cover radar translation/heading/range and fitted surface
 sizes, bindings and inherited transforms; browser checks cover visual alignment,
 updates, pause/step/power, field visibility and recreation.
+
+Hi3D display fitting controls retain 0.001-unit X/Y steps, browser persistence,
+and a DOM JSON readout (`display-tuning-values`). Julien's accepted offsets,
+relative to the fitted insert geometry and before the shared cockpit fit, are
+now the HTML defaults (also restored by Reset display offsets):
+
+| Display                |      X |      Y |
+| ---------------------- | -----: | -----: |
+| Lower left radar       | -0.010 | +0.011 |
+| Lower right flight     | -0.079 | +0.011 |
+| Overhead heading/pitch |      0 | -0.030 |
+| Overhead speed         |      0 | -0.030 |
+| Overhead position      | -0.007 | -0.030 |
