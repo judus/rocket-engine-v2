@@ -349,10 +349,6 @@
         data-eye-y="1.48"
         data-eye-z="-3.37"
       ></div>
-      <label
-        ><input id="flight-mouse-capture" type="checkbox" /> Mouse steering
-        (capture pointer; restarts preview)</label
-      >
       <output id="flight-input-status">Flight actions ready.</output>
       <label
         ><input id="reticle-enabled" type="checkbox" checked /> Turquoise flight
@@ -801,10 +797,10 @@ Loading…</pre>
         full resolution.
       </p>
       <p>
-        Click the viewport or Activate controls for keyboard flight. Mouse
-        steering is optional; enable it above, then activate controls. Esc
-        releases mouse capture. Switching tabs/windows clears held input; the
-        world continues running.
+        Click the viewport or Activate controls to connect keyboard and mouse
+        flight controls. Mouse capture is automatic after that click; Esc
+        releases it. Switching tabs/windows clears held input; the world
+        continues running.
         <strong>W/S</strong> forward/back, <strong>A/D</strong> strafe,
         <strong>Left Alt / Ctrl</strong> local up/down,
         <strong>Q/E</strong> roll, <strong>arrows</strong> yaw/pitch,
@@ -1125,7 +1121,7 @@ Loading…</pre>
     </main>
     <script
       type="module"
-      src="./dist/examples/webgl/cockpit.js?v=reticle-2px-8"
+      src="./dist/examples/webgl/cockpit.js?v=capture-default-9"
     ></script>
   </body>
 </html>

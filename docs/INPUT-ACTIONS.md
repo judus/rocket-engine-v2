@@ -313,11 +313,11 @@ stacked groups, mirror metadata, live theme updates and all preset/action pairs.
 ## Hi3D spaceship integration
 
 The Hi3D cockpit now consumes `flightInput` through `Input.actions(scene)` and
-uses the engine's activation feedback. Keyboard focus is the default; the
-Mouse steering checkbox opts into pointer lock and recreates the preview with
-its existing lifecycle cleanup. Click the viewport or Activate controls to
-connect. Mouse capture may still be refused by an embedded browser; keyboard
-flight remains available with Mouse steering unchecked.
+uses the engine's activation feedback. This cockpit requests pointer lock by
+default on a viewport/Activate controls click; no separate mouse-mode checkbox
+or preview restart is needed. The browser requires a user gesture to capture.
+Esc releases capture. Refusal remains visible in the engine status bar; native
+pointer-lock behavior still needs testing in a browser that permits it.
 
 W/S thrust forward/back, A/D strafe, Left Alt/Ctrl thrust locally up/down,
 Q/E roll, arrows yaw/pitch, Shift boosts, and Ctrl+R resets the pilot seat.

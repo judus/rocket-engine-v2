@@ -336,7 +336,7 @@ async function start() {
   const surface = new WebGLSurface({
     target: host,
     scene,
-    label: `GPU lighting: ${modelLabel}. ${hi3dDisplays ? 'Click to activate flight controls. WASD thrust, arrows rotate, Q/E roll, Left Alt/Ctrl vertical thrust, Shift boost, Ctrl+R reset. Optional captured mouse turns.' : 'Click to focus. Drag or arrows turn. WASD moves, Q/E changes height, Shift speeds up, R returns home.'}`,
+    label: `GPU lighting: ${modelLabel}. ${hi3dDisplays ? 'Click to activate flight controls. WASD thrust, arrows rotate, Q/E roll, Left Alt/Ctrl vertical thrust, Shift boost, Ctrl+R reset. Mouse steers after capture; Esc releases.' : 'Click to focus. Drag or arrows turn. WASD moves, Q/E changes height, Shift speeds up, R returns home.'}`,
     onError: (error) => {
       status.value = String(error);
     },
@@ -846,24 +846,12 @@ async function start() {
     ? application.use(Input).actions(scene).use(flightInput)
     : undefined;
   const flightBinding = flightControls?.bind(surface, {
-    capture: document.querySelector<HTMLInputElement>('#flight-mouse-capture')!
-      .checked
-      ? 'pointer-lock'
-      : 'focus',
+    capture: 'pointer-lock',
   });
   flightControls?.on('reset', () => {
     document.querySelector<HTMLButtonElement>('#reset-triangle')!.click();
     return undefined;
   });
-  document.querySelector('#flight-mouse-capture')?.addEventListener(
-    'change',
-    () => {
-      void start().catch((error) => {
-        status.value = String(error);
-      });
-    },
-    { signal },
-  );
   const keys = hi3dDisplays
     ? undefined
     : explorationInput(application, scene, surface, look, () =>
