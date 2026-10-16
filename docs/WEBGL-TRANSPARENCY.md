@@ -28,7 +28,7 @@ not per triangle. Canvas/software renderers do not consume this WebGL field.
 ## Reticle
 
 The Hi3D reticle is 10% smaller and uses 25% opacity in the displays' turquoise.
-Lines and the round dot are roughly 3 CSS pixels at the default 60-degree FOV
+Lines and the round dot are roughly 2 CSS pixels at the default 60-degree FOV
 and 750px canvas height. Joined annular segments close the outer ring cleanly.
 Three faint, wider geometry fringes give each part a soft glow without changing
 the global instrument bloom. The HUD is centered on the pilot sightline. Its plane sits behind the dashboard, with proportional scale preserving angular
