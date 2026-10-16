@@ -50,7 +50,7 @@ instructions.textContent = flight
       ? 'A/D or ←/→: walk west/east · Shift: run · Space/↑: jump · Right Ctrl/Left mouse: attack · Ctrl+R: reset · Reach the flag. No north/south movement.'
       : beltScroller
         ? 'WASD or arrows: ground movement · Shift: run · Space: jump · Right Ctrl/Left mouse: attack preview · Ctrl+R: reset. Walk east through the street.'
-        : 'W/S: north/south · A/D: west/east (arrows also work) · Shift: sprint · Space/Left mouse: fire · Ctrl+R: reset.';
+        : 'W/S: north/south · A/D: west/east (arrows also work) · Shift: sprint · Space: fire · Left mouse: unbound · Ctrl+R: reset.';
 instructions.textContent +=
   ' · F: interact · Tab: health/consumables action preview.';
 document.querySelector<HTMLElement>('#capture-option')!.hidden = !(

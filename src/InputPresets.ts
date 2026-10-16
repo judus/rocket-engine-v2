@@ -43,7 +43,7 @@ export const topDownInput: InputPreset = {
       },
     },
     sprint: { kind: 'hold', mapping: ['ShiftLeft', 'ShiftRight'] },
-    fire: { kind: 'hold', mapping: ['Space', 'Mouse0'] },
+    fire: { kind: 'hold', mapping: 'Space' },
     interact: { kind: 'press', mapping: 'KeyF' },
     health: { kind: 'press', mapping: 'Tab' },
     reset: { kind: 'press', mapping: { code: 'KeyR', modifiers: ['Control'] } },

@@ -158,8 +158,26 @@ void test('top-down Space fires; flight Left Alt lifts independently of Space fi
     topDown.bind(view);
     topDown.activate();
     await app.start();
-    view.canvas.dispatchEvent(new Key('keydown', 'Space'));
+    const selectionClick = Object.assign(
+      new Event('mousedown', { cancelable: true }),
+      {
+        button: 0,
+        ctrlKey: false,
+        shiftKey: false,
+        altKey: false,
+        metaKey: false,
+      },
+    );
+    view.canvas.dispatchEvent(selectionClick);
     host.frame(48);
+    assert.equal(topDown.value('fire'), 0, 'default left click never fires');
+    assert.equal(
+      selectionClick.defaultPrevented,
+      false,
+      'unbound mouse event remains available to game selection',
+    );
+    view.canvas.dispatchEvent(new Key('keydown', 'Space'));
+    host.frame(64);
     assert.equal(topDown.value('fire'), 1);
     await app.dispose();
   }));

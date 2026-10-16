@@ -66,6 +66,8 @@ void test('top-down preset dispatches frame actions, aliases, opposing axes, hol
     view.canvas.dispatchEvent(new Key('keydown', 'KeyW'));
     host.frame(128);
     assert.equal(controls.value('north'), 1);
+    // Explicit custom mouse mapping tests routing; the default leaves it unbound.
+    controls.map('fire', 'Mouse0');
     const pointerDown = new Pointer('pointerdown');
     view.canvas.dispatchEvent(pointerDown);
     assert.equal(
@@ -95,6 +97,9 @@ void test('top-down preset dispatches frame actions, aliases, opposing axes, hol
     );
     host.frame(160);
     assert.equal(controls.value('fire'), 0);
+    view.canvas.dispatchEvent(new Key('keydown', 'KeyW'));
+    host.frame(176);
+    assert.equal(controls.value('north'), 1);
     host.document.defaultView.dispatchEvent(new Event('blur'));
     assert.equal(controls.value('north'), 0);
     await app.dispose();

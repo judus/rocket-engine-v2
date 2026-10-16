@@ -50,7 +50,7 @@ Arrow keys allow keyboard turning. Movement, physics, jumping and weapons are
 implemented by the demo/game, never the preset.
 
 `topDownInput` defines north/east axes (W/D positive, S/A negative, arrow aliases),
-sprint, interact (F), fire (Space or Mouse0) and reset (Ctrl+R), with focus activation and a
+sprint, interact (F), fire (Space) and reset (Ctrl+R), with focus activation and a
 visible cursor. Positive north is an intention; in the demo's Y-down canvas it
 subtracts from Y. The presets include no combat or collision domain systems.
 
@@ -103,7 +103,7 @@ game context leaves normal HTML Tab navigation alone.
 | Preset        | Attack/fire                           | Jump       | Local thrust up/down |
 | ------------- | ------------------------------------- | ---------- | -------------------- |
 | First-person  | Mouse0 (`fire`, hold)                 | Space      | —                    |
-| Top-down      | Space / Mouse0 (`fire`, hold)         | —          | —                    |
+| Top-down      | Space (`fire`, hold)                  | —          | —                    |
 | Platformer    | Right Ctrl / Mouse0 (`attack`, press) | Space / Up | —                    |
 | Belt-scroller | Right Ctrl / Mouse0 (`attack`, press) | Space      | —                    |
 | Flight        | Space / Mouse0 (`fire`, hold)         | —          | Left Alt / Ctrl      |
@@ -113,6 +113,10 @@ Both Shift keys still run/boost. Physical `ControlRight` is distinct from
 Their Ctrl+R reset chord remains available (pressing Right Ctrl itself still means
 attack). Mouse bindings are alternatives, not a requirement. All mappings remain
 replaceable. The demo remapping example uses G, leaving F for interaction.
+
+Top-down deliberately leaves the left mouse button unbound for future area
+selection/marking. No selection action or behaviour is installed yet. Space is
+its sole default fire binding; other presets retain their mouse alternatives.
 
 ## Bindings and combos
 
