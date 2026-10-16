@@ -22,9 +22,16 @@ export function hi3dCockpitLamps() {
             1,
             Math.hypot(((x + 0.5) / size) * 2 - 1, ((y + 0.5) / size) * 2 - 1),
           );
+          // Stable fine grain and a few faint scuffs in aged translucent glass.
+          const grain = ((x * 73 + y * 151 + x * y * 19) % 101) / 100;
+          const scuff =
+            (y === 9 && x > 7 && x < 15) || (y === 22 && x > 18 && x < 25)
+              ? 0.035
+              : 0;
+          const finish = 0.98 - 0.08 * radius * radius - 0.04 * grain + scuff;
           const value = powered
-            ? Math.round(255 * (1 - 0.1 * radius * radius))
-            : Math.round(16 - 2 * radius);
+            ? Math.round(255 * Math.min(1, finish))
+            : Math.round(18 * finish);
           const i = (y * size + x) * 4;
           pixels.set([value, value, value, 255], i);
         }
@@ -104,7 +111,7 @@ export function hi3dCockpitLamps() {
       width: 0.3,
       height: 0.3,
       round: true,
-      color: '#ff9500',
+      color: '#ffcd55',
     },
     {
       name: 'r2',
@@ -115,7 +122,7 @@ export function hi3dCockpitLamps() {
       width: 0.3,
       height: 0.3,
       round: true,
-      color: '#ff3030',
+      color: '#e65c3d',
     },
   ] as const;
   const lamps = specs.map((spec) => {

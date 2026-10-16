@@ -35,14 +35,14 @@ void test('round alert colors change live while retaining power, geometry and te
     red = r2.mesh!;
   assert.deepEqual(orange.materials[0]!.baseColorFactor, [
     1,
-    ((149 / 255 + 0.055) / 1.055) ** 2.4,
-    0,
+    ((205 / 255 + 0.055) / 1.055) ** 2.4,
+    ((85 / 255 + 0.055) / 1.055) ** 2.4,
     1,
   ]);
   assert.deepEqual(red.materials[0]!.baseColorFactor, [
-    1,
-    ((48 / 255 + 0.055) / 1.055) ** 2.4,
-    ((48 / 255 + 0.055) / 1.055) ** 2.4,
+    ((230 / 255 + 0.055) / 1.055) ** 2.4,
+    ((92 / 255 + 0.055) / 1.055) ** 2.4,
+    ((61 / 255 + 0.055) / 1.055) ** 2.4,
     1,
   ]);
   lamps.setPowered(4, false);
