@@ -761,8 +761,8 @@ Loading…</pre>
       </p>
       <div class="toolbar">
         <label
-          ><input id="environment-enabled" type="checkbox" checked /> Studio
-          reflection map</label
+          ><input id="environment-enabled" type="checkbox" /> Studio reflection
+          map (inspection only)</label
         >
         <label
           >Environment strength
@@ -771,7 +771,7 @@ Loading…</pre>
             type="range"
             min="0"
             max="200"
-            value="65"
+            value="0"
         /></label>
         <label
           >Environment yaw
@@ -785,10 +785,13 @@ Loading…</pre>
       </div>
       <p id="environment-status"></p>
       <p>
-        This is distant environment lighting: the cockpit and grid do not
-        reflect each other, and the cabin does not block incoming environment
-        light. The map stays fixed in world orientation as you turn the ship.
-        Use the existing direct-light controls independently.
+        Space defaults use one fixed distant sun, 1% ambient fill and no studio
+        reflection or inspection point light. Cockpit screens and lamps provide
+        local light. The studio map is optional for inspection. This is distant
+        environment lighting: the cockpit and grid do not reflect each other,
+        and the cabin does not block incoming environment light. The map stays
+        fixed in world orientation as you turn the ship. Use the existing
+        direct-light controls independently.
       </p>
       <p id="model-details">Loading model…</p>
       <div class="toolbar">
@@ -843,27 +846,27 @@ Loading…</pre>
             min="0"
             max="1"
             step="0.01"
-            value="0.08"
+            value="0.01"
         /></label>
         <label
-          >Directional
+          >Sun intensity
           <input
             id="directional"
             type="range"
             min="0"
             max="2"
             step="0.01"
-            value="0.35"
+            value="1.1"
         /></label>
         <label
-          >Point strength
+          >Inspector point strength
           <input
             id="point-strength"
             type="range"
             min="0"
             max="20"
             step="0.1"
-            value="6"
+            value="0"
         /></label>
       </div>
       <div class="toolbar">

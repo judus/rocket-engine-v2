@@ -101,6 +101,7 @@ void main(){
   vec3 radiance=vec3(0.0);
   for(int i=0;i<${maxGpuLights};i++){
     if(i>=lightCount) break;
+    if(lightColors[i].a<=0.0) continue;
     vec4 source=lightVectors[i];
     vec3 energy=lightColors[i].rgb*lightColors[i].a;
     if(source.w==0.0){

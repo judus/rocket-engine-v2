@@ -107,9 +107,16 @@ const shadowsEnabled =
   document.querySelector<HTMLInputElement>('#shadows-enabled');
 const shadowInput = (id: string) =>
   document.querySelector<HTMLInputElement>(`#${id}`)!;
-const ambientDefault = environment ? '0.02' : '0.08';
-const directionalDefault = shadowsEnabled ? '1.4' : environment ? '0.35' : '1';
-const pointDefault = shadowsEnabled ? '0' : environment ? '6' : '12';
+const ambientDefault = hi3dDisplays ? '0.01' : environment ? '0.02' : '0.08';
+const directionalDefault = hi3dDisplays
+  ? '1.1'
+  : shadowsEnabled
+    ? '1.4'
+    : environment
+      ? '0.35'
+      : '1';
+const pointDefault =
+  hi3dDisplays || shadowsEnabled ? '0' : environment ? '6' : '12';
 const assets = new WebGLAssets(
   host.dataset.largeTextures === 'true'
     ? { maxImagePixels: 67108864, maxTotalPixels: 134217728 }
@@ -588,7 +595,7 @@ async function start() {
   orbitLight.checked = false;
   let lightPhase = 0;
   const camera = new PerspectiveCamera();
-  camera.near = preset?.near ?? 0.03;
+  camera.near = hi3dDisplays ? 0.15 : (preset?.near ?? 0.03);
   camera.far = asteroidWorld ? 600 : (preset?.far ?? 100);
   const depthTest = document.querySelector<HTMLInputElement>('#depth-test')!;
   const reverseOrder =
@@ -743,7 +750,9 @@ async function start() {
             y: Math.sin(lightElevation),
             z: Math.cos(lightYaw) * Math.cos(lightElevation),
           }
-        : { x: -0.5, y: 1, z: -0.6 };
+        : hi3dDisplays
+          ? { x: -0.6, y: 0.35, z: -0.72 }
+          : { x: -0.5, y: 1, z: -0.6 };
       let shadow: DirectionalShadow3D | undefined;
       if (shadowFit) {
         const rotationMatrix = transformMatrix({

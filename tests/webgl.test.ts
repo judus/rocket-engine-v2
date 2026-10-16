@@ -1067,7 +1067,11 @@ void test('render targets retain storage, resize atomically, reject foreign cont
   const texture = target.texture;
   target.resize(64, 32);
   assert.equal(f.calls.filter((c) => c.name === 'texImage2D').length, 1);
-  assert.equal(target.estimatedBytes, 64 * 32 * 6);
+  assert.equal(target.estimatedBytes, 64 * 32 * 8);
+  assert.equal(
+    f.calls.find((c) => c.name === 'renderbufferStorage')!.args[1],
+    gl.DEPTH_COMPONENT24,
+  );
   assert.throws(() => target.assertContext(fixture().gl), /another context/);
   incomplete = true;
   assert.throws(() => target.resize(128, 64), /incomplete/);

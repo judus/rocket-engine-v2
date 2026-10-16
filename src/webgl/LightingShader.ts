@@ -36,6 +36,7 @@ void main(){
   vec3 n=normalLength>0.0 ? worldNormal/normalLength : vec3(0.0);
   for(int i=0;i<${maxGpuLights};i++){
     if(i>=lightCount) break;
+    if(lightColors[i].a<=0.0) continue;
     vec4 source=lightVectors[i];
     float diffuse=1.0;
     float attenuation=1.0;

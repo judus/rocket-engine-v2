@@ -71,7 +71,7 @@ export class WebGLRenderTarget {
         gl.bindRenderbuffer(gl.RENDERBUFFER, depth);
         gl.renderbufferStorage(
           gl.RENDERBUFFER,
-          gl.DEPTH_COMPONENT16,
+          gl.DEPTH_COMPONENT24,
           width,
           height,
         );
@@ -117,7 +117,7 @@ export class WebGLRenderTarget {
     return this.#height;
   }
   get estimatedBytes(): number {
-    return this.#width * this.#height * (this.hasDepth ? 6 : 4);
+    return this.#width * this.#height * (this.hasDepth ? 8 : 4);
   }
   #release(): void {
     if (this.#texture) this.gl.deleteTexture(this.#texture);

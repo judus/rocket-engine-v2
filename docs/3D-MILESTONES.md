@@ -817,3 +817,26 @@ Round alert off switches select 2% standby output: lens brightness is scaled in
 linear color space before sRGB encoding, and colored spill is also reduced to 2%.
 The fitted coverage, worn texture and faint rim remain visible; full bloom stays
 associated with the active state. Rectangular button off behavior is unchanged.
+
+### Hi3D space lighting and distant depth precision
+
+Hi3D now defaults to a fixed distant sun (direction -0.6, 0.35, -0.72,
+intensity 1.1), 0.01 ambient fill, no studio environment contribution and no
+inspection point light. The optional studio controls remain for asset inspection.
+Fitted screen/button/alert light spill and bloom retain their accepted settings.
+Other cockpit demos keep their existing lighting defaults. Asteroids still do not
+receive or cast shadow maps; sun-facing facet shading is ordinary direct light.
+
+The bloom scene target now uses DEPTH_COMPONENT24 instead of DEPTH_COMPONENT16.
+The former 16-bit depth plus a 0.03..600 camera range loses substantial precision
+on distant asteroid surfaces. Hi3D also uses a 0.15 near plane (far remains 600).
+Target memory accounting reserves four bytes per depth pixel, bringing scene and
+glow targets to approximately 13.81 MiB at 1605 x 902. Zero-intensity lights skip
+BRDF/normalization work in both lighting shaders.
+
+Validation: 495 tests and coverage pass, including actual depth attachment format,
+allocation/resize/cleanup tests. Browser inspection shows coherent distant facets
+and no console errors. Latest local sample: 128 callback FPS, 1.51 ms update CPU,
+1.26 ms submission and 0.758 ms GPU draw average. This is not a controlled before/
+after benchmark or proof of steady 144 Hz; compositing/presentation is outside the
+GPU query. The 199k-triangle model, fourteen-light capacity and bloom remain.
