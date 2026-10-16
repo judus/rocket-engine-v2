@@ -1,3 +1,4 @@
+import { hi3dCockpitLamps } from './Hi3dCockpitLamps.js';
 import { hi3dDisplayTuning } from './Hi3dDisplayTuning.js';
 import { hi3dCockpitDisplays } from './Hi3dCockpitDisplays.js';
 import { hi3dCockpitInstruments } from './Hi3dCockpitInstruments.js';
@@ -348,6 +349,24 @@ async function start() {
     };
     hi3dDisplayTuning(displays, modelUrl, signal);
     placement.add(displays);
+    const lamps = hi3dCockpitLamps();
+    lamps.root.transform = displays.transform;
+    placement.add(lamps.root);
+    [
+      'overhead-left',
+      'overhead-right',
+      'center-console',
+      'right-console',
+    ].forEach((id, i) => {
+      const control = document.querySelector<HTMLInputElement>(`#lamp-${id}`)!;
+      const apply = () => {
+        lamps.setPowered(i, control.checked);
+        document.querySelector<HTMLOutputElement>(`#lamp-${id}-status`)!.value =
+          control.checked ? 'On' : 'Off';
+      };
+      control.addEventListener('change', apply, { signal });
+      apply();
+    });
   }
   const tuningPanel = document.querySelector('#cockpit-tuning');
   if (tuningPanel) {

@@ -720,3 +720,21 @@ now the HTML defaults (also restored by Reset display offsets):
 | Overhead heading/pitch |      0 | -0.030 |
 | Overhead speed         |      0 | -0.030 |
 | Overhead position      | -0.007 | -0.030 |
+
+### Hi3D large lamp fit check
+
+`Hi3dCockpitLamps.ts` adds four opaque beveled lenses over the large yellow
+faces: overhead left/right, center console and right console. These are separate
+nodes under asset placement, with the same inverse placement scale as the
+instrument inserts, so the accepted cockpit fit and motion affect them together.
+The GLB and its texture bytes are unchanged; smaller lamps and empty round
+slots are untouched. Each checkbox in `lamp-controls` selects a cached on/off
+mesh with shared geometry. Off keeps a dark lens in place to cover the baked
+glow; it does not hide the overlay and reveal the old bright texture.
+
+The two opaque procedural glass textures are shared across the four lenses.
+There is no extra clock, alarm logic, bloom or light spill. Control listeners use
+the existing application abort signal; recreation reuses checkbox state and
+retires the old renderer/resources. Tests cover independent switching, opaque
+dark coverage, retained geometry and cached meshes. Browser checks cover the
+four on/off states and placement at the accepted pilot fit.

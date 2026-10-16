@@ -136,6 +136,33 @@
         <button id="instruments-step">Advance displays once</button>
         <output id="instruments-status" aria-live="polite"></output>
       </fieldset>
+      <fieldset id="lamp-controls">
+        <legend>Large lamp fit check</legend>
+        <p>
+          Four opaque amber lenses cover the painted yellow lamp faces. Switch
+          each independently to check the fit. Smaller lamps and empty round
+          slots are unchanged. These are lens on/off checks; light spill and
+          bloom are not enabled.
+        </p>
+        <div class="toolbar">
+          <label
+            ><input id="lamp-overhead-left" type="checkbox" checked /> Overhead
+            left <output id="lamp-overhead-left-status">On</output></label
+          >
+          <label
+            ><input id="lamp-overhead-right" type="checkbox" checked /> Overhead
+            right <output id="lamp-overhead-right-status">On</output></label
+          >
+          <label
+            ><input id="lamp-center-console" type="checkbox" checked /> Center
+            console <output id="lamp-center-console-status">On</output></label
+          >
+          <label
+            ><input id="lamp-right-console" type="checkbox" checked /> Right
+            console <output id="lamp-right-console-status">On</output></label
+          >
+        </div>
+      </fieldset>
       <fieldset id="display-tuning">
         <legend>Temporary display fitting</legend>
         <p>
