@@ -55,3 +55,20 @@ frame-pacing readouts after initial upload settles.
 
 Regression test: seeded choices, actual source geometry identity, uniform scale,
 10–1,000 metre bounds, preserved choices across counts, and shadow flags.
+
+## Shadow sampling correction
+
+The kilometre-scale field exposed striped self-shadowing in the visibility mask.
+The old PCF path compared every neighbouring depth sample with the centre
+fragment's depth. On a sloped triangle those points have different depths.
+`src/webgl/ShadowShader.ts` now derives the receiver triangle's depth gradient
+and evaluates each comparison at the actual nearest texel centre. This also
+corrects hard-shadow sampling within a texel. Existing constant/slope bias,
+cast shadows, filter settings and map resolution remain available.
+
+Browser comparison: visibility-mask stripes on illuminated asteroid surfaces
+were removed/reduced with identical camera/light settings; repeated at camera
+X=80. Dark self-occluded regions remain. Normal shaded view restored; no shader
+compile/browser errors. The single map still covers kilometres, so small cabin
+shadow detail remains coarse and silhouettes can alias. No resolution increase
+or cascaded shadow implementation was added.
