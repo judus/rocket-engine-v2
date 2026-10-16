@@ -1,3 +1,5 @@
+import { skyBackgroundView } from '../3d/SkyBackground.js';
+import type { SkyBackground3D } from '../3d/SkyBackground.js';
 import type { WebGLRenderTarget } from './RenderTarget.js';
 import type { DirectionalShadow3D } from '../3d/DirectionalShadow.js';
 import type { EnvironmentLight3D } from '../3d/EnvironmentMap.js';
@@ -175,6 +177,7 @@ export class WebGLMeshRenderer3D {
     options: {
       readonly target?: WebGLRenderTarget;
       readonly clearColor?: readonly [number, number, number];
+      readonly background?: SkyBackground3D;
       readonly depthTest?: boolean;
       readonly reverseOrder?: boolean;
       readonly lights?: readonly Light3D[];
@@ -202,6 +205,9 @@ export class WebGLMeshRenderer3D {
     )
       throw new Error('Depth testing requires a depth render target');
     const clip = camera.clipMatrix(width, height);
+    const background = options.background
+      ? skyBackgroundView(options.background, camera, width, height)
+      : undefined;
     const used = new Set<Mesh3D>(),
       draws: ColorDraw[] = [];
     root.traverse((node, world) => {
@@ -336,6 +342,7 @@ export class WebGLMeshRenderer3D {
       {
         ...(options.target ? { target: options.target } : {}),
         ...(options.clearColor ? { clearColor: options.clearColor } : {}),
+        ...(background ? { background } : {}),
         lights: options.lights ?? [],
         enabled: options.lightingEnabled ?? true,
         cameraPosition: { x: camera.x, y: camera.y, z: camera.z },
@@ -349,7 +356,7 @@ export class WebGLMeshRenderer3D {
       },
     );
     return {
-      drawCalls: draws.length,
+      drawCalls: draws.length + Number(!!background),
       triangles,
       cachedMeshes: this.#cache.size,
       uploadedBytes: [...this.#cache.values()].reduce(
@@ -364,6 +371,9 @@ export class WebGLMeshRenderer3D {
     };
   }
 
+  get backgroundStats() {
+    return this.#renderer.backgroundStats;
+  }
   get shadowStats() {
     return this.#renderer.shadowStats;
   }

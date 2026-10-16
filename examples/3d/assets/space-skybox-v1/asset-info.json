@@ -1,0 +1,11 @@
+{
+  "panoramaSize": [1774, 887],
+  "cubeFaceSize": [512, 512],
+  "format": "opaque RGB PNG, sRGB LDR",
+  "edgeMeanDifference": 0.12063134160090191,
+  "edgeMaximumDifference": 1.0,
+  "projection": "u=atan2(x,z)/(2*pi)+0.5; v=acos(y/length)/pi",
+  "faceOrder": ["px", "nx", "py", "ny", "pz", "nz"],
+  "generation": "built-in image_gen",
+  "conversion": "deterministic direction-based bilinear reprojection; no independent face generation"
+}

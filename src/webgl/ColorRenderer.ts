@@ -1,3 +1,5 @@
+import { WebGLSkyBackgroundPass } from './SkyBackgroundPass.js';
+import type { SkyBackgroundView } from '../3d/SkyBackground.js';
 import type { WebGLRenderTarget } from './RenderTarget.js';
 import { WebGLShadowPass } from './ShadowPass.js';
 import { shadowFragmentSource } from './ShadowShader.js';
@@ -78,6 +80,7 @@ export class WebGLColorRenderer {
   #transform: WebGLUniformLocation;
   #meshes = new Map<ColorMesh, Allocation>();
   #disposed = false;
+  #skyPass: WebGLSkyBackgroundPass | undefined;
   readonly #lighting: boolean;
   readonly #textures: boolean;
   readonly #materialResponse: boolean;
@@ -466,6 +469,7 @@ export class WebGLColorRenderer {
     lighting: {
       readonly target?: WebGLRenderTarget;
       readonly clearColor?: readonly [number, number, number];
+      readonly background?: SkyBackgroundView;
       readonly lights: readonly Light3D[];
       readonly enabled?: boolean;
       readonly cameraPosition?: Vec3;
@@ -487,6 +491,13 @@ export class WebGLColorRenderer {
       throw new RangeError(
         'Clear color must contain three finite channels in 0..1',
       );
+    if (lighting.background) {
+      this.#skyPass ??= new WebGLSkyBackgroundPass(this.gl);
+      this.#skyPass.validate(lighting.background);
+    } else if (this.#skyPass) {
+      this.#skyPass.dispose();
+      this.#skyPass = undefined;
+    }
     lighting.target?.assertContext(this.gl);
     if (lighting.target && depthTest && !lighting.target.hasDepth)
       throw new Error('Depth testing requires a depth render target');
@@ -605,6 +616,10 @@ export class WebGLColorRenderer {
     gl.colorMask(true, true, true, true);
     gl.clearColor(clearColor[0]!, clearColor[1]!, clearColor[2]!, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    if (lighting.background) {
+      this.#skyPass!.render(lighting.background);
+      if (depthTest) gl.enable(gl.DEPTH_TEST);
+    }
     gl.useProgram(this.#program);
     if (uniforms) {
       gl.uniform1i(
@@ -638,7 +653,7 @@ export class WebGLColorRenderer {
     }
     this.#textureStore?.begin();
     if (this.#textureUniform) gl.uniform1i(this.#textureUniform, 0);
-    let triangles = 0;
+    let triangles = lighting.background ? 1 : 0;
     try {
       if (this.#shadowPass) {
         this.#shadowPass.bind();
@@ -791,6 +806,9 @@ export class WebGLColorRenderer {
     gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, rgba);
     return [...rgba];
   }
+  get backgroundStats() {
+    return this.#skyPass?.stats;
+  }
   get shadowStats() {
     return this.#shadowPass?.stats;
   }
@@ -810,6 +828,7 @@ export class WebGLColorRenderer {
     this.#textureStore?.dispose();
     this.#environmentStore?.dispose();
     this.#shadowPass?.dispose();
+    this.#skyPass?.dispose();
     this.gl.deleteProgram(this.#program);
   }
 }

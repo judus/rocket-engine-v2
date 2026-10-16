@@ -889,3 +889,26 @@ and sun alignment, rotation, translation invariance and shadow exclusion. Browse
 inspection confirms a visible blooming sun centered by the shortcut, black empty
 space, retained cockpit presentation and no console errors. Browser screenshot:
 /tmp/rocket-hi3d-visible-sun.png. The preview was left facing the sun with 8K shadows.
+
+### Reusable distant sky background
+
+`WebGLMeshRenderer3D.render(root, camera, width, height, { background: { image, yaw } })`
+accepts an opaque sRGB equirectangular `TextureImage`. `yaw` is optional, in radians.
+The panorama centre is +Z, top is +Y; positive yaw turns its centre toward +X.
+The WebGL backend draws one fullscreen triangle after clearing, before geometry,
+with depth writes disabled. Camera rotation, FOV and viewport aspect determine
+sampling; translation and near/far planes do not. Geometry and the separate sun
+occlude the background normally. It never enters the scene graph or shadow fit.
+
+The renderer owns lazy shader/VAO/texture/sampler allocations. Omit `background`
+to release them on the next frame; `dispose()` also releases them. Recreate the
+renderer after context restoration, as for other GPU resources. `backgroundStats`
+reports separate texture memory; frame draw/triangle counts include the sky pass.
+The host retains its CPU texture lease. No extra clock, scene service or singleton.
+
+Hi3D uses the supplied `space-skybox-v1/space-equirectangular.png` with an on/off
+comparison control. Source prompt, provenance and projection notes accompany it.
+The existing sun and its directional illumination remain independent. This is LDR
+background artwork, not HDR environment lighting or navigable stars. The initial
+implementation supports panoramas; cubemap input and environment-light baking
+remain separate concerns. Panorama wrap gradients are corrected in the shader.

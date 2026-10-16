@@ -311,12 +311,21 @@ async function start() {
   const motionRoot = new Node3D('cosmetic cockpit motion');
   rig.add(motionRoot);
   motionRoot.add(assembly);
+  let skyLease: Awaited<ReturnType<WebGLAssets['acquireTexture']>> | undefined;
   let model;
   let modelLease: Awaited<ReturnType<WebGLAssets['acquireModel']>> | undefined;
   try {
     modelLease = await assets.acquireModel(modelUrl, { signal });
     model = modelLease.value;
+    if (hi3dDisplays) {
+      skyLease = await assets.acquireTexture(
+        './examples/3d/assets/space-skybox-v1/space-equirectangular.png',
+        { signal },
+      );
+    }
   } catch (error) {
+    modelLease?.dispose();
+    skyLease?.dispose();
     events.abort();
     surface.dispose();
     await application.dispose();
@@ -325,6 +334,7 @@ async function start() {
   if (app !== application || signal.aborted) {
     events.abort();
     modelLease?.dispose();
+    skyLease?.dispose();
     surface.dispose();
     return;
   }
@@ -871,6 +881,10 @@ async function start() {
           reverseOrder: reverseOrder.checked,
           lights,
           ...(hi3dDisplays ? { clearColor: [0, 0, 0] as const } : {}),
+          ...(skyLease &&
+          document.querySelector<HTMLInputElement>('#sky-enabled')!.checked
+            ? { background: { image: skyLease.value } }
+            : {}),
           ...(shadow
             ? { shadow, shadowDebug: shadowInput('shadow-debug').checked }
             : {}),
@@ -951,6 +965,12 @@ async function start() {
           document.querySelector('#shadow-status')!.textContent =
             `${stats.drawCalls} depth draws · ${stats.triangles} caster triangles · ${stats.resolution}² / ${(stats.depthBytes / 1048576).toFixed(2)} MiB estimated · fitted width ${(shadowExtent * 2).toFixed(2)} units · bias ${shadow!.bias!.toFixed(4)} + slope ${shadow!.slopeBias!.toFixed(4)}`;
         }
+        if (skyLease) {
+          const skyStats = renderer.backgroundStats;
+          document.querySelector('#sky-status')!.textContent = skyStats
+            ? `Distant panorama · 1 fullscreen triangle · ${(skyStats.textureBytes / 1048576).toFixed(2)} MiB including mipmaps · no lighting or shadow contribution`
+            : 'Sky disabled · black space · background GPU resources released';
+        }
         const resources = renderer.textureStats!;
         document.querySelector('#mesh-stats')!.textContent =
           `${result.drawCalls} draws · ${result.triangles} triangles · ${result.uploadedBytes} geometry bytes · ${resources.textures} textures · ${resources.samplers} samplers · ${(resources.textureBytes / 1048576).toFixed(2)} MiB RGBA8 + mip levels`;
@@ -1001,6 +1021,7 @@ async function start() {
     dispose() {
       events.abort();
       modelLease?.dispose();
+      skyLease?.dispose();
       surface.dispose();
       retired++;
     },

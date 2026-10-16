@@ -52,3 +52,6 @@ export type { CubeFaces, EnvironmentLight3D } from './EnvironmentMap.js';
 
 export { directionalShadowMatrix } from './DirectionalShadow.js';
 export type { DirectionalShadow3D } from './DirectionalShadow.js';
+
+export { skyBackgroundView } from './SkyBackground.js';
+export type { SkyBackground3D, SkyBackgroundView } from './SkyBackground.js';

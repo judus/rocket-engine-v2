@@ -1,3 +1,5 @@
+import { WebGLSkyBackgroundPass } from '../src/webgl/SkyBackgroundPass.js';
+import { skyBackgroundView } from '../src/3d/SkyBackground.js';
 import { DynamicTextureImage } from '../src/3d/index.js';
 import { directionalShadowMatrix } from '../src/3d/DirectionalShadow.js';
 import { WebGLShadowPass } from '../src/webgl/ShadowPass.js';
@@ -1246,4 +1248,136 @@ void test('clear color is configurable per frame and validated before clearing',
     [0, 0, 0, 1],
   );
   sceneRenderer.dispose();
+});
+
+void test('sky background is independent of translation and clipping distances, with correct world orientation and aspect', () => {
+  const camera = new PerspectiveCamera();
+  const image = new TextureImage(2, 1, new Uint8Array(8).fill(255));
+  const original = skyBackgroundView({ image }, camera, 200, 100);
+  assert.deepEqual(original.forward, { x: 0, y: 0, z: 1 });
+  assert.ok(Math.abs(original.right.x / original.up.y - 2) < 1e-12);
+  camera.x = 1e9;
+  camera.y = -1e9;
+  camera.z = 9999;
+  camera.far = 2;
+  assert.deepEqual(skyBackgroundView({ image }, camera, 200, 100), original);
+  camera.yaw = Math.PI / 2;
+  const turned = skyBackgroundView({ image }, camera, 200, 100);
+  assert.ok(Math.abs(turned.forward.x - 1) < 1e-12);
+  assert.deepEqual(
+    skyBackgroundView({ image, yaw: Math.PI / 2 }, camera, 200, 100),
+    original,
+  );
+  camera.pitch = Math.PI / 2;
+  assert.ok(
+    Math.abs(skyBackgroundView({ image }, camera, 200, 100).forward.y - 1) <
+      1e-12,
+  );
+  assert.throws(
+    () => skyBackgroundView({ image, yaw: NaN }, camera, 200, 100),
+    /Invalid/,
+  );
+  assert.throws(() => skyBackgroundView({ image }, camera, 0, 100), /Invalid/);
+  camera.verticalFov = Math.PI;
+  assert.throws(
+    () => skyBackgroundView({ image }, camera, 200, 100),
+    /Invalid/,
+  );
+});
+
+void test('renderer sky adds one draw before geometry without writing depth; toggle and disposal release allocations', () => {
+  const f = fixture(),
+    renderer = new WebGLMeshRenderer3D(f.gl),
+    camera = new PerspectiveCamera(),
+    root = new Node3D();
+  const image = new TextureImage(2, 1, new Uint8Array(8).fill(255));
+  root.mesh = new Mesh3D(
+    new MeshGeometry(
+      vertices.map((v) => v.position),
+      [{ id: 'tri', indices: [0, 1, 2], material: 0 }],
+    ),
+    [{ color: '#ffffff' }],
+  );
+  const stats = renderer.render(root, camera, 640, 360, {
+    background: { image },
+  });
+  assert.equal(stats.drawCalls, 2);
+  assert.equal(stats.triangles, 2);
+  assert.equal(renderer.backgroundStats!.textures, 1);
+  const masks = f.calls
+    .filter((c) => c.name === 'depthMask')
+    .map((c) => c.args[0]);
+  assert.deepEqual(masks, [true, false, true]);
+  const ray = f.calls.find((c) => c.name === 'uniform3f');
+  assert.deepEqual(ray!.args.slice(1), [0, 0, 1]);
+  const allocations = f.calls.filter((c) => c.name === 'createTexture').length;
+  renderer.render(root, camera, 640, 360, { background: { image } });
+  assert.equal(
+    f.calls.filter((c) => c.name === 'createTexture').length,
+    allocations,
+  );
+  renderer.render(root, camera, 640, 360);
+  assert.equal(renderer.backgroundStats, undefined);
+  assert.equal(f.calls.filter((c) => c.name === 'deleteTexture').length, 1);
+  renderer.render(root, camera, 640, 360, {
+    background: { image },
+    depthTest: false,
+  });
+  renderer.dispose();
+  renderer.dispose();
+  assert.equal(f.programs.size, 0);
+  assert.equal(f.vaos.size, 0);
+  assert.equal(f.buffers.size, 0);
+});
+
+void test('sky pass rejects invalid inputs and cleans failed program allocations', () => {
+  const image = new TextureImage(1, 1, new Uint8Array([255, 255, 255, 255]));
+  const view = skyBackgroundView({ image }, new PerspectiveCamera(), 640, 360);
+  for (const failure of ['compile', 'link']) {
+    const f = fixture(failure);
+    assert.throws(() => new WebGLSkyBackgroundPass(f.gl), /Sky/);
+    assert.equal(f.shaders.size, 0);
+    assert.equal(f.programs.size, 0);
+    assert.equal(f.vaos.size, 0);
+  }
+  for (const method of [
+    'createShader',
+    'createProgram',
+    'createVertexArray',
+    'getUniformLocation',
+  ]) {
+    const f = fixture();
+    const gl = new Proxy(f.gl, {
+      get(target, key) {
+        if (key === method) return () => null;
+        return Reflect.get(target, key) as unknown;
+      },
+    });
+    assert.throws(() => new WebGLSkyBackgroundPass(gl), /Sky|sky/);
+    assert.equal(f.shaders.size, 0);
+    assert.equal(f.programs.size, 0);
+    assert.equal(f.vaos.size, 0);
+  }
+  const f = fixture(),
+    pass = new WebGLSkyBackgroundPass(f.gl);
+  assert.throws(
+    () =>
+      pass.validate({
+        ...view,
+        image: new TextureImage(1, 1, new Uint8Array([255, 255, 255, 255]), {
+          colorSpace: 'linear',
+        }),
+      }),
+    /Invalid/,
+  );
+  assert.throws(
+    () => pass.validate({ ...view, forward: { x: NaN, y: 0, z: 0 } }),
+    /Invalid/,
+  );
+  pass.validate(view);
+  pass.render(view);
+  f.lose();
+  assert.throws(() => pass.render(view), /unavailable/);
+  pass.dispose();
+  assert.throws(() => pass.render(view), /unavailable/);
 });
