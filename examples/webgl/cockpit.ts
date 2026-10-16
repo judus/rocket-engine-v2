@@ -1,3 +1,4 @@
+import { hi3dDisplayTuning } from './Hi3dDisplayTuning.js';
 import { hi3dCockpitDisplays } from './Hi3dCockpitDisplays.js';
 import { hi3dCockpitInstruments } from './Hi3dCockpitInstruments.js';
 import { CockpitMotion, CockpitFlight } from './CockpitMotion.js';
@@ -345,6 +346,7 @@ async function start() {
       rotation: { x: 0, y: 0, z: 0 },
       scale: { x: 1 / modelScale, y: 1 / modelScale, z: 1 / modelScale },
     };
+    hi3dDisplayTuning(displays, modelUrl, signal);
     placement.add(displays);
   }
   const tuningPanel = document.querySelector('#cockpit-tuning');

@@ -136,6 +136,143 @@
         <button id="instruments-step">Advance displays once</button>
         <output id="instruments-status" aria-live="polite"></output>
       </fieldset>
+      <fieldset id="display-tuning">
+        <legend>Temporary display fitting</legend>
+        <p>
+          Adjust each screen independently. Positive X moves right; positive Y
+          moves up. These offsets follow the cockpit fit and motion. Saved
+          automatically in this browser. Use arrow keys on a focused slider for
+          fine 0.001-unit steps.
+        </p>
+        <div class="toolbar">
+          <strong>Lower left · Radar</strong
+          ><label
+            >X
+            <input
+              id="display-radar-x"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="0"
+            /><output id="display-radar-x-value">0.000</output></label
+          ><label
+            >Y
+            <input
+              id="display-radar-y"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="0"
+            /><output id="display-radar-y-value">0.000</output></label
+          >
+        </div>
+        <div class="toolbar">
+          <strong>Lower right · Flight</strong
+          ><label
+            >X
+            <input
+              id="display-flight-x"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="0"
+            /><output id="display-flight-x-value">0.000</output></label
+          ><label
+            >Y
+            <input
+              id="display-flight-y"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="0"
+            /><output id="display-flight-y-value">0.000</output></label
+          >
+        </div>
+        <div class="toolbar">
+          <strong>Overhead left · Heading / pitch</strong
+          ><label
+            >X
+            <input
+              id="display-attitude-x"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="0"
+            /><output id="display-attitude-x-value">0.000</output></label
+          ><label
+            >Y
+            <input
+              id="display-attitude-y"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="0"
+            /><output id="display-attitude-y-value">0.000</output></label
+          >
+        </div>
+        <div class="toolbar">
+          <strong>Overhead center · Speed</strong
+          ><label
+            >X
+            <input
+              id="display-speed-x"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="0"
+            /><output id="display-speed-x-value">0.000</output></label
+          ><label
+            >Y
+            <input
+              id="display-speed-y"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="0"
+            /><output id="display-speed-y-value">0.000</output></label
+          >
+        </div>
+        <div class="toolbar">
+          <strong>Overhead right · Position</strong
+          ><label
+            >X
+            <input
+              id="display-position-x"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="0"
+            /><output id="display-position-x-value">0.000</output></label
+          ><label
+            >Y
+            <input
+              id="display-position-y"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="0"
+            /><output id="display-position-y-value">0.000</output></label
+          >
+        </div>
+        <button id="display-tuning-reset">Reset display offsets</button>
+        <p id="display-tuning-status">
+          Offsets restore automatically in this browser.
+        </p>
+        <details>
+          <summary>Exact display adjustments</summary>
+          <pre id="display-tuning-values"></pre>
+        </details>
+      </fieldset>
       <div class="toolbar">
         <label
           ><input id="cockpit-motion" type="checkbox" checked /> Subtle cockpit
