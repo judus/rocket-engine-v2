@@ -7,9 +7,17 @@
     <link rel="stylesheet" href="./examples/style.css" />
     <link rel="stylesheet" href="./examples/demo-navigation.css?v=2" />
     <link rel="stylesheet" href="./examples/input/demo.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "./dist/src/index.js": "./dist/src/index.js?v=belt-scroller2",
+          "./dist/src/InputPresets.js": "./dist/src/InputPresets.js?v=belt-scroller2"
+        }
+      }
+    </script>
     <script
       type="module"
-      src="./dist/examples/demo-navigation.js?v=input-actions"
+      src="./dist/examples/demo-navigation.js?v=belt-scroller2"
     ></script>
   </head>
   <body class="demo-layout" data-input-demo="first-person">
@@ -22,6 +30,7 @@
         <a href="./input-first-person.html">3D first-person</a> ·
         <a href="./input-top-down.html">2D top-down</a> ·
         <a href="./input-platformer.html">2D platformer</a> ·
+        <a href="./input-belt-scroller.html">Belt-scroller</a> ·
         <a href="./docs/INPUT-ACTIONS.md">API and behaviour</a>
       </p>
       <div class="toolbar">
@@ -77,7 +86,7 @@
     </main>
     <script
       type="module"
-      src="./dist/examples/input/demo.js?v=platformer2"
+      src="./dist/examples/input/demo.js?v=belt-scroller2"
     ></script>
   </body>
 </html>

@@ -63,3 +63,28 @@ export const platformerInput: InputPreset = {
     reset: { kind: 'press', mapping: { code: 'KeyR', modifiers: ['Control'] } },
   },
 };
+
+/** Belt-scroller: ground depth and jump height are independent intentions. */
+export const beltScrollerInput: InputPreset = {
+  capture: 'focus',
+  actions: {
+    horizontal: {
+      kind: 'axis',
+      mapping: {
+        negative: ['KeyA', 'ArrowLeft'],
+        positive: ['KeyD', 'ArrowRight'],
+      },
+    },
+    depth: {
+      kind: 'axis',
+      mapping: {
+        negative: ['KeyS', 'ArrowDown'],
+        positive: ['KeyW', 'ArrowUp'],
+      },
+    },
+    sprint: { kind: 'hold', mapping: ['ShiftLeft', 'ShiftRight'] },
+    jump: { kind: 'press', mapping: 'Space' },
+    attack: { kind: 'press', mapping: 'KeyJ' },
+    reset: { kind: 'press', mapping: { code: 'KeyR', modifiers: ['Control'] } },
+  },
+};

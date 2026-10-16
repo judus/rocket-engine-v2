@@ -6,6 +6,7 @@ import {
   firstPersonInput,
   topDownInput,
   platformerInput,
+  beltScrollerInput,
 } from '../../src/index.js';
 import {
   CanvasRenderer3D,
@@ -13,6 +14,7 @@ import {
   Node3D,
   Mesh3D,
 } from '../../src/3d/index.js';
+import { BeltScrollerDemo, drawBeltScroller } from './BeltScrollerDemo.js';
 import { PlatformerDemo, platformerBlocks } from './PlatformerDemo.js';
 import { cubeGeometry, cubeMaterials } from '../3d/CubeGeometry.js';
 
@@ -28,6 +30,7 @@ function describe(mapping: ActionMapping): string {
   return [...chord.modifiers, chord.code].join(' + ');
 }
 
+const beltScroller = document.body.dataset.inputDemo === 'belt-scroller';
 const platformer = document.body.dataset.inputDemo === 'platformer';
 const firstPerson = document.body.dataset.inputDemo === 'first-person';
 const button = (id: string) =>
@@ -40,7 +43,9 @@ instructions.textContent = firstPerson
   ? 'WASD: move relative to facing · Mouse/Arrows: look · Shift: sprint · Ctrl: crouch · Space: jump · R: reload · Left mouse: fire · Ctrl+R: reset.'
   : platformer
     ? 'A/D or ←/→: walk west/east · Shift: run · Space/↑: jump · Ctrl+R: reset · Reach the flag. No north/south movement.'
-    : 'W/S: north/south · A/D: west/east (arrows also work) · Shift: sprint · E: interact · Left mouse: fire · Ctrl+R: reset.';
+    : beltScroller
+      ? 'WASD or arrows: ground movement · Shift: run · Space: jump · J: attack preview · Ctrl+R: reset. Walk east through the street.'
+      : 'W/S: north/south · A/D: west/east (arrows also work) · Shift: sprint · E: interact · Left mouse: fire · Ctrl+R: reset.';
 document.querySelector<HTMLElement>('#capture-option')!.hidden = !firstPerson;
 let current: Rocket | undefined;
 async function start() {
@@ -48,7 +53,7 @@ async function start() {
   await current?.dispose();
   ui.hidden = true;
   const app = new Rocket({
-    ...(platformer ? { fixed: {} } : {}),
+    ...(platformer || beltScroller ? { fixed: {} } : {}),
     onError: (error) => {
       status.textContent = String(error);
     },
@@ -59,10 +64,13 @@ async function start() {
   camera.z = -8;
   camera.far = 100;
   const platform = new PlatformerDemo();
+  const belt = new BeltScrollerDemo();
   const player = { x: 480, y: 270 },
     events: string[] = [];
   let time = 0,
     reloads = 0,
+    attacks = 0,
+    lastAttack = -1,
     interactions = 0,
     shots = 0,
     jump = 0,
@@ -71,6 +79,9 @@ async function start() {
     remapped = false;
   const reset = () => {
     platform.reset();
+    belt.reset();
+    attacks = 0;
+    lastAttack = -1;
     player.x = 480;
     player.y = 270;
     camera.x = 0;
@@ -92,9 +103,18 @@ async function start() {
   }
   const scene = app.scene(
     new Scene2D({
-      ...(platformer
+      ...(platformer || beltScroller
         ? {
             fixedUpdate(dt: number) {
+              if (beltScroller) {
+                belt.step(
+                  dt,
+                  controls.value('horizontal'),
+                  controls.value('depth'),
+                  controls.value('sprint') !== 0,
+                );
+                return;
+              }
               platform.step(
                 dt,
                 controls.value('horizontal'),
@@ -137,7 +157,7 @@ async function start() {
           jump = Math.max(0, jump + verticalSpeed * dt);
           if (jump === 0) verticalSpeed = 0;
           camera.y = (controls.value('crouch') ? 0.95 : 1.7) + jump;
-        } else if (!platformer) {
+        } else if (!platformer && !beltScroller) {
           const east = controls.value('east'),
             north = controls.value('north'),
             length = Math.max(1, Math.hypot(east, north));
@@ -150,11 +170,27 @@ async function start() {
             Math.min(524, player.y - (north * speed * 35 * dt) / length),
           );
         }
-        if (!platformer && controls.value('fire') && time - lastFire > 0.15) {
+        if (
+          !platformer &&
+          !beltScroller &&
+          controls.value('fire') &&
+          time - lastFire > 0.15
+        ) {
           shots++;
           lastFire = time;
         }
-        status.textContent = `World time ${time.toFixed(1)} s · ${firstPerson ? `X ${camera.x.toFixed(2)} Z ${camera.z.toFixed(2)} heading ${((camera.yaw * 180) / Math.PI).toFixed(1)}°` : platformer ? `X ${platform.x.toFixed(1)} height ${(480 - platform.y).toFixed(1)} · ${platform.grounded ? 'grounded' : 'airborne'}${platform.x > 2290 ? ' · FLAG REACHED!' : ''}` : `X ${player.x.toFixed(1)} Y ${player.y.toFixed(1)}`} · reloads ${reloads} · interactions ${interactions} · shots ${shots} · ${controls.enabled ? 'game context' : 'UI context'}`;
+        const position = firstPerson
+          ? `X ${camera.x.toFixed(2)} Z ${camera.z.toFixed(2)} heading ${((camera.yaw * 180) / Math.PI).toFixed(1)}°`
+          : platformer
+            ? `X ${platform.x.toFixed(1)} height ${(480 - platform.y).toFixed(1)} · ${platform.grounded ? 'grounded' : 'airborne'}${platform.x > 2290 ? ' · FLAG REACHED!' : ''}`
+            : beltScroller
+              ? `X ${belt.x.toFixed(1)} · ground depth ${belt.depth.toFixed(1)} · jump height ${belt.height.toFixed(1)} · ${belt.grounded ? 'grounded' : 'airborne'} · attacks ${attacks}${belt.x > 2290 ? ' · STREET COMPLETE!' : ''}`
+              : `X ${player.x.toFixed(1)} Y ${player.y.toFixed(1)}`;
+        const counters =
+          platformer || beltScroller
+            ? ''
+            : ` · reloads ${reloads} · interactions ${interactions} · shots ${shots}`;
+        status.textContent = `World time ${time.toFixed(1)} s · ${position}${counters} · ${controls.enabled ? 'game context' : 'UI context'}`;
         for (const name of controls.names)
           document.querySelector<HTMLElement>(
             `[data-value="${name}"]`,
@@ -195,6 +231,8 @@ async function start() {
           ctx.moveTo(480, 262);
           ctx.lineTo(480, 278);
           ctx.stroke();
+        } else if (beltScroller) {
+          drawBeltScroller(ctx, belt, time - lastAttack < 0.22);
         } else if (platformer) {
           const scroll = Math.max(0, Math.min(1440, platform.x - 320));
           ctx.fillStyle = '#152a3b';
@@ -271,7 +309,9 @@ async function start() {
     ? firstPersonInput
     : platformer
       ? platformerInput
-      : topDownInput;
+      : beltScroller
+        ? beltScrollerInput
+        : topDownInput;
   const controls = app.use(Input).actions(scene).use(preset);
   for (const name of controls.names)
     controls.on(name, (event) => {
@@ -288,11 +328,16 @@ async function start() {
         shots++;
         lastFire = time;
       }
+      if (name === 'attack') {
+        attacks++;
+        lastAttack = time;
+      }
       if (name === 'reload') reloads++;
       if (name === 'interact') interactions++;
       if (name === 'reset') reset();
       if (name === 'jump') {
-        if (platformer) platform.requestJump();
+        if (beltScroller) belt.requestJump();
+        else if (platformer) platform.requestJump();
         else if (!jump) verticalSpeed = 4.5;
       }
     });
@@ -328,7 +373,9 @@ async function start() {
       ? 'First-person input playground'
       : platformer
         ? 'Platformer input playground'
-        : 'Top-down input playground',
+        : beltScroller
+          ? 'Belt-scroller input playground'
+          : 'Top-down input playground',
   );
   controls.bind(view, {
     capture: firstPerson && captureMode.checked ? 'pointer-lock' : 'focus',
@@ -356,7 +403,11 @@ async function start() {
     { signal },
   );
   button('ui-close').addEventListener('click', close, { signal });
-  const remapName = firstPerson ? 'reload' : platformer ? 'jump' : 'interact';
+  const remapName = firstPerson
+    ? 'reload'
+    : platformer || beltScroller
+      ? 'jump'
+      : 'interact';
   const defaultMapping = preset.actions[remapName]!.mapping;
   button('remap').textContent = `Remap ${remapName} to F`;
   button('remap').addEventListener(

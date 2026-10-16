@@ -50,6 +50,7 @@ export {
   firstPersonInput,
   topDownInput,
   platformerInput,
+  beltScrollerInput,
 } from './InputPresets.js';
 export type {
   InputModifier,

@@ -3,7 +3,7 @@
 The Input service owns physical events, frame snapshots, capture, focus loss and
 cleanup. `ActionContext` adds named actions and handlers over that same service;
 it does not create another event loop or keyboard implementation. The spaceship
-is unchanged; these basics have independent first-person, top-down and side-view platformer demos.
+is unchanged; these basics have independent first-person, top-down, side-view platformer and belt-scroller demos.
 
 ## Small API
 
@@ -62,6 +62,19 @@ The demo consumes jump requests in Rocket's fixed update and owns gravity,
 solid ledges, grounded checks and camera scrolling. Midair presses are ignored;
 a fresh press after landing is required. These are demo rules, not preset policy.
 
+`beltScrollerInput` adds independent horizontal (A/D, left/right) and depth
+(W/S, up/down, positive toward the far edge) axes, sprint (Shift), jump (Space),
+attack (J) and reset (Ctrl+R). Up means ground movement, not jump. Jump and attack
+are press actions. It uses the same focus activation, remapping and UI isolation.
+
+The Golden Axe-style demo owns a bounded ground plane, normalized diagonal
+movement, separate jump height/gravity, eastward scrolling and ground-depth draw
+order. The shadow stays at ground position when airborne; movement can continue
+in the air. Decorative actors demonstrate occlusion rather than collision. Attack
+is a brief visual preview with an event counter; no damage or combat is implied.
+The preset owns none of those game rules. Flight and virtual controllers follow
+as separate slices.
+
 ## Bindings and combos
 
 - A string is a physical `KeyboardEvent.code` or `Mouse0`/`Mouse1`/`Mouse2`.
@@ -114,8 +127,11 @@ snapshot consumers; existing demos keep their previous capture policy.
 - `/input-platformer.html`: a side-view scrolling level with walk/run, jumping,
   solid ledges and a finish flag. Includes the same action inspector, UI context,
   recreation and live remapping (jump to F and back). The UI disables controls
-  while gravity and world time continue. Belt-scrolling ground depth is a separate
-  planned preset, followed by flight and virtual controllers.
+  while gravity and world time continue.
+
+- `/input-belt-scroller.html`: Golden Axe-style ground depth plus independent
+  jumping, shadow, depth-sorted decorative actors, attack preview and eastward
+  scrolling. Includes remapping jump to F, a UI context and recreation cleanup.
 
 This slice does not implement a key-recording/rebinding editor, persisted player
 profiles, touch/gamepad mappings, context priority stacks or the spaceship UI.

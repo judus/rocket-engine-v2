@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Rocket · Belt-scroller input</title>
+    <link rel="stylesheet" href="./examples/style.css" />
+    <link rel="stylesheet" href="./examples/demo-navigation.css?v=2" />
+    <link rel="stylesheet" href="./examples/input/demo.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "./dist/src/index.js": "./dist/src/index.js?v=belt-scroller2",
+          "./dist/src/InputPresets.js": "./dist/src/InputPresets.js?v=belt-scroller2"
+        }
+      }
+    </script>
+    <script
+      type="module"
+      src="./dist/examples/demo-navigation.js?v=belt-scroller2"
+    ></script>
+  </head>
+  <body class="demo-layout" data-input-demo="belt-scroller">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <p class="eyebrow">ENGINE BASICS · INPUT ACTIONS</p>
+      <h1>Belt-scroller input</h1>
+      <p id="instructions"></p>
+      <p>
+        <a href="./input-first-person.html">3D first-person</a> ·
+        <a href="./input-top-down.html">2D top-down</a> ·
+        <a href="./input-platformer.html">2D platformer</a> ·
+        <a href="./input-belt-scroller.html">Belt-scroller</a> ·
+        <a href="./docs/INPUT-ACTIONS.md">API and behaviour</a>
+      </p>
+      <div class="toolbar">
+        <button id="restart">Recreate demo</button
+        ><button id="ui-toggle">Open UI context</button
+        ><button id="remap">Remap action to F</button
+        ><label id="capture-option"
+          ><input id="capture-mode" type="checkbox" checked /> Mouse capture
+          (default; uncheck for explicit keyboard-only mode)</label
+        >
+      </div>
+      <section id="ui-panel" hidden>
+        <h2>UI context</h2>
+        <p>
+          The world keeps ticking. Game actions are disabled; this text belongs
+          to the UI.
+        </p>
+        <label
+          >Type here
+          <input
+            id="ui-text"
+            type="text"
+            placeholder="Try WASD, R, E…" /></label
+        ><button id="ui-close">Return to game</button>
+      </section>
+      <div id="input-viewport"></div>
+      <output id="demo-status" role="status">Loading…</output>
+      <div class="input-inspection">
+        <section>
+          <h2>Registered actions</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Action</th>
+                <th>Type</th>
+                <th>Binding</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody id="action-values"></tbody>
+          </table>
+        </section>
+        <section>
+          <h2>Handler events</h2>
+          <pre id="event-log">No events yet</pre>
+        </section>
+      </div>
+      <p>
+        Golden Axe-style movement: walk along the street and toward its near/far
+        edges. Space jumps independently of ground depth; the shadow stays on
+        the ground. J previews an attack, with no combat or damage system.
+        Decorative markers demonstrate drawing order; they are not solid
+        obstacles.
+      </p>
+    </main>
+    <script
+      type="module"
+      src="./dist/examples/input/demo.js?v=belt-scroller2"
+    ></script>
+  </body>
+</html>
