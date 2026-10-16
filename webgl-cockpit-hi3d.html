@@ -120,10 +120,11 @@
         <output id="cockpit-motion-status">Movement response ready.</output>
       </div>
       <p>
-        Movement and turning give the cockpit a small spring response, limited
-        to a few pixels. The impact button previews a future collision response;
-        asteroid collisions are still disabled. Turn off Move with cockpit for
-        independent inspection.
+        Flight accelerates smoothly and coasts briefly when keys are released.
+        Acceleration, braking and turning give the cockpit a spring response
+        bounded to 0.25 scene units per axis. The impact button previews a
+        future collision response; asteroid collisions are still disabled. Turn
+        off Move with cockpit for independent inspection.
       </p>
       <fieldset id="cockpit-tuning">
         <legend>Cockpit fit</legend>

@@ -1,4 +1,4 @@
-import { CockpitMotion } from './CockpitMotion.js';
+import { CockpitMotion, CockpitFlight } from './CockpitMotion.js';
 import { cockpitAsteroidField } from '../space/CockpitAsteroidField.js';
 import { cockpitScreenLights } from './CockpitScreenLights.js';
 import type {
@@ -118,6 +118,7 @@ async function start() {
   });
   app = application;
   const motion = new CockpitMotion();
+  const flight = new CockpitFlight();
   const motionEnabled =
     document.querySelector<HTMLInputElement>('#cockpit-motion');
   const scene = application.scene(
@@ -139,31 +140,48 @@ async function start() {
             Number(asteroidWorld && fieldControl('cruise').checked),
           right = keys('KeyD') - keys('KeyA'),
           up = keys('KeyE') - keys('KeyQ');
-        if (motionEnabled?.checked && pilot.checked)
-          motion.update(dt, right, up, forward);
-        else motion.reset();
         const yaw = (Number(cameraYaw.value) * Math.PI) / 180,
           pitch = (Number(cameraPitch.value) * Math.PI) / 180;
         const speed = asteroidWorld ? 8 : 3;
         const boost = asteroidWorld ? 30 : 12;
-        const distance =
-          ((keys('ShiftLeft') || keys('ShiftRight') ? boost : speed) * dt) /
+        const targetSpeed =
+          (keys('ShiftLeft') || keys('ShiftRight') ? boost : speed) /
           (Math.hypot(forward, right, up) || 1);
-        cameraX.value = String(
-          Number(cameraX.value) +
+        const target = {
+          x:
             (Math.sin(yaw) * Math.cos(pitch) * forward +
               Math.cos(yaw) * right) *
-              distance,
-        );
-        cameraY.value = String(
-          Number(cameraY.value) + (Math.sin(pitch) * forward + up) * distance,
-        );
-        cameraZ.value = String(
-          Number(cameraZ.value) +
+            targetSpeed,
+          y: (Math.sin(pitch) * forward + up) * targetSpeed,
+          z:
             (Math.cos(yaw) * Math.cos(pitch) * forward -
               Math.sin(yaw) * right) *
-              distance,
-        );
+            targetSpeed,
+        };
+        const movement = motionEnabled
+          ? flight.update(dt, target.x, target.y, target.z)
+          : {
+              x: target.x * dt,
+              y: target.y * dt,
+              z: target.z * dt,
+              ax: 0,
+              ay: 0,
+              az: 0,
+            };
+        if (motionEnabled?.checked && pilot.checked) {
+          const referenceAcceleration = speed * 3;
+          motion.update(
+            dt,
+            (movement.ax * Math.cos(yaw) - movement.az * Math.sin(yaw)) /
+              referenceAcceleration,
+            movement.ay / referenceAcceleration,
+            (movement.ax * Math.sin(yaw) + movement.az * Math.cos(yaw)) /
+              referenceAcceleration,
+          );
+        } else motion.reset();
+        cameraX.value = String(Number(cameraX.value) + movement.x);
+        cameraY.value = String(Number(cameraY.value) + movement.y);
+        cameraZ.value = String(Number(cameraZ.value) + movement.z);
         const navigationSpeed =
           dt > 0
             ? Math.hypot(
@@ -557,7 +575,7 @@ async function start() {
     }
   };
   const look = (dx: number, dy: number) => {
-    if (motionEnabled?.checked && pilot.checked) motion.kick(-dx * 90, dy * 90);
+    if (motionEnabled?.checked && pilot.checked) motion.kick(-dx * 20, dy * 20);
     cameraYaw.value = String(
       ((Number(cameraYaw.value) + (dx * 180) / Math.PI + 540) % 360) - 180,
     );
@@ -587,20 +605,17 @@ async function start() {
       const resolution = { limited: surface.limited };
       document.querySelector<HTMLOutputElement>('#render-scale-value')!.value =
         `${renderScale.value}%`;
-      const pixelsToWorld =
-        (2 * Math.abs(home.z) * Math.tan(home.fov / 2)) /
-        Math.max(1, canvas.clientHeight);
       motionRoot.transform = {
         ...motionRoot.transform,
         position: {
-          x: motion.x * pixelsToWorld,
-          y: motion.y * pixelsToWorld,
+          x: motion.x,
+          y: motion.y,
           z: 0,
         },
       };
       const motionStatus = document.querySelector('#cockpit-motion-status');
       if (motionStatus)
-        motionStatus.textContent = `${motionEnabled?.checked && pilot.checked ? 'Active' : 'Off'} · offset ${motion.x.toFixed(2)}, ${motion.y.toFixed(2)} px · cosmetic only; no collisions`;
+        motionStatus.textContent = `${motionEnabled?.checked && pilot.checked ? 'Active' : 'Off'} · offset ${motion.x.toFixed(2)}, ${motion.y.toFixed(2)} U · speed ${flight.speed.toFixed(2)} U/s · cosmetic response; no collisions`;
       const rotation = (Number(angle.value) * Math.PI) / 180 + phase;
       assembly.transform = {
         ...assembly.transform,
@@ -888,7 +903,7 @@ async function start() {
   document.querySelector('#cockpit-motion-bump')?.addEventListener(
     'click',
     () => {
-      if (motionEnabled?.checked && pilot.checked) motion.kick(20, -25);
+      if (motionEnabled?.checked && pilot.checked) motion.kick(5, -6);
     },
     { signal },
   );
@@ -908,6 +923,7 @@ async function start() {
     'click',
     () => {
       motion.reset();
+      flight.reset();
       pilot.checked = true;
       if (asteroidWorld) fieldControl('cruise').checked = false;
       rig.matrix = identityMatrix;
@@ -935,6 +951,8 @@ async function start() {
   document.querySelector('#inspect-model')!.addEventListener(
     'click',
     () => {
+      flight.reset();
+      motion.reset();
       pilot.checked = false;
       if (asteroidWorld) fieldControl('cruise').checked = false;
       rig.matrix = identityMatrix;
