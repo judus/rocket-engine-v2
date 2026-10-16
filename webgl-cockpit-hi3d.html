@@ -20,12 +20,12 @@
       <p>
         The revised Hi3D v3 export with our seeded asteroid field in the
         existing cockpit viewport: 199,352 triangles, 106,911 vertices, three
-        embedded 1024² textures and a 11.3 MiB prepared GLB. The source
+        embedded 1024² textures and an 11.3 MiB prepared GLB. The source
         geometry, materials and embedded proportion corrections are preserved.
         Uniform scene scaling matches the previous preview's eight-unit width
-        and centers the model at eye height for comparison. This is an
-        inspection pose, not a fitted pilot seat. Use WASD, drag and the camera
-        controls to explore.
+        and centers the model at eye height for comparison. The default pilot
+        camera now sits 3.3 scene units farther forward, close to the dashboard.
+        Use WASD, drag and the camera controls to explore.
       </p>
       <section aria-labelledby="performance-title">
         <h2 id="performance-title">Performance</h2>
@@ -110,7 +110,7 @@
         data-model-y="-0.8191118254985987"
         data-model-yaw="0"
         data-eye-y="1.5"
-        data-eye-z="-6"
+        data-eye-z="-2.7"
       ></div>
       <fieldset>
         <legend>Outside world</legend>
@@ -173,7 +173,7 @@
         Click the canvas to focus. <strong>WASD</strong> moves,
         <strong>Q / E</strong> lowers / raises, <strong>Shift</strong> speeds
         up. <strong>Drag</strong> or use the arrow keys to turn;
-        <strong>R</strong> returns to inspection home. One grid square = one
+        <strong>R</strong> returns to the pilot seat. One grid square = one
         unit; the reference spans 60 × 60 units.
       </p>
       <div class="toolbar">
@@ -372,7 +372,7 @@
         /></label>
       </div>
       <div class="toolbar">
-        <button id="reset-triangle">Inspection home</button
+        <button id="reset-triangle">Pilot seat</button
         ><button id="restart">Recreate demo</button
         ><label
           ><input id="animate-triangle" type="checkbox" /> Animate
@@ -408,8 +408,9 @@
       <output id="gpu-status" aria-live="polite">Starting…</output>
       <p>
         Revised Hi3D v3 geometry and three 1024² textures. One combined mesh
-        without separated instrument meshes or pilot-camera metadata. The source
-        GLB is unchanged.
+        without separated instrument meshes or pilot-camera metadata. UV-derived
+        tangents were added for the normal map; geometry, textures and embedded
+        transforms are unchanged.
       </p>
       <p id="mesh-stats">Preparing meshes…</p>
       <output id="gpu-diagnostic" aria-live="polite"></output>
