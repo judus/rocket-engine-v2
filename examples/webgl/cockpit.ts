@@ -384,7 +384,7 @@ async function start() {
       const apply = () => {
         lamps.setPowered(i, control.checked);
         document.querySelector<HTMLOutputElement>(`#lamp-${id}-status`)!.value =
-          control.checked ? 'On' : i >= 4 ? 'Standby 5%' : 'Off';
+          control.checked ? 'On' : i >= 4 ? 'Standby 2%' : 'Off';
       };
       control.addEventListener('change', apply, { signal });
       const color = document.querySelector<HTMLInputElement>(
