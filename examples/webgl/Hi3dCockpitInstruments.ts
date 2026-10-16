@@ -41,6 +41,18 @@ export function hi3dCockpitInstruments() {
   const radar = make(512, 400),
     flight = make(512, 400);
   const upper = [make(448, 96), make(384, 96), make(512, 96)] as const;
+  // A static phosphor-cell mask: about two CSS pixels per cell at the pilot fit.
+  // Draw over the live artwork without reducing radar/text resolution or adding a clock.
+  const phosphor = document.createElement('canvas');
+  phosphor.width = phosphor.height = 4;
+  const phosphorContext = phosphor.getContext('2d')!;
+  phosphorContext.fillStyle = 'rgba(0, 0, 0, 0.13)';
+  phosphorContext.fillRect(0, 3, 4, 1);
+  phosphorContext.fillStyle = 'rgba(0, 0, 0, 0.055)';
+  phosphorContext.fillRect(3, 0, 1, 4);
+  const phosphorMasks = [radar, flight].map(({ ctx }) =>
+    ctx.createPattern(phosphor, 'repeat')!,
+  );
   let navigation: CockpitNavigationReadout = {
     x: 0,
     y: 1.48,
@@ -163,6 +175,12 @@ export function hi3dCockpitInstruments() {
       ctx.fillText('WASD THRUST / SHIFT BOOST', 24, 334);
       ctx.font = '15px monospace';
       ctx.fillText('NO COLLISIONS / DEMO NAV', 24, 378);
+      [radar, flight].forEach(({ ctx }, i) => {
+        ctx.save();
+        ctx.fillStyle = phosphorMasks[i]!;
+        ctx.fillRect(12, 12, 488, 376);
+        ctx.restore();
+      });
     }
     for (const { ctx, image } of [radar, flight, ...upper])
       updateTextureFromCanvas(image, ctx);
