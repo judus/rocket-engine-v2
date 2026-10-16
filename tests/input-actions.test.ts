@@ -42,21 +42,21 @@ void test('top-down preset dispatches frame actions, aliases, opposing axes, hol
     controls.setEnabled(false);
     assert.equal(events.at(-1)!.cancelled, true);
     assert.equal(controls.value('north'), 0);
-    view.canvas.dispatchEvent(new Key('keydown', 'KeyE'));
+    view.canvas.dispatchEvent(new Key('keydown', 'KeyF'));
     host.frame(64);
     assert.equal(interactions, 0);
     controls.setEnabled(true);
     controls.setEnabled(true);
     controls.activate();
-    view.canvas.dispatchEvent(new Key('keydown', 'KeyE'));
-    view.canvas.dispatchEvent(new Key('keyup', 'KeyE'));
+    view.canvas.dispatchEvent(new Key('keydown', 'KeyF'));
+    view.canvas.dispatchEvent(new Key('keyup', 'KeyF'));
     host.frame(80);
     assert.equal(interactions, 1);
-    controls.map('interact', 'KeyF');
-    view.canvas.dispatchEvent(new Key('keydown', 'KeyE'));
+    controls.map('interact', 'KeyG');
+    view.canvas.dispatchEvent(new Key('keydown', 'KeyF'));
     host.frame(96);
     assert.equal(interactions, 1);
-    view.canvas.dispatchEvent(new Key('keydown', 'KeyF'));
+    view.canvas.dispatchEvent(new Key('keydown', 'KeyG'));
     host.frame(112);
     assert.equal(interactions, 2);
     assert.throws(

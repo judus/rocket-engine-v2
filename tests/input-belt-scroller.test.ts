@@ -101,8 +101,10 @@ void test('belt-scroller actions drive Rocket fixed updates, isolate UI, remap a
     assert.ok(model.x > 80);
     assert.equal(model.height, 0);
     view.canvas.dispatchEvent(new Key('keydown', 'Space'));
-    view.canvas.dispatchEvent(new Key('keydown', 'KeyJ'));
-    view.canvas.dispatchEvent(new Key('keyup', 'KeyJ'));
+    view.canvas.dispatchEvent(
+      new Key('keydown', 'ControlRight', { ctrlKey: true }),
+    );
+    view.canvas.dispatchEvent(new Key('keyup', 'ControlRight'));
     host.frame(40);
     assert.equal(attacks, 1, 'short press is retained between frames');
     assert.ok(model.height > 0);
@@ -112,7 +114,9 @@ void test('belt-scroller actions drive Rocket fixed updates, isolate UI, remap a
     controls.setEnabled(false);
     const x = model.x,
       depth = model.depth;
-    view.canvas.dispatchEvent(new Key('keydown', 'KeyJ'));
+    view.canvas.dispatchEvent(
+      new Key('keydown', 'ControlRight', { ctrlKey: true }),
+    );
     host.frame(80);
     assert.equal(model.x, x);
     assert.equal(model.depth, depth);
@@ -120,11 +124,11 @@ void test('belt-scroller actions drive Rocket fixed updates, isolate UI, remap a
     assert.equal(controls.value('horizontal'), 0);
     controls.setEnabled(true);
     controls.activate();
-    controls.map('jump', 'KeyF');
+    controls.map('jump', 'KeyG');
     view.canvas.dispatchEvent(new Key('keydown', 'Space'));
     host.frame(100);
     assert.equal(jumps, 1);
-    view.canvas.dispatchEvent(new Key('keydown', 'KeyF'));
+    view.canvas.dispatchEvent(new Key('keydown', 'KeyG'));
     host.frame(120);
     assert.equal(jumps, 2);
     view.canvas.dispatchEvent(new Key('keydown', 'KeyR', { ctrlKey: true }));

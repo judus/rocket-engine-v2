@@ -43,14 +43,16 @@ const ui = document.querySelector<HTMLElement>('#ui-panel')!;
 const status = document.querySelector<HTMLOutputElement>('#demo-status')!;
 const instructions = document.querySelector<HTMLElement>('#instructions')!;
 instructions.textContent = flight
-  ? 'W/S: forward/back · A/D: strafe · Space/Ctrl: local up/down · Arrows: yaw/pitch · Q/E: roll · Shift: boost · Ctrl+R: reset. Optional mouse capture: pitch/yaw.'
+  ? 'W/S: forward/back · A/D: strafe · Left Alt/Ctrl: local up/down · Space/Left mouse: fire · Arrows: yaw/pitch · Q/E: roll · Shift: boost · Ctrl+R: reset. Optional mouse capture: pitch/yaw.'
   : firstPerson
     ? 'WASD: move relative to facing · Mouse/Arrows: look · Shift: sprint · Ctrl: crouch · Space: jump · R: reload · Left mouse: fire · Ctrl+R: reset.'
     : platformer
-      ? 'A/D or ←/→: walk west/east · Shift: run · Space/↑: jump · Ctrl+R: reset · Reach the flag. No north/south movement.'
+      ? 'A/D or ←/→: walk west/east · Shift: run · Space/↑: jump · Right Ctrl/Left mouse: attack · Ctrl+R: reset · Reach the flag. No north/south movement.'
       : beltScroller
-        ? 'WASD or arrows: ground movement · Shift: run · Space: jump · J: attack preview · Ctrl+R: reset. Walk east through the street.'
-        : 'W/S: north/south · A/D: west/east (arrows also work) · Shift: sprint · E: interact · Left mouse: fire · Ctrl+R: reset.';
+        ? 'WASD or arrows: ground movement · Shift: run · Space: jump · Right Ctrl/Left mouse: attack preview · Ctrl+R: reset. Walk east through the street.'
+        : 'W/S: north/south · A/D: west/east (arrows also work) · Shift: sprint · Space/Left mouse: fire · Ctrl+R: reset.';
+instructions.textContent +=
+  ' · F: interact · Tab: health/consumables action preview.';
 document.querySelector<HTMLElement>('#capture-option')!.hidden = !(
   firstPerson || flight
 );
@@ -81,6 +83,7 @@ async function start() {
     attacks = 0,
     lastAttack = -1,
     interactions = 0,
+    healthActions = 0,
     shots = 0,
     jump = 0,
     verticalSpeed = 0,
@@ -91,6 +94,7 @@ async function start() {
     platform.reset();
     belt.reset();
     attacks = 0;
+    interactions = healthActions = shots = 0;
     lastAttack = -1;
     player.x = 480;
     player.y = 270;
@@ -193,7 +197,6 @@ async function start() {
           );
         }
         if (
-          !flight &&
           !platformer &&
           !beltScroller &&
           controls.value('fire') &&
@@ -209,12 +212,9 @@ async function start() {
             : platformer
               ? `X ${platform.x.toFixed(1)} height ${(480 - platform.y).toFixed(1)} · ${platform.grounded ? 'grounded' : 'airborne'}${platform.x > 2290 ? ' · FLAG REACHED!' : ''}`
               : beltScroller
-                ? `X ${belt.x.toFixed(1)} · ground depth ${belt.depth.toFixed(1)} · jump height ${belt.height.toFixed(1)} · ${belt.grounded ? 'grounded' : 'airborne'} · attacks ${attacks}${belt.x > 2290 ? ' · STREET COMPLETE!' : ''}`
+                ? `X ${belt.x.toFixed(1)} · ground depth ${belt.depth.toFixed(1)} · jump height ${belt.height.toFixed(1)} · ${belt.grounded ? 'grounded' : 'airborne'}${belt.x > 2290 ? ' · STREET COMPLETE!' : ''}`
                 : `X ${player.x.toFixed(1)} Y ${player.y.toFixed(1)}`;
-        const counters =
-          flight || platformer || beltScroller
-            ? ''
-            : ` · reloads ${reloads} · interactions ${interactions} · shots ${shots}`;
+        const counters = ` · interactions ${interactions} · health/consumables ${healthActions}${platformer || beltScroller ? ` · attacks ${attacks}` : ` · shots ${shots}`}${firstPerson ? ` · reloads ${reloads}` : ''}`;
         status.textContent = `World time ${time.toFixed(1)} s · ${position}${counters} · ${controls.enabled ? 'game context' : 'UI context'}`;
         for (const name of controls.names)
           document.querySelector<HTMLElement>(
@@ -226,6 +226,12 @@ async function start() {
         ctx.fillRect(0, 0, 960, 540);
         if (flight) {
           drawFlight(ctx, craft);
+          if (controls.value('fire')) {
+            ctx.strokeStyle = '#ffc077';
+            ctx.beginPath();
+            ctx.arc(480, 270, 16, 0, Math.PI * 2);
+            ctx.stroke();
+          }
         } else if (firstPerson) {
           for (let x = -30; x <= 30; x += 3)
             renderer.line(
@@ -286,6 +292,19 @@ async function start() {
             4,
             5,
           );
+          if (time - lastAttack < 0.22) {
+            ctx.strokeStyle = '#ffc077';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(
+              platform.x + platform.facing * 14,
+              platform.y - 18,
+              22,
+              0,
+              Math.PI * 2,
+            );
+            ctx.stroke();
+          }
           ctx.restore();
           ctx.font = '16px monospace';
           ctx.fillStyle = '#c3d9e5';
@@ -363,6 +382,7 @@ async function start() {
       }
       if (name === 'reload') reloads++;
       if (name === 'interact') interactions++;
+      if (name === 'health') healthActions++;
       if (name === 'reset') reset();
       if (name === 'jump') {
         if (beltScroller) belt.requestJump();
@@ -443,18 +463,18 @@ async function start() {
         ? 'jump'
         : 'interact';
   const defaultMapping = preset.actions[remapName]!.mapping;
-  button('remap').textContent = `Remap ${remapName} to F`;
+  button('remap').textContent = `Remap ${remapName} to G`;
   button('remap').addEventListener(
     'click',
     () => {
       remapped = !remapped;
-      controls.map(remapName, remapped ? 'KeyF' : defaultMapping);
+      controls.map(remapName, remapped ? 'KeyG' : defaultMapping);
       document.querySelector<HTMLElement>(
         `[data-mapping="${remapName}"]`,
-      )!.textContent = remapped ? 'KeyF' : describe(defaultMapping);
+      )!.textContent = remapped ? 'KeyG' : describe(defaultMapping);
       button('remap').textContent = remapped
         ? 'Restore default binding'
-        : `Remap ${remapName} to F`;
+        : `Remap ${remapName} to G`;
     },
     { signal },
   );

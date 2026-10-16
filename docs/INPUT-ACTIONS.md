@@ -39,7 +39,7 @@ controls.on('reload', () => {
   weapon.reload();
 });
 controls.bind(view); // Pointer Lock and default feedback, no browser glue
-controls.map('reload', 'KeyF'); // change binding without changing the function
+controls.map('reload', 'KeyG'); // change binding without changing the function
 ```
 
 `firstPersonInput` defines forward/right axes, mouse look X/Y (radians per frame,
@@ -50,7 +50,7 @@ Arrow keys allow keyboard turning. Movement, physics, jumping and weapons are
 implemented by the demo/game, never the preset.
 
 `topDownInput` defines north/east axes (W/D positive, S/A negative, arrow aliases),
-sprint, interact (E), fire (Mouse0) and reset (Ctrl+R), with focus activation and a
+sprint, interact (F), fire (Space or Mouse0) and reset (Ctrl+R), with focus activation and a
 visible cursor. Positive north is an intention; in the demo's Y-down canvas it
 subtracts from Y. The presets include no combat or collision domain systems.
 
@@ -64,7 +64,7 @@ a fresh press after landing is required. These are demo rules, not preset policy
 
 `beltScrollerInput` adds independent horizontal (A/D, left/right) and depth
 (W/S, up/down, positive toward the far edge) axes, sprint (Shift), jump (Space),
-attack (J) and reset (Ctrl+R). Up means ground movement, not jump. Jump and attack
+attack (Right Ctrl or Mouse0) and reset (Ctrl+R). Up means ground movement, not jump. Jump and attack
 are press actions. It uses the same focus activation, remapping and UI isolation.
 
 The Golden Axe-style demo owns a bounded ground plane, normalized diagonal
@@ -74,7 +74,7 @@ in the air. Decorative actors demonstrate occlusion rather than collision. Attac
 is a brief visual preview with an event counter; no damage or combat is implied.
 The preset owns none of those game rules. Virtual controllers follow as a separate slice.
 
-`flightInput` defines forward (W/S), right (D/A), local up (Space/Ctrl), yaw
+`flightInput` defines forward (W/S), right (D/A), local up (Left Alt/Ctrl), yaw
 (left/right arrows), pitch (up/down arrows), roll (E/Q), boost (Shift), reset
 (Ctrl+R), and relative mouse look X/Y (0.003 rad/pixel). It defaults to focus
 activation for complete keyboard-only flight. The demo offers an explicit mouse
@@ -91,6 +91,28 @@ perspective/clipping/Canvas renderer. There is no new engine camera or clock.
 The floor grid and gates are visual references, not collisions or world bounds.
 Opening the HTML UI clears game actions while braking and world time continue.
 This is an assisted free-flight example, not aerodynamic or Newtonian simulation.
+
+## Shared game actions and keyboard defaults
+
+All presets expose `interact` (press F) and `health` (press Tab). These are named
+intents: the demo logs/counts them; the game decides whether to open a panel,
+consume an item, talk, dock, etc. No health/inventory domain is implemented here.
+Tab is prevented while game input is connected, preserving canvas focus. A disabled
+game context leaves normal HTML Tab navigation alone.
+
+| Preset        | Attack/fire                           | Jump       | Local thrust up/down |
+| ------------- | ------------------------------------- | ---------- | -------------------- |
+| First-person  | Mouse0 (`fire`, hold)                 | Space      | —                    |
+| Top-down      | Space / Mouse0 (`fire`, hold)         | —          | —                    |
+| Platformer    | Right Ctrl / Mouse0 (`attack`, press) | Space / Up | —                    |
+| Belt-scroller | Right Ctrl / Mouse0 (`attack`, press) | Space      | —                    |
+| Flight        | Space / Mouse0 (`fire`, hold)         | —          | Left Alt / Ctrl      |
+
+Both Shift keys still run/boost. Physical `ControlRight` is distinct from
+`ControlLeft`; attacking in the two jumping 2D presets neither jumps nor sprints.
+Their Ctrl+R reset chord remains available (pressing Right Ctrl itself still means
+attack). Mouse bindings are alternatives, not a requirement. All mappings remain
+replaceable. The demo remapping example uses G, leaving F for interaction.
 
 ## Bindings and combos
 
@@ -143,12 +165,12 @@ snapshot consumers; existing demos keep their previous capture policy.
 
 - `/input-platformer.html`: a side-view scrolling level with walk/run, jumping,
   solid ledges and a finish flag. Includes the same action inspector, UI context,
-  recreation and live remapping (jump to F and back). The UI disables controls
+  recreation and live remapping (jump to G and back). The UI disables controls
   while gravity and world time continue.
 
 - `/input-belt-scroller.html`: Golden Axe-style ground depth plus independent
   jumping, shadow, depth-sorted decorative actors, attack preview and eastward
-  scrolling. Includes remapping jump to F, a UI context and recreation cleanup.
+  scrolling. Includes remapping jump to G, a UI context and recreation cleanup.
 
 - `/input-flight.html`: keyboard-first six-axis free flight, full pitch/yaw/roll,
   optional mouse look, gates and a world-axis orientation guide. Includes boost

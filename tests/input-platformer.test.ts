@@ -42,11 +42,11 @@ void test('platformer preset has horizontal movement only, one jump per press, c
     assert.equal(jumps, 2);
     controls.setEnabled(true);
     controls.activate();
-    controls.map('jump', 'KeyF');
+    controls.map('jump', 'KeyG');
     view.canvas.dispatchEvent(new Key('keydown', 'Space'));
     host.frame(96);
     assert.equal(jumps, 2);
-    view.canvas.dispatchEvent(new Key('keydown', 'KeyF'));
+    view.canvas.dispatchEvent(new Key('keydown', 'KeyG'));
     host.frame(112);
     assert.equal(jumps, 3);
     await app.dispose();

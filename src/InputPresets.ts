@@ -20,6 +20,8 @@ export const firstPersonInput: InputPreset = {
     jump: { kind: 'press', mapping: 'Space' },
     reload: { kind: 'press', mapping: 'KeyR' },
     fire: { kind: 'hold', mapping: 'Mouse0' },
+    interact: { kind: 'press', mapping: 'KeyF' },
+    health: { kind: 'press', mapping: 'Tab' },
     reset: { kind: 'press', mapping: { code: 'KeyR', modifiers: ['Control'] } },
   },
 };
@@ -41,8 +43,9 @@ export const topDownInput: InputPreset = {
       },
     },
     sprint: { kind: 'hold', mapping: ['ShiftLeft', 'ShiftRight'] },
-    interact: { kind: 'press', mapping: 'KeyE' },
-    fire: { kind: 'hold', mapping: 'Mouse0' },
+    fire: { kind: 'hold', mapping: ['Space', 'Mouse0'] },
+    interact: { kind: 'press', mapping: 'KeyF' },
+    health: { kind: 'press', mapping: 'Tab' },
     reset: { kind: 'press', mapping: { code: 'KeyR', modifiers: ['Control'] } },
   },
 };
@@ -60,6 +63,9 @@ export const platformerInput: InputPreset = {
     },
     sprint: { kind: 'hold', mapping: ['ShiftLeft', 'ShiftRight'] },
     jump: { kind: 'press', mapping: ['Space', 'ArrowUp'] },
+    attack: { kind: 'press', mapping: ['ControlRight', 'Mouse0'] },
+    interact: { kind: 'press', mapping: 'KeyF' },
+    health: { kind: 'press', mapping: 'Tab' },
     reset: { kind: 'press', mapping: { code: 'KeyR', modifiers: ['Control'] } },
   },
 };
@@ -84,7 +90,9 @@ export const beltScrollerInput: InputPreset = {
     },
     sprint: { kind: 'hold', mapping: ['ShiftLeft', 'ShiftRight'] },
     jump: { kind: 'press', mapping: 'Space' },
-    attack: { kind: 'press', mapping: 'KeyJ' },
+    attack: { kind: 'press', mapping: ['ControlRight', 'Mouse0'] },
+    interact: { kind: 'press', mapping: 'KeyF' },
+    health: { kind: 'press', mapping: 'Tab' },
     reset: { kind: 'press', mapping: { code: 'KeyR', modifiers: ['Control'] } },
   },
 };
@@ -97,7 +105,10 @@ export const flightInput: InputPreset = {
     right: { kind: 'axis', mapping: { negative: 'KeyA', positive: 'KeyD' } },
     up: {
       kind: 'axis',
-      mapping: { negative: ['ControlLeft', 'ControlRight'], positive: 'Space' },
+      mapping: {
+        negative: ['ControlLeft', 'ControlRight'],
+        positive: 'AltLeft',
+      },
     },
     yaw: {
       kind: 'axis',
@@ -110,7 +121,10 @@ export const flightInput: InputPreset = {
     roll: { kind: 'axis', mapping: { negative: 'KeyQ', positive: 'KeyE' } },
     lookX: { kind: 'axis', mapping: { pointer: 'x', scale: 0.003 } },
     lookY: { kind: 'axis', mapping: { pointer: 'y', scale: 0.003 } },
+    fire: { kind: 'hold', mapping: ['Space', 'Mouse0'] },
     boost: { kind: 'hold', mapping: ['ShiftLeft', 'ShiftRight'] },
+    interact: { kind: 'press', mapping: 'KeyF' },
+    health: { kind: 'press', mapping: 'Tab' },
     reset: { kind: 'press', mapping: { code: 'KeyR', modifiers: ['Control'] } },
   },
 };

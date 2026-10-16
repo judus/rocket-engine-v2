@@ -200,7 +200,7 @@ export function createFlightDrawing(): (
     ctx.font = '16px monospace';
     ctx.fillText('FREE FLIGHT · fly through the green gates', 24, 34);
     ctx.fillText(
-      'Arrows: pitch/yaw · Q/E: roll · Space/Ctrl: local up/down',
+      'Arrows: pitch/yaw · Q/E: roll · Alt/Ctrl: local up/down',
       24,
       60,
     );

@@ -10,14 +10,14 @@
     <script type="importmap">
       {
         "imports": {
-          "./dist/src/index.js": "./dist/src/index.js?v=flight",
-          "./dist/src/InputPresets.js": "./dist/src/InputPresets.js?v=flight"
+          "./dist/src/index.js": "./dist/src/index.js?v=input-defaults",
+          "./dist/src/InputPresets.js": "./dist/src/InputPresets.js?v=input-defaults"
         }
       }
     </script>
     <script
       type="module"
-      src="./dist/examples/demo-navigation.js?v=flight"
+      src="./dist/examples/demo-navigation.js?v=input-defaults"
     ></script>
   </head>
   <body class="demo-layout" data-input-demo="belt-scroller">
@@ -37,7 +37,7 @@
       <div class="toolbar">
         <button id="restart">Recreate demo</button
         ><button id="ui-toggle">Open UI context</button
-        ><button id="remap">Remap action to F</button
+        ><button id="remap">Remap action to G</button
         ><label id="capture-option"
           ><input id="capture-mode" type="checkbox" checked /> Mouse capture
           (default; uncheck for explicit keyboard-only mode)</label
@@ -82,14 +82,14 @@
       <p>
         Golden Axe-style movement: walk along the street and toward its near/far
         edges. Space jumps independently of ground depth; the shadow stays on
-        the ground. J previews an attack, with no combat or damage system.
-        Decorative markers demonstrate drawing order; they are not solid
-        obstacles.
+        the ground. Right Ctrl / left mouse previews an attack, with no combat
+        or damage system. Decorative markers demonstrate drawing order; they are
+        not solid obstacles.
       </p>
     </main>
     <script
       type="module"
-      src="./dist/examples/input/demo.js?v=flight2"
+      src="./dist/examples/input/demo.js?v=input-defaults"
     ></script>
   </body>
 </html>
