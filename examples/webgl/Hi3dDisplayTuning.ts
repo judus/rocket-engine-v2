@@ -12,7 +12,14 @@ export function hi3dDisplayTuning(
   const ids =
     kind === 'display'
       ? ['radar', 'flight', 'attitude', 'speed', 'position']
-      : ['overhead-left', 'overhead-right', 'center-console', 'right-console'];
+      : [
+          'overhead-left',
+          'overhead-right',
+          'center-console',
+          'right-console',
+          'r1',
+          'r2',
+        ];
   const bases = root.children.map((node) => ({ ...node.transform.position }));
   const controls = ids.flatMap((id) =>
     ['x', 'y'].map((axis) =>

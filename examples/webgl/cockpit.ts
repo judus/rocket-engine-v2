@@ -358,6 +358,8 @@ async function start() {
       'overhead-right',
       'center-console',
       'right-console',
+      'r1',
+      'r2',
     ].forEach((id, i) => {
       const control = document.querySelector<HTMLInputElement>(`#lamp-${id}`)!;
       const apply = () => {
@@ -366,6 +368,14 @@ async function start() {
           control.checked ? 'On' : 'Off';
       };
       control.addEventListener('change', apply, { signal });
+      const color = document.querySelector<HTMLInputElement>(
+        `#lamp-${id}-color`,
+      );
+      if (color) {
+        const applyColor = () => lamps.setColor(i, color.value);
+        color.addEventListener('input', applyColor, { signal });
+        applyColor();
+      }
       apply();
     });
   }

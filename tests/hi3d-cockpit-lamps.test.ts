@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { hi3dCockpitLamps } from '../examples/webgl/Hi3dCockpitLamps.js';
 
-void test('four opaque lamp lenses switch independently without removing coverage or reallocating geometry', () => {
+void test('six opaque lamp lenses switch independently without removing coverage or reallocating geometry', () => {
   const lamps = hi3dCockpitLamps();
-  assert.equal(lamps.root.children.length, 4);
+  assert.equal(lamps.root.children.length, 6);
   const originals = lamps.root.children.map((node) => node.mesh!);
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 6; i++) {
     lamps.setPowered(i, false);
     const node = lamps.root.children[i]!,
       dark = node.mesh!;
@@ -17,12 +17,46 @@ void test('four opaque lamp lenses switch independently without removing coverag
     assert.equal(node.receivesShadow, false);
     const pixels = dark.materials[0]!.baseColorTexture!.image.copyPixels();
     for (let p = 3; p < pixels.length; p += 4) assert.equal(pixels[p], 255);
-    for (let j = i + 1; j < 4; j++)
+    for (let j = i + 1; j < 6; j++)
       assert.equal(lamps.root.children[j]!.mesh, originals[j]);
     lamps.setPowered(i, true);
     assert.equal(node.mesh, originals[i]);
     lamps.setPowered(i, false);
     assert.equal(node.mesh, dark);
   }
-  assert.throws(() => lamps.setPowered(4, true), /Unknown Hi3D lamp/);
+  assert.throws(() => lamps.setPowered(6, true), /Unknown Hi3D lamp/);
+});
+
+void test('round alert colors change live while retaining power, geometry and textures', () => {
+  const lamps = hi3dCockpitLamps();
+  const r1 = lamps.root.children[4]!,
+    r2 = lamps.root.children[5]!;
+  const orange = r1.mesh!,
+    red = r2.mesh!;
+  assert.deepEqual(orange.materials[0]!.baseColorFactor, [
+    1,
+    ((149 / 255 + 0.055) / 1.055) ** 2.4,
+    0,
+    1,
+  ]);
+  assert.deepEqual(red.materials[0]!.baseColorFactor, [
+    1,
+    ((48 / 255 + 0.055) / 1.055) ** 2.4,
+    ((48 / 255 + 0.055) / 1.055) ** 2.4,
+    1,
+  ]);
+  lamps.setPowered(4, false);
+  const offImage = r1.mesh!.materials[0]!.baseColorTexture!.image;
+  lamps.setColor(4, '#00ff00');
+  assert.equal(r1.mesh!.materials[0]!.baseColorTexture!.image, offImage);
+  assert.deepEqual(r1.mesh!.materials[0]!.baseColorFactor, [0, 1, 0, 1]);
+  assert.equal(r1.mesh!.geometry, orange.geometry);
+  assert.equal(r2.mesh, red);
+  lamps.setPowered(4, true);
+  assert.equal(
+    r1.mesh!.materials[0]!.baseColorTexture!.image,
+    orange.materials[0]!.baseColorTexture!.image,
+  );
+  assert.throws(() => lamps.setColor(4, 'orange'), /#rrggbb/);
+  assert.throws(() => lamps.setColor(6, '#ffffff'), /Unknown/);
 });

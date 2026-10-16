@@ -99,12 +99,15 @@
         </details>
       </section>
       <fieldset id="lamp-controls">
-        <legend>Large lamp fitting</legend>
+        <legend>Lamp fitting</legend>
         <div id="lamp-tuning">
           <p>
             Each lamp has independent on/off and X/Y fitting controls. Positive
             X moves right, positive Y moves up. Use arrow keys for fine
-            0.001-unit steps. Off keeps a dark lens over the baked glow.
+            0.001-unit steps. Off keeps a dark lens over the baked glow. R1
+            (left round) is orange for warnings; R2 (right round) is red for
+            critical alerts. Colors can change live; these controls are manual
+            previews, not connected to gameplay conditions.
           </p>
           <div class="toolbar">
             <label
@@ -210,6 +213,64 @@
                 step="0.001"
                 value="0.035"
               /><output id="lamp-right-console-y-value">0.035</output></label
+            >
+          </div>
+          <div class="toolbar">
+            <label
+              ><input id="lamp-r1" type="checkbox" checked /> R1 · Warning
+              <output id="lamp-r1-status">On</output></label
+            ><label
+              >Color
+              <input id="lamp-r1-color" type="color" value="#ff9500" /></label
+            ><label
+              >X
+              <input
+                id="lamp-r1-x"
+                type="range"
+                min="-0.5"
+                max="0.5"
+                step="0.001"
+                value="0"
+              /><output id="lamp-r1-x-value">0.000</output></label
+            ><label
+              >Y
+              <input
+                id="lamp-r1-y"
+                type="range"
+                min="-0.5"
+                max="0.5"
+                step="0.001"
+                value="0"
+              /><output id="lamp-r1-y-value">0.000</output></label
+            >
+          </div>
+          <div class="toolbar">
+            <label
+              ><input id="lamp-r2" type="checkbox" checked /> R2 · Critical
+              <output id="lamp-r2-status">On</output></label
+            ><label
+              >Color
+              <input id="lamp-r2-color" type="color" value="#ff3030" /></label
+            ><label
+              >X
+              <input
+                id="lamp-r2-x"
+                type="range"
+                min="-0.5"
+                max="0.5"
+                step="0.001"
+                value="0"
+              /><output id="lamp-r2-x-value">0.000</output></label
+            ><label
+              >Y
+              <input
+                id="lamp-r2-y"
+                type="range"
+                min="-0.5"
+                max="0.5"
+                step="0.001"
+                value="0"
+              /><output id="lamp-r2-y-value">0.000</output></label
             >
           </div>
           <button id="lamp-tuning-reset">Reset lamp offsets</button>
