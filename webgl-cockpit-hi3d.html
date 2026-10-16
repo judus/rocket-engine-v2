@@ -18,14 +18,14 @@
       <div class="eyebrow">3D · HEAVY MODEL PREVIEW</div>
       <h1>Hi3D cockpit · full model</h1>
       <p>
-        The unoptimized Hi3D export with our seeded asteroid field in the
-        existing cockpit viewport: 1,981,700 triangles, 1,014,817 vertices, two
-        embedded textures and a 59.4 MiB GLB. Original geometry and materials
-        are preserved. Initial placement scales the asset 8× and raises its
-        center to eye height; this is an inspection pose, not a fitted pilot
-        seat. Loading and the first GPU upload may take a while. Use WASD, drag
-        and the camera controls to explore. No low-poly substitution or mesh
-        reduction.
+        The revised Hi3D v3 export with our seeded asteroid field in the
+        existing cockpit viewport: 199,352 triangles, 106,911 vertices, three
+        embedded 1024² textures and a 11.3 MiB prepared GLB. The source
+        geometry, materials and embedded proportion corrections are preserved.
+        Uniform scene scaling matches the previous preview's eight-unit width
+        and centers the model at eye height for comparison. This is an
+        inspection pose, not a fitted pilot seat. Use WASD, drag and the camera
+        controls to explore.
       </p>
       <section aria-labelledby="performance-title">
         <h2 id="performance-title">Performance</h2>
@@ -102,12 +102,12 @@
       <div
         id="gpu-view"
         class="canvas-host"
-        data-model="./examples/3d/assets/cockpit-hi3d-20261016.glb"
-        data-model-label="Hi3D unoptimized cockpit"
+        data-model="./examples/3d/assets/cockpit-hi3d-v3-20261016.glb"
+        data-model-label="Hi3D v3 cockpit"
         data-world="asteroids"
-        data-large-textures="true"
-        data-model-scale="8"
-        data-model-y="1.5"
+        data-large-textures="false"
+        data-model-scale="94.70412249158481"
+        data-model-y="-0.8191118254985987"
         data-model-yaw="0"
         data-eye-y="1.5"
         data-eye-z="-6"
@@ -166,7 +166,7 @@
       <p>
         100% uses the viewport size × device pixel ratio. Lower the scale for
         speed; raise it for supersampling. The viewport stays the same size. GPU
-        dimension limits are reported above. The original two 8192² textures
+        dimension limits are reported above. The three embedded 1024² textures
         remain full resolution.
       </p>
       <p>
@@ -407,8 +407,8 @@
       </div>
       <output id="gpu-status" aria-live="polite">Starting…</output>
       <p>
-        Full original Hi3D geometry and two 8192² textures. No authored normal
-        map, separated instrument meshes or pilot-camera metadata. The source
+        Revised Hi3D v3 geometry and three 1024² textures. One combined mesh
+        without separated instrument meshes or pilot-camera metadata. The source
         GLB is unchanged.
       </p>
       <p id="mesh-stats">Preparing meshes…</p>
