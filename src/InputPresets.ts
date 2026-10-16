@@ -88,3 +88,29 @@ export const beltScrollerInput: InputPreset = {
     reset: { kind: 'press', mapping: { code: 'KeyR', modifiers: ['Control'] } },
   },
 };
+
+/** Free-flight intentions; the game chooses inertia, speed and orientation rules. */
+export const flightInput: InputPreset = {
+  capture: 'focus',
+  actions: {
+    forward: { kind: 'axis', mapping: { negative: 'KeyS', positive: 'KeyW' } },
+    right: { kind: 'axis', mapping: { negative: 'KeyA', positive: 'KeyD' } },
+    up: {
+      kind: 'axis',
+      mapping: { negative: ['ControlLeft', 'ControlRight'], positive: 'Space' },
+    },
+    yaw: {
+      kind: 'axis',
+      mapping: { negative: 'ArrowLeft', positive: 'ArrowRight' },
+    },
+    pitch: {
+      kind: 'axis',
+      mapping: { negative: 'ArrowDown', positive: 'ArrowUp' },
+    },
+    roll: { kind: 'axis', mapping: { negative: 'KeyQ', positive: 'KeyE' } },
+    lookX: { kind: 'axis', mapping: { pointer: 'x', scale: 0.003 } },
+    lookY: { kind: 'axis', mapping: { pointer: 'y', scale: 0.003 } },
+    boost: { kind: 'hold', mapping: ['ShiftLeft', 'ShiftRight'] },
+    reset: { kind: 'press', mapping: { code: 'KeyR', modifiers: ['Control'] } },
+  },
+};

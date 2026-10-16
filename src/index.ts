@@ -51,6 +51,7 @@ export {
   topDownInput,
   platformerInput,
   beltScrollerInput,
+  flightInput,
 } from './InputPresets.js';
 export type {
   InputModifier,

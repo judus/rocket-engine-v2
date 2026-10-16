@@ -11,6 +11,7 @@ const groups: readonly { title: string; pages: readonly DemoPage[] }[] = [
       { title: 'Input · 2D top-down', href: './input-top-down.html' },
       { title: 'Input · 2D platformer', href: './input-platformer.html' },
       { title: 'Input · Belt-scroller', href: './input-belt-scroller.html' },
+      { title: 'Input · Free flight', href: './input-flight.html' },
       {
         title: 'Arms & cameras',
         href: './',

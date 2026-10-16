@@ -3,7 +3,7 @@
 The Input service owns physical events, frame snapshots, capture, focus loss and
 cleanup. `ActionContext` adds named actions and handlers over that same service;
 it does not create another event loop or keyboard implementation. The spaceship
-is unchanged; these basics have independent first-person, top-down, side-view platformer and belt-scroller demos.
+is unchanged; these basics have independent first-person, top-down, side-view platformer, belt-scroller and free-flight demos.
 
 ## Small API
 
@@ -72,8 +72,25 @@ movement, separate jump height/gravity, eastward scrolling and ground-depth draw
 order. The shadow stays at ground position when airborne; movement can continue
 in the air. Decorative actors demonstrate occlusion rather than collision. Attack
 is a brief visual preview with an event counter; no damage or combat is implied.
-The preset owns none of those game rules. Flight and virtual controllers follow
-as separate slices.
+The preset owns none of those game rules. Virtual controllers follow as a separate slice.
+
+`flightInput` defines forward (W/S), right (D/A), local up (Space/Ctrl), yaw
+(left/right arrows), pitch (up/down arrows), roll (E/Q), boost (Shift), reset
+(Ctrl+R), and relative mouse look X/Y (0.003 rad/pixel). It defaults to focus
+activation for complete keyboard-only flight. The demo offers an explicit mouse
+capture checkbox; arrows still work with capture on. Mouse capture is optional,
+and a refusal is shown rather than silently changing modes.
+
+The flight demo owns its local right/up/forward frame and speed policy. Translation
+follows all three craft-local axes, including after rolling or flying upside down.
+Rotations use the current local axes with no pitch clamp or angular inertia.
+Translation approaches 7 units/s (18 boosted) with exponential acceleration/braking;
+diagonal intent is normalized. Pointer angles apply once per update without dt.
+Rendering converts landmarks into that same local frame, then uses the existing
+perspective/clipping/Canvas renderer. There is no new engine camera or clock.
+The floor grid and gates are visual references, not collisions or world bounds.
+Opening the HTML UI clears game actions while braking and world time continue.
+This is an assisted free-flight example, not aerodynamic or Newtonian simulation.
 
 ## Bindings and combos
 
@@ -133,6 +150,11 @@ snapshot consumers; existing demos keep their previous capture policy.
   jumping, shadow, depth-sorted decorative actors, attack preview and eastward
   scrolling. Includes remapping jump to F, a UI context and recreation cleanup.
 
+- `/input-flight.html`: keyboard-first six-axis free flight, full pitch/yaw/roll,
+  optional mouse look, gates and a world-axis orientation guide. Includes boost
+  remapping, HTML UI isolation and recreation cleanup. The existing spaceship
+  demo remains separate. Virtual controllers are the next input milestone.
+
 This slice does not implement a key-recording/rebinding editor, persisted player
 profiles, touch/gamepad mappings, context priority stacks or the spaceship UI.
 Those can build on the same action/mapping contract after the basic API is tested.
@@ -145,3 +167,11 @@ turning, reload and interact callbacks, short mouse clicks and hold release, rem
 HTML text-entry isolation with continuing world time, and recreation with exactly
 one canvas and one activation bar. Successful Pointer Lock still needs native
 Chrome verification; the embedded-browser refusal path was checked explicitly.
+
+Flight verification includes normalized translation, 30/144 Hz acceleration and
+braking agreement, local movement after yaw/roll, full loops, 5000 combined
+rotation updates, pointer delta timing, and context/remapping/reset cleanup.
+Browser checks cover forward motion, roll/local-up, keyboard yaw/pitch, boost
+remapping, UI isolation and recreation. Captured mouse deltas plus keyboard axes
+are checked with the deterministic capture host. The embedded browser refuses
+native Pointer Lock; successful mouse-flight interaction still needs Chrome.
