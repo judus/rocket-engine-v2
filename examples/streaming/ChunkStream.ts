@@ -342,10 +342,11 @@ export class ChunkStream {
   }
   #applyDemand({ wanted, visible }: { wanted: Cell[]; visible: Set<string> }) {
     const ids = new Set(wanted.map(key));
+    const cancelled: Job[] = [];
     for (const [id, chunk] of this.#chunks)
       if (!ids.has(id)) {
         this.#chunks.delete(id);
-        if (chunk.state === 'pending' && chunk.job) this.#cancelJob(chunk.job);
+        if (chunk.state === 'pending' && chunk.job) cancelled.push(chunk.job);
         if (chunk.state === 'ready') this.#evictions++;
         else if (chunk.state === 'pending') this.#cancelled++;
       }
@@ -354,6 +355,9 @@ export class ChunkStream {
         this.#chunks.set(key(chunk), { ...chunk, state: 'pending' });
     this.#visible = visible;
     this.#priority = wanted.map(key);
+    // Publish the entire plan before synchronous abort listeners can re-enter.
+    // Nested demand/disposal wins; no stale outer plan is installed afterward.
+    for (const job of cancelled) this.#cancelJob(job);
   }
   advance(budget = Math.min(2, this.capacity)): undefined {
     this.#live();

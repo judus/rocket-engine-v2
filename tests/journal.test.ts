@@ -316,3 +316,36 @@ void test('MCP journal provider scopes reads to host binding and has no write to
   );
   assert.equal(result.isError, true);
 });
+
+void test('memory append stages only incoming records, preserving atomic batches, replay and detached reads', async () => {
+  const store = new MemoryJournalStore(identity, 3);
+  const journal = new Journal().configure(store),
+    producer = journal.registerProducer('game', schemas);
+  await producer.append(event('a'));
+  await assert.rejects(
+    producer.appendBatch([
+      event('b'),
+      { ...event('a'), payload: { wrong: true } },
+    ]),
+    code('identity_conflict'),
+  );
+  assert.equal(await store.head(), 1);
+  const input = event('b');
+  await producer.append(input);
+  (input.payload as { value: string }).value = 'mutated';
+  const first = await store.range(0, 2, 2);
+  assert.deepEqual(first[1]!.payload, { value: 'b' });
+  (first[1]!.payload as { value: string }).value = 'read mutation';
+  assert.deepEqual((await store.range(1, 2, 1))[0]!.payload, { value: 'b' });
+  const repeated = await producer.appendBatch([event('c'), event('c')]);
+  assert.deepEqual(
+    repeated.map((r) => [r.sequence, r.replayed]),
+    [
+      [3, false],
+      [3, true],
+    ],
+  );
+  await assert.rejects(producer.append(event('d')), code('archive_full'));
+  assert.equal(await store.head(), 3);
+  await journal.dispose();
+});

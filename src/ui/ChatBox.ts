@@ -183,7 +183,13 @@ export class ChatBox {
   #dispatch(action: ChatAction): boolean {
     if (this.#disposed || !this.panel.shown || !this.#state) return false;
     const state = this.port.read();
-    if (state.sessionId !== this.#state.sessionId) return false;
+    if (
+      state.sessionId !== this.#state.sessionId ||
+      state.revision !== this.#state.revision
+    ) {
+      this.#render(state);
+      return false;
+    }
     if (state.pending && action.kind !== 'cancel') return false;
     if (state.actions && !state.actions.includes(action.kind)) return false;
     try {

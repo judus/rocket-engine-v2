@@ -327,3 +327,42 @@ void test('closing one owner cancels exclusive jobs while preserving shared and 
   assert.equal(stream.stats.retained, 0);
   stream.dispose();
 });
+
+void test('synchronous abort reentry cannot restore disposed state or overwrite newer demand', async () => {
+  for (const action of ['dispose', 'replace']) {
+    let stream: ChunkStream;
+    let resolve!: (tiles: Uint8Array) => void;
+    stream = new ChunkStream(new MemoryEdits(), 1, 0, {
+      maxJobs: 1,
+      load(_cell, signal) {
+        signal.addEventListener(
+          'abort',
+          () => {
+            if (action === 'dispose') stream.dispose();
+            else stream.demand({ minX: 16, minY: 0, maxX: 24, maxY: 8 });
+            resolve(new Uint8Array(64));
+          },
+          { once: true },
+        );
+        return new Promise<Uint8Array>((done) => {
+          resolve = done;
+        });
+      },
+    });
+    stream.demand({ minX: 0, minY: 0, maxX: 8, maxY: 8 });
+    stream.advance(1);
+    await settle();
+    stream.demand({ minX: 8, minY: 0, maxX: 16, maxY: 8 });
+    await settle();
+    if (action === 'dispose') {
+      assert.equal(stream.stats.retained, 0);
+      assert.equal(stream.stats.queued, 0);
+      assert.equal(stream.stats.visible, 0);
+      assert.equal(stream.stats.running, 0);
+    } else {
+      assert.equal(stream.read({ x: 8, y: 0 }).state, 'missing');
+      assert.equal(stream.read({ x: 16, y: 0 }).state, 'pending');
+    }
+    stream.dispose();
+  }
+});

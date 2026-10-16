@@ -1,3 +1,4 @@
+import { polygonNormal } from './PolygonNormal.js';
 import type { Material3D } from './Mesh3D.js';
 import type {
   PerspectiveCamera,
@@ -32,15 +33,10 @@ export function projectFaces(
   let backFacing = 0,
     outside = 0;
   for (const face of faces) {
-    const [a, b, c] = face.vertices;
-    if (!a || !b || !c) throw new Error('A face needs at least three vertices');
-    const ab = { x: b.x - a.x, y: b.y - a.y, z: b.z - a.z };
-    const ac = { x: c.x - a.x, y: c.y - a.y, z: c.z - a.z };
-    const normal = {
-      x: ab.y * ac.z - ab.z * ac.y,
-      y: ab.z * ac.x - ab.x * ac.z,
-      z: ab.x * ac.y - ab.y * ac.x,
-    };
+    const a = face.vertices[0];
+    if (!a || face.vertices.length < 3)
+      throw new Error('A face needs at least three vertices');
+    const normal = polygonNormal(face.vertices);
     if (
       normal.x * (camera.x - a.x) +
         normal.y * (camera.y - a.y) +

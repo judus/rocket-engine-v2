@@ -1,3 +1,4 @@
+import { polygonNormal } from './PolygonNormal.js';
 import type { Face } from './SolidFaces.js';
 import type { Vec3 } from './PerspectiveCamera.js';
 
@@ -102,21 +103,15 @@ export function shadeFaces(
     let cx = 0,
       cy = 0,
       cz = 0;
-    let nx = 0,
-      ny = 0,
-      nz = 0;
+    let { x: nx, y: ny, z: nz } = polygonNormal(face.vertices);
     // Newell normal handles planar convex polygons even with collinear leading vertices.
     for (let i = 0; i < face.vertices.length; i++) {
-      const p = face.vertices[i]!,
-        q = face.vertices[(i + 1) % face.vertices.length]!;
+      const p = face.vertices[i]!;
       if (![p.x, p.y, p.z].every(Number.isFinite))
         throw new Error('Lighting vertices must be finite');
       cx += p.x / face.vertices.length;
       cy += p.y / face.vertices.length;
       cz += p.z / face.vertices.length;
-      nx += (p.y - q.y) * (p.z + q.z);
-      ny += (p.z - q.z) * (p.x + q.x);
-      nz += (p.x - q.x) * (p.y + q.y);
     }
     const length = Math.hypot(nx, ny, nz);
     if (!a || !Number.isFinite(length))

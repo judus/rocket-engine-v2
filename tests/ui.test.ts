@@ -437,3 +437,26 @@ void test('scripted host correlates requests, retries once without duplicating t
   provider.dispose();
   assert.equal(provider.listeners, 0);
 });
+
+void test('a displayed choice cannot dispatch against a newer unpublished revision with a reused ID', () => {
+  const f = fixture(),
+    port = new Port();
+  port.state = {
+    ...port.state,
+    choices: [{ id: 'accept', text: 'Original offer' }],
+  };
+  const box = new ChatBox(f.panel, port);
+  const choices = (box.element as unknown as Element).children[1]!;
+  const old = choices.children[0]!;
+  port.state = {
+    ...port.state,
+    revision: 1,
+    choices: [{ id: 'accept', text: 'Replacement offer' }],
+  };
+  old.dispatchEvent(new Event('click'));
+  assert.equal(port.commands.length, 0);
+  assert.equal(choices.children[0]!.textContent, 'Replacement offer');
+  choices.children[0]!.dispatchEvent(new Event('click'));
+  assert.equal(port.commands.length, 1);
+  f.panel.dispose();
+});

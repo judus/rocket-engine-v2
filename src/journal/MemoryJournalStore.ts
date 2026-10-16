@@ -10,6 +10,7 @@ export class MemoryJournalStore implements JournalStore {
   readonly identity: Timeline;
   readonly durability = 'volatile';
   #events: JournalEvent[] = [];
+  #identities = new Map<string, JournalEvent>();
   #closed = false;
   constructor(
     identity: Timeline,
@@ -28,24 +29,30 @@ export class MemoryJournalStore implements JournalStore {
   }
   append(events: readonly PendingEvent[]): Promise<readonly AppendReceipt[]> {
     this.#live();
-    const next = structuredClone(this.#events),
+    const staged: JournalEvent[] = [],
       receipts: AppendReceipt[] = [];
-    for (const input of events) {
+    const identities = new Map<string, JournalEvent>();
+    // Copy only incoming data; accepted private history is never exposed or recloned.
+    for (const input of structuredClone(events)) {
       if (
         input.gameId !== this.identity.gameId ||
         input.saveId !== this.identity.saveId ||
         input.timelineId !== this.identity.timelineId
       )
         fail('wrong_timeline', 'Store timeline mismatch');
-      const prior = next.find(
-        (e) => e.source === input.source && e.eventId === input.eventId,
-      );
+      const key = JSON.stringify([input.source, input.eventId]);
+      const prior = identities.get(key) ?? this.#identities.get(key);
       if (prior && signature(prior) !== signature(input))
         fail('identity_conflict', 'Event identity has different content');
-      if (!prior && next.length >= this.capacity)
+      if (!prior && this.#events.length + staged.length >= this.capacity)
         fail('archive_full', 'Archive capacity reached');
-      const sequence = prior?.sequence ?? next.length + 1;
-      if (!prior) next.push({ ...structuredClone(input), sequence });
+      const sequence =
+        prior?.sequence ?? this.#events.length + staged.length + 1;
+      if (!prior) {
+        const event = { ...input, sequence };
+        staged.push(event);
+        identities.set(key, event);
+      }
       receipts.push({
         source: input.source,
         eventId: input.eventId,
@@ -53,7 +60,8 @@ export class MemoryJournalStore implements JournalStore {
         replayed: !!prior,
       });
     }
-    this.#events = next;
+    for (const event of staged) this.#events.push(event);
+    for (const [key, event] of identities) this.#identities.set(key, event);
     return Promise.resolve(receipts);
   }
   range(
