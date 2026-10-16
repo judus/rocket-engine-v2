@@ -11,13 +11,14 @@ import {
  */
 export function hi3dCockpitLamps() {
   const root = new Node3D('Hi3D lamp lenses');
-  const lens = (powered: boolean, round = false) => {
+  const lens = (powered: boolean, round = false, seed = 0) => {
     // Worn translucent glass: broad smudges and rim grime, without bulb shading.
     if (round) {
       const size = 64,
         pixels = new Uint8Array(size * size * 4);
       const hash = (x: number, y: number) => {
-        const value = Math.sin(x * 127.1 + y * 311.7 + 19.3) * 43758.5453;
+        const value =
+          Math.sin(x * 127.1 + y * 311.7 + 19.3 + seed * 53.9) * 43758.5453;
         return value - Math.floor(value);
       };
       const dirt = (u: number, v: number) => {
@@ -42,21 +43,25 @@ export function hi3dCockpitLamps() {
           const smudge = dirt(u * 6, v * 6);
           const speckle = dirt(u * 23, v * 23);
           const grain = hash(x, y);
-          const rim = Math.max(0, (radius - 0.65) / 0.35);
+          const rim = Math.max(0, (radius - 0.45) / 0.55);
           const scuff =
-            (Math.abs(v - (0.29 + u * 0.13)) < 0.012 && u > 0.18 && u < 0.43) ||
-            (Math.abs(v - (0.68 - u * 0.1)) < 0.009 && u > 0.58 && u < 0.84)
+            (Math.abs(v - (0.23 + (seed % 7) * 0.025 + u * 0.13)) < 0.012 &&
+              u > 0.18 &&
+              u < 0.43) ||
+            (Math.abs(v - (0.62 + (seed % 5) * 0.025 - u * 0.1)) < 0.009 &&
+              u > 0.58 &&
+              u < 0.84)
               ? 0.09
               : 0;
           const finish = Math.max(
             0.28,
             Math.min(
               1,
-              1.06 -
-                0.34 * smudge -
-                0.14 * speckle -
-                0.07 * grain -
-                rim * (0.13 + 0.22 * smudge) +
+              0.99 -
+                0.1 * smudge -
+                0.045 * speckle -
+                0.03 * grain -
+                rim * (0.24 + 0.38 * smudge) +
                 scuff,
             ),
           );
@@ -95,9 +100,7 @@ export function hi3dCockpitLamps() {
     return new TextureImage(width, height, pixels);
   };
   const off = lens(false),
-    on = lens(true),
-    roundOff = lens(false, true),
-    roundOn = lens(true, true);
+    on = lens(true);
   const specs = [
     {
       name: 'overhead-left',
@@ -223,8 +226,9 @@ export function hi3dCockpitLamps() {
           roughnessFactor: 1,
         },
       ]);
-    const offImage = round ? roundOff : off,
-      onImage = round ? roundOn : on;
+    const seed = spec.name === 'r1' ? 17 : 83;
+    const offImage = round ? lens(false, true, seed) : off,
+      onImage = round ? lens(true, true, seed) : on;
     let dark = mesh(offImage),
       bright = mesh(onImage),
       powered = true;
