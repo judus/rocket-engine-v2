@@ -1,3 +1,4 @@
+import { cockpitScreenPoint } from './CockpitScreenPoint.js';
 import { FlightOrientation } from '../input/FlightOrientation.js';
 import { Input, flightInput } from '../../src/index.js';
 import { opacityProbe } from './OpacityProbe.js';
@@ -478,6 +479,7 @@ async function start() {
   };
   placement.add(instance.root);
   let hi3dLamps: ReturnType<typeof hi3dCockpitLamps> | undefined;
+  let systemsScreen: Node3D | undefined;
   if (instruments && hi3dDisplays) {
     const displays = hi3dCockpitDisplays(
       { image: instruments.radar },
@@ -494,6 +496,7 @@ async function start() {
       scale: { x: 1 / modelScale, y: 1 / modelScale, z: 1 / modelScale },
     };
     hi3dDisplayTuning(displays, modelUrl, signal);
+    systemsScreen = displays.children[1];
     placement.add(displays);
     if (screenLightEnabled)
       screenLights = cockpitScreenLights(
@@ -852,6 +855,82 @@ async function start() {
     document.querySelector<HTMLButtonElement>('#reset-triangle')!.click();
     return undefined;
   });
+  if (flightControls && hi3dInstruments && systemsScreen) {
+    const controls = flightControls,
+      panel = hi3dInstruments.systems,
+      screen = systemsScreen;
+    const button = document.querySelector<HTMLButtonElement>(
+      '#systems-console-toggle',
+    )!;
+    let usingSystems = false;
+    const mode = (active: boolean) => {
+      usingSystems = active;
+      controls.setEnabled(!active);
+      if (active) {
+        flightBinding!.capture!.release();
+        canvas.focus({ preventScroll: true });
+      } else controls.activate();
+      button.textContent = active
+        ? 'Return to flight · I / Esc'
+        : 'Use systems display · I';
+      button.setAttribute('aria-pressed', String(active));
+    };
+    controls
+      .register('systemsConsole', 'press', () => {
+        mode(true);
+        return undefined;
+      })
+      .map('systemsConsole', 'KeyI');
+    button.addEventListener('click', () => mode(!usingSystems), { signal });
+    const changed = () => hi3dInstruments.advance();
+    document.addEventListener(
+      'keydown',
+      (event) => {
+        if (
+          !usingSystems ||
+          event.repeat ||
+          (event.target instanceof HTMLElement &&
+            event.target.matches(
+              'input, select, textarea, [contenteditable="true"]',
+            ))
+        )
+          return;
+        if (event.code === 'KeyI' || event.code === 'Escape') {
+          event.preventDefault();
+          mode(false);
+        } else if (screenPower?.checked && /^Digit[1-6]$/.test(event.code)) {
+          event.preventDefault();
+          panel.toggleRow(Number(event.code.slice(-1)) - 1);
+          changed();
+        } else if (
+          screenPower?.checked &&
+          ['PageUp', 'PageDown'].includes(event.code)
+        ) {
+          event.preventDefault();
+          panel.turnPage();
+          changed();
+        }
+      },
+      { signal },
+    );
+    canvas.addEventListener(
+      'click',
+      (event) => {
+        if (!usingSystems || !screenPower?.checked) return;
+        const bounds = canvas.getBoundingClientRect();
+        const point = cockpitScreenPoint(
+          screen,
+          camera,
+          width,
+          height,
+          ((event.clientX - bounds.left) * width) / bounds.width,
+          ((event.clientY - bounds.top) * height) / bounds.height,
+        );
+        if (point && panel.click(point.x, point.y)) changed();
+      },
+      { signal },
+    );
+  }
   const keys = hi3dDisplays
     ? undefined
     : explorationInput(application, scene, surface, look, () =>

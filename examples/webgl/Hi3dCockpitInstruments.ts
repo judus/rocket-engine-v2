@@ -1,3 +1,4 @@
+import { CockpitSystemsPanel } from './CockpitSystemsPanel.js';
 import { DynamicTextureImage } from '../../src/3d/index.js';
 import type { Vec3 } from '../../src/3d/index.js';
 import { updateTextureFromCanvas } from '../../src/webgl/index.js';
@@ -25,6 +26,7 @@ export function hi3dRadarContacts(
 
 /** New Hi3D artwork. Readouts come from navigation and the seeded field, not fake ship systems. */
 export function hi3dCockpitInstruments(range = 120) {
+  const systems = new CockpitSystemsPanel();
   const make = (width: number, height: number) => {
     const canvas = document.createElement('canvas');
     canvas.width = width;
@@ -147,34 +149,7 @@ export function hi3dCockpitInstruments(range = 120) {
       ctx.fillStyle = muted;
       ctx.font = '16px monospace';
       ctx.fillText(`${visible.length} ROCKS / HEADING UP`, 24, 378);
-      ctx = flight.ctx;
-      base(ctx, 'FLIGHT / LOCAL NAV');
-      ctx.fillStyle = muted;
-      ctx.font = '17px monospace';
-      ctx.fillText('VELOCITY', 24, 82);
-      ctx.fillStyle = cyan;
-      ctx.font = 'bold 65px monospace';
-      ctx.fillText(navigation.speed.toFixed(1), 24, 145);
-      ctx.font = '19px monospace';
-      ctx.fillText('U / S', 365, 141);
-      ctx.fillStyle = '#15302d';
-      ctx.fillRect(24, 162, 464, 9);
-      ctx.fillStyle = cyan;
-      ctx.fillRect(24, 162, 464 * Math.min(1, navigation.speed / 30), 9);
-      ctx.font = '20px monospace';
-      ctx.fillStyle = amber;
-      ctx.fillText(`HDG ${heading.toFixed(1)}°`, 24, 212);
-      ctx.fillText(`PITCH ${navigation.pitch.toFixed(1)}°`, 24, 246);
-      ctx.font = '18px monospace';
-      ctx.fillStyle = muted;
-      ctx.fillText(
-        `NEAREST ${visible.length ? Math.min(...visible.map((p) => p.distance)).toFixed(1) + ' U' : '—'}`,
-        24,
-        291,
-      );
-      ctx.fillText('WASD THRUST / SHIFT BOOST', 24, 334);
-      ctx.font = '15px monospace';
-      ctx.fillText('NO COLLISIONS / DEMO NAV', 24, 378);
+      systems.draw(flight.ctx);
       [radar, flight].forEach(({ ctx }, i) => {
         ctx.save();
         ctx.fillStyle = phosphorMasks[i]!;
@@ -187,6 +162,7 @@ export function hi3dCockpitInstruments(range = 120) {
   }
   redraw();
   return {
+    systems,
     radar: radar.image,
     telemetry: flight.image,
     overhead: upper.map((d) => d.image) as [

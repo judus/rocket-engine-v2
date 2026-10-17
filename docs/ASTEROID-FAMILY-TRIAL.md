@@ -97,3 +97,22 @@ around it. The turquoise flight-reticle checkbox controls visibility. This is
 a visual flight reference only; target selection/locking is not implemented.
 The reticle now uses 25% material opacity and separate fixed/aim/range parts;
 see [WebGL transparency](./WEBGL-TRANSPARENCY.md).
+
+## Right-hand systems console
+
+The right fitted display now replaces duplicate speed/heading text with a
+ship-systems console. Its first page retains the original six modules: reactor,
+cooling, inertia dampers, engine, cargo bay and shields. The auxiliary page lists
+weapons, scanner, life support and instruments. Header slots reserve energy (J),
+load (W), temperature (°C) and crew acceleration (G). These systems have no new
+simulation yet: readouts are explicitly unavailable, never fabricated values.
+ON/OFF records requested state only and currently has no effect on flight,
+lighting, radar or power. Requests survive page changes and preview recreation;
+a page reload starts a new set of requests.
+
+Press I or Use systems display to release the pointer and disable flight actions
+while using the in-texture buttons. Click a request button or the page footer;
+1–6 and Page Up/Down are keyboard alternatives. I/Esc returns to flight and
+requests capture in that user gesture. The world keeps updating. Picking uses
+perspective-correct UVs from the fitted quad and follows model fitting, roll and
+cosmetic sway. Listeners retire with the existing presentation lifecycle.

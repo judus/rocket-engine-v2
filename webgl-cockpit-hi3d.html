@@ -349,6 +349,17 @@
         data-eye-y="1.48"
         data-eye-z="-3.37"
       ></div>
+      <button id="systems-console-toggle" type="button" aria-pressed="false">
+        Use systems display · I
+      </button>
+      <p class="systems-help">
+        Press I to use the right display with the mouse. Click ON/OFF to set a
+        requested state; click the page footer for more systems. Keyboard: 1–6
+        toggle rows, Page Up/Down changes page, I or Esc returns to flight.
+        Energy, power, heat and G readouts are unavailable until the ship
+        simulation is implemented. These switches currently store requests only;
+        they do not change flight or power.
+      </p>
       <output id="flight-input-status">Flight actions ready.</output>
       <label
         ><input id="reticle-enabled" type="checkbox" checked /> Turquoise flight
@@ -366,9 +377,9 @@
         <p>
           Overhead, left to right: heading/pitch (medium), speed (small), X/Y/Z
           position (large). Lower left: heading-up radar of actual asteroid
-          centers within 7,680 units. Lower right: speed, attitude and nearest
-          in-range rock. Flight values follow the current camera; collisions
-          remain disabled.
+          centers within 7,680 units. Lower right: ship systems, requested
+          switches and pending power/thermal telemetry. Flight values follow the
+          current camera; collisions remain disabled.
         </p>
         <label
           ><input id="screen-power" type="checkbox" checked /> Screen
@@ -522,7 +533,7 @@
           >
         </div>
         <div class="toolbar">
-          <strong>Lower right · Flight</strong
+          <strong>Lower right · Systems</strong
           ><label
             >X
             <input
@@ -1121,7 +1132,7 @@ Loading…</pre>
     </main>
     <script
       type="module"
-      src="./dist/examples/webgl/cockpit.js?v=capture-default-9"
+      src="./dist/examples/webgl/cockpit.js?v=systems-panel-10"
     ></script>
   </body>
 </html>
