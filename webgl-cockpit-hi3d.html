@@ -352,13 +352,17 @@
       <button id="systems-console-toggle" type="button" aria-pressed="false">
         Use systems display · I
       </button>
+      <p id="power-trial-status">ECS power trial starting…</p>
       <p class="systems-help">
         Press I to use the right display with the mouse. Click ON/OFF to set a
         requested state; click the page footer for more systems. Keyboard: 1–6
-        toggle rows, Page Up/Down changes page, I or Esc returns to flight.
-        Energy, power, heat and G readouts are unavailable until the ship
-        simulation is implemented. These switches currently store requests only;
-        they do not change flight or power.
+        toggle rows, Page Up/Down changes page, I or Esc returns to flight. The
+        reactor produces 2 MW; ENGINE (TEST) draws 5 MW from a 100 MJ reserve,
+        initially 60 MJ. After depletion the load waits for 10 MJ before
+        resuming; toggling does not bypass recovery. Switch off the test load to
+        recharge, or the reactor to drain. This is demonstration tuning. Other
+        module switches remain requests only. Heat, cooling and flight coupling
+        come later.
       </p>
       <output id="flight-input-status">Flight actions ready.</output>
       <label
@@ -378,8 +382,8 @@
           Overhead, left to right: heading/pitch (medium), speed (small), X/Y/Z
           position (large). Lower left: heading-up radar of actual asteroid
           centers within 7,680 units. Lower right: ship systems, requested
-          switches and pending power/thermal telemetry. Flight values follow the
-          current camera; collisions remain disabled.
+          switches and live ECS power and pending thermal telemetry. Flight
+          values follow the current camera; collisions remain disabled.
         </p>
         <label
           ><input id="screen-power" type="checkbox" checked /> Screen
@@ -1132,7 +1136,7 @@ Loading…</pre>
     </main>
     <script
       type="module"
-      src="./dist/examples/webgl/cockpit.js?v=systems-panel-10"
+      src="./dist/examples/webgl/cockpit.js?v=ecs-power-11"
     ></script>
   </body>
 </html>

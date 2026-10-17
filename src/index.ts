@@ -73,3 +73,6 @@ export type {
   InputBinding,
   InputBindOptions,
 } from './Input.js';
+
+export { Component, World } from './ECS.js';
+export type { Entity } from './ECS.js';

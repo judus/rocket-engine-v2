@@ -474,6 +474,11 @@
       "coveredLinePercent": 85,
       "coveredBranchPercent": 75,
       "coveredFunctionPercent": 90
+    },
+    "ECS.js": {
+      "coveredLinePercent": 100,
+      "coveredBranchPercent": 100,
+      "coveredFunctionPercent": 100
     }
   }
 }

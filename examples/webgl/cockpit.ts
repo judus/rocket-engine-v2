@@ -1,3 +1,9 @@
+import {
+  createPowerTrial,
+  shipPowerSystem,
+  EnergyReserve,
+  ShipModule,
+} from '../ship/ShipPower.js';
 import { cockpitScreenPoint } from './CockpitScreenPoint.js';
 import { FlightOrientation } from '../input/FlightOrientation.js';
 import { Input, flightInput } from '../../src/index.js';
@@ -65,8 +71,11 @@ const instrumentRate =
 const hi3dDisplays =
   document.querySelector<HTMLElement>('#gpu-view')?.dataset.instruments ===
   'hi3d';
+const powerTrial = hi3dDisplays ? createPowerTrial() : undefined;
 const hi3dInstruments =
-  instrumentRunning && hi3dDisplays ? hi3dCockpitInstruments(7680) : undefined;
+  instrumentRunning && hi3dDisplays
+    ? hi3dCockpitInstruments(7680, powerTrial)
+    : undefined;
 const instruments =
   hi3dInstruments ?? (instrumentRunning ? cockpitInstruments() : undefined);
 document
@@ -138,6 +147,7 @@ async function start() {
   status.value = `Loading ${modelLabel} and embedded materials…`;
   const application = new Rocket({
     performance: true,
+    ...(powerTrial ? { fixed: { step: 1 / 60, maxSteps: 8 } } : {}),
     onError: (error) => {
       status.value = String(error);
     },
@@ -151,6 +161,14 @@ async function start() {
     document.querySelector<HTMLInputElement>('#cockpit-motion');
   const scene = application.scene(
     new Scene2D({
+      ...(powerTrial
+        ? {
+            fixedUpdate(dt: number): undefined {
+              shipPowerSystem(powerTrial.world, dt);
+              return undefined;
+            },
+          }
+        : {}),
       update(dt) {
         keys?.update();
         if (flightControls) {
@@ -323,6 +341,11 @@ async function start() {
             speed: navigationSpeed,
           },
         );
+        if (powerTrial) {
+          const reserve = powerTrial.world.get(powerTrial.ship, EnergyReserve)!;
+          document.querySelector('#power-trial-status')!.textContent =
+            `ECS power trial · ${(reserve.energyJ / 1e6).toFixed(1)} / 100 MJ · generator ${(reserve.generationW / 1e6).toFixed(1)} MW · load ${(reserve.consumptionW / 1e6).toFixed(1)} MW · ${powerTrial.world.get(powerTrial.load, ShipModule)!.state} · heat/cooling not implemented`;
+        }
         const instrumentStatus = document.querySelector<HTMLOutputElement>(
           '#instruments-status',
         );
@@ -862,6 +885,8 @@ async function start() {
     const button = document.querySelector<HTMLButtonElement>(
       '#systems-console-toggle',
     )!;
+    button.textContent = 'Use systems display · I';
+    button.setAttribute('aria-pressed', 'false');
     let usingSystems = false;
     const mode = (active: boolean) => {
       usingSystems = active;
@@ -1394,6 +1419,7 @@ window.addEventListener(
   () => {
     void app?.dispose();
     assets.dispose();
+    powerTrial?.world.clear();
   },
   { once: true },
 );

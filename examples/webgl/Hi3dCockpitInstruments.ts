@@ -1,3 +1,4 @@
+import type { PowerTrial } from '../ship/ShipPower.js';
 import { CockpitSystemsPanel } from './CockpitSystemsPanel.js';
 import { DynamicTextureImage } from '../../src/3d/index.js';
 import type { Vec3 } from '../../src/3d/index.js';
@@ -25,8 +26,8 @@ export function hi3dRadarContacts(
 }
 
 /** New Hi3D artwork. Readouts come from navigation and the seeded field, not fake ship systems. */
-export function hi3dCockpitInstruments(range = 120) {
-  const systems = new CockpitSystemsPanel();
+export function hi3dCockpitInstruments(range = 120, power?: PowerTrial) {
+  const systems = new CockpitSystemsPanel(power);
   const make = (width: number, height: number) => {
     const canvas = document.createElement('canvas');
     canvas.width = width;

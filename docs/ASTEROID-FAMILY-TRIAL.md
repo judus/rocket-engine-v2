@@ -104,11 +104,11 @@ The right fitted display now replaces duplicate speed/heading text with a
 ship-systems console. Its first page retains the original six modules: reactor,
 cooling, inertia dampers, engine, cargo bay and shields. The auxiliary page lists
 weapons, scanner, life support and instruments. Header slots reserve energy (J),
-load (W), temperature (°C) and crew acceleration (G). These systems have no new
-simulation yet: readouts are explicitly unavailable, never fabricated values.
-ON/OFF records requested state only and currently has no effect on flight,
-lighting, radar or power. Requests survive page changes and preview recreation;
-a page reload starts a new set of requests.
+load (W), temperature (°C) and crew acceleration (G). The reactor and engine-row test load now read the live ECS power trial described
+in [Ship power ECS](./SHIP-POWER-ECS.md). Other modules and thermal/G readouts
+remain unavailable. Their ON/OFF controls record requests only. The power trial
+does not yet drive flight, lighting or radar. Requests survive page changes and preview recreation;
+a page reload starts a new trial and set of requests.
 
 Press I or Use systems display to release the pointer and disable flight actions
 while using the in-texture buttons. Click a request button or the page footer;
