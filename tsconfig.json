@@ -24,6 +24,7 @@
     "src/**/*.ts",
     "examples/**/*.ts",
     "games/**/*.ts",
+    "apps/**/*.ts",
     "tests/**/*.ts",
     "scripts/**/*.ts"
   ]
