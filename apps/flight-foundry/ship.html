@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Flight Foundry · Assembled ship</title>
+    <link rel="stylesheet" href="./style.css" />
+    <style>
+      main {
+        grid-template-columns: minmax(290px, 0.75fr) minmax(440px, 1.5fr);
+        align-items: start;
+      }
+      nav {
+        display: flex;
+        gap: 22px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+      .command {
+        display: block;
+        border-top: 1px solid var(--line);
+        padding-top: 14px;
+        margin-top: 14px;
+      }
+      .command span {
+        display: flex;
+        justify-content: space-between;
+      }
+      .switch {
+        display: block;
+        margin: 16px 0;
+      }
+      .switch input {
+        margin-right: 10px;
+      }
+      .reading strong {
+        font-size: 17px;
+      }
+      .architecture {
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        line-height: 1.8;
+        white-space: pre-wrap;
+        color: #a9d8cc;
+      }
+      .log {
+        grid-column: 1/-1;
+      }
+      @media (max-width: 900px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="../">ROCKET / APPS</a
+      ><span class="badge">LIVE SHIP · ARCHITECTURE PROOF</span>
+      <h1>One ship. Attached capabilities.</h1>
+      <p>
+        Commands become engine requests. Power determines delivered thrust. One
+        body advances; instruments read the completed step.
+      </p>
+      <nav>
+        <a href="./">Motion bench</a><a href="./curves.html">Flight curves</a
+        ><a href="./ship.html" aria-current="page">Assembled ship</a>
+      </nav>
+    </header>
+    <main>
+      <section class="panel">
+        <h2>Ship commands</h2>
+        <p class="muted">
+          These sliders issue persistent control intent. Neutral stops thrust
+          and torque; it does not stop the ship.
+        </p>
+        <label class="command" for="forward"
+          ><span>Forward / reverse <output id="forward-value">0%</output></span
+          ><input id="forward" type="range" min="-100" max="100" value="0"
+        /></label>
+        <label class="command" for="strafe"
+          ><span>Right / left <output id="strafe-value">0%</output></span
+          ><input id="strafe" type="range" min="-100" max="100" value="0"
+        /></label>
+        <label class="command" for="vertical"
+          ><span>Up / down <output id="vertical-value">0%</output></span
+          ><input id="vertical" type="range" min="-100" max="100" value="0"
+        /></label>
+        <label class="command" for="yaw"
+          ><span>Yaw right / left <output id="yaw-value">0%</output></span
+          ><input id="yaw" type="range" min="-100" max="100" value="0"
+        /></label>
+        <div class="toolbar">
+          <button id="forward-full" type="button">Full forward</button
+          ><button id="reverse-full" type="button">Full reverse</button
+          ><button id="neutral" type="button">Neutral / coast</button>
+        </div>
+        <label class="switch"
+          ><input id="reactor" type="checkbox" checked />Reactor requested
+          on</label
+        >
+        <label class="switch"
+          ><input id="engine" type="checkbox" checked />Engine requested
+          on</label
+        >
+        <div class="toolbar">
+          <button id="run" class="primary" type="button">Run</button
+          ><button id="step" type="button">Single step</button
+          ><button id="reset" type="button">Reset ship</button>
+        </div>
+        <p class="muted">
+          Yaw has inertia too. Apply opposite torque to stop rotating. Reset
+          creates a new ship; ordinary control and module switches preserve the
+          current ship and reserve.
+        </p>
+      </section>
+      <section class="panel">
+        <div class="section-head">
+          <h2>Committed telemetry</h2>
+          <span id="state" class="badge">PAUSED</span>
+        </div>
+        <div id="ship-readings" class="readings"></div>
+        <label for="reserve">Energy reserve</label
+        ><progress id="reserve" max="1" value="0.5"></progress>
+        <p id="power-state" class="muted"></p>
+        <pre id="vectors" class="architecture"></pre>
+        <h3>Assembly</h3>
+        <pre class="architecture">
+ship
+├─ body       owns position, velocity and yaw
+├─ control    accepts intent from any controller
+├─ power      owns reserve and allocation
+├─ engine     requests power, delivers thrust/torque
+└─ movement   orders one fixed simulation step</pre>
+        <p class="muted">
+          100,000 kg · 1 MN full thrust · 5 GW reactor · 200 GJ reserve
+          capacity. The engine draws 10 MW standby + up to 20 GW translation and
+          1 GW yaw. Demonstration profiles, not settled balance.
+        </p>
+      </section>
+      <section class="panel log">
+        <h2>Supply &amp; motion history</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Time (s)</th>
+                <th>Speed (m/s)</th>
+                <th>Engine</th>
+                <th>Delivered (%)</th>
+                <th>Reserve (GJ)</th>
+                <th>Draw (GW)</th>
+              </tr>
+            </thead>
+            <tbody id="ship-history"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <p id="message" role="status"></p>
+    <footer>
+      3D translation and one yaw axis. No dampers, heat, collision, crew damage
+      or relativistic model yet. Power costs are explicit prototype profile
+      values. Engine shortage scales operation after funding its baseline;
+      reserve recharge uses the existing demonstration hysteresis.
+      <a href="../../games/ship/README.md">Source, ownership and limitations</a>
+    </footer>
+    <script
+      type="module"
+      src="../../dist/apps/flight-foundry/ship-main.js"
+    ></script>
+  </body>
+</html>

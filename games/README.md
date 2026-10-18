@@ -2,7 +2,7 @@
 
 Rendering and feature probes stay in `examples/` and the existing root pages. Small assembled games live here. Build with `npm run build`, serve the repository on port 8092, then open `/games/`.
 
-The current games are [platformer](platformer/index.html) and [top-down salvage](top-down/index.html).
+The current games are [platformer](platformer/index.html) and [top-down salvage](top-down/index.html). The [assembled ship](ship/README.md) is an additional architecture proof with a live telemetry page.
 
 ## First slice: attached capabilities
 

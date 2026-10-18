@@ -51,3 +51,7 @@ Positive speed sliders use logarithmic exploration; other sliders are linear. Ex
 ## Capture response model (not yet connected to this UI)
 
 The next model slice is [documented separately](../../docs/SHIP-CAPTURE-MODEL.md). `CaptureResponse.ts` takes an equipment profile and an entry speed, grows duration and braking concentration above a reference excess speed, and reports nominal crew G from the profile's transmission fraction. It does not cap crew G to the ideal planner's target. The current screens remain unchanged; this calculation does not yet drive a powered ship, heat model or injury system.
+
+## Assembled ship telemetry
+
+Open <http://localhost:8092/apps/flight-foundry/ship.html> for the actual attached ship architecture, separate from the analytical curve tools. It runs game-owned control, engine, power and movement capabilities, with resource-limited Newtonian motion. See [the ship assembly documentation](../../games/ship/README.md).
