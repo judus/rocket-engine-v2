@@ -48,6 +48,9 @@ const funded: ShipProfile = {
 };
 function make(speed = 0, profile = funded, energyJ = 1e6): Ship {
   return new Ship(profile, {
+    cargoPocketId: 'test-pocket',
+    cargoTemperatureK: 290,
+    cargoHealthPoints: 100,
     shieldHealthPoints: 100,
     damperHealthPoints: 100,
     coolingHealthPoints: 100,
@@ -271,6 +274,9 @@ void test('Damper profiles reject malformed protection and impossible restart th
       new Ship(
         { ...funded, dampers: { ...funded.dampers, restartEnergyJ: 1e13 } },
         {
+          cargoPocketId: 'test-pocket',
+          cargoTemperatureK: 290,
+          cargoHealthPoints: 100,
           shieldHealthPoints: 100,
           damperHealthPoints: 100,
           coolingHealthPoints: 100,

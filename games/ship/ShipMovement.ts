@@ -1,3 +1,5 @@
+import { ShipCargo } from './ShipCargo.js';
+import type { CargoReading } from './ShipCargo.js';
 import { ShipShields } from './ShipShields.js';
 import type { ShieldReading } from './ShipShields.js';
 import { ShipHull } from './ShipHull.js';
@@ -18,6 +20,7 @@ import { numberIn } from './ShipProfiles.js';
 import type { PowerReading } from './ShipPowerPlant.js';
 
 export interface ShipTelemetry {
+  readonly cargo: Readonly<CargoReading>;
   readonly tick: number;
   readonly timeSeconds: number;
   readonly body: Readonly<BodyReading>;
@@ -46,6 +49,7 @@ export class ShipMovement implements Behavior {
     private readonly cooling: ShipCooling,
     private readonly shields: ShipShields,
     private readonly hull: ShipHull,
+    private readonly cargo: ShipCargo,
   ) {
     this.requires = [
       control,
@@ -56,6 +60,7 @@ export class ShipMovement implements Behavior {
       cooling,
       shields,
       hull,
+      cargo,
     ];
     this.#telemetry = Object.freeze({
       tick: 0,
@@ -67,6 +72,7 @@ export class ShipMovement implements Behavior {
       cooling: cooling.telemetry,
       shields: shields.telemetry,
       hull: hull.telemetry,
+      cargo: cargo.telemetry,
       shipG: 0,
       crewG: 0,
       worldForceN: Object.freeze({ x: 0, y: 0, z: 0 }),
@@ -79,10 +85,12 @@ export class ShipMovement implements Behavior {
     this.shields.transfer(dt);
     const requestedEngine = this.engine.declare(this.control.intent);
     this.dampers.declare(this.control.intent, requestedEngine, dt);
+    this.cargo.declare();
     this.cooling.declare();
     this.shields.declare(dt);
     this.power.allocate(dt);
     this.shields.deliver(dt);
+    this.cargo.deliver();
     this.hull.resolve();
     const delivered = this.engine.deliver();
     const damperReading = this.dampers.deliver(delivered.activityFraction);
@@ -90,11 +98,13 @@ export class ShipMovement implements Behavior {
     this.engine.generateHeat(dt);
     this.dampers.generateHeat(dt);
     this.shields.generateHeat(dt);
+    this.cargo.generateHeat(dt);
     const coolingReading = this.cooling.deliver(dt);
     this.power.finishThermalStep(dt);
     this.engine.finishThermalStep(dt);
     this.dampers.finishThermalStep(dt);
     this.shields.finishThermalStep(dt);
+    this.cargo.finishStep(dt);
     const engineForce = this.body.localToWorld(delivered.thrustN);
     const worldForceN = Object.freeze({
       x: engineForce.x + damperReading.worldForceN.x,
@@ -120,6 +130,7 @@ export class ShipMovement implements Behavior {
       dampers: this.dampers.telemetry,
       shields: this.shields.telemetry,
       hull: this.hull.telemetry,
+      cargo: this.cargo.telemetry,
       shipG,
       crewG: shipG * damperReading.transmittedFraction,
       worldForceN,

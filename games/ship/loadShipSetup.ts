@@ -1,4 +1,5 @@
 import {
+  validateCargoProfile,
   numberIn,
   profileId,
   recordWithKeys,
@@ -35,6 +36,7 @@ export async function loadShipSetup(
   const manifest = recordWithKeys(
     await readJson(url, fetcher),
     [
+      'cargoProfile',
       'id',
       'bodyProfile',
       'powerProfile',
@@ -47,6 +49,7 @@ export async function loadShipSetup(
     ],
     'Ship definition',
   );
+  const cargoId = profileId(manifest.cargoProfile, 'Cargo reference');
   const id = profileId(manifest.id, 'Ship id');
   const bodyId = profileId(manifest.bodyProfile, 'Body reference');
   const powerId = profileId(manifest.powerProfile, 'Power reference');
@@ -63,7 +66,9 @@ export async function loadShipSetup(
     readJson(new URL(`../profiles/${coolingId}.json`, url), fetcher),
     readJson(new URL(`../profiles/${shieldId}.json`, url), fetcher),
     readJson(new URL(`../profiles/${hullId}.json`, url), fetcher),
+    readJson(new URL(`../profiles/${cargoId}.json`, url), fetcher),
   ]);
+  const cargo = validateCargoProfile(results[7]);
   const body = validateBodyProfile(results[0]);
   const power = validatePowerProfile(results[1]);
   const engine = validateEngineProfile(results[2]);
@@ -72,6 +77,7 @@ export async function loadShipSetup(
   const shields = validateShieldProfile(results[5]);
   const hull = validateHullProfile(results[6]);
   if (
+    cargo.id !== cargoId ||
     shields.id !== shieldId ||
     hull.id !== hullId ||
     cooling.id !== coolingId ||
@@ -107,6 +113,13 @@ export async function loadShipSetup(
     0,
     power.capacityJ,
   );
+  numberIn(
+    'Cargo restartEnergyJ for installed reserve',
+    cargo.restartEnergyJ,
+    0,
+    power.capacityJ,
+  );
+  validateThermalInstallation(cooling, cargo.thermal);
   validateThermalInstallation(cooling, power.thermal);
   validateThermalInstallation(cooling, engine.thermal);
   validateThermalInstallation(cooling, dampers.thermal);
@@ -119,10 +132,12 @@ export async function loadShipSetup(
     cooling.health.maxPoints,
     dampers.health.maxPoints,
     shields.health.maxPoints,
+    cargo.health.maxPoints,
   );
   return Object.freeze({
     profile: Object.freeze({
       id,
+      cargo,
       body,
       power,
       engine,

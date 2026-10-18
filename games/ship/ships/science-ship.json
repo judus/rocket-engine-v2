@@ -18,10 +18,14 @@
     "reactorHealthPoints": 100,
     "coolingHealthPoints": 100,
     "damperHealthPoints": 100,
-    "shieldHealthPoints": 100
+    "shieldHealthPoints": 100,
+    "cargoPocketId": "science-pocket",
+    "cargoTemperatureK": 290,
+    "cargoHealthPoints": 100
   },
   "damperProfile": "dampers-starter",
   "coolingProfile": "cooling-starter",
   "shieldProfile": "shields-starter",
-  "hullProfile": "structure-starter"
+  "hullProfile": "structure-starter",
+  "cargoProfile": "cargo-starter"
 }

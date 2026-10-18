@@ -122,11 +122,13 @@ function reset(): void {
   find<HTMLInputElement>('#dampers').checked = false;
   find<HTMLInputElement>('#cooling').checked = false;
   find<HTMLInputElement>('#shields').checked = false;
+  find<HTMLInputElement>('#cargo').checked = true;
+  ship.cargo.requestEnabled(true);
   find('#message').textContent = '';
   neutral();
   const p = setup.profile;
   find('#installed').textContent =
-    `Installed: ${p.body.id} · ${p.power.id} · ${p.engine.id} · ${p.dampers.id} · ${p.cooling.id} · ${p.shields.id} · ${p.hull.id}`;
+    `Installed: ${p.body.id} · ${p.power.id} · ${p.engine.id} · ${p.dampers.id} · ${p.cooling.id} · ${p.shields.id} · ${p.cargo.id} · ${p.hull.id}`;
   find('#ship-specs').textContent =
     `${p.body.massKg.toLocaleString('en')} kg · ${p.engine.maxThrustN / 1e6} MN thrust · ${p.power.reactorOutputW / 1e9} GW reactor · ${p.power.capacityJ / 1e9} GJ reserve capacity. Engine: ${p.engine.baselineW / 1e6} MW baseline + ${p.engine.fullThrustW / 1e9} GW translation + ${p.engine.fullYawW / 1e9} GW yaw. Reactor health ${p.power.health.maxPoints} HP; output follows health fraction raised to ${p.power.health.outputExponent}. Engine health ${p.engine.health.maxPoints} HP; output follows health fraction raised to ${p.engine.health.outputExponent}. Loaded from JSON; demonstration balance.`;
   find('#damper-specs').textContent =
@@ -134,7 +136,7 @@ function reset(): void {
   find('#thermal-specs').textContent =
     `Engine thermal capacity ${p.engine.thermal.heatCapacityJPerK / 1e6} MJ/K · ${p.engine.thermal.wasteHeatFraction * 100}% of supplied power becomes module heat · trip ${(p.engine.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.engine.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · manual start ${p.engine.thermal.manualStartSeconds} s / thermal reboot ${p.engine.thermal.rebootSeconds} s. Cooling: ${p.cooling.maxCoolingW / 1e6} MW removal, ${(p.cooling.baselineW + p.cooling.fullPowerW) / 1e6} MW full electrical draw. Cooling health ${p.cooling.health.maxPoints} HP; removal capacity follows health fraction raised to ${p.cooling.health.outputExponent}.`;
   find('#damper-thermal-specs').textContent =
-    `Damper thermal capacity ${p.dampers.thermal.heatCapacityJPerK / 1e6} MJ/K · ${p.dampers.thermal.wasteHeatFraction * 100}% supplied-power losses · trip ${(p.dampers.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.dampers.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · manual start ${p.dampers.thermal.manualStartSeconds} s / thermal reboot ${p.dampers.thermal.rebootSeconds} s. The cooler shares one removal budget across reactor, engine, dampers and shields.`;
+    `Damper thermal capacity ${p.dampers.thermal.heatCapacityJPerK / 1e6} MJ/K · ${p.dampers.thermal.wasteHeatFraction * 100}% supplied-power losses · trip ${(p.dampers.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.dampers.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · manual start ${p.dampers.thermal.manualStartSeconds} s / thermal reboot ${p.dampers.thermal.rebootSeconds} s. The cooler shares one removal budget across reactor, engine, dampers, shields and cargo.`;
   find('#shield-specs').textContent =
     `Shields: ${p.shields.capacityJ / 1e9} GJ capacity · ${p.shields.baselineW / 1e6} MW maintenance · ${p.shields.rechargeW / 1e6} MW recharge input at ${p.shields.rechargeEfficiency * 100}% efficiency · ${p.shields.rechargeDelaySeconds} s recharge delay after a hit. Hull: ${p.hull.damageCapacityJ / 1e9} GJ damage capacity. Diversion: ${p.shields.diversionW / 1e9} GJ/s from shields at ${p.shields.diversionEfficiency * 100}% efficiency. Shields trip at ${(p.shields.thermal.tripTemperatureK - 273.15).toFixed(1)} °C, restart below ${(p.shields.thermal.restartTemperatureK - 273.15).toFixed(1)} °C; ${p.shields.thermal.manualStartSeconds} s manual start / ${p.shields.thermal.rebootSeconds} s thermal reboot. Prototype tuning.`;
   find('#reactor-specs').textContent =
@@ -177,7 +179,8 @@ function paint(): void {
     t.engine.demandW +
     t.dampers.demandW +
     t.cooling.demandW +
-    t.shields.demandW;
+    t.shields.demandW +
+    t.cargo.demandW;
   const electrical = (suppliedW: number, demandW: number) =>
     `${fmt(suppliedW / 1e6)} / ${fmt(demandW / 1e6)} MW<small>supplied / requested</small>`;
   const thermal = (
@@ -221,6 +224,16 @@ function paint(): void {
       ),
     ],
     [
+      'Cargo link',
+      `<strong>${t.cargo.state}</strong><small>${requested(t.cargo.requested)} · ${t.cargo.link.state}</small>`,
+      electrical(t.cargo.suppliedW, t.cargo.demandW),
+      thermal(
+        t.cargo.thermal.temperatureK,
+        t.cargo.thermal.generatedHeatW,
+        t.cooling.cargoRemovedHeatW,
+      ),
+    ],
+    [
       'Cooling',
       `<strong>${t.cooling.state}</strong><small>${requested(t.cooling.requested)}</small>`,
       electrical(t.cooling.suppliedW, t.cooling.demandW),
@@ -240,7 +253,7 @@ function paint(): void {
   find('#module-readings').innerHTML = modules
     .map(
       ([name, state, energy, heat]) =>
-        `<tr><th scope="row">${name}</th><td>${state}</td><td>${energy}</td><td>${heat}</td><td>${name === 'Engine' ? healthCell(t.engine.health) : name === 'Reactor' ? healthCell(t.power.health) : name === 'Cooling' ? healthCell(t.cooling.health) : name === 'Inertia dampers' ? healthCell(t.dampers.health) : name === 'Shields' ? healthCell(t.shields.health) : '—'}</td></tr>`,
+        `<tr><th scope="row">${name}</th><td>${state}</td><td>${energy}</td><td>${heat}</td><td>${name === 'Engine' ? healthCell(t.engine.health) : name === 'Reactor' ? healthCell(t.power.health) : name === 'Cooling' ? healthCell(t.cooling.health) : name === 'Inertia dampers' ? healthCell(t.dampers.health) : name === 'Shields' ? healthCell(t.shields.health) : name === 'Cargo link' ? healthCell(t.cargo.health) : '—'}</td></tr>`,
     )
     .join('');
   find('#module-totals').innerHTML =
@@ -253,6 +266,8 @@ function paint(): void {
     t.shields.energyJ / t.shields.capacityJ;
   find<HTMLProgressElement>('#hull-integrity').value =
     t.hull.remainingJ / t.hull.capacityJ;
+  find('#cargo-state').textContent =
+    `Pocket ${t.cargo.link.pocketId} · ${t.cargo.link.state.toUpperCase()} · ${t.cargo.link.accessible ? 'access available' : 'access unavailable'} · recovery window ${fmt(t.cargo.link.remainingSeconds)} s · stable service ${fmt(t.cargo.link.stabilizationSeconds)} / ${setup.profile.cargo.stabilizationSeconds} s. Lost access cannot be recovered by repairing or restarting the module. Reset ship starts a fresh lab scenario.`;
   find('#shield-state').textContent =
     `Shields ${t.shields.state} · ${t.shields.active ? `field powered · ${fmt(t.shields.protectionFraction * 100)}% absorption` : 'NO PROTECTION'} · stored ${fmt(t.shields.energyJ / 1e9)} / ${fmt(t.shields.capacityJ / 1e9)} GJ · supply ${fmt(t.shields.suppliedW / 1e6)} MW · recharge delay ${fmt(t.shields.rechargeDelaySeconds)} s.`;
   const shieldCommands = ship.shields.telemetry;
@@ -302,6 +317,7 @@ for (const [prefix, module, label] of [
   ['cooling', (ship: Ship) => ship.cooling, 'Cooling'],
   ['dampers', (ship: Ship) => ship.dampers, 'Dampers'],
   ['shields', (ship: Ship) => ship.shields, 'Shields'],
+  ['cargo', (ship: Ship) => ship.cargo, 'Cargo'],
 ] as const) {
   for (const [action, repair, points] of [
     ['damage', false, 25],
@@ -320,6 +336,9 @@ for (const [prefix, module, label] of [
     });
   }
 }
+find('#cargo').addEventListener('change', () =>
+  ship.cargo.requestEnabled(find<HTMLInputElement>('#cargo').checked),
+);
 find('#reactor').addEventListener('change', () =>
   ship.power.requestEnabled(find<HTMLInputElement>('#reactor').checked),
 );

@@ -166,6 +166,9 @@ void test('Shield recharge cannot consume emergency recovery output, and request
   const ship = new Ship(starterSetup.profile, {
     ...starterSetup.initialState,
     energyJ: 0,
+    cargoPocketId: 'test-pocket',
+    cargoTemperatureK: 290,
+    cargoHealthPoints: 100,
     shieldHealthPoints: 100,
     damperHealthPoints: 100,
     coolingHealthPoints: 100,

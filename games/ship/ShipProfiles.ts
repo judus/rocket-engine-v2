@@ -67,6 +67,15 @@ export interface DamperProfile {
   restartEnergyJ: number;
   capture: Readonly<CaptureProfile>;
 }
+export interface CargoProfile {
+  readonly id: string;
+  readonly health: Readonly<HealthProfile>;
+  readonly thermal: Readonly<ThermalProfile>;
+  readonly baselineW: number;
+  readonly restartEnergyJ: number;
+  readonly graceSeconds: number;
+  readonly stabilizationSeconds: number;
+}
 export interface ShieldProfile {
   health: Readonly<HealthProfile>;
   thermal: Readonly<ThermalProfile>;
@@ -85,6 +94,7 @@ export interface HullProfile {
   damageCapacityJ: number;
 }
 export interface ShipProfile {
+  readonly cargo: Readonly<CargoProfile>;
   readonly id: string;
   readonly body: Readonly<BodyProfile>;
   readonly power: Readonly<PowerPlantProfile>;
@@ -95,6 +105,9 @@ export interface ShipProfile {
   readonly hull: Readonly<HullProfile>;
 }
 export interface ShipInitialState {
+  readonly cargoPocketId: string;
+  readonly cargoTemperatureK: number;
+  readonly cargoHealthPoints: number;
   readonly shieldHealthPoints: number;
   readonly damperHealthPoints: number;
   readonly coolingHealthPoints: number;
@@ -228,12 +241,16 @@ export function validateInitialState(
   coolingMaxHealthPoints: number,
   damperMaxHealthPoints: number,
   shieldMaxHealthPoints: number,
+  cargoMaxHealthPoints: number,
 ): Readonly<ShipInitialState> {
   const p = recordWithKeys(
     value,
     [
       'engineHealthPoints',
       'reactorHealthPoints',
+      'cargoPocketId',
+      'cargoTemperatureK',
+      'cargoHealthPoints',
       'shieldHealthPoints',
       'damperHealthPoints',
       'coolingHealthPoints',
@@ -248,6 +265,14 @@ export function validateInitialState(
   );
   const v = recordWithKeys(p.velocityMps, ['x', 'y', 'z'], 'Initial velocity');
   return Object.freeze({
+    cargoPocketId: profileId(p.cargoPocketId, 'Cargo pocket id'),
+    cargoTemperatureK: readNumber(p, 'cargoTemperatureK', 0, 1e6),
+    cargoHealthPoints: readNumber(
+      p,
+      'cargoHealthPoints',
+      0,
+      cargoMaxHealthPoints,
+    ),
     shieldHealthPoints: readNumber(
       p,
       'shieldHealthPoints',
@@ -515,5 +540,36 @@ export function validateHealthProfile(value: unknown): Readonly<HealthProfile> {
   return Object.freeze({
     maxPoints: readNumber(p, 'maxPoints', 1),
     outputExponent: readNumber(p, 'outputExponent', 0.1, 10),
+  });
+}
+
+export function validateCargoProfile(value: unknown): Readonly<CargoProfile> {
+  const p = recordWithKeys(
+    value,
+    [
+      'id',
+      'health',
+      'thermal',
+      'baselineW',
+      'restartEnergyJ',
+      'graceSeconds',
+      'stabilizationSeconds',
+    ],
+    'Cargo profile',
+  );
+  const graceSeconds = readNumber(p, 'graceSeconds', 0.01, 3600);
+  return Object.freeze({
+    id: profileId(p.id, 'Cargo id'),
+    health: validateHealthProfile(p.health),
+    thermal: validateThermalProfile(p.thermal),
+    baselineW: readNumber(p, 'baselineW', Number.MIN_VALUE),
+    restartEnergyJ: readNumber(p, 'restartEnergyJ', 0),
+    graceSeconds,
+    stabilizationSeconds: readNumber(
+      p,
+      'stabilizationSeconds',
+      0.01,
+      graceSeconds,
+    ),
   });
 }

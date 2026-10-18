@@ -1,3 +1,5 @@
+import { CargoLink } from './CargoLink.js';
+import { ShipCargo } from './ShipCargo.js';
 import { Node2D } from '../../src/index.js';
 import { ShipBody } from './ShipBody.js';
 import { ShipControl } from './ShipControl.js';
@@ -20,6 +22,8 @@ import type { ShipProfile, ShipInitialState } from './ShipProfiles.js';
 /** Established typed attachment host; its 2D visual transforms are unused. */
 export class Ship extends Node2D {
   readonly definitionId: string;
+  readonly cargoLink: CargoLink;
+  readonly cargo: ShipCargo;
   readonly body: ShipBody;
   readonly control: ShipControl;
   readonly power: ShipPowerPlant;
@@ -43,6 +47,7 @@ export class Ship extends Node2D {
       profile.cooling.health.maxPoints,
       profile.dampers.health.maxPoints,
       profile.shields.health.maxPoints,
+      profile.cargo.health.maxPoints,
     );
     numberIn(
       'Engine restartEnergyJ for installed reserve',
@@ -72,6 +77,14 @@ export class Ship extends Node2D {
     validateThermalInstallation(profile.cooling, profile.engine.thermal);
     validateThermalInstallation(profile.cooling, profile.dampers.thermal);
     validateThermalInstallation(profile.cooling, profile.shields.thermal);
+    numberIn(
+      'Cargo restartEnergyJ for installed reserve',
+      profile.cargo.restartEnergyJ,
+      0,
+      profile.power.capacityJ,
+    );
+    validateThermalInstallation(profile.cooling, profile.cargo.thermal);
+    this.cargoLink = new CargoLink(initial.cargoPocketId);
     try {
       this.body = this.attach(new ShipBody(profile.body, initial.velocityMps));
       this.control = this.attach(new ShipControl());
@@ -108,6 +121,15 @@ export class Ship extends Node2D {
           initial.shieldHealthPoints,
         ),
       );
+      this.cargo = this.attach(
+        new ShipCargo(
+          profile.cargo,
+          this.power,
+          this.cargoLink,
+          initial.cargoTemperatureK,
+          initial.cargoHealthPoints,
+        ),
+      );
       this.cooling = this.attach(
         new ShipCooling(
           profile.cooling,
@@ -115,6 +137,7 @@ export class Ship extends Node2D {
           this.engine,
           this.dampers,
           this.shields,
+          this.cargo,
           initial.coolingHealthPoints,
         ),
       );
@@ -129,6 +152,7 @@ export class Ship extends Node2D {
           this.cooling,
           this.shields,
           this.hull,
+          this.cargo,
         ),
       );
     } catch (error) {

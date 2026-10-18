@@ -1,3 +1,4 @@
+import { ShipCargo } from './ShipCargo.js';
 import { ModuleHealth } from './ModuleHealth.js';
 import type { HealthReading } from './ModuleHealth.js';
 import { ShipShields } from './ShipShields.js';
@@ -10,6 +11,7 @@ import { validateCoolingProfile } from './ShipProfiles.js';
 import type { CoolingProfile } from './ShipProfiles.js';
 
 export interface CoolingReading {
+  readonly cargoRemovedHeatW: number;
   readonly requested: boolean;
   readonly state:
     'off' | 'online' | 'limited' | 'waiting-for-charge' | 'damaged' | 'failed';
@@ -39,10 +41,11 @@ export class ShipCooling implements Behavior {
     private readonly engine: ShipEngine,
     private readonly dampers: ShipDampers,
     private readonly shields: ShipShields,
+    private readonly cargo: ShipCargo,
     initialHealthPoints: number,
   ) {
     this.profile = validateCoolingProfile(profile);
-    this.requires = [power, engine, dampers, shields];
+    this.requires = [power, engine, dampers, shields, cargo];
     this.#health = new ModuleHealth(this.profile.health, initialHealthPoints);
     this.#reading = Object.freeze({
       requested: false,
@@ -52,6 +55,7 @@ export class ShipCooling implements Behavior {
       demandW: 0,
       suppliedW: 0,
       activityFraction: 0,
+      cargoRemovedHeatW: 0,
       shieldRemovedHeatW: 0,
       removedHeatW: 0,
       reactorRemovedHeatW: 0,
@@ -82,6 +86,7 @@ export class ShipCooling implements Behavior {
   declare(): void {
     this.#health.commit();
     this.#pumping =
+      this.cargo.temperatureK > this.profile.sinkTemperatureK ||
       this.shields.temperatureK > this.profile.sinkTemperatureK ||
       this.power.temperatureK > this.profile.sinkTemperatureK ||
       this.engine.temperatureK > this.profile.sinkTemperatureK ||
@@ -107,7 +112,13 @@ export class ShipCooling implements Behavior {
           : 1
         : 0;
     const fraction = powerFraction * health.outputFraction;
-    const targets = [this.engine, this.dampers, this.power, this.shields];
+    const targets = [
+      this.engine,
+      this.dampers,
+      this.power,
+      this.shields,
+      this.cargo,
+    ];
     const totalHeat = targets.reduce(
       (sum, target) => sum + target.heatAbove(this.profile.sinkTemperatureK),
       0,
@@ -130,11 +141,13 @@ export class ShipCooling implements Behavior {
     const damperRemovedHeatW = remove(this.dampers);
     const reactorRemovedHeatW = remove(this.power);
     const shieldRemovedHeatW = remove(this.shields);
+    const cargoRemovedHeatW = remove(this.cargo);
     const removedHeatW =
       engineRemovedHeatW +
       damperRemovedHeatW +
       reactorRemovedHeatW +
-      shieldRemovedHeatW;
+      shieldRemovedHeatW +
+      cargoRemovedHeatW;
     this.#reading = Object.freeze({
       requested: this.#requested,
       health,
@@ -158,6 +171,7 @@ export class ShipCooling implements Behavior {
       suppliedW: allocation.suppliedW,
       activityFraction: fraction,
       removedHeatW,
+      cargoRemovedHeatW,
       shieldRemovedHeatW,
       reactorRemovedHeatW,
       engineRemovedHeatW,

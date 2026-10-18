@@ -1,0 +1,19 @@
+{
+  "id": "cargo-starter",
+  "health": {
+    "maxPoints": 100,
+    "outputExponent": 1
+  },
+  "thermal": {
+    "heatCapacityJPerK": 10000000,
+    "wasteHeatFraction": 0.1,
+    "tripTemperatureK": 390,
+    "restartTemperatureK": 330,
+    "manualStartSeconds": 0.5,
+    "rebootSeconds": 6
+  },
+  "baselineW": 20000000,
+  "restartEnergyJ": 0,
+  "graceSeconds": 18,
+  "stabilizationSeconds": 2
+}

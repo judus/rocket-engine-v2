@@ -55,7 +55,7 @@ All instruments read `ship.telemetry` after a completed step, including forces a
 
 Implemented: actual attached body/control/power/engine/dampers/cooling/shields/hull/movement, 3D translation, one yaw axis, commands, standby/activity costs, reserve generation/depletion, partial/zero delivery, inherited recharge eligibility and immutable telemetry. Runtime uses the existing headless Stage2D and Rocket clock; pause/single-step work on the same simulation path.
 
-Not implemented: crew injury, destruction rules, cargo, collision, pitch/roll or general rigid-body dynamics, keyboard/mouse input handover, runtime equipment replacement, or the cockpit presentation adapter. The earlier capture calculation now lives in `games/ship/CaptureResponse.ts` and drives the powered damper component. It still describes nominal fully supplied response; power delivery determines actual motion and protection.
+Not implemented: crew injury, destruction rules, cargo item transfers, collision, pitch/roll or general rigid-body dynamics, keyboard/mouse input handover, runtime equipment replacement, or the cockpit presentation adapter. The earlier capture calculation now lives in `games/ship/CaptureResponse.ts` and drives the powered damper component. It still describes nominal fully supplied response; power delivery determines actual motion and protection.
 
 `npm run check` includes `tests/ship-architecture.test.ts`: actual engine/power/body outcomes, resource conservation, final partial versus zero supply, baseline admission/recharge, manual switches/coasting, yaw/thrust frames, normalized combined demand, independent ship lifetimes, coherent observations and fail-before-side-effect boundaries. Render-rate foundations are existing Rocket tests. Browser checks inspect the telemetry page; this is not a full game or real-device certification.
 
@@ -278,3 +278,41 @@ Flight Foundry includes shield health and absorption telemetry plus lab
 condition controls. These direct lab commands are free and bypass hull/shield
 routing. Automatic module damage, repair resources and destruction remain future
 game rules.
+
+### Interdimensional cargo link
+
+`ShipCargo` attaches through the same typed capability API as other modules. Its
+required `cargo-starter.json` profile defines power, health, heat, startup/reboot,
+`graceSeconds` and `stabilizationSeconds`. Initial state supplies cargo health,
+temperature and a stable pocket reference ID. The ship owns `CargoLink` separately
+from its equipment; it contains access state, not item stacks or another inventory.
+Workshop remains the inventory authority when goods are integrated later.
+
+The pocket starts connected. Any interval without operational, fully funded,
+non-tripped service starts one countdown: connected → interrupted → connected
+or permanently lost. Manual shutdown, power shortage, health failure and thermal
+shutdown use the same rule. Interrupted access is unavailable. Restoring service
+must complete continuous stabilization strictly before expiry; momentary power
+and repeated toggles cannot reset the existing deadline. An interruption resets
+stabilization progress, not remaining grace. Stable recovery rearms the next
+emergency window. Expiry wins an exact tie. Lost access stays lost after module
+repair/restart, and the lost link no longer requests maintenance. No inventory is
+deleted, recreated or copied by a link transition.
+
+The starter's **18 s grace / 2 s stabilization** are editable trial values, not
+settled balance. All timing advances only on the ship's existing fixed step.
+A new module observing the same `CargoLink` sees its current deadline/loss state;
+equipment destruction/disposal cannot erase it. Runtime swapping and persistence
+are not implemented. Explicit Reset ship creates a fresh lab scenario.
+
+Healthy maintenance costs 20 MW; damage scales demand by `2 - health.outputFraction`
+(up to twice nominal near failure). Zero health disables the equipment; repair
+respects manual startup and thermal trip/reboot. Electrical heat enters the existing
+shared circuit, whose telemetry now reports `cargoRemovedHeatW`. No new allocator
+or clock is introduced. Flight Foundry exposes the module switch, health controls,
+access state, remaining window and stabilization progress.
+
+This slice proves the powered link lifecycle. Item transfers, mass-dependent
+costs, inertial coupling, save/restore and world recovery missions remain separate.
+The pocket ID is the future inventory reference seam; it does not claim a working
+Workshop transfer integration.

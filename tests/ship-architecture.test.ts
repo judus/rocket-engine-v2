@@ -15,6 +15,9 @@ function step(ship: Ship, dt = 1 / 60): void {
   });
 }
 const initial = {
+  cargoPocketId: 'test-pocket',
+  cargoTemperatureK: 290,
+  cargoHealthPoints: 100,
   shieldHealthPoints: 100,
   damperHealthPoints: 100,
   coolingHealthPoints: 100,
@@ -29,6 +32,7 @@ const initial = {
 };
 const small: ShipProfile = {
   id: 'test-ship',
+  cargo: starterSetup.profile.cargo,
   hull: starterSetup.profile.hull,
   shields: { ...starterSetup.profile.shields, restartEnergyJ: 50 },
   cooling: { ...starterSetup.profile.cooling, restartEnergyJ: 50 },

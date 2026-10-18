@@ -57,6 +57,9 @@ function make(
   energyJ = 10000,
 ): Ship {
   return new Ship(equipment, {
+    cargoPocketId: 'test-pocket',
+    cargoTemperatureK: 290,
+    cargoHealthPoints: 100,
     shieldHealthPoints: 100,
     damperHealthPoints: 100,
     coolingHealthPoints: 100,

@@ -23,6 +23,12 @@ function fixtures(): Map<string, unknown> {
       ) as unknown,
     ]),
     [
+      'profiles/cargo-starter.json',
+      JSON.parse(
+        readFileSync('games/ship/profiles/cargo-starter.json', 'utf8'),
+      ) as unknown,
+    ],
+    [
       'profiles/cooling-starter.json',
       JSON.parse(
         readFileSync('games/ship/profiles/cooling-starter.json', 'utf8'),
@@ -111,6 +117,9 @@ void test('Actual JSON loadout produces the typed installed equipment and separa
 });
 void test('One immutable equipment definition can initialize independently charged moving ships', () => {
   const first = new Ship(starterSetup.profile, {
+    cargoPocketId: 'test-pocket',
+    cargoTemperatureK: 290,
+    cargoHealthPoints: 100,
     shieldHealthPoints: 100,
     damperHealthPoints: 100,
     coolingHealthPoints: 100,
@@ -124,6 +133,9 @@ void test('One immutable equipment definition can initialize independently charg
     velocityMps: { x: 1, y: 2, z: 3 },
   });
   const second = new Ship(starterSetup.profile, {
+    cargoPocketId: 'test-pocket',
+    cargoTemperatureK: 290,
+    cargoHealthPoints: 100,
     shieldHealthPoints: 100,
     damperHealthPoints: 100,
     coolingHealthPoints: 100,
@@ -322,6 +334,9 @@ void test('Loadout rejects incompatible restart energy and invalid initial state
   );
   for (const initialState of [
     {
+      cargoPocketId: 'test-pocket',
+      cargoTemperatureK: 290,
+      cargoHealthPoints: 100,
       shieldHealthPoints: 100,
       damperHealthPoints: 100,
       coolingHealthPoints: 100,
@@ -335,6 +350,9 @@ void test('Loadout rejects incompatible restart energy and invalid initial state
       velocityMps: { x: 0, y: 0, z: 0 },
     },
     {
+      cargoPocketId: 'test-pocket',
+      cargoTemperatureK: 290,
+      cargoHealthPoints: 100,
       shieldHealthPoints: 100,
       damperHealthPoints: 100,
       coolingHealthPoints: 100,
@@ -348,6 +366,9 @@ void test('Loadout rejects incompatible restart energy and invalid initial state
       velocityMps: { x: 0, y: '0', z: 0 },
     },
     {
+      cargoPocketId: 'test-pocket',
+      cargoTemperatureK: 290,
+      cargoHealthPoints: 100,
       shieldHealthPoints: 100,
       damperHealthPoints: 100,
       coolingHealthPoints: 100,
