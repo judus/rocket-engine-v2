@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Ship, starterShip } from '../games/ship/Ship.js';
-import type { ShipProfile } from '../games/ship/Ship.js';
+import { Ship } from '../games/ship/Ship.js';
+import { starterSetup } from './helpers/shipSetup.js';
+import type { ShipProfile } from '../games/ship/ShipProfiles.js';
 import { Stage2D } from '../src/experimental/index.js';
 
 const close = (a: number, b: number, tolerance = 1e-8) =>
@@ -13,10 +14,13 @@ function step(ship: Ship, dt = 1 / 60): void {
     time: ship.telemetry.timeSeconds + dt,
   });
 }
+const initial = { energyJ: 100, velocityMps: { x: 0, y: 0, z: 0 } };
 const small: ShipProfile = {
-  body: { massKg: 2, yawInertiaKgM2: 2 },
-  power: { capacityJ: 100, initialEnergyJ: 100, reactorOutputW: 0 },
+  id: 'test-ship',
+  body: { id: 'test-hull', massKg: 2, yawInertiaKgM2: 2 },
+  power: { id: 'test-reactor', capacityJ: 100, reactorOutputW: 0 },
   engine: {
+    id: 'test-engine',
     maxThrustN: 20,
     maxYawTorqueNm: 4,
     baselineW: 10,
@@ -26,7 +30,7 @@ const small: ShipProfile = {
   },
 };
 void test('Assembled ship advances from commands through power/engine to one Newtonian motion update', () => {
-  const ship = new Ship();
+  const ship = new Ship(starterSetup.profile, starterSetup.initialState);
   ship.control.thrust({ x: 0, y: 0, z: 1 });
   for (let i = 0; i < 60; i++) step(ship);
   const s = ship.telemetry;
@@ -40,7 +44,7 @@ void test('Assembled ship advances from commands through power/engine to one New
   ship.dispose();
 });
 void test('Final partial supply delivers only funded activity; zero supply coasts without stale force', () => {
-  const ship = new Ship(small);
+  const ship = new Ship(small, initial);
   ship.control.thrust({ x: 0, y: 0, z: 1 });
   step(ship, 1);
   close(ship.telemetry.power.energyJ, 0);
@@ -58,10 +62,13 @@ void test('Final partial supply delivers only funded activity; zero supply coast
   ship.dispose();
 });
 void test('Baseline shortage produces no thrust; automatic charge recovery retains requested state', () => {
-  const ship = new Ship({
-    ...small,
-    power: { ...small.power, initialEnergyJ: 5, reactorOutputW: 30 },
-  });
+  const ship = new Ship(
+    {
+      ...small,
+      power: { ...small.power, reactorOutputW: 30 },
+    },
+    { ...initial, energyJ: 5 },
+  );
   ship.power.requestEnabled(false);
   ship.control.thrust({ x: 0, y: 0, z: 1 });
   step(ship, 1);
@@ -79,10 +86,13 @@ void test('Baseline shortage produces no thrust; automatic charge recovery retai
   ship.dispose();
 });
 void test('Neutral preserves linear/angular momentum and manual engine off removes baseline demand', () => {
-  const ship = new Ship({
-    ...small,
-    power: { ...small.power, reactorOutputW: 1000 },
-  });
+  const ship = new Ship(
+    {
+      ...small,
+      power: { ...small.power, reactorOutputW: 1000 },
+    },
+    initial,
+  );
   ship.control.thrust({ x: 0, y: 0, z: 1 });
   ship.control.turn(1);
   step(ship, 0.1);
@@ -98,10 +108,13 @@ void test('Neutral preserves linear/angular momentum and manual engine off remov
   ship.dispose();
 });
 void test('Body heading redirects new ship-local thrust without rotating existing world momentum', () => {
-  const ship = new Ship({
-    ...small,
-    power: { ...small.power, reactorOutputW: 1000 },
-  });
+  const ship = new Ship(
+    {
+      ...small,
+      power: { ...small.power, reactorOutputW: 1000 },
+    },
+    initial,
+  );
   ship.control.turn(1);
   step(ship, 1); // yaw = 1 rad, yaw rate = 2 rad/s
   close(ship.telemetry.body.yawRadians, 1);
@@ -117,7 +130,7 @@ void test('Body heading redirects new ship-local thrust without rotating existin
   ship.dispose();
 });
 void test('Diagonal translation is normalized and shares one engine activity allocation with yaw', () => {
-  const ship = new Ship(small);
+  const ship = new Ship(small, initial);
   ship.control.thrust({ x: 1, y: 1, z: 1 });
   ship.control.turn(1);
   step(ship, 1);
@@ -129,8 +142,14 @@ void test('Diagonal translation is normalized and shares one engine activity all
 });
 void test('Scene facade owns independent ship lifetimes; telemetry is a coherent immutable committed tick', () => {
   const stage = new Stage2D({ fixed: true });
-  const first = stage.entity(() => new Ship(), { id: 'first' });
-  const second = stage.entity(() => new Ship(), { id: 'second' });
+  const first = stage.entity(
+    () => new Ship(starterSetup.profile, starterSetup.initialState),
+    { id: 'first' },
+  );
+  const second = stage.entity(
+    () => new Ship(starterSetup.profile, starterSetup.initialState),
+    { id: 'second' },
+  );
   first.control.thrust({ x: 0, y: 0, z: 1 });
   const previous = first.telemetry;
   stage.fixedUpdate!(0.1, { dt: 0.1, tick: 1, time: 0.1 });
@@ -150,16 +169,30 @@ void test('Scene facade owns independent ship lifetimes; telemetry is a coherent
 });
 void test('Invalid commands/profiles fail before simulation side effects', () => {
   assert.throws(
-    () => new Ship({ ...starterShip, body: { massKg: 0, yawInertiaKgM2: 2 } }),
-  );
-  assert.throws(
-    () => new Ship({ ...small, engine: { ...small.engine, fullThrustW: NaN } }),
+    () =>
+      new Ship(
+        {
+          ...starterSetup.profile,
+          body: { ...starterSetup.profile.body, massKg: 0 },
+        },
+        starterSetup.initialState,
+      ),
   );
   assert.throws(
     () =>
-      new Ship({ ...small, engine: { ...small.engine, restartEnergyJ: 101 } }),
+      new Ship(
+        { ...small, engine: { ...small.engine, fullThrustW: NaN } },
+        initial,
+      ),
   );
-  const ship = new Ship(small);
+  assert.throws(
+    () =>
+      new Ship(
+        { ...small, engine: { ...small.engine, restartEnergyJ: 101 } },
+        initial,
+      ),
+  );
+  const ship = new Ship(small, initial);
   assert.throws(() => ship.control.thrust({ x: NaN, y: 0, z: 0 }));
   assert.throws(() => ship.control.turn(2));
   const before = ship.telemetry;

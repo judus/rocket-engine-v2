@@ -1,3 +1,5 @@
+import { numberIn, validatePowerProfile } from './ShipProfiles.js';
+import type { PowerPlantProfile } from './ShipProfiles.js';
 import type { Behavior } from '../../src/index.js';
 import { World } from '../../src/ECS.js';
 import {
@@ -9,11 +11,6 @@ import {
   shipPowerSystem,
 } from '../../examples/ship/ShipPower.js';
 
-export interface PowerPlantProfile {
-  capacityJ: number;
-  initialEnergyJ: number;
-  reactorOutputW: number;
-}
 export interface PowerReading {
   readonly requested: boolean;
   readonly energyJ: number;
@@ -30,18 +27,6 @@ export interface PowerPort {
   };
   dispose(): void;
 }
-export function numberIn(
-  name: string,
-  value: number,
-  min: number,
-  max = 1e30,
-): number {
-  if (!Number.isFinite(value) || value < min || value > max)
-    throw new RangeError(
-      `${name} must be finite and between ${min} and ${max}`,
-    );
-  return value;
-}
 /** Typed attached adapter over the existing application-owned J/W ledger. */
 export class ShipPowerPlant implements Behavior {
   #world = new World();
@@ -49,11 +34,13 @@ export class ShipPowerPlant implements Behavior {
   #reactor = this.#world.create();
   #disposed = false;
   #requested = true;
-  constructor(profile: PowerPlantProfile) {
-    const capacityJ = numberIn('capacityJ', profile.capacityJ, 1);
+  readonly profile: Readonly<PowerPlantProfile>;
+  constructor(profile: Readonly<PowerPlantProfile>, initialEnergyJ: number) {
+    this.profile = validatePowerProfile(profile);
+    const capacityJ = this.profile.capacityJ;
     this.#world.set(this.#ship, EnergyReserve, {
       capacityJ,
-      energyJ: numberIn('initialEnergyJ', profile.initialEnergyJ, 0, capacityJ),
+      energyJ: numberIn('initialEnergyJ', initialEnergyJ, 0, capacityJ),
       generationW: 0,
       consumptionW: 0,
       spillW: 0,
@@ -64,7 +51,7 @@ export class ShipPowerPlant implements Behavior {
       state: 'off',
     });
     this.#world.set(this.#reactor, Reactor, {
-      outputW: numberIn('reactorOutputW', profile.reactorOutputW, 0),
+      outputW: this.profile.reactorOutputW,
     });
   }
   onAttach(): undefined {}

@@ -5,7 +5,8 @@ import type { BodyReading } from './ShipBody.js';
 import { ShipControl } from './ShipControl.js';
 import { ShipEngine } from './ShipEngine.js';
 import type { EngineReading } from './ShipEngine.js';
-import { ShipPowerPlant, numberIn } from './ShipPowerPlant.js';
+import { ShipPowerPlant } from './ShipPowerPlant.js';
+import { numberIn } from './ShipProfiles.js';
 import type { PowerReading } from './ShipPowerPlant.js';
 
 export interface ShipTelemetry {

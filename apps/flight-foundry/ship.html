@@ -67,7 +67,7 @@
         ><a href="./ship.html" aria-current="page">Assembled ship</a>
       </nav>
     </header>
-    <main>
+    <main id="ship-ui" inert>
       <section class="panel">
         <h2>Ship commands</h2>
         <p class="muted">
@@ -132,11 +132,8 @@ ship
 ├─ power      owns reserve and allocation
 ├─ engine     requests power, delivers thrust/torque
 └─ movement   orders one fixed simulation step</pre>
-        <p class="muted">
-          100,000 kg · 1 MN full thrust · 5 GW reactor · 200 GJ reserve
-          capacity. The engine draws 10 MW standby + up to 20 GW translation and
-          1 GW yaw. Demonstration profiles, not settled balance.
-        </p>
+        <p id="installed" class="muted"></p>
+        <p id="ship-specs" class="muted"></p>
       </section>
       <section class="panel log">
         <h2>Supply &amp; motion history</h2>

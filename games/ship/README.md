@@ -7,7 +7,12 @@ Open <http://localhost:8092/apps/flight-foundry/ship.html> after the usual `npm 
 ```ts
 const runtime = new Rocket({ fixed: { step: 1 / 60, maxSteps: 12 } });
 const stage = runtime.scene(new Stage2D({ fixed: true }), { keepAlive: true });
-const ship = stage.entity(() => new Ship(starterShip), { id: 'science-ship' });
+const setup = await loadShipSetup(
+  new URL('/games/ship/ships/science-ship.json', location.href),
+);
+const ship = stage.entity(() => new Ship(setup.profile, setup.initialState), {
+  id: setup.profile.id,
+});
 
 ship.control.thrust({ x: 0, y: 0, z: 1 }); // persistent ship-local intent
 ship.control.turn(0.5); // yaw intent, not a forced orientation
@@ -47,3 +52,15 @@ Implemented: actual attached body/control/power/engine/movement, 3D translation,
 Not implemented: dampers/capture integration, heat/cooling, injury/damage, cargo, collision, pitch/roll or general rigid-body dynamics, keyboard/mouse input handover, runtime equipment replacement, or the cockpit presentation adapter. The earlier capture-response calculation remains an experiment; it is not secretly attached as a fully supplied damper. These modules establish the assembly on which later slices can build.
 
 `npm run check` includes `tests/ship-architecture.test.ts`: actual engine/power/body outcomes, resource conservation, final partial versus zero supply, baseline admission/recharge, manual switches/coasting, yaw/thrust frames, normalized combined demand, independent ship lifetimes, coherent observations and fail-before-side-effect boundaries. Render-rate foundations are existing Rocket tests. Browser checks inspect the telemetry page; this is not a full game or real-device certification.
+
+## Equipment JSON and initial state
+
+The assembled ship now loads its data from `ships/science-ship.json`. That definition references three independently editable equipment files in `profiles/`: `hull-starter.json`, `reactor-starter.json`, and `engine-starter.json`. Identifiers are explicit, lowercase, and must match their file reference. The typed, frozen profile is available through `ship.body.profile`, `ship.power.profile`, and `ship.engine.profile`. No starter equipment values remain compiled into the ship class.
+
+Starting charge and velocity live under the ship definition's `initialState`, separately from equipment specifications. Two ships can use the same equipment with different charge/velocity. This is a scene initialization document, not a completed save-game or runtime equipment installation format. Requested switches, reserve and motion evolve in their components and never rewrite JSON definitions.
+
+`loadShipSetup()` fetches the definition, loads all referenced profiles, strictly validates exact fields, JSON numeric types, ranges, ids and loadout constraints, then returns an immutable setup. Invalid/missing JSON fails before entity attachment. There is no fallback profile, silent clamping, schema alias or older-format reader. The telemetry controls remain unavailable until loading succeeds; errors are shown on the page. Its equipment IDs and displayed specifications come from the loaded profiles.
+
+To tune the demonstration, edit the relevant JSON and reload the telemetry page; `Reset ship` repeats the already loaded setup without fetching new data or pretending to install equipment in flight. JSON is served from the source `games/ship/` directory by the existing repository-root server; it is not copied into `dist`. Component code still owns calculations. Changing a coefficient changes the corresponding calculation input; a new mechanism still needs code.
+
+`tests/ship-profiles.test.ts` reads the actual checked-in JSON and tests invalid documents, missing files, wrong ids, incompatible restart/charge values, independent initial state and an edited engine profile producing different motion. The same JSON files feed the existing architecture tests.

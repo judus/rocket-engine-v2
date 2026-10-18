@@ -1,6 +1,8 @@
 import { Rocket } from '../../src/index.js';
 import { Stage2D } from '../../src/experimental/index.js';
 import { Ship } from '../../games/ship/Ship.js';
+import { loadShipSetup } from '../../games/ship/loadShipSetup.js';
+import type { ShipSetup } from '../../games/ship/ShipProfiles.js';
 import type { ShipTelemetry } from '../../games/ship/ShipMovement.js';
 
 function find<T extends HTMLElement>(id: string): T {
@@ -8,6 +10,7 @@ function find<T extends HTMLElement>(id: string): T {
   if (!node) throw new Error(`Missing ship lab element ${id}`);
   return node;
 }
+let setup: Readonly<ShipSetup>;
 let runtime: Rocket | undefined;
 let stage: Stage2D;
 let ship: Ship;
@@ -53,7 +56,10 @@ function reset(): void {
       }
     },
   });
-  ship = stage.entity(() => new Ship(), { id: 'science-ship', tags: ['ship'] });
+  ship = stage.entity(() => new Ship(setup.profile, setup.initialState), {
+    id: setup.profile.id,
+    tags: ['ship'],
+  });
   runtime = new Rocket({
     fixed: { step: 1 / 60, maxSteps: 12 },
     onError: fail,
@@ -66,6 +72,11 @@ function reset(): void {
   find<HTMLInputElement>('#reactor').checked = true;
   find('#message').textContent = '';
   neutral();
+  const p = setup.profile;
+  find('#installed').textContent =
+    `Installed: ${p.body.id} · ${p.power.id} · ${p.engine.id}`;
+  find('#ship-specs').textContent =
+    `${p.body.massKg.toLocaleString('en')} kg · ${p.engine.maxThrustN / 1e6} MN thrust · ${p.power.reactorOutputW / 1e9} GW reactor · ${p.power.capacityJ / 1e9} GJ reserve capacity. Engine: ${p.engine.baselineW / 1e6} MW baseline + ${p.engine.fullThrustW / 1e9} GW translation + ${p.engine.fullYawW / 1e9} GW yaw. Loaded from JSON; demonstration balance.`;
   paint();
 }
 const fmt = (value: number) =>
@@ -172,4 +183,14 @@ window.addEventListener(
   },
   { once: true },
 );
-reset();
+find('#message').textContent =
+  'Loading ship definition and equipment profiles…';
+void loadShipSetup(
+  new URL('../../games/ship/ships/science-ship.json', window.location.href),
+)
+  .then((loaded) => {
+    setup = loaded;
+    reset();
+    find('#ship-ui').inert = false;
+  })
+  .catch(fail);

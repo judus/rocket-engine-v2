@@ -1,0 +1,9 @@
+{
+  "id": "engine-starter",
+  "maxThrustN": 1000000,
+  "maxYawTorqueNm": 10000000,
+  "baselineW": 10000000,
+  "fullThrustW": 20000000000,
+  "fullYawW": 1000000000,
+  "restartEnergyJ": 20000000000
+}

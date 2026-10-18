@@ -1,11 +1,8 @@
 import type { Behavior } from '../../src/index.js';
 import type { Vec3 } from '../../src/3d/index.js';
-import { numberIn } from './ShipPowerPlant.js';
+import { numberIn, validateBodyProfile } from './ShipProfiles.js';
+import type { BodyProfile } from './ShipProfiles.js';
 
-export interface BodyProfile {
-  massKg: number;
-  yawInertiaKgM2: number;
-}
 export interface BodyReading {
   readonly positionM: Readonly<Vec3>;
   readonly velocityMps: Readonly<Vec3>;
@@ -24,8 +21,13 @@ export function copyVector(
 }
 /** Sole motion owner. Translational Newtonian integration + one yaw inertia axis. */
 export class ShipBody implements Behavior {
-  readonly massKg: number;
-  readonly yawInertiaKgM2: number;
+  readonly profile: Readonly<BodyProfile>;
+  get massKg() {
+    return this.profile.massKg;
+  }
+  get yawInertiaKgM2() {
+    return this.profile.yawInertiaKgM2;
+  }
   #position = zeroVector();
   #velocity: ReturnType<typeof zeroVector>;
   #acceleration = zeroVector();
@@ -35,12 +37,7 @@ export class ShipBody implements Behavior {
     profile: BodyProfile,
     initialVelocity: Readonly<Vec3> = zeroVector(),
   ) {
-    this.massKg = numberIn('massKg', profile.massKg, 1e-6);
-    this.yawInertiaKgM2 = numberIn(
-      'yawInertiaKgM2',
-      profile.yawInertiaKgM2,
-      1e-6,
-    );
+    this.profile = validateBodyProfile(profile);
     this.#velocity = copyVector(initialVelocity, 'initialVelocity');
   }
   onAttach(): undefined {}

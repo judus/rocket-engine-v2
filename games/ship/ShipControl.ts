@@ -1,7 +1,7 @@
 import type { Behavior } from '../../src/index.js';
 import type { Vec3 } from '../../src/3d/index.js';
 import { copyVector, zeroVector } from './ShipBody.js';
-import { numberIn } from './ShipPowerPlant.js';
+import { numberIn } from './ShipProfiles.js';
 
 export interface ShipIntent {
   readonly thrust: Readonly<Vec3>;

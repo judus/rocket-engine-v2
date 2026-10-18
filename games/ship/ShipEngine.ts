@@ -2,17 +2,11 @@ import type { Behavior } from '../../src/index.js';
 import type { Vec3 } from '../../src/3d/index.js';
 import type { ShipIntent } from './ShipControl.js';
 import { zeroVector } from './ShipBody.js';
-import { ShipPowerPlant, numberIn } from './ShipPowerPlant.js';
+import { ShipPowerPlant } from './ShipPowerPlant.js';
+import { validateEngineProfile } from './ShipProfiles.js';
+import type { EngineProfile } from './ShipProfiles.js';
 import type { PowerPort } from './ShipPowerPlant.js';
 
-export interface EngineProfile {
-  maxThrustN: number;
-  maxYawTorqueNm: number;
-  baselineW: number;
-  fullThrustW: number;
-  fullYawW: number;
-  restartEnergyJ: number;
-}
 export interface EngineReading {
   readonly requested: boolean;
   readonly state: 'off' | 'online' | 'limited' | 'waiting-for-charge';
@@ -40,24 +34,7 @@ export class ShipEngine implements Behavior {
     yawTorqueNm: 0,
   });
   constructor(profile: EngineProfile, power: ShipPowerPlant) {
-    const fields = [
-      'maxThrustN',
-      'maxYawTorqueNm',
-      'baselineW',
-      'fullThrustW',
-      'fullYawW',
-      'restartEnergyJ',
-    ] as const;
-    for (const key of fields) numberIn(key, profile[key], 0);
-    if (
-      profile.baselineW <= 0 ||
-      profile.fullThrustW <= 0 ||
-      profile.fullYawW <= 0
-    )
-      throw new RangeError(
-        'Engine baseline and full-operation watts must be positive',
-      );
-    this.profile = Object.freeze({ ...profile });
+    this.profile = validateEngineProfile(profile);
     this.#power = power;
     this.requires = [power];
   }

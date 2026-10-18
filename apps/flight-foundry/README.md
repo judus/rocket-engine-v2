@@ -55,3 +55,5 @@ The next model slice is [documented separately](../../docs/SHIP-CAPTURE-MODEL.md
 ## Assembled ship telemetry
 
 Open <http://localhost:8092/apps/flight-foundry/ship.html> for the actual attached ship architecture, separate from the analytical curve tools. It runs game-owned control, engine, power and movement capabilities, with resource-limited Newtonian motion. See [the ship assembly documentation](../../games/ship/README.md).
+
+The assembled ship loads its equipment from `games/ship/profiles/*.json`, referenced by `games/ship/ships/science-ship.json`. Edit the JSON and reload to tune definitions; Reset repeats the loaded setup. Starting charge/velocity are separate initial-state data.
