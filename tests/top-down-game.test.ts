@@ -9,6 +9,7 @@ import { Explorer, SupplyPatrol } from '../games/top-down/Explorer.js';
 import { SupplyPickup } from '../games/top-down/Pickups.js';
 import { PlatformerSolver } from '../games/platformer/PlatformerPhysics.js';
 import { Runner } from '../games/platformer/Runner.js';
+import { courtyard, scoutRoute } from '../games/top-down/level.js';
 
 const frame = { dt: 1 / 60, time: 1 / 60, tick: 1 };
 function setup(
@@ -337,4 +338,54 @@ void test('bad configuration and foreign component dependencies fail before game
   assert.equal(a.body.steps, steps);
   a.dispose();
   s.stage.dispose();
+});
+
+void test('actual courtyard scout completes repeated laps without stalling, including with a full bag', () => {
+  const stage = new Stage2D({ fixed: true });
+  const world = new TopDownWorld(courtyard);
+  const supply = stage.entity(
+    () => new SupplyPickup({ x: 200, y: 130, quantity: 3 }),
+  );
+  const scout = stage.entity(
+    () =>
+      new Explorer({
+        x: 200,
+        y: 130,
+        color: 'gold',
+        world,
+        pickups: () => [supply],
+        width: 34,
+        height: 30,
+        speed: 110,
+        capacity: 3,
+      }),
+  );
+  scout.attach(new SupplyPatrol(scout.movement, scout.interaction, scoutRoute));
+  const visits = scoutRoute.map(() => 0);
+  let distanceWithFullBag = 0;
+  for (let i = 0; i < 3600; i++) {
+    const { x, y } = scout;
+    stage.fixedUpdate!(1 / 60, frame);
+    const travelled = Math.hypot(scout.x - x, scout.y - y);
+    assert.ok(
+      travelled > 0.1,
+      `scout stalled at (${scout.x}, ${scout.y}) on tick ${i}`,
+    );
+    if (scout.inventory.used === scout.inventory.capacity)
+      distanceWithFullBag += travelled;
+    scoutRoute.forEach((point, index) => {
+      if (Math.hypot(scout.x - point.x, scout.y - point.y) < 7)
+        visits[index]!++;
+    });
+  }
+  assert.equal(scout.inventory.used, 3);
+  assert.ok(
+    visits.every((count) => count >= 2),
+    'every route corner is reached on multiple laps',
+  );
+  assert.ok(
+    distanceWithFullBag > 6000,
+    'full inventory never stops the patrol',
+  );
+  stage.dispose();
 });

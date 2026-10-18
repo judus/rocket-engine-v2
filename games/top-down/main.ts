@@ -2,15 +2,9 @@ import { createApp } from '../../src/experimental/index.js';
 import { TopDownWorld } from './TopDownPhysics.js';
 import { Explorer, SupplyPatrol } from './Explorer.js';
 import { SupplyPickup } from './Pickups.js';
+import { courtyard, scoutRoute } from './level.js';
 
-const world = new TopDownWorld({
-  bounds: { x: 24, y: 76, width: 912, height: 440 },
-  obstacles: [
-    { x: 396, y: 200, width: 168, height: 140 },
-    { x: 90, y: 230, width: 150, height: 60 },
-    { x: 720, y: 230, width: 150, height: 60 },
-  ],
-});
+const world = new TopDownWorld(courtyard);
 const pickups: SupplyPickup[] = [];
 const bags = document.querySelector<HTMLOutputElement>('#bags')!;
 const feedback = document.querySelector<HTMLOutputElement>('#feedback')!;
@@ -132,14 +126,7 @@ function createScout(): Explorer {
       }),
     { id: 'scout', tags: ['actor'] },
   );
-  actor.attach(
-    new SupplyPatrol(actor.movement, actor.interaction, [
-      { x: 200, y: 130 },
-      { x: 810, y: 130 },
-      { x: 810, y: 425 },
-      { x: 200, y: 425 },
-    ]),
-  );
+  actor.attach(new SupplyPatrol(actor.movement, actor.interaction, scoutRoute));
   return actor;
 }
 const controls = app.input(stage, {
