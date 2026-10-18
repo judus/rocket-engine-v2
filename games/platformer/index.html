@@ -68,9 +68,10 @@
     <button id="courier" type="button">Remove courier</button>
     <output id="status" aria-live="off"></output>
     <p>
-      The player and courier use <code>runner.movement</code>. Input and AI
-      supply intent; Rocket runs movement and travel tracking automatically on
-      its fixed clock. Removing an entity removes its capabilities too.
+      The player and courier use <code>runner.movement</code> with different
+      body sizes and movement settings. Input and AI supply intent; one shared
+      solver handles gravity and collisions on Rocket’s fixed clock. Removing an
+      entity removes its capabilities too.
     </p>
     <script type="module" src="../../dist/games/platformer/main.js"></script>
   </body>

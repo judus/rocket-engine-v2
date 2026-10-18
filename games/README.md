@@ -7,13 +7,34 @@ Rendering and feature probes stay in `examples/` and the existing root pages. Sm
 The platformer uses the existing Rocket facades and entity tree:
 
 ```ts
-class Runner extends Node2D {
-  readonly movement = this.attach(new PlatformerMovement());
-  readonly travel = this.attach(new TravelLog(this.movement));
+const app = createApp({ runtime: { fixed: {} } });
+const solver = app.stage.layer('world').attach(
+  new PlatformerSolver({
+    platforms: [{ x: 0, y: 480, width: 2400, height: 60 }],
+    gravity: 1400,
+    bounds: { left: 0, right: 2400 },
+  }),
+);
+
+class Fighter extends Node2D {
+  readonly body = this.attach(
+    new PlatformerBody({
+      width: 24,
+      height: 32,
+      solver,
+    }),
+  );
+  readonly movement = this.attach(
+    new PlatformerMovement({
+      body: this.body,
+      speed: 180,
+      runSpeed: 300,
+      jumpSpeed: 600,
+    }),
+  );
 }
 
-const app = createApp({ runtime: { fixed: {} } });
-const hero = app.stage.entity(() => new Runner(80, '#8ce4cf'));
+const hero = app.stage.entity(() => new Fighter({ x: 80, y: 480 }));
 hero.movement.move(1);
 hero.movement.jump();
 ```
@@ -22,7 +43,19 @@ hero.movement.jump();
 
 Input and AI supply intent through the same movement methods. Rocket runs the attached fixed work; the game does not manually step each character. `main.ts` connects player input through `app.input()`. The courier instead attaches `Patrol`.
 
-The movement capability intentionally reuses the small static-platform solver from the input demo. This is a game example, not a universal physics controller: fixed platforms, axis-aligned boxes, local pixel coordinates, no slopes or moving platforms. Existing physics services remain independent. Building further games will show which movement implementations deserve a shared catalogue.
+## Configurable platformer pieces
+
+- `PlatformerBody({ width, height, solver })` owns shape, velocity, grounded state and fixed-step count. Its position is the centre of the character's feet, with positive Y down. It claims the entity's position writer and registers/unregisters with its solver on attachment/disposal.
+- `PlatformerMovement({ body, speed = 180, runSpeed = 300, jumpSpeed = 600 })` only maps intent to horizontal velocity and jump requests. It has a same-entity body dependency, no platform list, dimensions, collision checks or position writes. Airborne jump presses are not buffered. Removing movement stops horizontal drive; a retained body still falls.
+- `PlatformerSolver({ platforms, gravity, bounds: { left, right } })` is attached once to the common world layer. It applies gravity and resolves collisions for that layer's bodies using their configured dimensions. Geometry is validated and copied at construction. Physics settings use local pixels and seconds.
+
+The player is 24×32 with speed/run/jump settings 180/300/600; the courier is 40×48 with settings 150/240/650. Both use the same capability classes and one solver. `main.ts` configures them through `stage.entity()`. Their visuals use the same dimensions as their collision boxes for this example; sprites need not match collision bounds in a game.
+
+Fixed work runs in this order: input hook → AI intent (-20) → movement (-10) → shared solver (0) → travel observation (10). No additional clock or per-character manual stepping is needed.
+
+This is a deliberately small game-level solver, not a universal physics controller. Bodies must be direct children of their untransformed solver layer; platforms are static axis-aligned boxes. There are no body/body collisions, slopes, moving platforms or rotation. Detached bodies stop simulating; moving a body into another world does not silently rebind its solver. Recreate it with the new solver. Disposing a body unregisters it, and disposing the solver invalidates retained body/movement commands. Configuration is supplied at construction; recreate components to change their configuration.
+
+The existing input platformer and this game now share the same pure collision calculation in `solvePlatformer.ts`; the old input demo keeps its input-testing interface. Existing engine physics services remain independent. Further game examples will show which modules deserve an engine catalogue.
 
 ## Engine contract
 

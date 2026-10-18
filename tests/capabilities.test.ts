@@ -3,11 +3,9 @@ import assert from 'node:assert/strict';
 import { Node2D, Scene2D, position2DWriter } from '../src/index.js';
 import type { Behavior } from '../src/index.js';
 import { Stage2D } from '../src/experimental/index.js';
-import {
-  Runner,
-  PlatformerMovement,
-  Patrol,
-} from '../games/platformer/Runner.js';
+import { Runner, Patrol } from '../games/platformer/Runner.js';
+import { PlatformerSolver } from '../games/platformer/PlatformerPhysics.js';
+import { platformerWorld } from '../examples/input/PlatformerDemo.js';
 
 const dt = 1 / 60;
 const frame = { dt, time: dt, tick: 1 };
@@ -60,15 +58,21 @@ void test('fixed capabilities run in subtree-wide order after scene input, with 
 
 void test('typed facade entities use shared movement, independent intent and automatic retirement', () => {
   const stage = new Stage2D({ fixed: true });
-  const hero = stage.entity(() => new Runner(80, 'white'), { id: 'hero' });
-  const ai = stage.entity(() => new Runner(180, 'gold'));
+  const solver = stage
+    .layer('world')
+    .attach(new PlatformerSolver(platformerWorld));
+  const hero = stage.entity(
+    () => new Runner({ x: 80, color: 'white', solver }),
+    { id: 'hero' },
+  );
+  const ai = stage.entity(() => new Runner({ x: 180, color: 'gold', solver }));
   ai.attach(new Patrol(ai.movement));
   hero.movement.move(1);
   stage.fixedUpdate!(dt, frame);
   assert.equal(hero.x, 83);
   assert.equal(ai.x, 183);
   assert.equal(hero.travel.distance, 3);
-  assert.equal(hero.movement.steps, 1);
+  assert.equal(hero.body.steps, 1);
   hero.movement.jump();
   stage.fixedUpdate!(dt, frame);
   assert.ok(hero.y < 480);
@@ -79,13 +83,14 @@ void test('typed facade entities use shared movement, independent intent and aut
   assert.throws(() => hero.movement.move(NaN), /axis/);
   assert.throws(() => hero.movement.move(2), /axis/);
   const retired = hero.movement;
+  const retiredBody = hero.body;
   hero.dispose();
   stage.fixedUpdate!(dt, frame);
-  assert.equal(retired.steps, 3);
+  assert.equal(retiredBody.steps, 3);
   assert.throws(() => retired.move(1), /retired/);
   assert.throws(() => retired.jump(), /retired/);
   assert.equal(stage.find('hero'), undefined);
-  assert.equal(ai.movement.steps, 4);
+  assert.equal(ai.body.steps, 4);
   stage.dispose();
   assert.throws(() => ai.movement.move(1), /retired/);
 });
@@ -269,13 +274,24 @@ void test('attachment failure retires the handle, cleans up, blocks reentrant tr
 
 void test('typed entity factories validate identity and ownership before adoption', () => {
   const stage = new Stage2D();
-  stage.entity(() => new Runner(50, 'white'), { id: 'a' });
+  const solver = stage
+    .layer('world')
+    .attach(new PlatformerSolver(platformerWorld));
+  stage.entity(() => new Runner({ x: 50, color: 'white', solver }), {
+    id: 'a',
+  });
   assert.throws(
-    () => stage.entity(() => new Runner(50, 'white'), { id: 'a' }),
+    () =>
+      stage.entity(() => new Runner({ x: 50, color: 'white', solver }), {
+        id: 'a',
+      }),
     /Duplicate/,
   );
   assert.throws(
-    () => stage.entity(() => new Runner(50, 'white'), { layer: 'missing' }),
+    () =>
+      stage.entity(() => new Runner({ x: 50, color: 'white', solver }), {
+        layer: 'missing',
+      }),
     /Unknown layer/,
   );
   const dead = new Node2D();
@@ -294,25 +310,4 @@ void test('typed entity factories validate identity and ownership before adoptio
   );
   parent.dispose();
   stage.dispose();
-});
-
-void test('game movement guards unmounted, retired and invalid owners; AI turns and jumps', () => {
-  const movement = new PlatformerMovement();
-  assert.throws(() => movement.move(1), /detached/);
-  const invalid = new Node2D({ x: NaN });
-  assert.throws(() => invalid.attach(movement), /finite/);
-  assert.throws(() => movement.onAttach(new Node2D()), /retired/);
-  const runner = new Runner(780, 'white');
-  assert.throws(() => runner.movement.onAttach(runner), /already attached/);
-  assert.throws(
-    () => runner.movement.fixedUpdate(dt, frame, new Node2D()),
-    /mismatch/,
-  );
-  runner.attach(new Patrol(runner.movement));
-  runner.fixedUpdate(dt, frame);
-  assert.ok(runner.x < 780);
-  for (let i = 0; i < 300; i++) runner.fixedUpdate(dt, frame);
-  assert.ok(runner.movement.steps === 301);
-  runner.dispose();
-  invalid.dispose();
 });

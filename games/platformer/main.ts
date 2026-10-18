@@ -1,5 +1,9 @@
 import { createApp, followCamera } from '../../src/experimental/index.js';
-import { platformerBlocks } from '../../examples/input/PlatformerDemo.js';
+import {
+  platformerBlocks,
+  platformerWorld,
+} from '../../examples/input/PlatformerDemo.js';
+import { PlatformerSolver } from './PlatformerPhysics.js';
 import { Runner, Patrol } from './Runner.js';
 
 const status = document.querySelector<HTMLOutputElement>('#status')!;
@@ -21,7 +25,7 @@ const app = createApp({
       halfLife: 0.12,
       bounds: { x: 0, y: 0, width: 2400, height: 540 },
     });
-    status.value = `Player: ${hero.travel.distance.toFixed(0)} px travelled · ${hero.movement.grounded ? 'grounded' : 'airborne'} · ${hero.movement.steps} fixed steps | Courier: ${courier ? `${courier.movement.steps} steps` : 'removed — no updates'}`;
+    status.value = `Player ${hero.body.width}×${hero.body.height}: ${hero.travel.distance.toFixed(0)} px travelled · ${hero.body.grounded ? 'grounded' : 'airborne'} · ${hero.body.steps} fixed steps | Courier: ${courier ? `${courier.body.width}×${courier.body.height} · ${courier.body.steps} steps` : 'removed — no updates'}`;
   },
   render(ctx): undefined {
     ctx.fillStyle = '#102735';
@@ -37,11 +41,15 @@ const app = createApp({
     }
     ctx.fillStyle = '#9cb9c2';
     ctx.font = '16px system-ui';
-    ctx.fillText('YOU', hero.x - 15, hero.y - 46);
-    if (courier) ctx.fillText('AI', courier.x - 8, courier.y - 46);
+    ctx.fillText('YOU', hero.x - 15, hero.y - hero.body.height - 14);
+    if (courier)
+      ctx.fillText('AI', courier.x - 8, courier.y - courier.body.height - 14);
   },
 });
 const stage = app.stage;
+const solver = stage
+  .layer('world')
+  .attach(new PlatformerSolver(platformerWorld));
 stage.addLayer('hud', { space: 'screen' });
 stage.add({
   layer: 'hud',
@@ -51,16 +59,38 @@ stage.add({
     ctx.fillText('One movement capability. Two different controllers.', 28, 44);
   },
 });
-const hero = stage.entity(() => new Runner(80, '#8ce4cf'), {
-  id: 'player',
-  tags: ['actor'],
-});
+const hero = stage.entity(
+  () =>
+    new Runner({
+      x: 80,
+      color: '#8ce4cf',
+      solver,
+      width: 24,
+      height: 32,
+      movement: { speed: 180, runSpeed: 300, jumpSpeed: 600 },
+    }),
+  {
+    id: 'player',
+    tags: ['actor'],
+  },
+);
 let courier: Runner | null = createCourier();
 function createCourier(): Runner {
-  const runner = stage.entity(() => new Runner(180, '#efbe78'), {
-    id: 'courier',
-    tags: ['actor'],
-  });
+  const runner = stage.entity(
+    () =>
+      new Runner({
+        x: 180,
+        color: '#efbe78',
+        solver,
+        width: 40,
+        height: 48,
+        movement: { speed: 150, runSpeed: 240, jumpSpeed: 650 },
+      }),
+    {
+      id: 'courier',
+      tags: ['actor'],
+    },
+  );
   runner.attach(new Patrol(runner.movement));
   return runner;
 }
