@@ -179,7 +179,7 @@ At zero health the engine reports `failed`, requests no power and produces no th
 
 Dampers receive the nominal engine preview and apply the final combined power/condition factor once. This prevents assisted flight from silently restoring full propulsion or applying health degradation twice. Failed engines cannot obtain propulsion through dampers, although powered dampers retain their existing ability to brake drift.
 
-The lab's module matrix gains a Health column; engine and reactor health are modeled; cooling, dampers and shields are still pending. Other rows show a dash rather than fabricated condition values. Dedicated engine damage, failure, partial repair and full repair controls are lab commands: they bypass shields/hull and charge no resources, and require Run/Single step to commit. There is no automatic repair or regeneration. Hull overflow, collisions, weapon hits and overheating do not select or damage modules yet. Failure propagation, permanent destruction/salvage, repair costs and health for cooling/shields/dampers/navigation/computer remain separate game rules/slices.
+The lab's module matrix gains a Health column; engine, reactor and cooling health are modeled; dampers and shields are still pending. Other rows show a dash rather than fabricated condition values. Dedicated engine damage, failure, partial repair and full repair controls are lab commands: they bypass shields/hull and charge no resources, and require Run/Single step to commit. There is no automatic repair or regeneration. Hull overflow, collisions, weapon hits and overheating do not select or damage modules yet. Failure propagation, permanent destruction/salvage, repair costs and health for shields/dampers/navigation/computer remain separate game rules/slices.
 
 `tests/ship-module-health.test.ts` verifies ordered/clamped commands and boundary failures, immutable snapshots, configured degradation, actual force/torque and power accounting, combined power/condition limits, inertial coasting at failure, no switch bypass, repair/startup/thermal interactions, assisted-flight scaling and independent lifetimes. Loadout tests validate health JSON and initial bounds. All maintained ship fixtures use the required new initial-health field.
 
@@ -199,6 +199,26 @@ Zero health reports `failed`, disables generation and starter demand, retains th
 
 Repairing failure with a reserve initiates the normal powered manual start. Repair does not erase temperature, thermal trips or longer emergency delays. If a failed/unavailable reactor has reached zero reserve, the emergency penalty latches as before, but independent ignition cannot repair broken hardware. The timer resumes only after health is repaired and existing requested/temperature conditions permit it. Recovery generation remains health-limited, so damage can make reserve recovery slower. Failing again during reduced-output recovery reinstates the full emergency restart delay; repair cannot immediately resume that output. Repairing a reactor switched off does not enable its switch.
 
-Flight Foundry now shows reactor health in the module matrix and provides reactor damage, failure, partial repair and full repair commands alongside the engine controls. These are still explicit lab commands applied on the next step, bypassing shields/hull and using no repair resources. Cooling, dampers and shields do not yet have module-health effects; their independent condition instances are subsequent slices.
+Flight Foundry now shows reactor health in the module matrix and provides reactor damage, failure, partial repair and full repair commands alongside the engine controls. These are still explicit lab commands applied on the next step, bypassing shields/hull and using no repair resources. Dampers and shields do not yet have module-health effects; their independent condition instances are subsequent slices.
 
 `tests/ship-reactor-health.test.ts` proves reduced/nonlinear generation, actual heat and electrical accounting, reserve-funded propulsion after reactor failure, manual startup and retained thermal trips after repair, failed/empty ignition gating, health-scaled emergency recovery, failure during reduced-output recovery, boundary validation and independent/disposed lifetimes. Existing actual-JSON emergency scenarios remain covered with full default health.
+
+## Cooling health: one degraded shared circuit
+
+`ShipCooling` now owns its own `ModuleHealth` instance. Its JSON profile requires `health: { maxPoints, outputExponent }`, and initialization requires `coolingHealthPoints`, bounded by its installed maximum. The starter pump uses 100 HP and linear degradation. Commands commit before cooling declares electrical demand, using the same ordered helper as engine and reactor.
+
+```ts
+ship.cooling.damage(25);
+ship.cooling.repair(25);
+const pumpHealth = ship.telemetry.cooling.health;
+```
+
+Effective removal capacity is nominal `maxCoolingW` times the existing funded pump fraction times the cooling health output fraction. A fully powered 50%-healthy starter circuit therefore removes at most 20 MW from all four modules combined. Allocation between reactor, engine, dampers and shields still shares that one budget according to heat above the sink; it does not multiply the budget per target. Per-module removed-W readings still sum to the circuit total and sink limits still apply. Electrical demand for a damaged working pump stays nominal; damage does not give it an efficiency discount. Telemetry exposes `powerFraction` separately from the combined `activityFraction` and condition.
+
+Zero health reports `failed`, requests no pump power and performs no active heat removal. Its requested-on switch remains remembered, and toggling does not repair hardware. Other modules continue generating their actual heat and may reach their existing thermal shutdown thresholds. Reactor passive cooling is independent and remains available, including during emergency recovery. Cooling failure does not directly subtract another module's health or automatically repair itself.
+
+A repair restores only the repaired capacity on the next simulation step, when the pump is requested on and actual power is supplied. A manually disabled pump remains off. This pump currently has no separate startup timer or its own temperature model; health does not invent one. Repairing cooling can lower other module temperatures but does not erase their latched trips or powered reboot delays. Module repair resources, permanent destruction and automatic fault propagation remain game-specific future work.
+
+Flight Foundry adds cooling health to the existing matrix and cooling damage/failure/partial/full repair lab buttons. Lab commands bypass shields/hull, cost no resources, and commit only through Run/Single step. Engine, reactor and cooling now have independent condition; dampers and shields remain the next two health integrations.
+
+`tests/ship-cooling-health.test.ts` covers the single four-target degraded budget, thermal/electrical conservation, multiplied power/condition limits, nonlinear profiles, zero-demand pump failure, continued passive cooling, repaired/off pump behavior, engine overheating after pump failure with retained thermal reboot, invalid inputs and independent/disposed lifetimes. The strict loadout tests cover cooling-health profiles and initial bounds.

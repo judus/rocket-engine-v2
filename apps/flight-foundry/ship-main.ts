@@ -132,7 +132,7 @@ function reset(): void {
   find('#damper-specs').textContent =
     `Assisted limit ${p.dampers.capture.assistedSpeedMps} m/s · 95% response ${p.dampers.responseSeconds} s · nominal transmitted load ${p.dampers.capture.transmittedFraction * 100}%. Capture anchor: remove ${p.dampers.capture.referenceExcessMps} m/s in ${p.dampers.capture.referenceDurationSeconds} s; higher entry speeds increase duration and curve steepness. Prototype tuning.`;
   find('#thermal-specs').textContent =
-    `Engine thermal capacity ${p.engine.thermal.heatCapacityJPerK / 1e6} MJ/K · ${p.engine.thermal.wasteHeatFraction * 100}% of supplied power becomes module heat · trip ${(p.engine.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.engine.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · manual start ${p.engine.thermal.manualStartSeconds} s / thermal reboot ${p.engine.thermal.rebootSeconds} s. Cooling: ${p.cooling.maxCoolingW / 1e6} MW removal, ${(p.cooling.baselineW + p.cooling.fullPowerW) / 1e6} MW full electrical draw.`;
+    `Engine thermal capacity ${p.engine.thermal.heatCapacityJPerK / 1e6} MJ/K · ${p.engine.thermal.wasteHeatFraction * 100}% of supplied power becomes module heat · trip ${(p.engine.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.engine.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · manual start ${p.engine.thermal.manualStartSeconds} s / thermal reboot ${p.engine.thermal.rebootSeconds} s. Cooling: ${p.cooling.maxCoolingW / 1e6} MW removal, ${(p.cooling.baselineW + p.cooling.fullPowerW) / 1e6} MW full electrical draw. Cooling health ${p.cooling.health.maxPoints} HP; removal capacity follows health fraction raised to ${p.cooling.health.outputExponent}.`;
   find('#damper-thermal-specs').textContent =
     `Damper thermal capacity ${p.dampers.thermal.heatCapacityJPerK / 1e6} MJ/K · ${p.dampers.thermal.wasteHeatFraction * 100}% supplied-power losses · trip ${(p.dampers.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.dampers.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · manual start ${p.dampers.thermal.manualStartSeconds} s / thermal reboot ${p.dampers.thermal.rebootSeconds} s. The cooler shares one removal budget across reactor, engine, dampers and shields.`;
   find('#shield-specs').textContent =
@@ -240,7 +240,7 @@ function paint(): void {
   find('#module-readings').innerHTML = modules
     .map(
       ([name, state, energy, heat]) =>
-        `<tr><th scope="row">${name}</th><td>${state}</td><td>${energy}</td><td>${heat}</td><td>${name === 'Engine' ? healthCell(t.engine.health) : name === 'Reactor' ? healthCell(t.power.health) : '—'}</td></tr>`,
+        `<tr><th scope="row">${name}</th><td>${state}</td><td>${energy}</td><td>${heat}</td><td>${name === 'Engine' ? healthCell(t.engine.health) : name === 'Reactor' ? healthCell(t.power.health) : name === 'Cooling' ? healthCell(t.cooling.health) : '—'}</td></tr>`,
     )
     .join('');
   find('#module-totals').innerHTML =
@@ -299,6 +299,7 @@ for (const id of commandIds) find(`#${id}`).addEventListener('input', commands);
 for (const [prefix, module, label] of [
   ['engine', (ship: Ship) => ship.engine, 'Engine'],
   ['reactor', (ship: Ship) => ship.power, 'Reactor'],
+  ['cooling', (ship: Ship) => ship.cooling, 'Cooling'],
 ] as const) {
   for (const [action, repair, points] of [
     ['damage', false, 25],

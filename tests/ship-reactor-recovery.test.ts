@@ -68,6 +68,7 @@ const profile: ShipProfile = {
 function make(energyJ = 0, temperatureK = 315, equipment = profile): Ship {
   return new Ship(equipment, {
     energyJ,
+    coolingHealthPoints: 100,
     reactorHealthPoints: 100,
     engineHealthPoints: 100,
     shieldTemperatureK: 290,
@@ -259,6 +260,7 @@ void test('Actual JSON ship recovers from hot and empty while held propulsion re
   const ship = new Ship(starterSetup.profile, {
     ...starterSetup.initialState,
     energyJ: 0,
+    coolingHealthPoints: 100,
     reactorHealthPoints: 100,
     engineHealthPoints: 100,
     shieldTemperatureK: 293.15,

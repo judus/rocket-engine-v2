@@ -86,6 +86,8 @@ void test('Actual JSON loadout produces the typed installed equipment and separa
   assert.equal(starterSetup.profile.cooling.id, 'cooling-starter');
   assert.equal(starterSetup.initialState.engineHealthPoints, 100);
   assert.equal(starterSetup.initialState.reactorHealthPoints, 100);
+  assert.equal(starterSetup.initialState.coolingHealthPoints, 100);
+  assert.ok(Object.isFrozen(starterSetup.profile.cooling.health));
   assert.ok(Object.isFrozen(starterSetup.profile.power.health));
   assert.ok(Object.isFrozen(starterSetup.profile.engine.health));
   assert.equal(starterSetup.initialState.shieldTemperatureK, 293.15);
@@ -109,6 +111,7 @@ void test('Actual JSON loadout produces the typed installed equipment and separa
 });
 void test('One immutable equipment definition can initialize independently charged moving ships', () => {
   const first = new Ship(starterSetup.profile, {
+    coolingHealthPoints: 100,
     reactorHealthPoints: 100,
     engineHealthPoints: 100,
     shieldTemperatureK: 290,
@@ -119,6 +122,7 @@ void test('One immutable equipment definition can initialize independently charg
     velocityMps: { x: 1, y: 2, z: 3 },
   });
   const second = new Ship(starterSetup.profile, {
+    coolingHealthPoints: 100,
     reactorHealthPoints: 100,
     engineHealthPoints: 100,
     shieldTemperatureK: 290,
@@ -222,6 +226,23 @@ void test('Loadout boundary rejects missing/unknown properties and numeric strin
     ['profiles/cooling-starter.json', { sinkTemperatureK: 350 }],
     ['profiles/cooling-starter.json', { fullPowerW: '5' }],
     [
+      'profiles/cooling-starter.json',
+      { health: { maxPoints: 0, outputExponent: 1 } },
+    ],
+    [
+      'profiles/cooling-starter.json',
+      { health: { maxPoints: 100, outputExponent: '1' } },
+    ],
+    [
+      'ships/science-ship.json',
+      {
+        initialState: {
+          ...starterSetup.initialState,
+          coolingHealthPoints: 101,
+        },
+      },
+    ],
+    [
       'profiles/engine-starter.json',
       {
         thermal: {
@@ -297,6 +318,7 @@ void test('Loadout rejects incompatible restart energy and invalid initial state
   );
   for (const initialState of [
     {
+      coolingHealthPoints: 100,
       reactorHealthPoints: 100,
       engineHealthPoints: 100,
       shieldTemperatureK: 290,
@@ -307,6 +329,7 @@ void test('Loadout rejects incompatible restart energy and invalid initial state
       velocityMps: { x: 0, y: 0, z: 0 },
     },
     {
+      coolingHealthPoints: 100,
       reactorHealthPoints: 100,
       engineHealthPoints: 100,
       shieldTemperatureK: 290,
@@ -317,6 +340,7 @@ void test('Loadout rejects incompatible restart energy and invalid initial state
       velocityMps: { x: 0, y: '0', z: 0 },
     },
     {
+      coolingHealthPoints: 100,
       reactorHealthPoints: 100,
       engineHealthPoints: 100,
       shieldTemperatureK: 290,

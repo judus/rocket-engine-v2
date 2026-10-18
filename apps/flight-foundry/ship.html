@@ -315,6 +315,23 @@
           restart and cannot bypass an existing thermal or emergency reboot.
           These lab commands apply on the next step and cost no resources.
         </p>
+        <h3>Cooling condition · lab controls</h3>
+        <div class="toolbar">
+          <button id="damage-cooling" type="button">
+            Damage cooling · 25 HP</button
+          ><button id="fail-cooling" type="button">Fail cooling</button
+          ><button id="repair-cooling" type="button">
+            Repair cooling · 25 HP</button
+          ><button id="restore-cooling" type="button">
+            Repair cooling fully
+          </button>
+        </div>
+        <p class="muted">
+          Damage reduces the shared circuit's removal capacity. Failure stops
+          pump demand and active cooling; reactor passive cooling continues.
+          Repair restores capacity on the next step when the pump is requested
+          on and funded. These lab repairs cost no resources.
+        </p>
         <div class="reserve-heading">
           <label for="reserve">Energy reserve</label
           ><span id="reserve-reading"></span>

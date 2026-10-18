@@ -1,3 +1,5 @@
+import { ModuleHealth } from './ModuleHealth.js';
+import type { HealthReading } from './ModuleHealth.js';
 import { ShipShields } from './ShipShields.js';
 import type { Behavior } from '../../src/index.js';
 import { ShipDampers } from './ShipDampers.js';
@@ -9,7 +11,10 @@ import type { CoolingProfile } from './ShipProfiles.js';
 
 export interface CoolingReading {
   readonly requested: boolean;
-  readonly state: 'off' | 'online' | 'limited' | 'waiting-for-charge';
+  readonly state:
+    'off' | 'online' | 'limited' | 'waiting-for-charge' | 'damaged' | 'failed';
+  readonly health: Readonly<HealthReading>;
+  readonly powerFraction: number;
   readonly demandW: number;
   readonly suppliedW: number;
   readonly activityFraction: number;
@@ -26,27 +31,33 @@ export class ShipCooling implements Behavior {
   #port: PowerPort | undefined;
   #requested = false;
   #pumping = false;
-  #reading: Readonly<CoolingReading> = Object.freeze({
-    requested: false,
-    state: 'off',
-    demandW: 0,
-    suppliedW: 0,
-    activityFraction: 0,
-    shieldRemovedHeatW: 0,
-    removedHeatW: 0,
-    reactorRemovedHeatW: 0,
-    engineRemovedHeatW: 0,
-    damperRemovedHeatW: 0,
-  });
+  #health: ModuleHealth;
+  #reading: Readonly<CoolingReading>;
   constructor(
     profile: CoolingProfile,
     private readonly power: ShipPowerPlant,
     private readonly engine: ShipEngine,
     private readonly dampers: ShipDampers,
     private readonly shields: ShipShields,
+    initialHealthPoints: number,
   ) {
     this.profile = validateCoolingProfile(profile);
     this.requires = [power, engine, dampers, shields];
+    this.#health = new ModuleHealth(this.profile.health, initialHealthPoints);
+    this.#reading = Object.freeze({
+      requested: false,
+      state: this.#health.telemetry.failed ? 'failed' : 'off',
+      health: this.#health.telemetry,
+      powerFraction: 0,
+      demandW: 0,
+      suppliedW: 0,
+      activityFraction: 0,
+      shieldRemovedHeatW: 0,
+      removedHeatW: 0,
+      reactorRemovedHeatW: 0,
+      engineRemovedHeatW: 0,
+      damperRemovedHeatW: 0,
+    });
   }
   onAttach(): undefined {
     this.#port = this.power.connect(this.profile.restartEnergyJ, 'utility');
@@ -55,26 +66,38 @@ export class ShipCooling implements Behavior {
     if (!this.#port) throw new Error('Cooling is not attached');
     return this.#port;
   }
+  damage(points: number): void {
+    this.port();
+    this.#health.damage(points);
+  }
+  repair(points: number): void {
+    this.port();
+    this.#health.repair(points);
+  }
   requestEnabled(value: boolean): void {
     if (typeof value !== 'boolean')
       throw new TypeError('Cooling request must be boolean');
     this.#requested = value;
   }
   declare(): void {
+    this.#health.commit();
     this.#pumping =
       this.shields.temperatureK > this.profile.sinkTemperatureK ||
       this.power.temperatureK > this.profile.sinkTemperatureK ||
       this.engine.temperatureK > this.profile.sinkTemperatureK ||
       this.dampers.temperatureK > this.profile.sinkTemperatureK;
     this.port().request(
-      this.#requested,
+      this.#requested && !this.#health.telemetry.failed,
       this.profile.baselineW + (this.#pumping ? this.profile.fullPowerW : 0),
     );
   }
   deliver(dt: number): Readonly<CoolingReading> {
     const allocation = this.port().delivery();
-    const fraction =
-      this.#requested && allocation.suppliedW >= this.profile.baselineW
+    const health = this.#health.telemetry;
+    const powerFraction =
+      this.#requested &&
+      !health.failed &&
+      allocation.suppliedW >= this.profile.baselineW
         ? this.#pumping
           ? Math.min(
               1,
@@ -83,6 +106,7 @@ export class ShipCooling implements Behavior {
             )
           : 1
         : 0;
+    const fraction = powerFraction * health.outputFraction;
     const targets = [this.engine, this.dampers, this.power, this.shields];
     const totalHeat = targets.reduce(
       (sum, target) => sum + target.heatAbove(this.profile.sinkTemperatureK),
@@ -113,16 +137,24 @@ export class ShipCooling implements Behavior {
       shieldRemovedHeatW;
     this.#reading = Object.freeze({
       requested: this.#requested,
-      state: !this.#requested
-        ? 'off'
-        : fraction === 0
-          ? 'waiting-for-charge'
-          : fraction < 1
-            ? 'limited'
-            : 'online',
-      demandW: this.#requested
-        ? this.profile.baselineW + (this.#pumping ? this.profile.fullPowerW : 0)
-        : 0,
+      health,
+      powerFraction,
+      state: health.failed
+        ? 'failed'
+        : !this.#requested
+          ? 'off'
+          : powerFraction === 0
+            ? 'waiting-for-charge'
+            : powerFraction < 1
+              ? 'limited'
+              : health.fraction < 1
+                ? 'damaged'
+                : 'online',
+      demandW:
+        this.#requested && !health.failed
+          ? this.profile.baselineW +
+            (this.#pumping ? this.profile.fullPowerW : 0)
+          : 0,
       suppliedW: allocation.suppliedW,
       activityFraction: fraction,
       removedHeatW,

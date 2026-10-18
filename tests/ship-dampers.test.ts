@@ -48,6 +48,7 @@ const funded: ShipProfile = {
 };
 function make(speed = 0, profile = funded, energyJ = 1e6): Ship {
   return new Ship(profile, {
+    coolingHealthPoints: 100,
     reactorHealthPoints: 100,
     engineHealthPoints: 100,
     shieldTemperatureK: 290,
@@ -268,6 +269,7 @@ void test('Damper profiles reject malformed protection and impossible restart th
       new Ship(
         { ...funded, dampers: { ...funded.dampers, restartEnergyJ: 1e13 } },
         {
+          coolingHealthPoints: 100,
           reactorHealthPoints: 100,
           engineHealthPoints: 100,
           shieldTemperatureK: 290,
