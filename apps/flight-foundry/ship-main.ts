@@ -1,3 +1,4 @@
+import type { HealthReading } from '../../games/ship/ModuleHealth.js';
 import { Rocket } from '../../src/index.js';
 import { Stage2D } from '../../src/experimental/index.js';
 import { Ship } from '../../games/ship/Ship.js';
@@ -127,7 +128,7 @@ function reset(): void {
   find('#installed').textContent =
     `Installed: ${p.body.id} · ${p.power.id} · ${p.engine.id} · ${p.dampers.id} · ${p.cooling.id} · ${p.shields.id} · ${p.hull.id}`;
   find('#ship-specs').textContent =
-    `${p.body.massKg.toLocaleString('en')} kg · ${p.engine.maxThrustN / 1e6} MN thrust · ${p.power.reactorOutputW / 1e9} GW reactor · ${p.power.capacityJ / 1e9} GJ reserve capacity. Engine: ${p.engine.baselineW / 1e6} MW baseline + ${p.engine.fullThrustW / 1e9} GW translation + ${p.engine.fullYawW / 1e9} GW yaw. Engine health ${p.engine.health.maxPoints} HP; output follows health fraction raised to ${p.engine.health.outputExponent}. Loaded from JSON; demonstration balance.`;
+    `${p.body.massKg.toLocaleString('en')} kg · ${p.engine.maxThrustN / 1e6} MN thrust · ${p.power.reactorOutputW / 1e9} GW reactor · ${p.power.capacityJ / 1e9} GJ reserve capacity. Engine: ${p.engine.baselineW / 1e6} MW baseline + ${p.engine.fullThrustW / 1e9} GW translation + ${p.engine.fullYawW / 1e9} GW yaw. Reactor health ${p.power.health.maxPoints} HP; output follows health fraction raised to ${p.power.health.outputExponent}. Engine health ${p.engine.health.maxPoints} HP; output follows health fraction raised to ${p.engine.health.outputExponent}. Loaded from JSON; demonstration balance.`;
   find('#damper-specs').textContent =
     `Assisted limit ${p.dampers.capture.assistedSpeedMps} m/s · 95% response ${p.dampers.responseSeconds} s · nominal transmitted load ${p.dampers.capture.transmittedFraction * 100}%. Capture anchor: remove ${p.dampers.capture.referenceExcessMps} m/s in ${p.dampers.capture.referenceDurationSeconds} s; higher entry speeds increase duration and curve steepness. Prototype tuning.`;
   find('#thermal-specs').textContent =
@@ -185,6 +186,8 @@ function paint(): void {
     removedW: number,
   ) =>
     `${fmt(temperatureK - 273.15)} °C<small>+${fmt(generatedW / 1e6)} MW generated<br>−${fmt(removedW / 1e6)} MW removed</small>`;
+  const healthCell = (health: Readonly<HealthReading>) =>
+    `${fmt(health.fraction * 100)}%<small>${fmt(health.points)} / ${fmt(health.maxPoints)} HP<br>${fmt(health.outputFraction * 100)}% output capacity</small>`;
   const requested = (on: boolean) => `requested ${on ? 'on' : 'off'}`;
   const modules = [
     [
@@ -237,7 +240,7 @@ function paint(): void {
   find('#module-readings').innerHTML = modules
     .map(
       ([name, state, energy, heat]) =>
-        `<tr><th scope="row">${name}</th><td>${state}</td><td>${energy}</td><td>${heat}</td><td>${name === 'Engine' ? `${fmt(t.engine.health.fraction * 100)}%<small>${fmt(t.engine.health.points)} / ${fmt(t.engine.health.maxPoints)} HP<br>${fmt(t.engine.health.outputFraction * 100)}% output capacity</small>` : '—'}</td></tr>`,
+        `<tr><th scope="row">${name}</th><td>${state}</td><td>${energy}</td><td>${heat}</td><td>${name === 'Engine' ? healthCell(t.engine.health) : name === 'Reactor' ? healthCell(t.power.health) : '—'}</td></tr>`,
     )
     .join('');
   find('#module-totals').innerHTML =
@@ -293,20 +296,26 @@ function paint(): void {
     .join('');
 }
 for (const id of commandIds) find(`#${id}`).addEventListener('input', commands);
-for (const [id, repair, points] of [
-  ['damage-engine', false, 25],
-  ['fail-engine', false, 'max'],
-  ['repair-engine', true, 25],
-  ['restore-engine', true, 'max'],
+for (const [prefix, module, label] of [
+  ['engine', (ship: Ship) => ship.engine, 'Engine'],
+  ['reactor', (ship: Ship) => ship.power, 'Reactor'],
 ] as const) {
-  find(`#${id}`).addEventListener('click', () => {
-    const amount =
-      points === 'max' ? ship.engine.profile.health.maxPoints : points;
-    if (repair) ship.engine.repair(amount);
-    else ship.engine.damage(amount);
-    find('#message').textContent =
-      `Engine ${repair ? 'repair' : 'damage'} queued. Run or Single step applies it.`;
-  });
+  for (const [action, repair, points] of [
+    ['damage', false, 25],
+    ['fail', false, 'max'],
+    ['repair', true, 25],
+    ['restore', true, 'max'],
+  ] as const) {
+    find(`#${action}-${prefix}`).addEventListener('click', () => {
+      const target = module(ship);
+      const amount =
+        points === 'max' ? target.profile.health.maxPoints : points;
+      if (repair) target.repair(amount);
+      else target.damage(amount);
+      find('#message').textContent =
+        `${label} ${repair ? 'repair' : 'damage'} queued. Run or Single step applies it.`;
+    });
+  }
 }
 find('#reactor').addEventListener('change', () =>
   ship.power.requestEnabled(find<HTMLInputElement>('#reactor').checked),

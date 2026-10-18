@@ -17,5 +17,9 @@
     "restoreReserveFraction": 0.1,
     "passiveCoolingW": 50000000,
     "sinkTemperatureK": 293.15
+  },
+  "health": {
+    "maxPoints": 100,
+    "outputExponent": 1
   }
 }

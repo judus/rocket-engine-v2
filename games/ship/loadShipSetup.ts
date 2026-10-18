@@ -115,6 +115,7 @@ export async function loadShipSetup(
     manifest.initialState,
     power.capacityJ,
     engine.health.maxPoints,
+    power.health.maxPoints,
   );
   return Object.freeze({
     profile: Object.freeze({

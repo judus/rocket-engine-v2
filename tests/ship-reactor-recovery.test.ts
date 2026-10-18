@@ -21,6 +21,7 @@ const profile: ShipProfile = {
   body: { ...starterSetup.profile.body, massKg: 2, yawInertiaKgM2: 2 },
   power: {
     id: 'recovery-test',
+    health: starterSetup.profile.power.health,
     capacityJ: 1000,
     reactorOutputW: 500,
     thermal: {
@@ -67,6 +68,7 @@ const profile: ShipProfile = {
 function make(energyJ = 0, temperatureK = 315, equipment = profile): Ship {
   return new Ship(equipment, {
     energyJ,
+    reactorHealthPoints: 100,
     engineHealthPoints: 100,
     shieldTemperatureK: 290,
     reactorTemperatureK: temperatureK,
@@ -257,6 +259,7 @@ void test('Actual JSON ship recovers from hot and empty while held propulsion re
   const ship = new Ship(starterSetup.profile, {
     ...starterSetup.initialState,
     energyJ: 0,
+    reactorHealthPoints: 100,
     engineHealthPoints: 100,
     shieldTemperatureK: 293.15,
     reactorTemperatureK: 455,

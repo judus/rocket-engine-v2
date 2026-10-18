@@ -1,3 +1,5 @@
+import { ModuleHealth } from './ModuleHealth.js';
+import type { HealthReading } from './ModuleHealth.js';
 import { ModuleThermal } from './ModuleThermal.js';
 import type { ThermalReading } from './ModuleThermal.js';
 import { numberIn, validatePowerProfile } from './ShipProfiles.js';
@@ -16,12 +18,15 @@ import {
 export interface PowerReading {
   readonly requested: boolean;
   readonly state:
+    | 'failed'
+    | 'damaged'
     | 'off'
     | 'online'
     | 'overheated'
     | 'restarting'
     | 'emergency-start'
     | 'recovering';
+  readonly health: Readonly<HealthReading>;
   readonly thermal: Readonly<ThermalReading>;
   readonly emergency: boolean;
   readonly nonessentialAllowed: boolean;
@@ -51,6 +56,7 @@ export class ShipPowerPlant implements Behavior {
   #reactor = this.#world.create();
   #disposed = false;
   #requested = true;
+  #health: ModuleHealth;
   #thermal: ModuleThermal;
   #starterPort: PowerPort | undefined;
   #emergency = false;
@@ -64,13 +70,18 @@ export class ShipPowerPlant implements Behavior {
     profile: Readonly<PowerPlantProfile>,
     initialEnergyJ: number,
     initialTemperatureK: number,
+    initialHealthPoints: number,
   ) {
     this.profile = validatePowerProfile(profile);
+    this.#health = new ModuleHealth(this.profile.health, initialHealthPoints);
     this.#thermal = new ModuleThermal(
       this.profile.thermal,
       initialTemperatureK,
     );
-    if (initialEnergyJ === 0 && this.#thermal.state(true) !== undefined)
+    if (
+      initialEnergyJ === 0 &&
+      (this.#health.telemetry.failed || this.#thermal.state(true) !== undefined)
+    )
       this.enterEmergency();
     const capacityJ = this.profile.capacityJ;
     this.#world.set(this.#ship, EnergyReserve, {
@@ -110,18 +121,25 @@ export class ShipPowerPlant implements Behavior {
   beginStep(): void {
     this.live();
     this.#receivedEnergyJ = 0;
+    const wasFailed = this.#health.telemetry.failed;
+    this.#health.commit();
+    const health = this.#health.telemetry;
+    if (!wasFailed && health.failed && this.#emergency) this.enterEmergency();
+    if (wasFailed && !health.failed && !this.#emergency)
+      this.#thermal.requestChanged(false, this.#requested);
     const reserve = this.#world.get(this.#ship, EnergyReserve)!;
     if (
       !this.#emergency &&
       reserve.energyJ === 0 &&
-      this.#thermal.state(this.#requested) !== undefined
+      (health.failed || this.#thermal.state(this.#requested) !== undefined)
     )
       this.enterEmergency();
-    const thermal = this.#thermal.begin(this.#requested);
+    const thermal = this.#thermal.begin(this.#requested && !health.failed);
     this.#operating = thermal.operating;
     this.#world.get(this.#reactor, ShipModule)!.requested = thermal.operating;
     this.#world.get(this.#reactor, Reactor)!.outputW =
       this.profile.reactorOutputW *
+      health.outputFraction *
       (this.#emergency ? this.profile.recovery.emergencyOutputFraction : 1);
     this.#startupDemandW =
       thermal.powerRequested && !thermal.operating && !this.#emergency
@@ -145,7 +163,7 @@ export class ShipPowerPlant implements Behavior {
   finishThermalStep(dt: number): void {
     this.#thermal.finish(
       dt,
-      this.#requested,
+      this.#requested && !this.#health.telemetry.failed,
       this.#emergency
         ? 1
         : Math.min(
@@ -165,6 +183,14 @@ export class ShipPowerPlant implements Behavior {
   }
   private live(): void {
     if (this.#disposed) throw new Error('Power plant disposed');
+  }
+  damage(points: number): void {
+    this.live();
+    this.#health.damage(points);
+  }
+  repair(points: number): void {
+    this.live();
+    this.#health.repair(points);
   }
   requestEnabled(value: boolean): void {
     this.live();
@@ -234,8 +260,10 @@ export class ShipPowerPlant implements Behavior {
     this.live();
     const p = this.#world.get(this.#ship, EnergyReserve)!;
     const thermalState = this.#thermal.state(this.#requested);
-    const state =
-      thermalState === 'off' || thermalState === 'overheated'
+    const health = this.#health.telemetry;
+    const state = health.failed
+      ? 'failed'
+      : thermalState === 'off' || thermalState === 'overheated'
         ? thermalState
         : thermalState === 'restarting'
           ? this.#emergency
@@ -243,10 +271,13 @@ export class ShipPowerPlant implements Behavior {
             : 'restarting'
           : this.#emergency
             ? 'recovering'
-            : 'online';
+            : health.fraction < 1
+              ? 'damaged'
+              : 'online';
     return Object.freeze({
       requested: this.#requested,
       state,
+      health,
       thermal: this.#thermal.telemetry,
       emergency: this.#emergency,
       nonessentialAllowed: !this.#emergency,

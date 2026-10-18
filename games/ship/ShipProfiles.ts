@@ -16,6 +16,7 @@ export interface ReactorRecoveryProfile {
   sinkTemperatureK: number;
 }
 export interface PowerPlantProfile {
+  health: Readonly<HealthProfile>;
   id: string;
   capacityJ: number;
   reactorOutputW: number;
@@ -91,6 +92,7 @@ export interface ShipProfile {
   readonly hull: Readonly<HullProfile>;
 }
 export interface ShipInitialState {
+  readonly reactorHealthPoints: number;
   readonly engineHealthPoints: number;
   readonly shieldTemperatureK: number;
   readonly reactorTemperatureK: number;
@@ -163,7 +165,7 @@ export function validatePowerProfile(
 ): Readonly<PowerPlantProfile> {
   const p = recordWithKeys(
     value,
-    ['id', 'capacityJ', 'reactorOutputW', 'thermal', 'recovery'],
+    ['id', 'capacityJ', 'reactorOutputW', 'thermal', 'recovery', 'health'],
     'Power profile',
   );
   const thermal = validateThermalProfile(p.thermal);
@@ -178,6 +180,7 @@ export function validatePowerProfile(
   return Object.freeze({
     thermal,
     recovery,
+    health: validateHealthProfile(p.health),
     id: profileId(p.id, 'Power id'),
     capacityJ: readNumber(p, 'capacityJ', 1),
     reactorOutputW: readNumber(p, 'reactorOutputW', 0),
@@ -215,11 +218,13 @@ export function validateInitialState(
   value: unknown,
   capacityJ: number,
   engineMaxHealthPoints: number,
+  reactorMaxHealthPoints: number,
 ): Readonly<ShipInitialState> {
   const p = recordWithKeys(
     value,
     [
       'engineHealthPoints',
+      'reactorHealthPoints',
       'energyJ',
       'velocityMps',
       'engineTemperatureK',
@@ -231,6 +236,12 @@ export function validateInitialState(
   );
   const v = recordWithKeys(p.velocityMps, ['x', 'y', 'z'], 'Initial velocity');
   return Object.freeze({
+    reactorHealthPoints: readNumber(
+      p,
+      'reactorHealthPoints',
+      0,
+      reactorMaxHealthPoints,
+    ),
     reactorTemperatureK: readNumber(p, 'reactorTemperatureK', 0, 1e6),
     engineHealthPoints: readNumber(
       p,
