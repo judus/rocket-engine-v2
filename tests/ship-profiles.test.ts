@@ -84,6 +84,8 @@ function changed(
 }
 void test('Actual JSON loadout produces the typed installed equipment and separate initial state', () => {
   assert.equal(starterSetup.profile.cooling.id, 'cooling-starter');
+  assert.equal(starterSetup.initialState.shieldTemperatureK, 293.15);
+  assert.ok(Object.isFrozen(starterSetup.profile.shields.thermal));
   assert.equal(starterSetup.initialState.engineTemperatureK, 293.15);
   assert.equal(starterSetup.initialState.reactorTemperatureK, 293.15);
   assert.ok(Object.isFrozen(starterSetup.profile.power.recovery));
@@ -103,6 +105,7 @@ void test('Actual JSON loadout produces the typed installed equipment and separa
 });
 void test('One immutable equipment definition can initialize independently charged moving ships', () => {
   const first = new Ship(starterSetup.profile, {
+    shieldTemperatureK: 290,
     reactorTemperatureK: 290,
     damperTemperatureK: 293.15,
     engineTemperatureK: 293.15,
@@ -110,6 +113,7 @@ void test('One immutable equipment definition can initialize independently charg
     velocityMps: { x: 1, y: 2, z: 3 },
   });
   const second = new Ship(starterSetup.profile, {
+    shieldTemperatureK: 290,
     reactorTemperatureK: 290,
     damperTemperatureK: 293.15,
     engineTemperatureK: 293.15,
@@ -153,6 +157,24 @@ void test('Loadout boundary rejects missing/unknown properties and numeric strin
     ['profiles/hull-starter.json', { massKg: -1 }],
     ['profiles/shields-starter.json', { rechargeEfficiency: 1.1 }],
     ['profiles/shields-starter.json', { diversionW: 0 }],
+    [
+      'profiles/shields-starter.json',
+      {
+        thermal: {
+          ...starterSetup.profile.shields.thermal,
+          wasteHeatFraction: 1.1,
+        },
+      },
+    ],
+    [
+      'profiles/shields-starter.json',
+      {
+        thermal: {
+          ...starterSetup.profile.shields.thermal,
+          restartTemperatureK: 290,
+        },
+      },
+    ],
     ['profiles/shields-starter.json', { diversionEfficiency: 0 }],
     ['profiles/shields-starter.json', { diversionEfficiency: 1.01 }],
     ['profiles/shields-starter.json', { restartEnergyJ: 201e9 }],
@@ -236,6 +258,7 @@ void test('Loadout rejects incompatible restart energy and invalid initial state
   );
   for (const initialState of [
     {
+      shieldTemperatureK: 290,
       reactorTemperatureK: 290,
       damperTemperatureK: 293.15,
       engineTemperatureK: 293.15,
@@ -243,6 +266,7 @@ void test('Loadout rejects incompatible restart energy and invalid initial state
       velocityMps: { x: 0, y: 0, z: 0 },
     },
     {
+      shieldTemperatureK: 290,
       reactorTemperatureK: 290,
       damperTemperatureK: 293.15,
       engineTemperatureK: 293.15,
@@ -250,6 +274,7 @@ void test('Loadout rejects incompatible restart energy and invalid initial state
       velocityMps: { x: 0, y: '0', z: 0 },
     },
     {
+      shieldTemperatureK: 290,
       reactorTemperatureK: 290,
       damperTemperatureK: 293.15,
       engineTemperatureK: 293.15,

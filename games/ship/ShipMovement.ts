@@ -75,6 +75,7 @@ export class ShipMovement implements Behavior {
   fixedUpdate(dt: number): undefined {
     numberIn('ship fixed step', dt, 1e-6, 1);
     this.power.beginStep();
+    this.shields.beginStep();
     this.shields.transfer(dt);
     const requestedEngine = this.engine.declare(this.control.intent);
     this.dampers.declare(this.control.intent, requestedEngine, dt);
@@ -88,10 +89,12 @@ export class ShipMovement implements Behavior {
     this.power.generateHeat(dt);
     this.engine.generateHeat(dt);
     this.dampers.generateHeat(dt);
+    this.shields.generateHeat(dt);
     const coolingReading = this.cooling.deliver(dt);
     this.power.finishThermalStep(dt);
     this.engine.finishThermalStep(dt);
     this.dampers.finishThermalStep(dt);
+    this.shields.finishThermalStep(dt);
     const engineForce = this.body.localToWorld(delivered.thrustN);
     const worldForceN = Object.freeze({
       x: engineForce.x + damperReading.worldForceN.x,

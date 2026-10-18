@@ -56,7 +56,11 @@ export class ModuleThermal {
     };
   }
   generate(suppliedW: number, dt: number): void {
-    this.#generatedW = suppliedW * this.profile.wasteHeatFraction;
+    this.generateHeat(suppliedW * this.profile.wasteHeatFraction, dt);
+  }
+  /** Already-calculated thermal losses; avoids counting stored energy as heat. */
+  generateHeat(heatW: number, dt: number): void {
+    this.#generatedW = heatW;
     this.#temperatureK +=
       (this.#generatedW * dt) / this.profile.heatCapacityJPerK;
     if (this.#temperatureK >= this.profile.tripTemperatureK) {

@@ -27,6 +27,7 @@ function make(outputW = 100) {
       cooling: { ...p.cooling, restartEnergyJ: 0 },
       shields: {
         id: 'test-shield',
+        thermal: { ...p.shields.thermal, manualStartSeconds: 0 },
         diversionW: 20,
         diversionEfficiency: 0.8,
         capacityJ: 100,
@@ -131,6 +132,7 @@ void test('Below-maintenance power disables protection without erasing charge; p
       power: { ...p.power, reactorOutputW: 0 },
       shields: {
         ...p.shields,
+        thermal: { ...p.shields.thermal, manualStartSeconds: 0 },
         capacityJ: 100,
         baselineW: 2,
         rechargeW: 20,
@@ -163,6 +165,7 @@ void test('Shield recharge cannot consume emergency recovery output, and request
   const ship = new Ship(starterSetup.profile, {
     ...starterSetup.initialState,
     energyJ: 0,
+    shieldTemperatureK: 293.15,
     reactorTemperatureK: 455,
   });
   ship.shields.requestEnabled(true);

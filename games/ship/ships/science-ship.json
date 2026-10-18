@@ -12,7 +12,8 @@
     },
     "engineTemperatureK": 293.15,
     "damperTemperatureK": 293.15,
-    "reactorTemperatureK": 293.15
+    "reactorTemperatureK": 293.15,
+    "shieldTemperatureK": 293.15
   },
   "damperProfile": "dampers-starter",
   "coolingProfile": "cooling-starter",

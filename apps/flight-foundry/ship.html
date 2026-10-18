@@ -207,6 +207,15 @@
             value="20"
           />
         </label>
+        <label class="command" for="entry-shield-temperature"
+          >Starting shield temperature (°C; applied by Reset ship)<input
+            id="entry-shield-temperature"
+            type="number"
+            min="-273.15"
+            max="999726.85"
+            step="any"
+            value="20"
+        /></label>
         <label class="command" for="entry-reactor-temperature"
           >Starting reactor temperature (°C; applied by Reset ship)
           <input
@@ -319,7 +328,7 @@ ship
 ├─ power      owns reserve and allocation
 ├─ engine     requests power, delivers thrust/torque
 ├─ dampers    powered assistance, capture and crew protection
-├─ cooling    one cooling budget for reactor, engine and dampers
+├─ cooling    one cooling budget for reactor, engine, dampers and shields
 ├─ shields    stored field energy and powered protection
 ├─ hull       shield overflow becomes structural damage
 └─ movement   orders one fixed simulation step</pre>
@@ -355,13 +364,13 @@ ship
     </main>
     <p id="message" role="status"></p>
     <footer>
-      3D translation and one yaw axis. Reactor, engine and damper heat with one
-      shared cooling circuit, plus shield and hull test damage. No collision,
-      crew injury or relativistic model yet. Power costs are explicit prototype
-      profile values. Assisted velocity is a powered force response, not a hard
-      speed clamp. Crew G measures translation only. Engine shortage scales
-      operation after funding its baseline; reserve recharge uses the existing
-      demonstration hysteresis.
+      3D translation and one yaw axis. Reactor, engine, damper and shield heat
+      with one shared cooling circuit, plus shield and hull test damage. No
+      collision, crew injury or relativistic model yet. Power costs are explicit
+      prototype profile values. Assisted velocity is a powered force response,
+      not a hard speed clamp. Crew G measures translation only. Engine shortage
+      scales operation after funding its baseline; reserve recharge uses the
+      existing demonstration hysteresis.
       <a href="../../games/ship/README.md">Source, ownership and limitations</a>
     </footer>
     <script

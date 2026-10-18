@@ -7,5 +7,13 @@
   "rechargeDelaySeconds": 3,
   "restartEnergyJ": 1000000000.0,
   "diversionW": 2000000000.0,
-  "diversionEfficiency": 0.8
+  "diversionEfficiency": 0.8,
+  "thermal": {
+    "heatCapacityJPerK": 40000000.0,
+    "wasteHeatFraction": 0.2,
+    "tripTemperatureK": 390,
+    "restartTemperatureK": 330,
+    "manualStartSeconds": 0.5,
+    "rebootSeconds": 6
+  }
 }

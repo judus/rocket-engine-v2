@@ -58,6 +58,11 @@ function reset(): void {
     throw new RangeError(
       'Starting damper temperature must be at least -273.15 °C and below 999726.85 °C',
     );
+  const shieldTemperature = find<HTMLInputElement>('#entry-shield-temperature');
+  if (shieldTemperature.value === '' || !shieldTemperature.checkValidity())
+    throw new RangeError(
+      'Enter a valid shield temperature (at least -273.15 °C)',
+    );
   const reactorTemperature = find<HTMLInputElement>(
     '#entry-reactor-temperature',
   );
@@ -89,6 +94,7 @@ function reset(): void {
       new Ship(setup.profile, {
         ...setup.initialState,
         reactorTemperatureK: Number(reactorTemperature.value) + 273.15,
+        shieldTemperatureK: Number(shieldTemperature.value) + 273.15,
         energyJ: (setup.profile.power.capacityJ * Number(charge.value)) / 100,
         engineTemperatureK: Number(temperature.value) + 273.15,
         damperTemperatureK: Number(damperTemperature.value) + 273.15,
@@ -127,9 +133,9 @@ function reset(): void {
   find('#thermal-specs').textContent =
     `Engine thermal capacity ${p.engine.thermal.heatCapacityJPerK / 1e6} MJ/K · ${p.engine.thermal.wasteHeatFraction * 100}% of supplied power becomes module heat · trip ${(p.engine.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.engine.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · manual start ${p.engine.thermal.manualStartSeconds} s / thermal reboot ${p.engine.thermal.rebootSeconds} s. Cooling: ${p.cooling.maxCoolingW / 1e6} MW removal, ${(p.cooling.baselineW + p.cooling.fullPowerW) / 1e6} MW full electrical draw.`;
   find('#damper-thermal-specs').textContent =
-    `Damper thermal capacity ${p.dampers.thermal.heatCapacityJPerK / 1e6} MJ/K · ${p.dampers.thermal.wasteHeatFraction * 100}% supplied-power losses · trip ${(p.dampers.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.dampers.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · manual start ${p.dampers.thermal.manualStartSeconds} s / thermal reboot ${p.dampers.thermal.rebootSeconds} s. The cooler shares one removal budget across reactor, engine and dampers.`;
+    `Damper thermal capacity ${p.dampers.thermal.heatCapacityJPerK / 1e6} MJ/K · ${p.dampers.thermal.wasteHeatFraction * 100}% supplied-power losses · trip ${(p.dampers.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.dampers.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · manual start ${p.dampers.thermal.manualStartSeconds} s / thermal reboot ${p.dampers.thermal.rebootSeconds} s. The cooler shares one removal budget across reactor, engine, dampers and shields.`;
   find('#shield-specs').textContent =
-    `Shields: ${p.shields.capacityJ / 1e9} GJ capacity · ${p.shields.baselineW / 1e6} MW maintenance · ${p.shields.rechargeW / 1e6} MW recharge input at ${p.shields.rechargeEfficiency * 100}% efficiency · ${p.shields.rechargeDelaySeconds} s recharge delay after a hit. Hull: ${p.hull.damageCapacityJ / 1e9} GJ damage capacity. Diversion: ${p.shields.diversionW / 1e9} GJ/s from shields at ${p.shields.diversionEfficiency * 100}% efficiency. Shield heat follows separately; prototype tuning.`;
+    `Shields: ${p.shields.capacityJ / 1e9} GJ capacity · ${p.shields.baselineW / 1e6} MW maintenance · ${p.shields.rechargeW / 1e6} MW recharge input at ${p.shields.rechargeEfficiency * 100}% efficiency · ${p.shields.rechargeDelaySeconds} s recharge delay after a hit. Hull: ${p.hull.damageCapacityJ / 1e9} GJ damage capacity. Diversion: ${p.shields.diversionW / 1e9} GJ/s from shields at ${p.shields.diversionEfficiency * 100}% efficiency. Shields trip at ${(p.shields.thermal.tripTemperatureK - 273.15).toFixed(1)} °C, restart below ${(p.shields.thermal.restartTemperatureK - 273.15).toFixed(1)} °C; ${p.shields.thermal.manualStartSeconds} s manual start / ${p.shields.thermal.rebootSeconds} s thermal reboot. Prototype tuning.`;
   find('#reactor-specs').textContent =
     `Reactor trip ${(p.power.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.power.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · normal thermal reboot ${p.power.thermal.rebootSeconds} s / independent emergency start ${p.power.recovery.emergencyStartSeconds} s · emergency output ${p.power.recovery.emergencyOutputFraction * 100}% until ${(p.power.recovery.restoreReserveFraction * 100).toFixed(1)}% reserve · passive heat loss up to ${p.power.recovery.passiveCoolingW / 1e6} MW. Lab tuning.`;
   paint();
@@ -219,9 +225,13 @@ function paint(): void {
     ],
     [
       'Shields',
-      `<strong>${t.shields.state}</strong><small>${requested(t.shields.requested)} · ${t.shields.active ? 'field powered' : 'no protection'}<br>recharge delay ${fmt(t.shields.rechargeDelaySeconds)} s</small>`,
+      `<strong>${t.shields.state}</strong><small>${requested(t.shields.requested)}${t.shields.thermal.tripped ? ' · thermal trip' : ''} · ${t.shields.active ? 'field powered' : 'no protection'}<br>recharge delay ${fmt(t.shields.rechargeDelaySeconds)} s · restart ${fmt(t.shields.thermal.restartRemainingSeconds)} s</small>`,
       `${fmt(t.shields.energyJ / 1e9)} / ${fmt(t.shields.capacityJ / 1e9)} GJ stored<small>${fmt(t.shields.suppliedW / 1e6)} / ${fmt(t.shields.demandW / 1e6)} MW supplied / requested</small>`,
-      'Not modeled',
+      thermal(
+        t.shields.thermal.temperatureK,
+        t.shields.thermal.generatedHeatW,
+        t.cooling.shieldRemovedHeatW,
+      ),
     ],
   ];
   find('#module-readings').innerHTML = modules
@@ -245,7 +255,9 @@ function paint(): void {
   const shieldCommands = ship.shields.telemetry;
   find<HTMLInputElement>('#shields').checked = shieldCommands.requested;
   find<HTMLButtonElement>('#divert-shields').disabled =
-    shieldCommands.diverting || shieldCommands.energyJ === 0;
+    shieldCommands.diverting ||
+    shieldCommands.energyJ === 0 ||
+    shieldCommands.thermal.tripped;
   find<HTMLButtonElement>('#cancel-diversion').disabled =
     !shieldCommands.diverting;
   find('#diversion-state').textContent =
@@ -262,7 +274,7 @@ function paint(): void {
   find('#thermal-state').textContent =
     `Thermal trip ${t.engine.thermal.tripped ? 'latched' : 'clear'} · restart remaining ${fmt(t.engine.thermal.restartRemainingSeconds)} powered seconds · cooling ${t.cooling.state} · delivered ${fmt(t.cooling.activityFraction * 100)}% · draw ${fmt(t.cooling.suppliedW / 1e6)} MW. Engine remembers its requested switch during a trip.`;
   find('#damper-thermal-state').textContent =
-    `Damper thermal trip ${t.dampers.thermal.tripped ? 'latched' : 'clear'} · restart remaining ${fmt(t.dampers.thermal.restartRemainingSeconds)} powered seconds. Cooling removes ${fmt(t.cooling.engineRemovedHeatW / 1e6)} MW from engine + ${fmt(t.cooling.damperRemovedHeatW / 1e6)} MW from dampers + ${fmt(t.cooling.reactorRemovedHeatW / 1e6)} MW from reactor within one ${fmt(setup.profile.cooling.maxCoolingW / 1e6)} MW limit.`;
+    `Damper thermal trip ${t.dampers.thermal.tripped ? 'latched' : 'clear'} · restart remaining ${fmt(t.dampers.thermal.restartRemainingSeconds)} powered seconds. Cooling removes ${fmt(t.cooling.engineRemovedHeatW / 1e6)} MW from engine + ${fmt(t.cooling.damperRemovedHeatW / 1e6)} MW from dampers + ${fmt(t.cooling.reactorRemovedHeatW / 1e6)} MW from reactor + ${fmt(t.cooling.shieldRemovedHeatW / 1e6)} MW from shields within one ${fmt(setup.profile.cooling.maxCoolingW / 1e6)} MW limit.`;
   find('#reactor-state').textContent =
     `Recovery ${t.power.emergency ? 'EMERGENCY' : 'normal'} · restart remaining ${fmt(t.power.thermal.restartRemainingSeconds)} s · propulsion/shields ${t.power.nonessentialAllowed ? 'available' : 'LOCKED until reserve recovers'} · restore threshold ${fmt(t.power.restoreEnergyJ / 1e9)} GJ · starter ${t.power.emergency ? 'independent' : `${fmt(t.power.startupSuppliedW / 1e6)} MW from reserve`} · reactor passive cooling ${fmt(t.power.passiveRemovedHeatW / 1e6)} MW + circuit ${fmt(t.cooling.reactorRemovedHeatW / 1e6)} MW.`;
   find('#vectors').textContent =
@@ -344,6 +356,7 @@ find('#emergency-test').addEventListener('click', () => {
   find<HTMLInputElement>('#entry-speed').value = '1000';
   find<HTMLInputElement>('#entry-temperature').value = '20';
   find<HTMLInputElement>('#entry-damper-temperature').value = '20';
+  find<HTMLInputElement>('#entry-shield-temperature').value = '20';
   reset();
   find<HTMLInputElement>('#cooling').checked = true;
   ship.cooling.requestEnabled(true);
@@ -398,6 +411,9 @@ void loadShipSetup(
     );
     find<HTMLInputElement>('#entry-damper-temperature').value = String(
       loaded.initialState.damperTemperatureK - 273.15,
+    );
+    find<HTMLInputElement>('#entry-shield-temperature').value = String(
+      loaded.initialState.shieldTemperatureK - 273.15,
     );
     find<HTMLInputElement>('#entry-reactor-temperature').value = String(
       loaded.initialState.reactorTemperatureK - 273.15,

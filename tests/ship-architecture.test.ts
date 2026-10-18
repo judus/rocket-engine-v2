@@ -15,6 +15,7 @@ function step(ship: Ship, dt = 1 / 60): void {
   });
 }
 const initial = {
+  shieldTemperatureK: 290,
   reactorTemperatureK: 290,
   damperTemperatureK: 293.15,
   engineTemperatureK: 293.15,
