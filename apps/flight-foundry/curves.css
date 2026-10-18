@@ -1,0 +1,207 @@
+.curve-layout {
+  grid-template-columns: minmax(290px, 0.7fr) minmax(460px, 1.5fr);
+  align-items: start;
+}
+header {
+  margin-bottom: 22px;
+}
+h1 {
+  font-size: 42px;
+  margin-bottom: 12px;
+}
+nav {
+  display: flex;
+  gap: 20px;
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0;
+}
+nav a {
+  color: var(--muted);
+  padding-bottom: 8px;
+}
+nav .selected {
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent);
+}
+.controls {
+  position: sticky;
+  top: 16px;
+}
+.curve-field {
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+}
+.curve-field label {
+  font-weight: 550;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+.curve-field input[type='number'] {
+  width: 100px;
+  text-align: right;
+  font-family: ui-monospace, monospace;
+}
+.curve-field .unit {
+  font-size: 11px;
+  min-width: 0;
+}
+.curve-field .label-value {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.shape-labels {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 10px;
+}
+.curve-field .shape-value {
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 400;
+}
+.curve-field p {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.curve-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  border-bottom: 1px solid var(--line);
+  padding: 8px 0 18px;
+}
+.curve-summary span {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 7px;
+  letter-spacing: 1px;
+}
+.curve-summary strong {
+  font-family: ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 21px;
+  color: var(--accent);
+}
+.context {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #b1c8d1;
+}
+.plot-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.plot-head h3 {
+  margin: 12px 0 6px;
+}
+.plot-head output {
+  font-size: 10px;
+  color: var(--muted);
+}
+.results svg {
+  display: block;
+  width: 100%;
+  max-height: 150px;
+}
+.phase-labels {
+  display: flex;
+  gap: 3px;
+  margin-top: 18px;
+}
+.phase-labels span {
+  text-align: center;
+  font-size: 10px;
+  background: #1a303a;
+  padding: 7px 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.phase-labels span:first-child {
+  color: var(--accent);
+}
+.phase-labels span:last-child {
+  color: #e7b185;
+}
+details {
+  border-top: 1px solid var(--line);
+  margin-top: 12px;
+  padding-top: 16px;
+}
+summary {
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 12px;
+}
+.inspect-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-top: 20px;
+}
+.point-readings {
+  font-size: 12px;
+  line-height: 1.8;
+  color: #bfd1d9;
+  background: #0a121a;
+  padding: 12px;
+  border-radius: 6px;
+  font-family: ui-monospace, monospace;
+}
+#curve-error {
+  color: #ffbba8;
+  font-size: 12px;
+  line-height: 1.6;
+}
+#curve-error:empty {
+  display: none;
+}
+@media (max-width: 900px) {
+  .curve-layout {
+    grid-template-columns: 1fr;
+  }
+  .controls {
+    position: static;
+  }
+}
+@media (max-width: 450px) {
+  .curve-summary {
+    gap: 8px;
+  }
+  .curve-summary strong {
+    font-size: 17px;
+  }
+  h1 {
+    font-size: 34px;
+  }
+}
+/* Keep controls and curves close enough to compare in the app's narrow panel. */
+#curve-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 18px;
+}
+.curve-field label {
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+.curve-field input[type='number'] {
+  width: 80px;
+  padding: 7px;
+}
+.curve-field .shape-value {
+  font-size: 11px;
+}
+@media (max-width: 400px) {
+  #curve-controls {
+    grid-template-columns: 1fr;
+  }
+}

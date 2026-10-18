@@ -27,3 +27,23 @@ The displayed phase is the next scenario command. Force/acceleration/G describe 
 `npm run check` runs the established strict TypeScript, ESLint, formatting and test/coverage gate, including `tests/flight-foundry.test.ts`. Tests check analytical force/mass motion, coast, reverse/path length, off-tick boundaries, timestep agreement, replay at different display cadences, observation/lifetime behavior and invalid persisted profiles.
 
 No energy budget, damper/capture/protection, heat/cooling, cargo, collision, rotation or crew injury is implemented here. The next proposed checkpoint is two capture profiles under explicit supplied budgets; full reactor/thermal coupling follows separately. This bench cannot establish how combat controls feel or replace later rendered flight playtests.
+
+## Flight Curves design screen
+
+Open <http://localhost:8092/apps/flight-foundry/curves.html>. This additional screen preserves the force/motion bench and does not change the cockpit. It is an analytical kinematic planner, not a simulation of installed propulsion or dampers. Choose speeds, transition durations, independent early/late acceleration shapes and an ideal crew-load target. It updates immediately without a Run button. Starting/arrival speeds and an optional coast interval are under the disclosure. Starting above cruise explores a capture rather than forward acceleration. Speeds are displayed in km/s, stored/calculated in m/s.
+
+Four graphs share time: speed, signed ship acceleration, ideal remaining crew G, and required suppression percentage. Scales are labelled independently; the crew target is dashed. Boundary samples include both sides of acceleration jumps so peaks are not lost. The scrubber inspects a selected instant (at a boundary it selects the new phase). Summary peaks include the just-ended phase. Required suppression is zero for zero load; otherwise it is `max(0, 1 − targetG/shipG) × 100%`. This is the suppression required at each instant, not a fixed 5% transmission profile or an achievable equipment rating. A zero-G target requests ideal 100% cancellation whenever accelerating. No load is added to reach the target when motion is already gentler.
+
+For normalized phase time `u = t/T`, speed difference `Δv`, and shape `k` from −1 (strong early) through 0 (constant) to +1 (strong late):
+
+- `v(u) = v₀ + Δv [(1−k)u + ku²]`
+- `a(u) = Δv/T [1 + k(2u−1)]`
+- `x(u) = x₀ + v₀Tu + ΔvT [(1−k)u²/2 + ku³/3]`
+
+Thus shape changes preserve the endpoints and duration, but alter distance and peak acceleration. Both acceleration and braking are calculated separately. At the strongest skew, peak acceleration is twice the constant-acceleration case. All shape values have finite endpoint accelerations; these curves are not jerk-limited. At completion the planner assumes acceleration ends. Crew G is the magnitude of the attenuated load, with no artificial gravity, body-axis, exposure, injury or capacity model.
+
+Default example: 0 → 800 → 0 m/s, four seconds per transition, constant acceleration, no coast. Total distance is 3.2 km, ship load is approximately 20.39 G, and holding ideal crew load to 2 G requires approximately 90.19% suppression. The separate two-minute cruise-distance readout is 96 km; it does not include the transition distances/time. These numbers are exploratory, not accepted game balance or human safety thresholds.
+
+Positive speed sliders use logarithmic exploration; other sliders are linear. Exact fields can exceed the displayed slider range within validated model bounds, disabling that slider without silently clamping the setting. Invalid edits retain the last valid graphs and show an error. Reset example restores the candidate; this screen has no persisted settings or runtime equipment edits. Model bounds: speeds 0–10⁸ m/s, transition durations 0.1–120 s, coast 0–600 s, shapes −1…1 and crew target 0–20 G. At extreme speeds the Newtonian planner makes no relativistic claim.
+
+`tests/flight-curves.test.ts` checks endpoints, derivatives, analytical distances, independent curve shapes, exact peaks, phase continuity, capture/coast, zero/100% protection and boundary validation. Rendered flight is still needed to judge feel; the graphs cannot determine fun or survivability.
