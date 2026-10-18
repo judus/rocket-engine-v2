@@ -50,10 +50,12 @@ Positive speed sliders use logarithmic exploration; other sliders are linear. Ex
 
 ## Capture response model (not yet connected to this UI)
 
-The next model slice is [documented separately](../../docs/SHIP-CAPTURE-MODEL.md). `CaptureResponse.ts` takes an equipment profile and an entry speed, grows duration and braking concentration above a reference excess speed, and reports nominal crew G from the profile's transmission fraction. It does not cap crew G to the ideal planner's target. The current screens remain unchanged; this calculation does not yet drive a powered ship, heat model or injury system.
+The next model slice is [documented separately](../../docs/SHIP-CAPTURE-MODEL.md). `games/ship/CaptureResponse.ts` takes an equipment profile and an entry speed, grows duration and braking concentration above a reference excess speed, and reports nominal crew G from the profile's transmission fraction. It does not cap crew G to the ideal planner's target. The assembled ship screen now integrates this plan through a powered damper capability; the curve planner remains separate. Heat and injury systems are not implemented.
 
 ## Assembled ship telemetry
 
 Open <http://localhost:8092/apps/flight-foundry/ship.html> for the actual attached ship architecture, separate from the analytical curve tools. It runs game-owned control, engine, power and movement capabilities, with resource-limited Newtonian motion. See [the ship assembly documentation](../../games/ship/README.md).
 
 The assembled ship loads its equipment from `games/ship/profiles/*.json`, referenced by `games/ship/ships/science-ship.json`. Edit the JSON and reload to tune definitions; Reset repeats the loaded setup. Starting charge/velocity are separate initial-state data.
+
+The assembled ship includes an inertia-damper switch, separate JSON profile, editable reset velocity, assisted-flight/capture state and actual ship/crew G telemetry. See [ship ownership and behavior](../../games/ship/README.md#powered-inertia-dampers).

@@ -4,7 +4,7 @@ Julien's steering after the Flight Curves experiment: the approximately 12 km/s 
 
 ## Current implementation
 
-`apps/flight-foundry/CaptureResponse.ts` provides validated `CaptureProfile` data and an immutable `CapturePlan` selected once at engagement. No DOM, clocks, ECS storage, body mutation or power consumption is involved. The existing Flight Curves screen still displays ideal required protection; it has **not** been switched to this equipment-response model. The original motion bench is unchanged.
+`games/ship/CaptureResponse.ts` provides validated `CaptureProfile` data and an immutable `CapturePlan` selected once at engagement. No DOM, clocks, ECS storage, body mutation or power consumption is involved. The existing Flight Curves screen still displays ideal required protection; it has **not** been switched to this equipment-response model. The original motion bench is unchanged.
 
 ```ts
 const plan = new CapturePlan(installedDamperProfile, entrySpeedMps);
@@ -61,3 +61,5 @@ This does not assert that 6 G is medically safe or that this is the right balanc
 Profiles reject missing/unknown fields and nonfinite/out-of-range values. Bounds are experimental calculation bounds, not ship upgrade limits: speeds ≤10⁸ m/s, positive reference excess ≥1 m/s, baseline duration 0.01–120 s, duration exponent 0–1, base curve power 1–16, shape growth 0–4 per doubling, transmission 0–1. This remains a classical requested-motion model, with no relativistic guarantee.
 
 `tests/capture-response.test.ts` covers reference/over-reference behavior, independent growth controls, anchor continuity, early/late distance differences, analytical derivatives and integrated braking impulse, exact target speed, zero capture, constant braking, nominal protection, immutable engagement data and invalid boundaries. There is no claim of game feel or actual powered-system readiness. Next integration work must preserve a shared fixed step and one authoritative body, then compare requested versus delivered capture and protection under explicit adequate/partial/zero resource budgets.
+
+The assembled ship now consumes this plan through `games/ship/ShipDampers.ts`. See `games/ship/README.md` for actual power-limited integration, recovery behavior and limitations. The mathematical plan itself still assumes full service.

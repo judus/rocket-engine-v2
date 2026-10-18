@@ -43,6 +43,11 @@ function fail(error: unknown): void {
   message.textContent = error instanceof Error ? error.message : String(error);
 }
 function reset(): void {
+  const entry = find<HTMLInputElement>('#entry-speed');
+  if (entry.value === '' || !entry.checkValidity())
+    throw new RangeError(
+      'Starting speed must be between -100,000,000 and 100,000,000 m/s',
+    );
   runtime?.stop();
   if (runtime) void runtime.dispose().catch(fail);
   running = false;
@@ -56,10 +61,20 @@ function reset(): void {
       }
     },
   });
-  ship = stage.entity(() => new Ship(setup.profile, setup.initialState), {
-    id: setup.profile.id,
-    tags: ['ship'],
-  });
+  ship = stage.entity(
+    () =>
+      new Ship(setup.profile, {
+        ...setup.initialState,
+        velocityMps: {
+          ...setup.initialState.velocityMps,
+          z: Number(find<HTMLInputElement>('#entry-speed').value),
+        },
+      }),
+    {
+      id: setup.profile.id,
+      tags: ['ship'],
+    },
+  );
   runtime = new Rocket({
     fixed: { step: 1 / 60, maxSteps: 12 },
     onError: fail,
@@ -70,13 +85,16 @@ function reset(): void {
   renderElapsed = 0;
   find<HTMLInputElement>('#engine').checked = true;
   find<HTMLInputElement>('#reactor').checked = true;
+  find<HTMLInputElement>('#dampers').checked = false;
   find('#message').textContent = '';
   neutral();
   const p = setup.profile;
   find('#installed').textContent =
-    `Installed: ${p.body.id} · ${p.power.id} · ${p.engine.id}`;
+    `Installed: ${p.body.id} · ${p.power.id} · ${p.engine.id} · ${p.dampers.id}`;
   find('#ship-specs').textContent =
     `${p.body.massKg.toLocaleString('en')} kg · ${p.engine.maxThrustN / 1e6} MN thrust · ${p.power.reactorOutputW / 1e9} GW reactor · ${p.power.capacityJ / 1e9} GJ reserve capacity. Engine: ${p.engine.baselineW / 1e6} MW baseline + ${p.engine.fullThrustW / 1e9} GW translation + ${p.engine.fullYawW / 1e9} GW yaw. Loaded from JSON; demonstration balance.`;
+  find('#damper-specs').textContent =
+    `Assisted limit ${p.dampers.capture.assistedSpeedMps} m/s · 95% response ${p.dampers.responseSeconds} s · nominal transmitted load ${p.dampers.capture.transmittedFraction * 100}%. Capture anchor: remove ${p.dampers.capture.referenceExcessMps} m/s in ${p.dampers.capture.referenceDurationSeconds} s; higher entry speeds increase duration and curve steepness. Prototype tuning.`;
   paint();
 }
 const fmt = (value: number) =>
@@ -96,11 +114,13 @@ function paint(): void {
   const force = Math.hypot(t.worldForceN.x, t.worldForceN.y, t.worldForceN.z);
   const data = [
     ['Speed', fmt(speed), 'm/s'],
-    ['Applied thrust', fmt(force / 1e6), 'MN'],
+    ['Applied force', fmt(force / 1e6), 'MN'],
     ['Heading', fmt((t.body.yawRadians * 180) / Math.PI), '°'],
     ['Yaw rate', fmt((t.body.yawRateRadps * 180) / Math.PI), '°/s'],
-    ['Demand', fmt(t.engine.demandW / 1e9), 'GW'],
-    ['Supplied', fmt(t.engine.suppliedW / 1e9), 'GW'],
+    ['Total demand', fmt((t.engine.demandW + t.dampers.demandW) / 1e9), 'GW'],
+    ['Total supplied', fmt(t.power.consumptionW / 1e9), 'GW'],
+    ['Ship load', fmt(t.shipG), 'G'],
+    ['Crew load', fmt(t.crewG), 'G'],
     ['Reserve', fmt(t.power.energyJ / 1e9), 'GJ'],
     ['Simulation time', fmt(t.timeSeconds), 's'],
     ['Completed steps', String(t.tick), 'ticks'],
@@ -118,6 +138,8 @@ function paint(): void {
   find<HTMLButtonElement>('#step').disabled = running;
   find('#power-state').textContent =
     `Reactor ${t.power.requested ? 'requested on' : 'off'} · generation ${fmt(t.power.generationW / 1e9)} GW · engine ${t.engine.state} · operation delivered ${fmt(t.engine.activityFraction * 100)}%. Readings are from tick ${t.tick}.`;
+  find('#damper-state').textContent =
+    `Dampers ${t.dampers.state} · ${t.dampers.mode} · delivered ${fmt(t.dampers.activityFraction * 100)}% · draw ${fmt(t.dampers.suppliedW / 1e9)} GW · crew receives ${fmt(t.dampers.transmittedFraction * 100)}% of translational load${t.dampers.mode === 'capture' ? ` · capture ${fmt(t.dampers.captureElapsedSeconds)} / ${fmt(t.dampers.captureDurationSeconds)} powered seconds` : ''}.`;
   find('#vectors').textContent =
     `Position (m): ${vector(t.body.positionM)}\nVelocity (m/s): ${vector(t.body.velocityMps)}\nAcceleration (m/s²): ${vector(t.body.accelerationMps2)}`;
   if (t.timeSeconds - lastHistoryTime >= 0.5) {
@@ -129,7 +151,7 @@ function paint(): void {
     .reverse()
     .map(
       (r) =>
-        `<tr><td>${fmt(r.timeSeconds)}</td><td>${fmt(Math.hypot(r.body.velocityMps.x, r.body.velocityMps.y, r.body.velocityMps.z))}</td><td>${r.engine.state}</td><td>${fmt(r.engine.activityFraction * 100)}</td><td>${fmt(r.power.energyJ / 1e9)}</td><td>${fmt(r.power.consumptionW / 1e9)}</td></tr>`,
+        `<tr><td>${fmt(r.timeSeconds)}</td><td>${fmt(Math.hypot(r.body.velocityMps.x, r.body.velocityMps.y, r.body.velocityMps.z))}</td><td>${r.engine.state}</td><td>${r.dampers.state} / ${r.dampers.mode}</td><td>${fmt(r.crewG)}</td><td>${fmt(r.engine.activityFraction * 100)}</td><td>${fmt(r.power.energyJ / 1e9)}</td><td>${fmt(r.power.consumptionW / 1e9)}</td></tr>`,
     )
     .join('');
 }
@@ -139,6 +161,9 @@ find('#reactor').addEventListener('change', () =>
 );
 find('#engine').addEventListener('change', () =>
   ship.engine.requestEnabled(find<HTMLInputElement>('#engine').checked),
+);
+find('#dampers').addEventListener('change', () =>
+  ship.dampers.requestEnabled(find<HTMLInputElement>('#dampers').checked),
 );
 find('#forward-full').addEventListener('click', () => {
   neutral();
@@ -151,7 +176,13 @@ find('#reverse-full').addEventListener('click', () => {
   commands();
 });
 find('#neutral').addEventListener('click', neutral);
-find('#reset').addEventListener('click', reset);
+find('#reset').addEventListener('click', () => {
+  try {
+    reset();
+  } catch (error) {
+    fail(error);
+  }
+});
 find('#run').addEventListener('click', () => {
   if (running) {
     runtime!.stop();
@@ -190,6 +221,9 @@ void loadShipSetup(
 )
   .then((loaded) => {
     setup = loaded;
+    find<HTMLInputElement>('#entry-speed').value = String(
+      loaded.initialState.velocityMps.z,
+    );
     reset();
     find('#ship-ui').inert = false;
   })

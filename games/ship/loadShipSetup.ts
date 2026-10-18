@@ -3,6 +3,7 @@ import {
   profileId,
   recordWithKeys,
   validateBodyProfile,
+  validateDamperProfile,
   validateEngineProfile,
   validateInitialState,
   validatePowerProfile,
@@ -29,22 +30,37 @@ export async function loadShipSetup(
 ): Promise<Readonly<ShipSetup>> {
   const manifest = recordWithKeys(
     await readJson(url, fetcher),
-    ['id', 'bodyProfile', 'powerProfile', 'engineProfile', 'initialState'],
+    [
+      'id',
+      'bodyProfile',
+      'powerProfile',
+      'engineProfile',
+      'damperProfile',
+      'initialState',
+    ],
     'Ship definition',
   );
   const id = profileId(manifest.id, 'Ship id');
   const bodyId = profileId(manifest.bodyProfile, 'Body reference');
   const powerId = profileId(manifest.powerProfile, 'Power reference');
   const engineId = profileId(manifest.engineProfile, 'Engine reference');
+  const damperId = profileId(manifest.damperProfile, 'Damper reference');
   const results = await Promise.all([
     readJson(new URL(`../profiles/${bodyId}.json`, url), fetcher),
     readJson(new URL(`../profiles/${powerId}.json`, url), fetcher),
     readJson(new URL(`../profiles/${engineId}.json`, url), fetcher),
+    readJson(new URL(`../profiles/${damperId}.json`, url), fetcher),
   ]);
   const body = validateBodyProfile(results[0]);
   const power = validatePowerProfile(results[1]);
   const engine = validateEngineProfile(results[2]);
-  if (body.id !== bodyId || power.id !== powerId || engine.id !== engineId)
+  const dampers = validateDamperProfile(results[3]);
+  if (
+    dampers.id !== damperId ||
+    body.id !== bodyId ||
+    power.id !== powerId ||
+    engine.id !== engineId
+  )
     throw new Error(
       'Equipment profile id does not match the ship definition reference',
     );
@@ -54,12 +70,18 @@ export async function loadShipSetup(
     0,
     power.capacityJ,
   );
+  numberIn(
+    'Damper restartEnergyJ for installed reserve',
+    dampers.restartEnergyJ,
+    0,
+    power.capacityJ,
+  );
   const initialState = validateInitialState(
     manifest.initialState,
     power.capacityJ,
   );
   return Object.freeze({
-    profile: Object.freeze({ id, body, power, engine }),
+    profile: Object.freeze({ id, body, power, engine, dampers }),
     initialState,
   });
 }

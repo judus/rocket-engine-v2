@@ -1,3 +1,5 @@
+import { ShipDampers } from './ShipDampers.js';
+import type { DamperReading } from './ShipDampers.js';
 import type { Behavior } from '../../src/index.js';
 import type { Vec3 } from '../../src/3d/index.js';
 import { ShipBody } from './ShipBody.js';
@@ -15,6 +17,9 @@ export interface ShipTelemetry {
   readonly body: Readonly<BodyReading>;
   readonly power: Readonly<PowerReading>;
   readonly engine: Readonly<EngineReading>;
+  readonly dampers: Readonly<DamperReading>;
+  readonly shipG: number;
+  readonly crewG: number;
   readonly worldForceN: Readonly<Vec3>;
 }
 const shipMotion = Symbol('ship motion pipeline');
@@ -28,32 +33,52 @@ export class ShipMovement implements Behavior {
     private readonly engine: ShipEngine,
     private readonly power: ShipPowerPlant,
     private readonly body: ShipBody,
+    private readonly dampers: ShipDampers,
   ) {
-    this.requires = [control, engine, power, body];
+    this.requires = [control, engine, power, body, dampers];
     this.#telemetry = Object.freeze({
       tick: 0,
       timeSeconds: 0,
       body: body.telemetry,
       power: power.telemetry,
       engine: engine.telemetry,
+      dampers: dampers.telemetry,
+      shipG: 0,
+      crewG: 0,
       worldForceN: Object.freeze({ x: 0, y: 0, z: 0 }),
     });
   }
   fixedUpdate(dt: number): undefined {
     numberIn('ship fixed step', dt, 1e-6, 1);
-    this.engine.declare(this.control.intent);
+    const requestedEngine = this.engine.declare(this.control.intent);
+    this.dampers.declare(this.control.intent, requestedEngine, dt);
     this.power.allocate(dt);
     const delivered = this.engine.deliver();
-    const worldForceN = Object.freeze(
-      this.body.localToWorld(delivered.thrustN),
+    const damperReading = this.dampers.deliver(delivered.activityFraction);
+    const engineForce = this.body.localToWorld(delivered.thrustN);
+    const worldForceN = Object.freeze({
+      x: engineForce.x + damperReading.worldForceN.x,
+      y: engineForce.y + damperReading.worldForceN.y,
+      z: engineForce.z + damperReading.worldForceN.z,
+    });
+    this.body.advance(
+      worldForceN,
+      delivered.yawTorqueNm + damperReading.yawTorqueNm,
+      dt,
     );
-    this.body.advance(worldForceN, delivered.yawTorqueNm, dt);
+    const shipG =
+      Math.hypot(worldForceN.x, worldForceN.y, worldForceN.z) /
+      this.body.massKg /
+      9.80665;
     this.#telemetry = Object.freeze({
       tick: this.#telemetry.tick + 1,
       timeSeconds: this.#telemetry.timeSeconds + dt,
       body: this.body.telemetry,
       power: this.power.telemetry,
       engine: delivered,
+      dampers: damperReading,
+      shipG,
+      crewG: shipG * damperReading.transmittedFraction,
       worldForceN,
     });
   }

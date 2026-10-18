@@ -71,8 +71,8 @@
       <section class="panel">
         <h2>Ship commands</h2>
         <p class="muted">
-          These sliders issue persistent control intent. Neutral stops thrust
-          and torque; it does not stop the ship.
+          Dampers off: commands request thrust and neutral coasts. Dampers on:
+          commands request assisted speed and yaw rate; neutral brakes drift.
         </p>
         <label class="command" for="forward"
           ><span>Forward / reverse <output id="forward-value">0%</output></span
@@ -93,7 +93,7 @@
         <div class="toolbar">
           <button id="forward-full" type="button">Full forward</button
           ><button id="reverse-full" type="button">Full reverse</button
-          ><button id="neutral" type="button">Neutral / coast</button>
+          ><button id="neutral" type="button">Neutral</button>
         </div>
         <label class="switch"
           ><input id="reactor" type="checkbox" checked />Reactor requested
@@ -103,15 +103,33 @@
           ><input id="engine" type="checkbox" checked />Engine requested
           on</label
         >
+        <label class="switch"
+          ><input id="dampers" type="checkbox" />Inertia dampers requested
+          on</label
+        >
+        <label class="command" for="entry-speed"
+          >Starting forward speed (m/s; applied by Reset ship)
+          <input
+            id="entry-speed"
+            type="number"
+            min="-100000000"
+            max="100000000"
+            step="any"
+            value="0"
+          />
+        </label>
         <div class="toolbar">
           <button id="run" class="primary" type="button">Run</button
           ><button id="step" type="button">Single step</button
           ><button id="reset" type="button">Reset ship</button>
         </div>
         <p class="muted">
-          Yaw has inertia too. Apply opposite torque to stop rotating. Reset
-          creates a new ship; ordinary control and module switches preserve the
-          current ship and reserve.
+          Dampers off: yaw retains inertia. Try a starting speed of 12,300 m/s,
+          Reset, then enable dampers to inspect capture and its power limits.
+          Capture first reduces speed to the assisted limit along the entry
+          trajectory; afterward current commands take over. Reset creates a new
+          ship; ordinary control and module switches preserve the current ship
+          and reserve.
         </p>
       </section>
       <section class="panel">
@@ -123,6 +141,7 @@
         <label for="reserve">Energy reserve</label
         ><progress id="reserve" max="1" value="0.5"></progress>
         <p id="power-state" class="muted"></p>
+        <p id="damper-state" class="muted"></p>
         <pre id="vectors" class="architecture"></pre>
         <h3>Assembly</h3>
         <pre class="architecture">
@@ -131,9 +150,11 @@ ship
 ├─ control    accepts intent from any controller
 ├─ power      owns reserve and allocation
 ├─ engine     requests power, delivers thrust/torque
+├─ dampers    powered assistance, capture and crew protection
 └─ movement   orders one fixed simulation step</pre>
         <p id="installed" class="muted"></p>
         <p id="ship-specs" class="muted"></p>
+        <p id="damper-specs" class="muted"></p>
       </section>
       <section class="panel log">
         <h2>Supply &amp; motion history</h2>
@@ -144,6 +165,8 @@ ship
                 <th>Time (s)</th>
                 <th>Speed (m/s)</th>
                 <th>Engine</th>
+                <th>Dampers</th>
+                <th>Crew (G)</th>
                 <th>Delivered (%)</th>
                 <th>Reserve (GJ)</th>
                 <th>Draw (GW)</th>
@@ -156,10 +179,12 @@ ship
     </main>
     <p id="message" role="status"></p>
     <footer>
-      3D translation and one yaw axis. No dampers, heat, collision, crew damage
-      or relativistic model yet. Power costs are explicit prototype profile
-      values. Engine shortage scales operation after funding its baseline;
-      reserve recharge uses the existing demonstration hysteresis.
+      3D translation and one yaw axis. No heat, collision, crew damage or
+      relativistic model yet. Power costs are explicit prototype profile values.
+      Assisted velocity is a powered force response, not a hard speed clamp.
+      Crew G measures translation only. Engine shortage scales operation after
+      funding its baseline; reserve recharge uses the existing demonstration
+      hysteresis.
       <a href="../../games/ship/README.md">Source, ownership and limitations</a>
     </footer>
     <script

@@ -1,4 +1,4 @@
-import { standardGravity } from './FlightCurves.js';
+const standardGravity = 9.80665;
 
 /** Equipment response parameters, independent of rendering and crew injury rules. */
 export interface CaptureProfile {

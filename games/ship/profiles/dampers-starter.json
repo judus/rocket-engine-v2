@@ -1,0 +1,19 @@
+{
+  "id": "dampers-starter",
+  "responseSeconds": 3,
+  "maxYawRateRadps": 0.6,
+  "baselineW": 100000000,
+  "wattsPerNewton": 100,
+  "wattsPerNewtonMeter": 10,
+  "restartEnergyJ": 20000000000,
+  "capture": {
+    "assistedSpeedMps": 300,
+    "referenceExcessMps": 12000,
+    "referenceDurationSeconds": 4,
+    "durationGrowthExponent": 0.3010299956639812,
+    "baseCurvePower": 2,
+    "curvePowerGrowthPerDoubling": 0.2,
+    "peakAt": "end",
+    "transmittedFraction": 0.01
+  }
+}

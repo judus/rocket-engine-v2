@@ -5,6 +5,11 @@
   "engineProfile": "engine-starter",
   "initialState": {
     "energyJ": 100000000000,
-    "velocityMps": { "x": 0, "y": 0, "z": 0 }
-  }
+    "velocityMps": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    }
+  },
+  "damperProfile": "dampers-starter"
 }

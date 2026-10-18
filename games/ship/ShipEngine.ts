@@ -50,7 +50,9 @@ export class ShipEngine implements Behavior {
       throw new TypeError('Engine request must be boolean');
     this.#requested = value;
   }
-  declare(intent: Readonly<ShipIntent>): void {
+  declare(
+    intent: Readonly<ShipIntent>,
+  ): Pick<EngineReading, 'thrustN' | 'yawTorqueNm' | 'requested'> {
     this.#intent = intent;
     const throttle = Math.hypot(
       intent.thrust.x,
@@ -64,6 +66,16 @@ export class ShipEngine implements Behavior {
       this.#requested,
       this.profile.baselineW + this.#activityDemandW,
     );
+    return {
+      requested: this.#requested,
+      thrustN: {
+        x: intent.thrust.x * this.profile.maxThrustN * Number(this.#requested),
+        y: intent.thrust.y * this.profile.maxThrustN * Number(this.#requested),
+        z: intent.thrust.z * this.profile.maxThrustN * Number(this.#requested),
+      },
+      yawTorqueNm:
+        intent.yaw * this.profile.maxYawTorqueNm * Number(this.#requested),
+    };
   }
   deliver(): Readonly<EngineReading> {
     const allocation = this.port().delivery();

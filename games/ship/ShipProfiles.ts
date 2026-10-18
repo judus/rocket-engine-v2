@@ -1,3 +1,5 @@
+import { validateCaptureProfile } from './CaptureResponse.js';
+import type { CaptureProfile } from './CaptureResponse.js';
 import type { Vec3 } from '../../src/3d/index.js';
 
 export interface BodyProfile {
@@ -19,11 +21,22 @@ export interface EngineProfile {
   fullYawW: number;
   restartEnergyJ: number;
 }
+export interface DamperProfile {
+  id: string;
+  responseSeconds: number;
+  maxYawRateRadps: number;
+  baselineW: number;
+  wattsPerNewton: number;
+  wattsPerNewtonMeter: number;
+  restartEnergyJ: number;
+  capture: Readonly<CaptureProfile>;
+}
 export interface ShipProfile {
   readonly id: string;
   readonly body: Readonly<BodyProfile>;
   readonly power: Readonly<PowerPlantProfile>;
   readonly engine: Readonly<EngineProfile>;
+  readonly dampers: Readonly<DamperProfile>;
 }
 export interface ShipInitialState {
   readonly energyJ: number;
@@ -139,5 +152,32 @@ export function validateInitialState(
       y: readNumber(v, 'y', -1e30),
       z: readNumber(v, 'z', -1e30),
     }),
+  });
+}
+
+export function validateDamperProfile(value: unknown): Readonly<DamperProfile> {
+  const p = recordWithKeys(
+    value,
+    [
+      'id',
+      'responseSeconds',
+      'maxYawRateRadps',
+      'baselineW',
+      'wattsPerNewton',
+      'wattsPerNewtonMeter',
+      'restartEnergyJ',
+      'capture',
+    ],
+    'Damper profile',
+  );
+  return Object.freeze({
+    id: profileId(p.id, 'Damper id'),
+    responseSeconds: readNumber(p, 'responseSeconds', 0.01, 120),
+    maxYawRateRadps: readNumber(p, 'maxYawRateRadps', 0, 10),
+    baselineW: readNumber(p, 'baselineW', Number.MIN_VALUE),
+    wattsPerNewton: readNumber(p, 'wattsPerNewton', Number.MIN_VALUE),
+    wattsPerNewtonMeter: readNumber(p, 'wattsPerNewtonMeter', Number.MIN_VALUE),
+    restartEnergyJ: readNumber(p, 'restartEnergyJ', 0),
+    capture: validateCaptureProfile(p.capture),
   });
 }

@@ -3,6 +3,7 @@ import { ShipBody } from './ShipBody.js';
 import { ShipControl } from './ShipControl.js';
 import { ShipPowerPlant } from './ShipPowerPlant.js';
 import { ShipEngine } from './ShipEngine.js';
+import { ShipDampers } from './ShipDampers.js';
 import { ShipMovement } from './ShipMovement.js';
 
 import { numberIn, profileId, validateInitialState } from './ShipProfiles.js';
@@ -15,6 +16,7 @@ export class Ship extends Node2D {
   readonly control: ShipControl;
   readonly power: ShipPowerPlant;
   readonly engine: ShipEngine;
+  readonly dampers: ShipDampers;
   readonly movement: ShipMovement;
   constructor(
     profile: Readonly<ShipProfile>,
@@ -29,6 +31,12 @@ export class Ship extends Node2D {
       0,
       profile.power.capacityJ,
     );
+    numberIn(
+      'Damper restartEnergyJ for installed reserve',
+      profile.dampers.restartEnergyJ,
+      0,
+      profile.power.capacityJ,
+    );
     try {
       this.body = this.attach(new ShipBody(profile.body, initial.velocityMps));
       this.control = this.attach(new ShipControl());
@@ -36,8 +44,17 @@ export class Ship extends Node2D {
         new ShipPowerPlant(profile.power, initial.energyJ),
       );
       this.engine = this.attach(new ShipEngine(profile.engine, this.power));
+      this.dampers = this.attach(
+        new ShipDampers(profile.dampers, this.power, this.body),
+      );
       this.movement = this.attach(
-        new ShipMovement(this.control, this.engine, this.power, this.body),
+        new ShipMovement(
+          this.control,
+          this.engine,
+          this.power,
+          this.body,
+          this.dampers,
+        ),
       );
     } catch (error) {
       this.dispose();

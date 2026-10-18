@@ -17,6 +17,7 @@ function step(ship: Ship, dt = 1 / 60): void {
 const initial = { energyJ: 100, velocityMps: { x: 0, y: 0, z: 0 } };
 const small: ShipProfile = {
   id: 'test-ship',
+  dampers: { ...starterSetup.profile.dampers, restartEnergyJ: 50 },
   body: { id: 'test-hull', massKg: 2, yawInertiaKgM2: 2 },
   power: { id: 'test-reactor', capacityJ: 100, reactorOutputW: 0 },
   engine: {

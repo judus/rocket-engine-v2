@@ -17,6 +17,12 @@ const manifestUrl = new URL(
 function fixtures(): Map<string, unknown> {
   return new Map([
     [
+      'profiles/dampers-starter.json',
+      JSON.parse(
+        readFileSync('games/ship/profiles/dampers-starter.json', 'utf8'),
+      ) as unknown,
+    ],
+    [
       'ships/science-ship.json',
       JSON.parse(
         readFileSync('games/ship/ships/science-ship.json', 'utf8'),
@@ -65,6 +71,8 @@ function changed(
   });
 }
 void test('Actual JSON loadout produces the typed installed equipment and separate initial state', () => {
+  assert.equal(starterSetup.profile.dampers.id, 'dampers-starter');
+  assert.ok(Object.isFrozen(starterSetup.profile.dampers.capture));
   assert.equal(starterSetup.profile.engine.id, 'engine-starter');
   assert.equal(starterSetup.profile.power.id, 'reactor-starter');
   assert.equal(starterSetup.profile.body.id, 'hull-starter');
@@ -100,6 +108,12 @@ void test('Loadout boundary rejects missing/unknown properties and numeric strin
     ['profiles/engine-starter.json', { unrecognizedModifier: 2 }],
     ['profiles/reactor-starter.json', { initialEnergyJ: 100 }],
     ['profiles/hull-starter.json', { massKg: -1 }],
+    ['profiles/dampers-starter.json', { responseSeconds: '3' }],
+    ['profiles/dampers-starter.json', { restartEnergyJ: 201e9 }],
+    [
+      'profiles/dampers-starter.json',
+      { capture: { transmittedFraction: 0.01 } },
+    ],
   ] as const) {
     const files = fixtures();
     changed(files, path, values);
