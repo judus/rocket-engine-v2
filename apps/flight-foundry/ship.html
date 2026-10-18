@@ -43,6 +43,66 @@
         white-space: pre-wrap;
         color: #a9d8cc;
       }
+      .panel {
+        min-width: 0;
+      }
+      .module-matrix {
+        margin: 16px 0 20px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+      .module-matrix table {
+        min-width: 440px;
+        white-space: normal;
+        font-size: 12px;
+      }
+      .module-matrix th,
+      .module-matrix td {
+        text-align: left;
+        vertical-align: top;
+        padding: 12px 10px;
+        line-height: 1.5;
+      }
+      .module-matrix thead th {
+        background: #0d1720;
+      }
+      .module-matrix tbody th {
+        color: var(--accent);
+        width: 18%;
+      }
+      .module-matrix td {
+        width: 27.33%;
+      }
+      .module-matrix strong {
+        font-weight: 500;
+        color: #c7f2e7;
+      }
+      .module-matrix small {
+        display: block;
+        color: var(--muted);
+        font-size: 10px;
+        margin-top: 4px;
+      }
+      .module-matrix tfoot {
+        background: #0d1720;
+      }
+      .reserve-heading {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      #reserve-reading {
+        color: var(--accent);
+        font-family: ui-monospace, monospace;
+      }
+      .system-details {
+        margin: 20px 0;
+      }
+      .system-details summary {
+        cursor: pointer;
+        color: var(--accent);
+      }
       .log {
         grid-column: 1/-1;
       }
@@ -190,12 +250,32 @@
       </section>
       <section class="panel">
         <div class="section-head">
-          <h2>Committed telemetry</h2>
+          <h2>Flight telemetry</h2>
           <span id="state" class="badge">PAUSED</span>
         </div>
         <div id="ship-readings" class="readings"></div>
-        <label for="reserve">Energy reserve</label
-        ><progress id="reserve" max="1" value="0.5"></progress>
+        <p id="simulation-state" class="muted"></p>
+        <pre id="vectors" class="architecture"></pre>
+        <h2>Modules</h2>
+        <div class="table-wrap module-matrix">
+          <table aria-label="Module telemetry">
+            <thead>
+              <tr>
+                <th scope="col">Module</th>
+                <th scope="col">State</th>
+                <th scope="col">Energy / power</th>
+                <th scope="col">Heat</th>
+              </tr>
+            </thead>
+            <tbody id="module-readings"></tbody>
+            <tfoot id="module-totals"></tfoot>
+          </table>
+        </div>
+        <div class="reserve-heading">
+          <label for="reserve">Energy reserve</label
+          ><span id="reserve-reading"></span>
+        </div>
+        <progress id="reserve" max="1" value="0.5"></progress>
         <h3>Shields &amp; hull</h3>
         <label for="shield-charge">Shield energy</label
         ><progress id="shield-charge" max="1" value="0"></progress>
@@ -223,12 +303,14 @@
           charge them. Switching off preserves energy but removes protection.
           Hull breach is reported; destruction rules come later.
         </p>
-        <p id="power-state" class="muted"></p>
-        <p id="damper-state" class="muted"></p>
-        <p id="thermal-state" class="muted"></p>
-        <p id="damper-thermal-state" class="muted"></p>
-        <p id="reactor-state" class="muted"></p>
-        <pre id="vectors" class="architecture"></pre>
+        <details class="system-details">
+          <summary>System diagnostics</summary>
+          <p id="power-state" class="muted"></p>
+          <p id="damper-state" class="muted"></p>
+          <p id="thermal-state" class="muted"></p>
+          <p id="damper-thermal-state" class="muted"></p>
+          <p id="reactor-state" class="muted"></p>
+        </details>
         <h3>Assembly</h3>
         <pre class="architecture">
 ship

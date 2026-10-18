@@ -154,31 +154,8 @@ function paint(): void {
     ['Applied force', fmt(force / 1e6), 'MN'],
     ['Heading', fmt((t.body.yawRadians * 180) / Math.PI), '°'],
     ['Yaw rate', fmt((t.body.yawRateRadps * 180) / Math.PI), '°/s'],
-    [
-      'Total demand',
-      fmt(
-        (t.power.startupDemandW +
-          t.engine.demandW +
-          t.dampers.demandW +
-          t.cooling.demandW +
-          t.shields.demandW) /
-          1e9,
-      ),
-      'GW',
-    ],
-    ['Total supplied', fmt(t.power.consumptionW / 1e9), 'GW'],
     ['Ship load', fmt(t.shipG), 'G'],
     ['Crew load', fmt(t.crewG), 'G'],
-    ['Reactor temperature', fmt(t.power.thermal.temperatureK - 273.15), '°C'],
-    ['Reactor heat', fmt(t.power.thermal.generatedHeatW / 1e6), 'MW'],
-    ['Engine temperature', fmt(t.engine.thermal.temperatureK - 273.15), '°C'],
-    ['Damper temperature', fmt(t.dampers.thermal.temperatureK - 273.15), '°C'],
-    ['Damper heat', fmt(t.dampers.thermal.generatedHeatW / 1e6), 'MW'],
-    ['Engine heat', fmt(t.engine.thermal.generatedHeatW / 1e6), 'MW'],
-    ['Heat removed', fmt(t.cooling.removedHeatW / 1e6), 'MW'],
-    ['Reserve', fmt(t.power.energyJ / 1e9), 'GJ'],
-    ['Simulation time', fmt(t.timeSeconds), 's'],
-    ['Completed steps', String(t.tick), 'ticks'],
   ];
   find('#ship-readings').innerHTML = data
     .map(
@@ -186,6 +163,77 @@ function paint(): void {
         `<div class="reading"><span>${label}</span><strong>${value}</strong><small>${unit}</small></div>`,
     )
     .join('');
+  find('#simulation-state').textContent =
+    `Simulation ${fmt(t.timeSeconds)} s · tick ${t.tick}`;
+  const totalDemandW =
+    t.power.startupDemandW +
+    t.engine.demandW +
+    t.dampers.demandW +
+    t.cooling.demandW +
+    t.shields.demandW;
+  const electrical = (suppliedW: number, demandW: number) =>
+    `${fmt(suppliedW / 1e6)} / ${fmt(demandW / 1e6)} MW<small>supplied / requested</small>`;
+  const thermal = (
+    temperatureK: number,
+    generatedW: number,
+    removedW: number,
+  ) =>
+    `${fmt(temperatureK - 273.15)} °C<small>+${fmt(generatedW / 1e6)} MW generated<br>−${fmt(removedW / 1e6)} MW removed</small>`;
+  const requested = (on: boolean) => `requested ${on ? 'on' : 'off'}`;
+  const modules = [
+    [
+      'Reactor',
+      `<strong>${t.power.state}</strong><small>${requested(t.power.requested)} · restart ${fmt(t.power.thermal.restartRemainingSeconds)} s</small>`,
+      `${fmt(t.power.generationW / 1e6)} MW output<small>starter: ${fmt(t.power.startupSuppliedW / 1e6)} / ${fmt(t.power.startupDemandW / 1e6)} MW</small>`,
+      thermal(
+        t.power.thermal.temperatureK,
+        t.power.thermal.generatedHeatW,
+        t.power.passiveRemovedHeatW + t.cooling.reactorRemovedHeatW,
+      ),
+    ],
+    [
+      'Engine',
+      `<strong>${t.engine.state}</strong><small>${requested(t.engine.requested)} · restart ${fmt(t.engine.thermal.restartRemainingSeconds)} s</small>`,
+      electrical(t.engine.suppliedW, t.engine.demandW),
+      thermal(
+        t.engine.thermal.temperatureK,
+        t.engine.thermal.generatedHeatW,
+        t.cooling.engineRemovedHeatW,
+      ),
+    ],
+    [
+      'Inertia dampers',
+      `<strong>${t.dampers.state}</strong><small>${requested(t.dampers.requested)} · ${t.dampers.mode}<br>restart ${fmt(t.dampers.thermal.restartRemainingSeconds)} s</small>`,
+      electrical(t.dampers.suppliedW, t.dampers.demandW),
+      thermal(
+        t.dampers.thermal.temperatureK,
+        t.dampers.thermal.generatedHeatW,
+        t.cooling.damperRemovedHeatW,
+      ),
+    ],
+    [
+      'Cooling',
+      `<strong>${t.cooling.state}</strong><small>${requested(t.cooling.requested)}</small>`,
+      electrical(t.cooling.suppliedW, t.cooling.demandW),
+      `${fmt(t.cooling.removedHeatW / 1e6)} MW removed<small>shared cooling circuit</small>`,
+    ],
+    [
+      'Shields',
+      `<strong>${t.shields.state}</strong><small>${requested(t.shields.requested)} · ${t.shields.active ? 'field powered' : 'no protection'}<br>recharge delay ${fmt(t.shields.rechargeDelaySeconds)} s</small>`,
+      `${fmt(t.shields.energyJ / 1e9)} / ${fmt(t.shields.capacityJ / 1e9)} GJ stored<small>${fmt(t.shields.suppliedW / 1e6)} / ${fmt(t.shields.demandW / 1e6)} MW supplied / requested</small>`,
+      'Not modeled',
+    ],
+  ];
+  find('#module-readings').innerHTML = modules
+    .map(
+      ([name, state, energy, heat]) =>
+        `<tr><th scope="row">${name}</th><td>${state}</td><td>${energy}</td><td>${heat}</td></tr>`,
+    )
+    .join('');
+  find('#module-totals').innerHTML =
+    `<tr><th scope="row">Ship total</th><td>${t.power.emergency ? 'Emergency recovery' : 'Normal power'}</td><td>${electrical(t.power.consumptionW, totalDemandW)}</td><td>${fmt(t.cooling.removedHeatW / 1e6)} MW circuit<small>+ ${fmt(t.power.passiveRemovedHeatW / 1e6)} MW passive removal</small></td></tr>`;
+  find('#reserve-reading').textContent =
+    `${fmt(t.power.energyJ / 1e9)} / ${fmt(t.power.capacityJ / 1e9)} GJ stored`;
   find<HTMLProgressElement>('#reserve').value =
     t.power.energyJ / t.power.capacityJ;
   find<HTMLProgressElement>('#shield-charge').value =
