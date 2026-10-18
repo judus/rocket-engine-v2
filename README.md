@@ -6,6 +6,10 @@ Rocket v2 is a multipurpose JavaScript canvas engine: start with ordinary update
 
 The old spaceship demo was an exploration and stress test, not the engine's defining use case. Procedural terrain and Production Workshop are intended integration consumers, alongside simple animations and interactive diagrams.
 
+## Game examples
+
+Actual game assembly examples live separately in [`games/`](games/README.md). Open `/games/` for the first platformer: Rocket facades, typed attached capabilities, player/AI intent, fixed execution order and entity cleanup. The existing cockpit remains a rendering and feature testbed.
+
 ## Particles and projectiles
 
 The first 2D effects milestones are available at `/particles.html` and

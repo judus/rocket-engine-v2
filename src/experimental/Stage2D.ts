@@ -1,10 +1,13 @@
 import { Camera2D } from '../Camera2D.js';
+import { assertSynchronous } from '../synchronous.js';
 import { Node2D } from '../Node2D.js';
 import type { NodeOptions } from '../Node2D.js';
 import { Scene2D } from '../Scene2D.js';
-import type { Frame, Scene } from '../types.js';
+import type { Frame, FixedFrame, Scene } from '../types.js';
 
 export interface StageOptions {
+  fixed?: boolean;
+  fixedUpdate?: (dt: number, frame: FixedFrame) => undefined;
   prepare?: (context: { signal: AbortSignal }) => void | Promise<void>;
   update?: (dt: number, frame: Frame) => undefined;
   render?: (ctx: CanvasRenderingContext2D, frame: Frame) => undefined;
@@ -53,6 +56,7 @@ export class Stage2D implements Scene {
   readonly camera = new Camera2D();
   readonly world: Scene2D;
   readonly screen = new Scene2D();
+  readonly fixedUpdate?: (dt: number, frame: FixedFrame) => undefined;
   #layers = new Map<string, Layer>();
   #entities = new Map<Node2D, { id?: string; tags: readonly string[] }>();
   #camera: Camera2D | null = null;
@@ -60,9 +64,16 @@ export class Stage2D implements Scene {
   constructor(options: StageOptions = {}) {
     this.world = new Scene2D({
       ...options,
+      fixedBehaviors: options.fixed ?? options.fixedUpdate !== undefined,
       ...(options.render ? { draw: options.render } : {}),
     });
     this.addLayer('world');
+    if (options.fixed || options.fixedUpdate) {
+      this.fixedUpdate = (dt, frame): undefined => {
+        // Gameplay fixed work belongs to the world tree; screen is presentation only.
+        this.world.fixedUpdate!(dt, frame);
+      };
+    }
   }
   get disposed() {
     return this.#disposed;
@@ -98,17 +109,37 @@ export class Stage2D implements Scene {
     update,
     ...options
   }: EntityOptions = {}): Node2D {
+    return this.entity(
+      () => {
+        const node = new Node2D(options);
+        if (update)
+          node.attach({
+            update(dt, frame): undefined {
+              return update.call(node, dt, frame);
+            },
+          });
+        return node;
+      },
+      { ...(id === undefined ? {} : { id }), tags, layer },
+    );
+  }
+  /** Adopt a concrete typed entity through the same layer, identity and lifetime path. */
+  entity<T extends Node2D>(
+    create: () => T,
+    {
+      id,
+      tags = [],
+      layer = 'world',
+    }: Pick<EntityOptions, 'id' | 'tags' | 'layer'> = {},
+  ): T {
     this.#assertLive();
     if (id !== undefined && (!id || this.find(id)))
       throw new Error(`Duplicate/empty entity ID: ${id}`);
     const parent = this.layer(layer);
-    const node = new Node2D(options);
-    if (update)
-      node.attach({
-        update(dt, frame): undefined {
-          return update.call(node, dt, frame);
-        },
-      });
+    assertSynchronous(create, 'entity factory');
+    const node = create();
+    if (!(node instanceof Node2D) || node.disposed || node.parent)
+      throw new Error('Entity factory must return a live, unparented Node2D');
     parent.add(node);
     node.attach({
       dispose: (): undefined => {

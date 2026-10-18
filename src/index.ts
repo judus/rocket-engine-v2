@@ -1,5 +1,5 @@
 export { Rocket } from './Rocket.js';
-export { Node2D } from './Node2D.js';
+export { Node2D, position2DWriter } from './Node2D.js';
 export { Scene2D } from './Scene2D.js';
 export type {
   Point,

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket Games · Attached capabilities</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: system-ui, sans-serif;
+        background: #0b171f;
+        color: #d4e8eb;
+      }
+      body {
+        max-width: 960px;
+        margin: 36px auto;
+        padding: 0 20px;
+      }
+      h1 {
+        font-size: 28px;
+        margin-bottom: 8px;
+      }
+      p,
+      output {
+        color: #a9c5cc;
+        line-height: 1.6;
+      }
+      a {
+        color: #8ce4cf;
+      }
+      #game {
+        border: 1px solid #36535c;
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 24px 0 16px;
+      }
+      canvas {
+        display: block;
+        width: 100% !important;
+        height: auto !important;
+      }
+      button {
+        background: #254653;
+        color: #d4e8eb;
+        border: 1px solid #50717a;
+        border-radius: 6px;
+        padding: 10px 16px;
+        cursor: pointer;
+      }
+      output {
+        display: block;
+        margin: 16px 0;
+        font: 14px monospace;
+      }
+      code {
+        color: #8ce4cf;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="../index.html">← Game examples</a>
+    <h1>Attach a capability. Give it intent.</h1>
+    <p>
+      Move with A/D or ←/→. Space or ↑ jumps. Shift runs. Click the viewport to
+      activate controls.
+    </p>
+    <div id="game"></div>
+    <button id="courier" type="button">Remove courier</button>
+    <output id="status" aria-live="off"></output>
+    <p>
+      The player and courier use <code>runner.movement</code>. Input and AI
+      supply intent; Rocket runs movement and travel tracking automatically on
+      its fixed clock. Removing an entity removes its capabilities too.
+    </p>
+    <script type="module" src="../../dist/games/platformer/main.js"></script>
+  </body>
+</html>

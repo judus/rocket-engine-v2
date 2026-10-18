@@ -10,6 +10,8 @@ import {
 import { assertSynchronous, invokeSynchronous } from './synchronous.js';
 
 export interface Scene2DOptions {
+  /** Run attached fixed capabilities using the existing Rocket fixed clock. */
+  fixedBehaviors?: boolean;
   prepare?: (
     this: Scene2D,
     context: { signal: AbortSignal },
@@ -41,7 +43,7 @@ export class Scene2D {
     }))
       assertSynchronous(hook, `scene.${name}`);
     this.#hooks = options;
-    if (fixedUpdate)
+    if (fixedUpdate || options.fixedBehaviors)
       this.fixedUpdate = (dt, frame): undefined => {
         if (this.#disposed) return;
         invokeSynchronous(
@@ -50,6 +52,7 @@ export class Scene2D {
           [dt, frame],
           'scene.fixedUpdate',
         );
+        this.root.fixedUpdate(dt, frame);
       };
     claimRoot(this.#root);
   }

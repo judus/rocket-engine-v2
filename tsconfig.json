@@ -23,6 +23,7 @@
   "include": [
     "src/**/*.ts",
     "examples/**/*.ts",
+    "games/**/*.ts",
     "tests/**/*.ts",
     "scripts/**/*.ts"
   ]

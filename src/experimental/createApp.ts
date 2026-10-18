@@ -11,7 +11,7 @@ export interface StageRoute {
   create: () => Stage2D;
   retain?: boolean;
 }
-export interface AppOptions extends StageOptions {
+export interface AppOptions extends Omit<StageOptions, 'fixed'> {
   target?: string | HTMLElement;
   width?: number;
   height?: number;
@@ -29,13 +29,14 @@ export function createApp({
 }: AppOptions = {}) {
   const ownedTarget =
     target === undefined ? document.createElement('div') : null;
-  const initial = new Stage2D(hooks);
+  const initial = new Stage2D({ ...hooks, fixed: runtime.fixed !== undefined });
   const engine = new Rocket(runtime);
   let view: View;
   let inputService: Input | undefined;
   let paused = false;
   let requested: Promise<void> | null = null;
   const navigator = new SceneNavigator({
+    fixed: runtime.fixed !== undefined,
     onChange(current): undefined {
       if (current instanceof Stage2D) view.camera = current.camera;
       engine.refreshScenes();

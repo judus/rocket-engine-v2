@@ -69,3 +69,9 @@ The demo creates two independent instances and shows the same tree through two c
 The complete suite now has 51 passing tests after the asset slice across runtime, composition and input. They cover nested rotation/nonuniform scale and inverse conversion, actual composed camera/DPR matrices in two views, stable ordering, additions/removals/reparenting during update, synchronous hook enforcement, exclusive ownership, draw isolation, render-time structural mutation rejection, detached lifetimes and cleanup after errors. Browser checks cover visible articulation, matching counters in both views, replacement/restart cleanup and pause/resume.
 
 These focused checks do not establish deep-tree capacity, cross-browser compatibility or physics scheduling. Traversal snapshots and transform recursion favor clarity over large-scene optimization; profile before adding caching or pooling.
+
+## Fixed capabilities and typed entity properties
+
+`node.attach(instance)` preserves its concrete type, so an entity can expose `readonly movement = this.attach(new Movement())` and consumers call `entity.movement.move(1)` directly. The experimental `stage.entity(() => new Runner())` facade preserves the concrete entity type too.
+
+Behaviors can implement synchronous `onAttach(node)` and `fixedUpdate(dt, frame, node)`, declare `fixedOrder`, same-entity lifetime dependencies through `requires`, and exclusive symbolic write claims through `writes`. Enable the existing fixed clock with the app facade's `runtime.fixed`. Direct `Scene2D` users enable attached fixed work with `fixedBehaviors: true`; direct stages use `fixed: true`. Work runs in order across the world subtree. See the [runnable game and full contract](../games/README.md) for lifecycle, ordering, conflicts and the deliberately limited platformer solver.

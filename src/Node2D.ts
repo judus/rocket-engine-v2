@@ -1,13 +1,17 @@
-import type { Frame, Point, Matrix2D } from './types.js';
+import type { Frame, FixedFrame, Point, Matrix2D } from './types.js';
 import { assertSynchronous, invokeSynchronous } from './synchronous.js';
 
 const hosts = new WeakSet<object>();
 const roots = new WeakSet<Node2D>();
 const drawing = new WeakSet<Node2D>();
+const attaching = new WeakSet<Node2D>();
 export function assertTreeMutable(node: Node2D) {
   if (node.disposed) throw new Error('Node is disposed');
   for (let n: Node2D | null = node; n; n = n.parent)
-    if (drawing.has(n)) throw new Error('Cannot change tree during drawing');
+    if (drawing.has(n) || attaching.has(n))
+      throw new Error(
+        'Cannot change tree during drawing or capability attachment',
+      );
 }
 export function withTreeDrawing<T>(node: Node2D, callback: () => T): T {
   const alreadyDrawing = drawing.has(node);
@@ -24,7 +28,19 @@ export function claimRoot(node: Node2D) {
   roots.add(node);
 }
 
+/** A capability may claim exclusive write access to a shared state channel. */
+export const position2DWriter = Symbol('position2DWriter');
+interface Attachment {
+  readonly order: number;
+  readonly requires: readonly Behavior[];
+  readonly writes: readonly symbol[];
+}
 export interface Behavior {
+  readonly fixedOrder?: number;
+  readonly requires?: readonly Behavior[];
+  readonly writes?: readonly symbol[];
+  onAttach?(node: Node2D): undefined;
+  fixedUpdate?(dt: number, frame: FixedFrame, node: Node2D): undefined;
   update?(dt: number, frame: Frame, node: Node2D): undefined;
   dispose?(node: Node2D): undefined;
 }
@@ -43,14 +59,14 @@ export interface NodeOptions {
 interface Entry {
   node: Node2D;
   revision: number;
-  behaviors: [Behavior, object][];
+  behaviors: [Behavior, Attachment][];
 }
 
 /** Local transforms, exclusive child ownership, and synchronous behaviors. */
 export class Node2D {
   #parent: Node2D | null = null;
   #children = new Set<Node2D>();
-  #behaviors = new Map<Behavior, object>();
+  #behaviors = new Map<Behavior, Attachment>();
   #disposed = false;
   #revision = 0;
   #draw: NodeOptions['draw'];
@@ -119,16 +135,63 @@ export class Node2D {
     this.#assertMutable();
     if (!behavior || typeof behavior !== 'object')
       throw new TypeError('behavior must be an object');
-    for (const hook of ['update', 'dispose'] as const)
+    for (const hook of [
+      'onAttach',
+      'fixedUpdate',
+      'update',
+      'dispose',
+    ] as const)
       assertSynchronous(behavior[hook], `behavior.${hook}`);
     if (hosts.has(behavior))
       throw new Error('Behavior already owned; create a new instance');
+    const order = behavior.fixedOrder ?? 0;
+    if (!Number.isFinite(order))
+      throw new RangeError('fixedOrder must be finite');
+    const requires = [...(behavior.requires ?? [])];
+    const writes = [...(behavior.writes ?? [])];
+    if (writes.some((claim) => typeof claim !== 'symbol'))
+      throw new TypeError('Write claims must be symbols');
+    for (const dependency of requires)
+      if (!this.#behaviors.has(dependency))
+        throw new Error('Required capability is not attached to this entity');
+    for (const installed of this.#behaviors.values())
+      if (writes.some((claim) => installed.writes.includes(claim)))
+        throw new Error('Conflicting capability state writer');
     hosts.add(behavior);
-    this.#behaviors.set(behavior, {});
+    attaching.add(this);
+    try {
+      invokeSynchronous(
+        behavior.onAttach,
+        behavior,
+        [this],
+        'capability.onAttach',
+      );
+    } catch (error) {
+      try {
+        invokeSynchronous(
+          behavior.dispose,
+          behavior,
+          [this],
+          'capability.dispose',
+        );
+      } catch (cleanup) {
+        throw new AggregateError(
+          [error, cleanup],
+          'Capability attachment and cleanup failed',
+        );
+      }
+      throw error;
+    } finally {
+      attaching.delete(this);
+    }
+    this.#behaviors.set(behavior, { order, requires, writes });
     return behavior;
   }
   remove(behavior: Behavior) {
     this.#assertMutable();
+    for (const entry of this.#behaviors.values())
+      if (entry.requires.includes(behavior))
+        throw new Error('Capability still has attached dependents');
     if (!this.#behaviors.delete(behavior)) return;
     invokeSynchronous(behavior.dispose, behavior, [this], 'behavior.dispose');
   }
@@ -163,6 +226,41 @@ export class Node2D {
           behavior,
           [dt, frame, node],
           'behavior.update',
+        );
+      }
+    }
+  }
+  /** One ordered fixed-step pass across this entire subtree, not one pipeline per node. */
+  fixedUpdate(dt: number, frame: FixedFrame): undefined {
+    if (this.#disposed) return;
+    if (!Number.isFinite(dt) || dt <= 0)
+      throw new RangeError('Fixed dt must be positive and finite');
+    const tasks = this.#snapshot().flatMap(({ node, revision, behaviors }) =>
+      behaviors
+        .filter(([behavior]) => behavior.fixedUpdate !== undefined)
+        .map(([behavior, token]) => ({ node, revision, behavior, token })),
+    );
+    tasks.sort((a, b) => a.token.order - b.token.order);
+    for (const { node, revision, behavior, token } of tasks) {
+      if (this.#disposed) return;
+      if (
+        node.#disposed ||
+        node.#revision !== revision ||
+        !node.#belongsTo(this) ||
+        node.#behaviors.get(behavior) !== token
+      )
+        continue;
+      try {
+        invokeSynchronous(
+          behavior.fixedUpdate,
+          behavior,
+          [dt, frame, node],
+          'capability.fixedUpdate',
+        );
+      } catch (cause) {
+        throw new Error(
+          `Fixed capability ${behavior.constructor.name} failed at node (${node.x}, ${node.y})`,
+          { cause },
         );
       }
     }

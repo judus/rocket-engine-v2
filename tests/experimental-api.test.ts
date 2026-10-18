@@ -274,6 +274,18 @@ void test('minimal app auto-start/deferred start/readiness and owned DOM cleanup
     await deferredApp.resume();
     assert.equal(frames.size, 1);
     await deferredApp.dispose();
+    const fixed = createApp({ runtime: { fixed: {} }, fixedUpdate() {} });
+    const actor = fixed.stage.add();
+    let ticks = 0;
+    actor.attach({
+      fixedUpdate() {
+        ticks++;
+      },
+    });
+    await fixed.ready;
+    fixed.navigator.fixedUpdate!(1 / 60, { dt: 1 / 60, time: 1 / 60, tick: 1 });
+    assert.equal(ticks, 1);
+    await fixed.dispose();
     const errors: unknown[] = [];
     const failed = createApp({
       prepare() {
