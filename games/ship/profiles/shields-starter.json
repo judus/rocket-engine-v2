@@ -1,0 +1,9 @@
+{
+  "id": "shields-starter",
+  "capacityJ": 10000000000.0,
+  "baselineW": 10000000.0,
+  "rechargeW": 1000000000.0,
+  "rechargeEfficiency": 0.8,
+  "rechargeDelaySeconds": 3,
+  "restartEnergyJ": 1000000000.0
+}

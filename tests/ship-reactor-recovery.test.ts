@@ -17,6 +17,7 @@ const quietThermal = {
 };
 const profile: ShipProfile = {
   ...starterSetup.profile,
+  shields: { ...starterSetup.profile.shields, restartEnergyJ: 0 },
   body: { ...starterSetup.profile.body, massKg: 2, yawInertiaKgM2: 2 },
   power: {
     id: 'recovery-test',
@@ -98,7 +99,7 @@ void test('Hot reactor with zero reserve cools passively, preserves the full eme
     close(ship.telemetry.power.consumptionW, 0);
     close(ship.telemetry.worldForceN.z, 0);
     close(ship.telemetry.body.velocityMps.z, 100);
-    assert.equal(ship.telemetry.power.propulsionAllowed, false);
+    assert.equal(ship.telemetry.power.nonessentialAllowed, false);
   }
   for (let i = 1; i <= 6; i++) {
     step(ship);
@@ -121,7 +122,7 @@ void test('Emergency output powers utility cooling and charges before propulsion
   close(ship.telemetry.engine.suppliedW, 0);
   close(ship.telemetry.dampers.suppliedW, 0);
   assert.equal(ship.telemetry.power.state, 'recovering');
-  assert.equal(ship.telemetry.power.propulsionAllowed, false);
+  assert.equal(ship.telemetry.power.nonessentialAllowed, false);
   close(ship.telemetry.body.velocityMps.z, 100);
   step(ship);
   assert.equal(ship.telemetry.power.emergency, false);

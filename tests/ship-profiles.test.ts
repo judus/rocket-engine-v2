@@ -16,6 +16,12 @@ const manifestUrl = new URL(
 );
 function fixtures(): Map<string, unknown> {
   return new Map([
+    ...['shields-starter', 'structure-starter'].map((id): [string, unknown] => [
+      `profiles/${id}.json`,
+      JSON.parse(
+        readFileSync(`games/ship/profiles/${id}.json`, 'utf8'),
+      ) as unknown,
+    ]),
     [
       'profiles/cooling-starter.json',
       JSON.parse(
@@ -145,6 +151,9 @@ void test('Loadout boundary rejects missing/unknown properties and numeric strin
       },
     ],
     ['profiles/hull-starter.json', { massKg: -1 }],
+    ['profiles/shields-starter.json', { rechargeEfficiency: 1.1 }],
+    ['profiles/shields-starter.json', { restartEnergyJ: 201e9 }],
+    ['profiles/structure-starter.json', { damageCapacityJ: 0 }],
     ['profiles/cooling-starter.json', { restartEnergyJ: 201e9 }],
     ['profiles/cooling-starter.json', { sinkTemperatureK: 350 }],
     ['profiles/cooling-starter.json', { fullPowerW: '5' }],

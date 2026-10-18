@@ -3,6 +3,8 @@ import {
   profileId,
   recordWithKeys,
   validateBodyProfile,
+  validateShieldProfile,
+  validateHullProfile,
   validateDamperProfile,
   validateCoolingProfile,
   validateThermalInstallation,
@@ -39,6 +41,8 @@ export async function loadShipSetup(
       'engineProfile',
       'damperProfile',
       'coolingProfile',
+      'shieldProfile',
+      'hullProfile',
       'initialState',
     ],
     'Ship definition',
@@ -48,6 +52,8 @@ export async function loadShipSetup(
   const powerId = profileId(manifest.powerProfile, 'Power reference');
   const engineId = profileId(manifest.engineProfile, 'Engine reference');
   const damperId = profileId(manifest.damperProfile, 'Damper reference');
+  const shieldId = profileId(manifest.shieldProfile, 'Shield reference');
+  const hullId = profileId(manifest.hullProfile, 'Hull reference');
   const coolingId = profileId(manifest.coolingProfile, 'Cooling reference');
   const results = await Promise.all([
     readJson(new URL(`../profiles/${bodyId}.json`, url), fetcher),
@@ -55,13 +61,19 @@ export async function loadShipSetup(
     readJson(new URL(`../profiles/${engineId}.json`, url), fetcher),
     readJson(new URL(`../profiles/${damperId}.json`, url), fetcher),
     readJson(new URL(`../profiles/${coolingId}.json`, url), fetcher),
+    readJson(new URL(`../profiles/${shieldId}.json`, url), fetcher),
+    readJson(new URL(`../profiles/${hullId}.json`, url), fetcher),
   ]);
   const body = validateBodyProfile(results[0]);
   const power = validatePowerProfile(results[1]);
   const engine = validateEngineProfile(results[2]);
   const dampers = validateDamperProfile(results[3]);
   const cooling = validateCoolingProfile(results[4]);
+  const shields = validateShieldProfile(results[5]);
+  const hull = validateHullProfile(results[6]);
   if (
+    shields.id !== shieldId ||
+    hull.id !== hullId ||
     cooling.id !== coolingId ||
     dampers.id !== damperId ||
     body.id !== bodyId ||
@@ -89,6 +101,12 @@ export async function loadShipSetup(
     0,
     power.capacityJ,
   );
+  numberIn(
+    'Shield restartEnergyJ for installed reserve',
+    shields.restartEnergyJ,
+    0,
+    power.capacityJ,
+  );
   validateThermalInstallation(cooling, power.thermal);
   validateThermalInstallation(cooling, engine.thermal);
   validateThermalInstallation(cooling, dampers.thermal);
@@ -97,7 +115,16 @@ export async function loadShipSetup(
     power.capacityJ,
   );
   return Object.freeze({
-    profile: Object.freeze({ id, body, power, engine, dampers, cooling }),
+    profile: Object.freeze({
+      id,
+      body,
+      power,
+      engine,
+      dampers,
+      cooling,
+      shields,
+      hull,
+    }),
     initialState,
   });
 }

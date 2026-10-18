@@ -59,6 +59,19 @@ export interface DamperProfile {
   restartEnergyJ: number;
   capture: Readonly<CaptureProfile>;
 }
+export interface ShieldProfile {
+  id: string;
+  capacityJ: number;
+  baselineW: number;
+  rechargeW: number;
+  rechargeEfficiency: number;
+  rechargeDelaySeconds: number;
+  restartEnergyJ: number;
+}
+export interface HullProfile {
+  id: string;
+  damageCapacityJ: number;
+}
 export interface ShipProfile {
   readonly id: string;
   readonly body: Readonly<BodyProfile>;
@@ -66,6 +79,8 @@ export interface ShipProfile {
   readonly engine: Readonly<EngineProfile>;
   readonly dampers: Readonly<DamperProfile>;
   readonly cooling: Readonly<CoolingProfile>;
+  readonly shields: Readonly<ShieldProfile>;
+  readonly hull: Readonly<HullProfile>;
 }
 export interface ShipInitialState {
   readonly reactorTemperatureK: number;
@@ -371,5 +386,42 @@ export function validateReactorRecoveryProfile(
     restoreReserveFraction,
     passiveCoolingW: readNumber(p, 'passiveCoolingW', Number.MIN_VALUE),
     sinkTemperatureK,
+  });
+}
+
+export function validateShieldProfile(value: unknown): Readonly<ShieldProfile> {
+  const p = recordWithKeys(
+    value,
+    [
+      'id',
+      'capacityJ',
+      'baselineW',
+      'rechargeW',
+      'rechargeEfficiency',
+      'rechargeDelaySeconds',
+      'restartEnergyJ',
+    ],
+    'Shield profile',
+  );
+  return Object.freeze({
+    id: profileId(p.id, 'Shield id'),
+    capacityJ: readNumber(p, 'capacityJ', 1),
+    baselineW: readNumber(p, 'baselineW', Number.MIN_VALUE),
+    rechargeW: readNumber(p, 'rechargeW', Number.MIN_VALUE),
+    rechargeEfficiency: readNumber(
+      p,
+      'rechargeEfficiency',
+      Number.MIN_VALUE,
+      1,
+    ),
+    rechargeDelaySeconds: readNumber(p, 'rechargeDelaySeconds', 0, 600),
+    restartEnergyJ: readNumber(p, 'restartEnergyJ', 0),
+  });
+}
+export function validateHullProfile(value: unknown): Readonly<HullProfile> {
+  const p = recordWithKeys(value, ['id', 'damageCapacityJ'], 'Hull profile');
+  return Object.freeze({
+    id: profileId(p.id, 'Hull id'),
+    damageCapacityJ: readNumber(p, 'damageCapacityJ', 1),
   });
 }

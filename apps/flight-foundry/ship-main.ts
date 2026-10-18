@@ -114,11 +114,12 @@ function reset(): void {
   find<HTMLInputElement>('#reactor').checked = true;
   find<HTMLInputElement>('#dampers').checked = false;
   find<HTMLInputElement>('#cooling').checked = false;
+  find<HTMLInputElement>('#shields').checked = false;
   find('#message').textContent = '';
   neutral();
   const p = setup.profile;
   find('#installed').textContent =
-    `Installed: ${p.body.id} · ${p.power.id} · ${p.engine.id} · ${p.dampers.id} · ${p.cooling.id}`;
+    `Installed: ${p.body.id} · ${p.power.id} · ${p.engine.id} · ${p.dampers.id} · ${p.cooling.id} · ${p.shields.id} · ${p.hull.id}`;
   find('#ship-specs').textContent =
     `${p.body.massKg.toLocaleString('en')} kg · ${p.engine.maxThrustN / 1e6} MN thrust · ${p.power.reactorOutputW / 1e9} GW reactor · ${p.power.capacityJ / 1e9} GJ reserve capacity. Engine: ${p.engine.baselineW / 1e6} MW baseline + ${p.engine.fullThrustW / 1e9} GW translation + ${p.engine.fullYawW / 1e9} GW yaw. Loaded from JSON; demonstration balance.`;
   find('#damper-specs').textContent =
@@ -127,6 +128,8 @@ function reset(): void {
     `Engine thermal capacity ${p.engine.thermal.heatCapacityJPerK / 1e6} MJ/K · ${p.engine.thermal.wasteHeatFraction * 100}% of supplied power becomes module heat · trip ${(p.engine.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.engine.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · manual start ${p.engine.thermal.manualStartSeconds} s / thermal reboot ${p.engine.thermal.rebootSeconds} s. Cooling: ${p.cooling.maxCoolingW / 1e6} MW removal, ${(p.cooling.baselineW + p.cooling.fullPowerW) / 1e6} MW full electrical draw.`;
   find('#damper-thermal-specs').textContent =
     `Damper thermal capacity ${p.dampers.thermal.heatCapacityJPerK / 1e6} MJ/K · ${p.dampers.thermal.wasteHeatFraction * 100}% supplied-power losses · trip ${(p.dampers.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.dampers.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · manual start ${p.dampers.thermal.manualStartSeconds} s / thermal reboot ${p.dampers.thermal.rebootSeconds} s. The cooler shares one removal budget across reactor, engine and dampers.`;
+  find('#shield-specs').textContent =
+    `Shields: ${p.shields.capacityJ / 1e9} GJ capacity · ${p.shields.baselineW / 1e6} MW maintenance · ${p.shields.rechargeW / 1e6} MW recharge input at ${p.shields.rechargeEfficiency * 100}% efficiency · ${p.shields.rechargeDelaySeconds} s recharge delay after a hit. Hull: ${p.hull.damageCapacityJ / 1e9} GJ damage capacity. Prototype values; shield heat and emergency energy diversion follow separately.`;
   find('#reactor-specs').textContent =
     `Reactor trip ${(p.power.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.power.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · normal thermal reboot ${p.power.thermal.rebootSeconds} s / independent emergency start ${p.power.recovery.emergencyStartSeconds} s · emergency output ${p.power.recovery.emergencyOutputFraction * 100}% until ${(p.power.recovery.restoreReserveFraction * 100).toFixed(1)}% reserve · passive heat loss up to ${p.power.recovery.passiveCoolingW / 1e6} MW. Lab tuning.`;
   paint();
@@ -157,7 +160,8 @@ function paint(): void {
         (t.power.startupDemandW +
           t.engine.demandW +
           t.dampers.demandW +
-          t.cooling.demandW) /
+          t.cooling.demandW +
+          t.shields.demandW) /
           1e9,
       ),
       'GW',
@@ -184,6 +188,14 @@ function paint(): void {
     .join('');
   find<HTMLProgressElement>('#reserve').value =
     t.power.energyJ / t.power.capacityJ;
+  find<HTMLProgressElement>('#shield-charge').value =
+    t.shields.energyJ / t.shields.capacityJ;
+  find<HTMLProgressElement>('#hull-integrity').value =
+    t.hull.remainingJ / t.hull.capacityJ;
+  find('#shield-state').textContent =
+    `Shields ${t.shields.state} · ${t.shields.active ? 'field powered' : 'NO PROTECTION'} · stored ${fmt(t.shields.energyJ / 1e9)} / ${fmt(t.shields.capacityJ / 1e9)} GJ · supply ${fmt(t.shields.suppliedW / 1e6)} MW · recharge delay ${fmt(t.shields.rechargeDelaySeconds)} s.`;
+  find('#damage-state').textContent =
+    `Hull ${t.hull.breached ? 'BREACHED' : `${fmt((t.hull.remainingJ / t.hull.capacityJ) * 100)}%`} · last hit ${fmt(t.hull.incomingJ / 1e9)} GJ → shields ${fmt(t.hull.shieldAbsorbedJ / 1e9)} / hull ${fmt(t.hull.hullDamageJ / 1e9)} / excess ${fmt(t.hull.excessJ / 1e9)} GJ.`;
   find('#state').textContent = running ? 'RUNNING' : 'PAUSED';
   find<HTMLButtonElement>('#run').textContent = running ? 'Pause' : 'Run';
   find<HTMLButtonElement>('#step').disabled = running;
@@ -196,7 +208,7 @@ function paint(): void {
   find('#damper-thermal-state').textContent =
     `Damper thermal trip ${t.dampers.thermal.tripped ? 'latched' : 'clear'} · restart remaining ${fmt(t.dampers.thermal.restartRemainingSeconds)} powered seconds. Cooling removes ${fmt(t.cooling.engineRemovedHeatW / 1e6)} MW from engine + ${fmt(t.cooling.damperRemovedHeatW / 1e6)} MW from dampers + ${fmt(t.cooling.reactorRemovedHeatW / 1e6)} MW from reactor within one ${fmt(setup.profile.cooling.maxCoolingW / 1e6)} MW limit.`;
   find('#reactor-state').textContent =
-    `Recovery ${t.power.emergency ? 'EMERGENCY' : 'normal'} · restart remaining ${fmt(t.power.thermal.restartRemainingSeconds)} s · propulsion ${t.power.propulsionAllowed ? 'available' : 'LOCKED until reserve recovers'} · restore threshold ${fmt(t.power.restoreEnergyJ / 1e9)} GJ · starter ${t.power.emergency ? 'independent' : `${fmt(t.power.startupSuppliedW / 1e6)} MW from reserve`} · reactor passive cooling ${fmt(t.power.passiveRemovedHeatW / 1e6)} MW + circuit ${fmt(t.cooling.reactorRemovedHeatW / 1e6)} MW.`;
+    `Recovery ${t.power.emergency ? 'EMERGENCY' : 'normal'} · restart remaining ${fmt(t.power.thermal.restartRemainingSeconds)} s · propulsion/shields ${t.power.nonessentialAllowed ? 'available' : 'LOCKED until reserve recovers'} · restore threshold ${fmt(t.power.restoreEnergyJ / 1e9)} GJ · starter ${t.power.emergency ? 'independent' : `${fmt(t.power.startupSuppliedW / 1e6)} MW from reserve`} · reactor passive cooling ${fmt(t.power.passiveRemovedHeatW / 1e6)} MW + circuit ${fmt(t.cooling.reactorRemovedHeatW / 1e6)} MW.`;
   find('#vectors').textContent =
     `Position (m): ${vector(t.body.positionM)}\nVelocity (m/s): ${vector(t.body.velocityMps)}\nAcceleration (m/s²): ${vector(t.body.accelerationMps2)}`;
   if (t.timeSeconds - lastHistoryTime >= 0.5) {
@@ -225,6 +237,19 @@ find('#dampers').addEventListener('change', () =>
 find('#cooling').addEventListener('change', () =>
   ship.cooling.requestEnabled(find<HTMLInputElement>('#cooling').checked),
 );
+find('#shields').addEventListener('change', () =>
+  ship.shields.requestEnabled(find<HTMLInputElement>('#shields').checked),
+);
+for (const [id, energyJ] of [
+  ['hit-small', 2e9],
+  ['hit-large', 12e9],
+] as const) {
+  find(`#${id}`).addEventListener('click', () => {
+    ship.hull.hit(energyJ);
+    find('#message').textContent =
+      `Queued ${energyJ / 1e9} GJ hit for the next simulation step.`;
+  });
+}
 find('#forward-full').addEventListener('click', () => {
   neutral();
   find<HTMLInputElement>('#forward').value = '100';

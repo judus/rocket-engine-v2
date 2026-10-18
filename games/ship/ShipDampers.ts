@@ -79,7 +79,10 @@ export class ShipDampers implements Behavior {
     });
   }
   onAttach(): undefined {
-    this.#port = this.power.connect(this.profile.restartEnergyJ, 'propulsion');
+    this.#port = this.power.connect(
+      this.profile.restartEnergyJ,
+      'nonessential',
+    );
   }
   private port(): PowerPort {
     if (!this.#port) throw new Error('Dampers are not attached');

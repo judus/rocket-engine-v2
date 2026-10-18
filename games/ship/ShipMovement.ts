@@ -1,3 +1,7 @@
+import { ShipShields } from './ShipShields.js';
+import type { ShieldReading } from './ShipShields.js';
+import { ShipHull } from './ShipHull.js';
+import type { HullReading } from './ShipHull.js';
 import { ShipCooling } from './ShipCooling.js';
 import type { CoolingReading } from './ShipCooling.js';
 import { ShipDampers } from './ShipDampers.js';
@@ -21,6 +25,8 @@ export interface ShipTelemetry {
   readonly engine: Readonly<EngineReading>;
   readonly dampers: Readonly<DamperReading>;
   readonly cooling: Readonly<CoolingReading>;
+  readonly shields: Readonly<ShieldReading>;
+  readonly hull: Readonly<HullReading>;
   readonly shipG: number;
   readonly crewG: number;
   readonly worldForceN: Readonly<Vec3>;
@@ -38,8 +44,19 @@ export class ShipMovement implements Behavior {
     private readonly body: ShipBody,
     private readonly dampers: ShipDampers,
     private readonly cooling: ShipCooling,
+    private readonly shields: ShipShields,
+    private readonly hull: ShipHull,
   ) {
-    this.requires = [control, engine, power, body, dampers, cooling];
+    this.requires = [
+      control,
+      engine,
+      power,
+      body,
+      dampers,
+      cooling,
+      shields,
+      hull,
+    ];
     this.#telemetry = Object.freeze({
       tick: 0,
       timeSeconds: 0,
@@ -48,6 +65,8 @@ export class ShipMovement implements Behavior {
       engine: engine.telemetry,
       dampers: dampers.telemetry,
       cooling: cooling.telemetry,
+      shields: shields.telemetry,
+      hull: hull.telemetry,
       shipG: 0,
       crewG: 0,
       worldForceN: Object.freeze({ x: 0, y: 0, z: 0 }),
@@ -59,7 +78,10 @@ export class ShipMovement implements Behavior {
     const requestedEngine = this.engine.declare(this.control.intent);
     this.dampers.declare(this.control.intent, requestedEngine, dt);
     this.cooling.declare();
+    this.shields.declare(dt);
     this.power.allocate(dt);
+    this.shields.deliver(dt);
+    this.hull.resolve();
     const delivered = this.engine.deliver();
     const damperReading = this.dampers.deliver(delivered.activityFraction);
     this.power.generateHeat(dt);
@@ -92,6 +114,8 @@ export class ShipMovement implements Behavior {
       engine: this.engine.telemetry,
       cooling: coolingReading,
       dampers: this.dampers.telemetry,
+      shields: this.shields.telemetry,
+      hull: this.hull.telemetry,
       shipG,
       crewG: shipG * damperReading.transmittedFraction,
       worldForceN,

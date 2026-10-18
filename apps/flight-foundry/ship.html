@@ -111,6 +111,9 @@
           ><input id="cooling" type="checkbox" />Module cooling requested
           on</label
         >
+        <label class="switch"
+          ><input id="shields" type="checkbox" />Shields requested on</label
+        >
         <label class="command" for="entry-speed"
           >Starting forward speed (m/s; applied by Reset ship)
           <input
@@ -193,6 +196,22 @@
         <div id="ship-readings" class="readings"></div>
         <label for="reserve">Energy reserve</label
         ><progress id="reserve" max="1" value="0.5"></progress>
+        <h3>Shields &amp; hull</h3>
+        <label for="shield-charge">Shield energy</label
+        ><progress id="shield-charge" max="1" value="0"></progress>
+        <label for="hull-integrity">Hull integrity</label
+        ><progress id="hull-integrity" max="1" value="1"></progress>
+        <p id="shield-state" class="muted"></p>
+        <p id="damage-state" class="muted"></p>
+        <div class="toolbar">
+          <button id="hit-small" type="button">Test hit · 2 GJ</button
+          ><button id="hit-large" type="button">Test hit · 12 GJ</button>
+        </div>
+        <p class="muted">
+          Hits apply on the next simulation step. Enable shields and Run to
+          charge them. Switching off preserves energy but removes protection.
+          Hull breach is reported; destruction rules come later.
+        </p>
         <p id="power-state" class="muted"></p>
         <p id="damper-state" class="muted"></p>
         <p id="thermal-state" class="muted"></p>
@@ -208,12 +227,15 @@ ship
 ├─ engine     requests power, delivers thrust/torque
 ├─ dampers    powered assistance, capture and crew protection
 ├─ cooling    one cooling budget for reactor, engine and dampers
+├─ shields    stored field energy and powered protection
+├─ hull       shield overflow becomes structural damage
 └─ movement   orders one fixed simulation step</pre>
         <p id="installed" class="muted"></p>
         <p id="ship-specs" class="muted"></p>
         <p id="damper-specs" class="muted"></p>
         <p id="thermal-specs" class="muted"></p>
         <p id="damper-thermal-specs" class="muted"></p>
+        <p id="shield-specs" class="muted"></p>
         <p id="reactor-specs" class="muted"></p>
       </section>
       <section class="panel log">
@@ -241,11 +263,12 @@ ship
     <p id="message" role="status"></p>
     <footer>
       3D translation and one yaw axis. Reactor, engine and damper heat with one
-      shared cooling circuit. No collision, crew damage or relativistic model
-      yet. Power costs are explicit prototype profile values. Assisted velocity
-      is a powered force response, not a hard speed clamp. Crew G measures
-      translation only. Engine shortage scales operation after funding its
-      baseline; reserve recharge uses the existing demonstration hysteresis.
+      shared cooling circuit, plus shield and hull test damage. No collision,
+      crew injury or relativistic model yet. Power costs are explicit prototype
+      profile values. Assisted velocity is a powered force response, not a hard
+      speed clamp. Crew G measures translation only. Engine shortage scales
+      operation after funding its baseline; reserve recharge uses the existing
+      demonstration hysteresis.
       <a href="../../games/ship/README.md">Source, ownership and limitations</a>
     </footer>
     <script

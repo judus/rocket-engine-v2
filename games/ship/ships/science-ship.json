@@ -15,5 +15,7 @@
     "reactorTemperatureK": 293.15
   },
   "damperProfile": "dampers-starter",
-  "coolingProfile": "cooling-starter"
+  "coolingProfile": "cooling-starter",
+  "shieldProfile": "shields-starter",
+  "hullProfile": "structure-starter"
 }

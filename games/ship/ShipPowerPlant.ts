@@ -24,7 +24,7 @@ export interface PowerReading {
     | 'recovering';
   readonly thermal: Readonly<ThermalReading>;
   readonly emergency: boolean;
-  readonly propulsionAllowed: boolean;
+  readonly nonessentialAllowed: boolean;
   readonly restoreEnergyJ: number;
   readonly startupDemandW: number;
   readonly startupSuppliedW: number;
@@ -170,10 +170,10 @@ export class ShipPowerPlant implements Behavior {
     if (!this.#emergency) this.#thermal.requestChanged(this.#requested, value);
     this.#requested = value;
   }
-  connect(restartEnergyJ: number, kind: 'propulsion' | 'utility'): PowerPort {
+  connect(restartEnergyJ: number, kind: 'nonessential' | 'utility'): PowerPort {
     this.live();
-    if (kind !== 'propulsion' && kind !== 'utility')
-      throw new TypeError('Power port kind must be propulsion or utility');
+    if (kind !== 'nonessential' && kind !== 'utility')
+      throw new TypeError('Power port kind must be nonessential or utility');
     numberIn('restartEnergyJ', restartEnergyJ, 0, this.telemetry.capacityJ);
     const entity = this.#world.create();
     this.#world.set(entity, ShipOwner, this.#ship);
@@ -236,7 +236,7 @@ export class ShipPowerPlant implements Behavior {
       state,
       thermal: this.#thermal.telemetry,
       emergency: this.#emergency,
-      propulsionAllowed: !this.#emergency,
+      nonessentialAllowed: !this.#emergency,
       restoreEnergyJ:
         this.profile.capacityJ * this.profile.recovery.restoreReserveFraction,
       startupDemandW: this.#startupDemandW,

@@ -5,6 +5,8 @@ import { ShipPowerPlant } from './ShipPowerPlant.js';
 import { ShipEngine } from './ShipEngine.js';
 import { ShipDampers } from './ShipDampers.js';
 import { ShipCooling } from './ShipCooling.js';
+import { ShipShields } from './ShipShields.js';
+import { ShipHull } from './ShipHull.js';
 import { ShipMovement } from './ShipMovement.js';
 
 import {
@@ -24,6 +26,8 @@ export class Ship extends Node2D {
   readonly engine: ShipEngine;
   readonly dampers: ShipDampers;
   readonly cooling: ShipCooling;
+  readonly shields: ShipShields;
+  readonly hull: ShipHull;
   readonly movement: ShipMovement;
   constructor(
     profile: Readonly<ShipProfile>,
@@ -47,6 +51,12 @@ export class Ship extends Node2D {
     numberIn(
       'Cooling restartEnergyJ for installed reserve',
       profile.cooling.restartEnergyJ,
+      0,
+      profile.power.capacityJ,
+    );
+    numberIn(
+      'Shield restartEnergyJ for installed reserve',
+      profile.shields.restartEnergyJ,
       0,
       profile.power.capacityJ,
     );
@@ -77,6 +87,8 @@ export class Ship extends Node2D {
       this.cooling = this.attach(
         new ShipCooling(profile.cooling, this.power, this.engine, this.dampers),
       );
+      this.shields = this.attach(new ShipShields(profile.shields, this.power));
+      this.hull = this.attach(new ShipHull(profile.hull, this.shields));
       this.movement = this.attach(
         new ShipMovement(
           this.control,
@@ -85,6 +97,8 @@ export class Ship extends Node2D {
           this.body,
           this.dampers,
           this.cooling,
+          this.shields,
+          this.hull,
         ),
       );
     } catch (error) {

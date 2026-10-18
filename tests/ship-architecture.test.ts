@@ -23,6 +23,8 @@ const initial = {
 };
 const small: ShipProfile = {
   id: 'test-ship',
+  hull: starterSetup.profile.hull,
+  shields: { ...starterSetup.profile.shields, restartEnergyJ: 50 },
   cooling: { ...starterSetup.profile.cooling, restartEnergyJ: 50 },
   dampers: { ...starterSetup.profile.dampers, restartEnergyJ: 50 },
   body: { id: 'test-hull', massKg: 2, yawInertiaKgM2: 2 },

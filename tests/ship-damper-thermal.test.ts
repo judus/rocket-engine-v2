@@ -17,6 +17,7 @@ const thermal = {
 };
 const profile: ShipProfile = {
   ...starterSetup.profile,
+  shields: { ...starterSetup.profile.shields, restartEnergyJ: 0 },
   body: { ...starterSetup.profile.body, massKg: 2, yawInertiaKgM2: 2 },
   power: {
     ...starterSetup.profile.power,

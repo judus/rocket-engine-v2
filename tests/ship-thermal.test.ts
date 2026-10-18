@@ -12,6 +12,7 @@ const close = (a: number, b: number, tolerance = 1e-8) =>
   assert.ok(Math.abs(a - b) < tolerance, `${a} != ${b}`);
 const profile: ShipProfile = {
   ...starterSetup.profile,
+  shields: { ...starterSetup.profile.shields, restartEnergyJ: 0 },
   body: { ...starterSetup.profile.body, massKg: 2, yawInertiaKgM2: 2 },
   power: {
     ...starterSetup.profile.power,
