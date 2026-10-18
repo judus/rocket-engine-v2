@@ -127,7 +127,7 @@ function reset(): void {
   find('#installed').textContent =
     `Installed: ${p.body.id} · ${p.power.id} · ${p.engine.id} · ${p.dampers.id} · ${p.cooling.id} · ${p.shields.id} · ${p.hull.id}`;
   find('#ship-specs').textContent =
-    `${p.body.massKg.toLocaleString('en')} kg · ${p.engine.maxThrustN / 1e6} MN thrust · ${p.power.reactorOutputW / 1e9} GW reactor · ${p.power.capacityJ / 1e9} GJ reserve capacity. Engine: ${p.engine.baselineW / 1e6} MW baseline + ${p.engine.fullThrustW / 1e9} GW translation + ${p.engine.fullYawW / 1e9} GW yaw. Loaded from JSON; demonstration balance.`;
+    `${p.body.massKg.toLocaleString('en')} kg · ${p.engine.maxThrustN / 1e6} MN thrust · ${p.power.reactorOutputW / 1e9} GW reactor · ${p.power.capacityJ / 1e9} GJ reserve capacity. Engine: ${p.engine.baselineW / 1e6} MW baseline + ${p.engine.fullThrustW / 1e9} GW translation + ${p.engine.fullYawW / 1e9} GW yaw. Engine health ${p.engine.health.maxPoints} HP; output follows health fraction raised to ${p.engine.health.outputExponent}. Loaded from JSON; demonstration balance.`;
   find('#damper-specs').textContent =
     `Assisted limit ${p.dampers.capture.assistedSpeedMps} m/s · 95% response ${p.dampers.responseSeconds} s · nominal transmitted load ${p.dampers.capture.transmittedFraction * 100}%. Capture anchor: remove ${p.dampers.capture.referenceExcessMps} m/s in ${p.dampers.capture.referenceDurationSeconds} s; higher entry speeds increase duration and curve steepness. Prototype tuning.`;
   find('#thermal-specs').textContent =
@@ -237,11 +237,11 @@ function paint(): void {
   find('#module-readings').innerHTML = modules
     .map(
       ([name, state, energy, heat]) =>
-        `<tr><th scope="row">${name}</th><td>${state}</td><td>${energy}</td><td>${heat}</td></tr>`,
+        `<tr><th scope="row">${name}</th><td>${state}</td><td>${energy}</td><td>${heat}</td><td>${name === 'Engine' ? `${fmt(t.engine.health.fraction * 100)}%<small>${fmt(t.engine.health.points)} / ${fmt(t.engine.health.maxPoints)} HP<br>${fmt(t.engine.health.outputFraction * 100)}% output capacity</small>` : '—'}</td></tr>`,
     )
     .join('');
   find('#module-totals').innerHTML =
-    `<tr><th scope="row">Ship total</th><td>${t.power.emergency ? 'Emergency recovery' : 'Normal power'}</td><td>${electrical(t.power.consumptionW, totalDemandW)}</td><td>${fmt(t.cooling.removedHeatW / 1e6)} MW circuit<small>+ ${fmt(t.power.passiveRemovedHeatW / 1e6)} MW passive removal</small></td></tr>`;
+    `<tr><th scope="row">Ship total</th><td>${t.power.emergency ? 'Emergency recovery' : 'Normal power'}</td><td>${electrical(t.power.consumptionW, totalDemandW)}</td><td>${fmt(t.cooling.removedHeatW / 1e6)} MW circuit<small>+ ${fmt(t.power.passiveRemovedHeatW / 1e6)} MW passive removal</small></td><td>—</td></tr>`;
   find('#reserve-reading').textContent =
     `${fmt(t.power.energyJ / 1e9)} / ${fmt(t.power.capacityJ / 1e9)} GJ stored`;
   find<HTMLProgressElement>('#reserve').value =
@@ -293,6 +293,21 @@ function paint(): void {
     .join('');
 }
 for (const id of commandIds) find(`#${id}`).addEventListener('input', commands);
+for (const [id, repair, points] of [
+  ['damage-engine', false, 25],
+  ['fail-engine', false, 'max'],
+  ['repair-engine', true, 25],
+  ['restore-engine', true, 'max'],
+] as const) {
+  find(`#${id}`).addEventListener('click', () => {
+    const amount =
+      points === 'max' ? ship.engine.profile.health.maxPoints : points;
+    if (repair) ship.engine.repair(amount);
+    else ship.engine.damage(amount);
+    find('#message').textContent =
+      `Engine ${repair ? 'repair' : 'damage'} queued. Run or Single step applies it.`;
+  });
+}
 find('#reactor').addEventListener('change', () =>
   ship.power.requestEnabled(find<HTMLInputElement>('#reactor').checked),
 );

@@ -30,7 +30,7 @@ async function readJson(url: URL, fetcher: ProfileFetch): Promise<unknown> {
 /** Fully validate a loadout before any ship/entity or runtime state is created. */
 export async function loadShipSetup(
   url: URL,
-  fetcher: ProfileFetch = fetch,
+  fetcher: ProfileFetch = (resource) => fetch(resource, { cache: 'no-cache' }),
 ): Promise<Readonly<ShipSetup>> {
   const manifest = recordWithKeys(
     await readJson(url, fetcher),
@@ -114,6 +114,7 @@ export async function loadShipSetup(
   const initialState = validateInitialState(
     manifest.initialState,
     power.capacityJ,
+    engine.health.maxPoints,
   );
   return Object.freeze({
     profile: Object.freeze({

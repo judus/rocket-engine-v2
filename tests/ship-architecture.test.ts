@@ -15,6 +15,7 @@ function step(ship: Ship, dt = 1 / 60): void {
   });
 }
 const initial = {
+  engineHealthPoints: 100,
   shieldTemperatureK: 290,
   reactorTemperatureK: 290,
   damperTemperatureK: 293.15,
@@ -42,6 +43,7 @@ const small: ShipProfile = {
   },
   engine: {
     id: 'test-engine',
+    health: starterSetup.profile.engine.health,
     thermal: starterSetup.profile.engine.thermal,
     maxThrustN: 20,
     maxYawTorqueNm: 4,

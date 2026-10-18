@@ -35,7 +35,11 @@ export class Ship extends Node2D {
   ) {
     super();
     this.definitionId = profileId(profile.id, 'Ship id');
-    const initial = validateInitialState(initialState, profile.power.capacityJ);
+    const initial = validateInitialState(
+      initialState,
+      profile.power.capacityJ,
+      profile.engine.health.maxPoints,
+    );
     numberIn(
       'Engine restartEnergyJ for installed reserve',
       profile.engine.restartEnergyJ,
@@ -75,7 +79,12 @@ export class Ship extends Node2D {
         ),
       );
       this.engine = this.attach(
-        new ShipEngine(profile.engine, this.power, initial.engineTemperatureK),
+        new ShipEngine(
+          profile.engine,
+          this.power,
+          initial.engineTemperatureK,
+          initial.engineHealthPoints,
+        ),
       );
       this.dampers = this.attach(
         new ShipDampers(

@@ -38,7 +38,12 @@ export interface CoolingProfile {
   fullPowerW: number;
   restartEnergyJ: number;
 }
+export interface HealthProfile {
+  maxPoints: number;
+  outputExponent: number;
+}
 export interface EngineProfile {
+  health: Readonly<HealthProfile>;
   id: string;
   thermal: Readonly<ThermalProfile>;
   maxThrustN: number;
@@ -86,6 +91,7 @@ export interface ShipProfile {
   readonly hull: Readonly<HullProfile>;
 }
 export interface ShipInitialState {
+  readonly engineHealthPoints: number;
   readonly shieldTemperatureK: number;
   readonly reactorTemperatureK: number;
   readonly engineTemperatureK: number;
@@ -183,6 +189,7 @@ export function validateEngineProfile(value: unknown): Readonly<EngineProfile> {
     [
       'id',
       'thermal',
+      'health',
       'maxThrustN',
       'maxYawTorqueNm',
       'baselineW',
@@ -195,6 +202,7 @@ export function validateEngineProfile(value: unknown): Readonly<EngineProfile> {
   return Object.freeze({
     id: profileId(p.id, 'Engine id'),
     thermal: validateThermalProfile(p.thermal),
+    health: validateHealthProfile(p.health),
     maxThrustN: readNumber(p, 'maxThrustN', 0),
     maxYawTorqueNm: readNumber(p, 'maxYawTorqueNm', 0),
     baselineW: readNumber(p, 'baselineW', Number.MIN_VALUE),
@@ -206,10 +214,12 @@ export function validateEngineProfile(value: unknown): Readonly<EngineProfile> {
 export function validateInitialState(
   value: unknown,
   capacityJ: number,
+  engineMaxHealthPoints: number,
 ): Readonly<ShipInitialState> {
   const p = recordWithKeys(
     value,
     [
+      'engineHealthPoints',
       'energyJ',
       'velocityMps',
       'engineTemperatureK',
@@ -222,6 +232,12 @@ export function validateInitialState(
   const v = recordWithKeys(p.velocityMps, ['x', 'y', 'z'], 'Initial velocity');
   return Object.freeze({
     reactorTemperatureK: readNumber(p, 'reactorTemperatureK', 0, 1e6),
+    engineHealthPoints: readNumber(
+      p,
+      'engineHealthPoints',
+      0,
+      engineMaxHealthPoints,
+    ),
     shieldTemperatureK: readNumber(p, 'shieldTemperatureK', 0, 1e6),
     damperTemperatureK: readNumber(p, 'damperTemperatureK', 0, 1e6),
     engineTemperatureK: readNumber(p, 'engineTemperatureK', 0, 1e6),
@@ -440,5 +456,17 @@ export function validateHullProfile(value: unknown): Readonly<HullProfile> {
   return Object.freeze({
     id: profileId(p.id, 'Hull id'),
     damageCapacityJ: readNumber(p, 'damageCapacityJ', 1),
+  });
+}
+
+export function validateHealthProfile(value: unknown): Readonly<HealthProfile> {
+  const p = recordWithKeys(
+    value,
+    ['maxPoints', 'outputExponent'],
+    'Module health profile',
+  );
+  return Object.freeze({
+    maxPoints: readNumber(p, 'maxPoints', 1),
+    outputExponent: readNumber(p, 'outputExponent', 0.1, 10),
   });
 }

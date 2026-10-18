@@ -68,10 +68,10 @@
       }
       .module-matrix tbody th {
         color: var(--accent);
-        width: 18%;
+        width: 16%;
       }
       .module-matrix td {
-        width: 27.33%;
+        width: 21%;
       }
       .module-matrix strong {
         font-weight: 500;
@@ -274,12 +274,29 @@
                 <th scope="col">State</th>
                 <th scope="col">Energy / power</th>
                 <th scope="col">Heat</th>
+                <th scope="col">Health</th>
               </tr>
             </thead>
             <tbody id="module-readings"></tbody>
             <tfoot id="module-totals"></tfoot>
           </table>
         </div>
+        <h3>Engine condition · lab controls</h3>
+        <div class="toolbar">
+          <button id="damage-engine" type="button">Damage engine · 25 HP</button
+          ><button id="fail-engine" type="button">Fail engine</button
+          ><button id="repair-engine" type="button">
+            Repair engine · 25 HP</button
+          ><button id="restore-engine" type="button">
+            Repair engine fully
+          </button>
+        </div>
+        <p class="muted">
+          Applies on the next simulation step. These lab commands bypass shields
+          and hull; repair costs no resources. Damage reduces thrust and yaw
+          capacity. Zero health disables the engine; it still remembers its
+          requested switch. Health for other modules comes later.
+        </p>
         <div class="reserve-heading">
           <label for="reserve">Energy reserve</label
           ><span id="reserve-reading"></span>

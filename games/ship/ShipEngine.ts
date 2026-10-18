@@ -1,3 +1,5 @@
+import { ModuleHealth } from './ModuleHealth.js';
+import type { HealthReading } from './ModuleHealth.js';
 import { ModuleThermal } from './ModuleThermal.js';
 import type { ThermalReading } from './ModuleThermal.js';
 import type { Behavior } from '../../src/index.js';
@@ -12,12 +14,16 @@ import type { PowerPort } from './ShipPowerPlant.js';
 export interface EngineReading {
   readonly requested: boolean;
   readonly state:
+    | 'failed'
+    | 'damaged'
     | 'off'
     | 'online'
     | 'limited'
     | 'waiting-for-charge'
     | 'overheated'
     | 'restarting';
+  readonly health: Readonly<HealthReading>;
+  readonly powerFraction: number;
   readonly thermal: Readonly<ThermalReading>;
   readonly demandW: number;
   readonly suppliedW: number;
@@ -33,6 +39,7 @@ export class ShipEngine implements Behavior {
   #requested = true;
   #intent: Readonly<ShipIntent> = { thrust: zeroVector(), yaw: 0 };
   #activityDemandW = 0;
+  #health: ModuleHealth;
   #thermal: ModuleThermal;
   #operating = false;
   #powerRequested = false;
@@ -41,8 +48,10 @@ export class ShipEngine implements Behavior {
     profile: EngineProfile,
     power: ShipPowerPlant,
     initialTemperatureK: number,
+    initialHealthPoints: number,
   ) {
     this.profile = validateEngineProfile(profile);
+    this.#health = new ModuleHealth(this.profile.health, initialHealthPoints);
     this.#power = power;
     this.requires = [power];
     this.#thermal = new ModuleThermal(
@@ -51,7 +60,11 @@ export class ShipEngine implements Behavior {
     );
     this.#reading = Object.freeze({
       requested: true,
-      state: this.#thermal.state(true) ?? 'off',
+      state: this.#health.telemetry.failed
+        ? 'failed'
+        : (this.#thermal.state(true) ?? 'off'),
+      health: this.#health.telemetry,
+      powerFraction: 0,
       thermal: this.#thermal.telemetry,
       demandW: 0,
       suppliedW: 0,
@@ -76,6 +89,14 @@ export class ShipEngine implements Behavior {
     if (!this.#port) throw new Error('Engine is not attached');
     return this.#port;
   }
+  damage(points: number): void {
+    this.port();
+    this.#health.damage(points);
+  }
+  repair(points: number): void {
+    this.port();
+    this.#health.repair(points);
+  }
   requestEnabled(value: boolean): void {
     if (typeof value !== 'boolean')
       throw new TypeError('Engine request must be boolean');
@@ -86,7 +107,12 @@ export class ShipEngine implements Behavior {
     intent: Readonly<ShipIntent>,
   ): Pick<EngineReading, 'thrustN' | 'yawTorqueNm' | 'requested'> {
     this.#intent = intent;
-    const thermal = this.#thermal.begin(this.#requested);
+    const wasFailed = this.#health.telemetry.failed;
+    this.#health.commit();
+    const failed = this.#health.telemetry.failed;
+    if (wasFailed && !failed)
+      this.#thermal.requestChanged(false, this.#requested);
+    const thermal = this.#thermal.begin(this.#requested && !failed);
     this.#operating = thermal.operating;
     this.#powerRequested = thermal.powerRequested;
     const throttle = Math.hypot(
@@ -102,6 +128,7 @@ export class ShipEngine implements Behavior {
       this.#powerRequested,
       this.profile.baselineW + this.#activityDemandW,
     );
+    // Nominal preview: dampers apply the final funded/condition fraction once.
     return {
       requested: this.#operating,
       thrustN: {
@@ -116,12 +143,14 @@ export class ShipEngine implements Behavior {
   deliver(): Readonly<EngineReading> {
     const allocation = this.port().delivery();
     const activeW = Math.max(0, allocation.suppliedW - this.profile.baselineW);
-    const fraction =
+    const powerFraction =
       this.#operating && allocation.suppliedW >= this.profile.baselineW
         ? this.#activityDemandW > 0
           ? Math.min(1, activeW / this.#activityDemandW)
           : 1
         : 0;
+    const health = this.#health.telemetry;
+    const fraction = powerFraction * health.outputFraction;
     const thrustN = Object.freeze({
       x: this.#intent.thrust.x * this.profile.maxThrustN * fraction,
       y: this.#intent.thrust.y * this.profile.maxThrustN * fraction,
@@ -129,13 +158,18 @@ export class ShipEngine implements Behavior {
     });
     this.#reading = Object.freeze({
       requested: this.#requested,
-      state:
-        this.#thermal.state(this.#requested) ??
-        (allocation.suppliedW === 0
-          ? 'waiting-for-charge'
-          : fraction < 1
-            ? 'limited'
-            : 'online'),
+      state: health.failed
+        ? 'failed'
+        : (this.#thermal.state(this.#requested) ??
+          (allocation.suppliedW === 0
+            ? 'waiting-for-charge'
+            : powerFraction < 1
+              ? 'limited'
+              : health.fraction < 1
+                ? 'damaged'
+                : 'online')),
+      health,
+      powerFraction,
       thermal: this.#thermal.telemetry,
       demandW: this.#powerRequested
         ? this.profile.baselineW + this.#activityDemandW
@@ -164,8 +198,14 @@ export class ShipEngine implements Behavior {
       this.#reading.state === 'restarting' && thermalState === undefined;
     this.#reading = Object.freeze({
       ...this.#reading,
-      state:
-        thermalState ?? (startupCompleted ? 'online' : this.#reading.state),
+      state: this.#health.telemetry.failed
+        ? 'failed'
+        : (thermalState ??
+          (startupCompleted
+            ? this.#health.telemetry.fraction < 1
+              ? 'damaged'
+              : 'online'
+            : this.#reading.state)),
       thermal: this.#thermal.telemetry,
     });
   }
