@@ -47,3 +47,7 @@ Default example: 0 → 800 → 0 m/s, four seconds per transition, constant acce
 Positive speed sliders use logarithmic exploration; other sliders are linear. Exact fields can exceed the displayed slider range within validated model bounds, disabling that slider without silently clamping the setting. Invalid edits retain the last valid graphs and show an error. Reset example restores the candidate; this screen has no persisted settings or runtime equipment edits. Model bounds: speeds 0–10⁸ m/s, transition durations 0.1–120 s, coast 0–600 s, shapes −1…1 and crew target 0–20 G. At extreme speeds the Newtonian planner makes no relativistic claim.
 
 `tests/flight-curves.test.ts` checks endpoints, derivatives, analytical distances, independent curve shapes, exact peaks, phase continuity, capture/coast, zero/100% protection and boundary validation. Rendered flight is still needed to judge feel; the graphs cannot determine fun or survivability.
+
+## Capture response model (not yet connected to this UI)
+
+The next model slice is [documented separately](../../docs/SHIP-CAPTURE-MODEL.md). `CaptureResponse.ts` takes an equipment profile and an entry speed, grows duration and braking concentration above a reference excess speed, and reports nominal crew G from the profile's transmission fraction. It does not cap crew G to the ideal planner's target. The current screens remain unchanged; this calculation does not yet drive a powered ship, heat model or injury system.
