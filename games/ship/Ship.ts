@@ -51,6 +51,7 @@ export class Ship extends Node2D {
       profile.power.capacityJ,
     );
     validateThermalInstallation(profile.cooling, profile.engine.thermal);
+    validateThermalInstallation(profile.cooling, profile.dampers.thermal);
     try {
       this.body = this.attach(new ShipBody(profile.body, initial.velocityMps));
       this.control = this.attach(new ShipControl());
@@ -61,10 +62,15 @@ export class Ship extends Node2D {
         new ShipEngine(profile.engine, this.power, initial.engineTemperatureK),
       );
       this.dampers = this.attach(
-        new ShipDampers(profile.dampers, this.power, this.body),
+        new ShipDampers(
+          profile.dampers,
+          this.power,
+          this.body,
+          initial.damperTemperatureK,
+        ),
       );
       this.cooling = this.attach(
-        new ShipCooling(profile.cooling, this.power, this.engine),
+        new ShipCooling(profile.cooling, this.power, this.engine, this.dampers),
       );
       this.movement = this.attach(
         new ShipMovement(

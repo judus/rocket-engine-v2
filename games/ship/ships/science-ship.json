@@ -10,7 +10,8 @@
       "y": 0,
       "z": 0
     },
-    "engineTemperatureK": 293.15
+    "engineTemperatureK": 293.15,
+    "damperTemperatureK": 293.15
   },
   "damperProfile": "dampers-starter",
   "coolingProfile": "cooling-starter"

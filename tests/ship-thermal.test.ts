@@ -4,7 +4,7 @@ import { Ship } from '../games/ship/Ship.js';
 import type { ShipProfile } from '../games/ship/ShipProfiles.js';
 import {
   validateCoolingProfile,
-  validateEngineThermalProfile,
+  validateThermalProfile,
 } from '../games/ship/ShipProfiles.js';
 import { starterSetup } from './helpers/shipSetup.js';
 
@@ -51,6 +51,7 @@ function make(
   energyJ = 10000,
 ): Ship {
   return new Ship(equipment, {
+    damperTemperatureK: 290,
     engineTemperatureK: temperature,
     energyJ,
     velocityMps: { x: 0, y: 0, z: 0 },
@@ -155,6 +156,7 @@ void test('Manual start is shorter than a trip reboot, and restart progress depe
   step(manual);
   close(manual.telemetry.worldForceN.z, 0);
   close(manual.telemetry.engine.thermal.restartRemainingSeconds, 0);
+  assert.equal(manual.telemetry.engine.state, 'online');
   close(manual.telemetry.engine.suppliedW, 10);
   step(manual);
   close(manual.telemetry.worldForceN.z, 20);
@@ -235,9 +237,7 @@ void test('Thermal and cooling JSON contracts reject invalid ratios, thresholds,
     { rebootSeconds: 1 },
     { manualStartSeconds: '1' },
   ])
-    assert.throws(() =>
-      validateEngineThermalProfile({ ...thermal, ...fields }),
-    );
+    assert.throws(() => validateThermalProfile({ ...thermal, ...fields }));
   assert.throws(() =>
     validateCoolingProfile({ ...profile.cooling, maxCoolingW: -1 }),
   );

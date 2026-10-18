@@ -62,8 +62,10 @@ export class ShipMovement implements Behavior {
     const delivered = this.engine.deliver();
     const damperReading = this.dampers.deliver(delivered.activityFraction);
     this.engine.generateHeat(dt);
+    this.dampers.generateHeat(dt);
     const coolingReading = this.cooling.deliver(dt);
     this.engine.finishThermalStep(dt);
+    this.dampers.finishThermalStep(dt);
     const engineForce = this.body.localToWorld(delivered.thrustN);
     const worldForceN = Object.freeze({
       x: engineForce.x + damperReading.worldForceN.x,
@@ -86,7 +88,7 @@ export class ShipMovement implements Behavior {
       power: this.power.telemetry,
       engine: this.engine.telemetry,
       cooling: coolingReading,
-      dampers: damperReading,
+      dampers: this.dampers.telemetry,
       shipG,
       crewG: shipG * damperReading.transmittedFraction,
       worldForceN,

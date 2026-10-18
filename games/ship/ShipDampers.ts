@@ -1,3 +1,5 @@
+import { ModuleThermal } from './ModuleThermal.js';
+import type { ThermalReading } from './ModuleThermal.js';
 import type { Behavior } from '../../src/index.js';
 import type { Vec3 } from '../../src/3d/index.js';
 import { CapturePlan } from './CaptureResponse.js';
@@ -11,7 +13,14 @@ import type { DamperProfile } from './ShipProfiles.js';
 
 export interface DamperReading {
   readonly requested: boolean;
-  readonly state: 'off' | 'online' | 'limited' | 'waiting-for-charge';
+  readonly state:
+    | 'off'
+    | 'online'
+    | 'limited'
+    | 'waiting-for-charge'
+    | 'overheated'
+    | 'restarting';
+  readonly thermal: Readonly<ThermalReading>;
   readonly mode: 'coast' | 'assisted' | 'capture';
   readonly demandW: number;
   readonly suppliedW: number;
@@ -38,26 +47,36 @@ export class ShipDampers implements Behavior {
   #torque = 0;
   #activityW = 0;
   #dt = 0;
-  #reading: Readonly<DamperReading> = Object.freeze({
-    requested: false,
-    state: 'off',
-    mode: 'coast',
-    demandW: 0,
-    suppliedW: 0,
-    activityFraction: 0,
-    worldForceN: Object.freeze(zeroVector()),
-    yawTorqueNm: 0,
-    captureDurationSeconds: 0,
-    captureElapsedSeconds: 0,
-    transmittedFraction: 1,
-  });
+  #thermal: ModuleThermal;
+  #operating = false;
+  #powerRequested = false;
+  #reading: Readonly<DamperReading>;
   constructor(
     profile: DamperProfile,
     private readonly power: ShipPowerPlant,
     private readonly body: ShipBody,
+    initialTemperatureK: number,
   ) {
     this.profile = validateDamperProfile(profile);
     this.requires = [power, body];
+    this.#thermal = new ModuleThermal(
+      this.profile.thermal,
+      initialTemperatureK,
+    );
+    this.#reading = Object.freeze({
+      requested: false,
+      state: this.#thermal.state(false) ?? 'off',
+      thermal: this.#thermal.telemetry,
+      mode: 'coast',
+      demandW: 0,
+      suppliedW: 0,
+      activityFraction: 0,
+      worldForceN: Object.freeze(zeroVector()),
+      yawTorqueNm: 0,
+      captureDurationSeconds: 0,
+      captureElapsedSeconds: 0,
+      transmittedFraction: 1,
+    });
   }
   onAttach(): undefined {
     this.#port = this.power.connect(this.profile.restartEnergyJ);
@@ -69,6 +88,7 @@ export class ShipDampers implements Behavior {
   requestEnabled(value: boolean): void {
     if (typeof value !== 'boolean')
       throw new TypeError('Damper request must be boolean');
+    this.#thermal.requestChanged(this.#requested, value);
     if (value !== this.#requested) {
       this.#engagement = true;
       this.#capture = undefined;
@@ -82,10 +102,13 @@ export class ShipDampers implements Behavior {
     dt: number,
   ): void {
     this.#dt = dt;
+    const thermal = this.#thermal.begin(this.#requested);
+    this.#operating = thermal.operating;
+    this.#powerRequested = thermal.powerRequested;
     const body = this.body.telemetry;
     const v = body.velocityMps;
     const speed = Math.hypot(v.x, v.y, v.z);
-    if (this.#requested && this.#engagement) {
+    if (this.#operating && this.#engagement) {
       this.#engagement = false;
       this.#captureElapsed = 0;
       this.#capture =
@@ -149,21 +172,22 @@ export class ShipDampers implements Behavior {
         yawGain) /
         dt -
       engine.yawTorqueNm;
-    this.#activityW =
-      (Math.hypot(this.#force.x, this.#force.y, this.#force.z) +
-        Math.hypot(this.#drive.x, this.#drive.y, this.#drive.z)) *
-        this.profile.wattsPerNewton +
-      (Math.abs(this.#torque) + Math.abs(this.#driveTorque)) *
-        this.profile.wattsPerNewtonMeter;
+    this.#activityW = this.#operating
+      ? (Math.hypot(this.#force.x, this.#force.y, this.#force.z) +
+          Math.hypot(this.#drive.x, this.#drive.y, this.#drive.z)) *
+          this.profile.wattsPerNewton +
+        (Math.abs(this.#torque) + Math.abs(this.#driveTorque)) *
+          this.profile.wattsPerNewtonMeter
+      : 0;
     this.port().request(
-      this.#requested,
+      this.#powerRequested,
       this.profile.baselineW + this.#activityW,
     );
   }
   deliver(engineFraction: number): Readonly<DamperReading> {
     const allocation = this.port().delivery();
     const fraction =
-      this.#requested && allocation.suppliedW >= this.profile.baselineW
+      this.#operating && allocation.suppliedW >= this.profile.baselineW
         ? this.#activityW > 0
           ? Math.min(
               1,
@@ -175,15 +199,18 @@ export class ShipDampers implements Behavior {
     if (capturing && fraction > 0) this.#captureElapsed += this.#dt * fraction;
     this.#reading = Object.freeze({
       requested: this.#requested,
-      state: !this.#requested
-        ? 'off'
-        : fraction === 0
+      state:
+        this.#thermal.state(this.#requested) ??
+        (fraction === 0
           ? 'waiting-for-charge'
           : fraction < 1
             ? 'limited'
-            : 'online',
+            : 'online'),
+      thermal: this.#thermal.telemetry,
       mode: fraction === 0 ? 'coast' : capturing ? 'capture' : 'assisted',
-      demandW: this.#requested ? this.profile.baselineW + this.#activityW : 0,
+      demandW: this.#powerRequested
+        ? this.profile.baselineW + this.#activityW
+        : 0,
       suppliedW: allocation.suppliedW,
       activityFraction: fraction,
       worldForceN: Object.freeze({
@@ -208,6 +235,39 @@ export class ShipDampers implements Behavior {
       this.#capture = undefined;
     }
     return this.#reading;
+  }
+  get temperatureK(): number {
+    return this.#thermal.temperatureK;
+  }
+  heatAbove(sinkTemperatureK: number): number {
+    return this.#thermal.heatAbove(sinkTemperatureK);
+  }
+  generateHeat(dt: number): void {
+    this.#thermal.generate(this.#reading.suppliedW, dt);
+  }
+  removeHeat(maxEnergyJ: number, sinkTemperatureK: number): number {
+    return this.#thermal.removeHeat(maxEnergyJ, sinkTemperatureK);
+  }
+  finishThermalStep(dt: number): void {
+    this.#thermal.finish(
+      dt,
+      this.#requested,
+      this.#reading.suppliedW,
+      this.profile.baselineW,
+    );
+    const thermalState = this.#thermal.state(this.#requested);
+    const startupCompleted =
+      this.#reading.state === 'restarting' && thermalState === undefined;
+    this.#reading = Object.freeze({
+      ...this.#reading,
+      state:
+        thermalState ?? (startupCompleted ? 'online' : this.#reading.state),
+      thermal: this.#thermal.telemetry,
+    });
+    if (this.#thermal.telemetry.tripped) {
+      this.#engagement = true;
+      this.#capture = undefined;
+    }
   }
   get telemetry(): Readonly<DamperReading> {
     return this.#reading;

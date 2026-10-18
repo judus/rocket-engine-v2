@@ -108,7 +108,7 @@
           on</label
         >
         <label class="switch"
-          ><input id="cooling" type="checkbox" />Engine cooling requested
+          ><input id="cooling" type="checkbox" />Module cooling requested
           on</label
         >
         <label class="command" for="entry-speed"
@@ -126,6 +126,17 @@
           >Starting engine temperature (°C; applied by Reset ship)
           <input
             id="entry-temperature"
+            type="number"
+            min="-273.15"
+            max="999726.85"
+            step="any"
+            value="20"
+          />
+        </label>
+        <label class="command" for="entry-damper-temperature"
+          >Starting damper temperature (°C; applied by Reset ship)
+          <input
+            id="entry-damper-temperature"
             type="number"
             min="-273.15"
             max="999726.85"
@@ -158,6 +169,7 @@
         <p id="power-state" class="muted"></p>
         <p id="damper-state" class="muted"></p>
         <p id="thermal-state" class="muted"></p>
+        <p id="damper-thermal-state" class="muted"></p>
         <pre id="vectors" class="architecture"></pre>
         <h3>Assembly</h3>
         <pre class="architecture">
@@ -167,12 +179,13 @@ ship
 ├─ power      owns reserve and allocation
 ├─ engine     requests power, delivers thrust/torque
 ├─ dampers    powered assistance, capture and crew protection
-├─ cooling    powered heat removal from the engine
+├─ cooling    one cooling budget for engine and dampers
 └─ movement   orders one fixed simulation step</pre>
         <p id="installed" class="muted"></p>
         <p id="ship-specs" class="muted"></p>
         <p id="damper-specs" class="muted"></p>
         <p id="thermal-specs" class="muted"></p>
+        <p id="damper-thermal-specs" class="muted"></p>
       </section>
       <section class="panel log">
         <h2>Supply &amp; motion history</h2>
@@ -197,12 +210,12 @@ ship
     </main>
     <p id="message" role="status"></p>
     <footer>
-      3D translation and one yaw axis. Engine heat and one cooling circuit. No
-      reactor/damper heat, collision, crew damage or relativistic model yet.
-      Power costs are explicit prototype profile values. Assisted velocity is a
-      powered force response, not a hard speed clamp. Crew G measures
-      translation only. Engine shortage scales operation after funding its
-      baseline; reserve recharge uses the existing demonstration hysteresis.
+      3D translation and one yaw axis. Engine and damper heat with one shared
+      cooling circuit. No reactor heat, collision, crew damage or relativistic
+      model yet. Power costs are explicit prototype profile values. Assisted
+      velocity is a powered force response, not a hard speed clamp. Crew G
+      measures translation only. Engine shortage scales operation after funding
+      its baseline; reserve recharge uses the existing demonstration hysteresis.
       <a href="../../games/ship/README.md">Source, ownership and limitations</a>
     </footer>
     <script

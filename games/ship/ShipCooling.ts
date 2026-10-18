@@ -1,4 +1,5 @@
 import type { Behavior } from '../../src/index.js';
+import { ShipDampers } from './ShipDampers.js';
 import { ShipEngine } from './ShipEngine.js';
 import { ShipPowerPlant } from './ShipPowerPlant.js';
 import type { PowerPort } from './ShipPowerPlant.js';
@@ -12,8 +13,10 @@ export interface CoolingReading {
   readonly suppliedW: number;
   readonly activityFraction: number;
   readonly removedHeatW: number;
+  readonly engineRemovedHeatW: number;
+  readonly damperRemovedHeatW: number;
 }
-/** First cooling circuit: one engine target, one power port, no private clock. */
+/** Shared cooling circuit: engine and dampers, one power port, no private clock. */
 export class ShipCooling implements Behavior {
   readonly requires: readonly Behavior[];
   readonly profile: Readonly<CoolingProfile>;
@@ -27,14 +30,17 @@ export class ShipCooling implements Behavior {
     suppliedW: 0,
     activityFraction: 0,
     removedHeatW: 0,
+    engineRemovedHeatW: 0,
+    damperRemovedHeatW: 0,
   });
   constructor(
     profile: CoolingProfile,
     private readonly power: ShipPowerPlant,
     private readonly engine: ShipEngine,
+    private readonly dampers: ShipDampers,
   ) {
     this.profile = validateCoolingProfile(profile);
-    this.requires = [power, engine];
+    this.requires = [power, engine, dampers];
   }
   onAttach(): undefined {
     this.#port = this.power.connect(this.profile.restartEnergyJ);
@@ -49,7 +55,9 @@ export class ShipCooling implements Behavior {
     this.#requested = value;
   }
   declare(): void {
-    this.#pumping = this.engine.temperatureK > this.profile.sinkTemperatureK;
+    this.#pumping =
+      this.engine.temperatureK > this.profile.sinkTemperatureK ||
+      this.dampers.temperatureK > this.profile.sinkTemperatureK;
     this.port().request(
       this.#requested,
       this.profile.baselineW + (this.#pumping ? this.profile.fullPowerW : 0),
@@ -67,11 +75,22 @@ export class ShipCooling implements Behavior {
             )
           : 1
         : 0;
-    const removedHeatW =
-      this.engine.removeHeat(
-        this.#pumping ? this.profile.maxCoolingW * fraction * dt : 0,
+    const engineHeat = this.engine.heatAbove(this.profile.sinkTemperatureK);
+    const damperHeat = this.dampers.heatAbove(this.profile.sinkTemperatureK);
+    const totalHeat = engineHeat + damperHeat;
+    const budgetJ = this.#pumping
+      ? Math.min(totalHeat, this.profile.maxCoolingW * fraction * dt)
+      : 0;
+    // Share one removal budget in proportion to each module's heat above the sink.
+    const engineBudget = totalHeat > 0 ? budgetJ * (engineHeat / totalHeat) : 0;
+    const engineRemovedHeatW =
+      this.engine.removeHeat(engineBudget, this.profile.sinkTemperatureK) / dt;
+    const damperRemovedHeatW =
+      this.dampers.removeHeat(
+        budgetJ - engineBudget,
         this.profile.sinkTemperatureK,
       ) / dt;
+    const removedHeatW = engineRemovedHeatW + damperRemovedHeatW;
     this.#reading = Object.freeze({
       requested: this.#requested,
       state: !this.#requested
@@ -87,6 +106,8 @@ export class ShipCooling implements Behavior {
       suppliedW: allocation.suppliedW,
       activityFraction: fraction,
       removedHeatW,
+      engineRemovedHeatW,
+      damperRemovedHeatW,
     });
     return this.#reading;
   }

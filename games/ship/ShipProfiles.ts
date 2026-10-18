@@ -12,7 +12,7 @@ export interface PowerPlantProfile {
   capacityJ: number;
   reactorOutputW: number;
 }
-export interface EngineThermalProfile {
+export interface ThermalProfile {
   heatCapacityJPerK: number;
   wasteHeatFraction: number;
   tripTemperatureK: number;
@@ -30,7 +30,7 @@ export interface CoolingProfile {
 }
 export interface EngineProfile {
   id: string;
-  thermal: Readonly<EngineThermalProfile>;
+  thermal: Readonly<ThermalProfile>;
   maxThrustN: number;
   maxYawTorqueNm: number;
   baselineW: number;
@@ -40,6 +40,7 @@ export interface EngineProfile {
 }
 export interface DamperProfile {
   id: string;
+  thermal: Readonly<ThermalProfile>;
   responseSeconds: number;
   maxYawRateRadps: number;
   baselineW: number;
@@ -58,6 +59,7 @@ export interface ShipProfile {
 }
 export interface ShipInitialState {
   readonly engineTemperatureK: number;
+  readonly damperTemperatureK: number;
   readonly energyJ: number;
   readonly velocityMps: Readonly<Vec3>;
 }
@@ -151,7 +153,7 @@ export function validateEngineProfile(value: unknown): Readonly<EngineProfile> {
   );
   return Object.freeze({
     id: profileId(p.id, 'Engine id'),
-    thermal: validateEngineThermalProfile(p.thermal),
+    thermal: validateThermalProfile(p.thermal),
     maxThrustN: readNumber(p, 'maxThrustN', 0),
     maxYawTorqueNm: readNumber(p, 'maxYawTorqueNm', 0),
     baselineW: readNumber(p, 'baselineW', Number.MIN_VALUE),
@@ -166,11 +168,12 @@ export function validateInitialState(
 ): Readonly<ShipInitialState> {
   const p = recordWithKeys(
     value,
-    ['energyJ', 'velocityMps', 'engineTemperatureK'],
+    ['energyJ', 'velocityMps', 'engineTemperatureK', 'damperTemperatureK'],
     'Initial state',
   );
   const v = recordWithKeys(p.velocityMps, ['x', 'y', 'z'], 'Initial velocity');
   return Object.freeze({
+    damperTemperatureK: readNumber(p, 'damperTemperatureK', 0, 1e6),
     engineTemperatureK: readNumber(p, 'engineTemperatureK', 0, 1e6),
     energyJ: readNumber(p, 'energyJ', 0, capacityJ),
     velocityMps: Object.freeze({
@@ -186,6 +189,7 @@ export function validateDamperProfile(value: unknown): Readonly<DamperProfile> {
     value,
     [
       'id',
+      'thermal',
       'responseSeconds',
       'maxYawRateRadps',
       'baselineW',
@@ -198,6 +202,7 @@ export function validateDamperProfile(value: unknown): Readonly<DamperProfile> {
   );
   return Object.freeze({
     id: profileId(p.id, 'Damper id'),
+    thermal: validateThermalProfile(p.thermal),
     responseSeconds: readNumber(p, 'responseSeconds', 0.01, 120),
     maxYawRateRadps: readNumber(p, 'maxYawRateRadps', 0, 10),
     baselineW: readNumber(p, 'baselineW', Number.MIN_VALUE),
@@ -208,9 +213,9 @@ export function validateDamperProfile(value: unknown): Readonly<DamperProfile> {
   });
 }
 
-export function validateEngineThermalProfile(
+export function validateThermalProfile(
   value: unknown,
-): Readonly<EngineThermalProfile> {
+): Readonly<ThermalProfile> {
   const p = recordWithKeys(
     value,
     [
@@ -221,7 +226,7 @@ export function validateEngineThermalProfile(
       'manualStartSeconds',
       'rebootSeconds',
     ],
-    'Engine thermal profile',
+    'Module thermal profile',
   );
   const tripTemperatureK = readNumber(
     p,
@@ -277,10 +282,10 @@ export function validateCoolingProfile(
 
 export function validateThermalInstallation(
   cooling: Readonly<CoolingProfile>,
-  thermal: Readonly<EngineThermalProfile>,
+  thermal: Readonly<ThermalProfile>,
 ): void {
   if (cooling.sinkTemperatureK >= thermal.restartTemperatureK)
     throw new RangeError(
-      'Cooling sink must be below the engine restart temperature',
+      'Cooling sink must be below each module restart temperature',
     );
 }

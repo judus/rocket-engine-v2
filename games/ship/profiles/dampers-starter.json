@@ -15,5 +15,13 @@
     "curvePowerGrowthPerDoubling": 0.2,
     "peakAt": "end",
     "transmittedFraction": 0.01
+  },
+  "thermal": {
+    "heatCapacityJPerK": 10000000,
+    "wasteHeatFraction": 0.08,
+    "tripTemperatureK": 370,
+    "restartTemperatureK": 330,
+    "manualStartSeconds": 0.25,
+    "rebootSeconds": 6
   }
 }

@@ -34,6 +34,7 @@ const funded: ShipProfile = {
   },
   dampers: {
     ...starterSetup.profile.dampers,
+    thermal: { ...starterSetup.profile.dampers.thermal, manualStartSeconds: 0 },
     baselineW: 1,
     wattsPerNewton: 0.1,
     wattsPerNewtonMeter: 0.1,
@@ -42,6 +43,7 @@ const funded: ShipProfile = {
 };
 function make(speed = 0, profile = funded, energyJ = 1e6): Ship {
   return new Ship(profile, {
+    damperTemperatureK: 293.15,
     engineTemperatureK: 293.15,
     energyJ,
     velocityMps: { x: 0, y: 0, z: speed },
@@ -257,6 +259,7 @@ void test('Damper profiles reject malformed protection and impossible restart th
       new Ship(
         { ...funded, dampers: { ...funded.dampers, restartEnergyJ: 1e13 } },
         {
+          damperTemperatureK: 293.15,
           engineTemperatureK: 293.15,
           energyJ: 0,
           velocityMps: { x: 0, y: 0, z: 0 },

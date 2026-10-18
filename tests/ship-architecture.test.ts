@@ -15,6 +15,7 @@ function step(ship: Ship, dt = 1 / 60): void {
   });
 }
 const initial = {
+  damperTemperatureK: 293.15,
   engineTemperatureK: 293.15,
   energyJ: 100,
   velocityMps: { x: 0, y: 0, z: 0 },

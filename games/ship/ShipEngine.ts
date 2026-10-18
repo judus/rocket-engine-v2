@@ -1,9 +1,11 @@
+import { ModuleThermal } from './ModuleThermal.js';
+import type { ThermalReading } from './ModuleThermal.js';
 import type { Behavior } from '../../src/index.js';
 import type { Vec3 } from '../../src/3d/index.js';
 import type { ShipIntent } from './ShipControl.js';
 import { zeroVector } from './ShipBody.js';
 import { ShipPowerPlant } from './ShipPowerPlant.js';
-import { numberIn, validateEngineProfile } from './ShipProfiles.js';
+import { validateEngineProfile } from './ShipProfiles.js';
 import type { EngineProfile } from './ShipProfiles.js';
 import type { PowerPort } from './ShipPowerPlant.js';
 
@@ -16,19 +18,12 @@ export interface EngineReading {
     | 'waiting-for-charge'
     | 'overheated'
     | 'restarting';
-  readonly thermal: Readonly<EngineThermalReading>;
+  readonly thermal: Readonly<ThermalReading>;
   readonly demandW: number;
   readonly suppliedW: number;
   readonly activityFraction: number;
   readonly thrustN: Readonly<Vec3>;
   readonly yawTorqueNm: number;
-}
-export interface EngineThermalReading {
-  readonly temperatureK: number;
-  readonly generatedHeatW: number;
-  readonly removedHeatW: number;
-  readonly tripped: boolean;
-  readonly restartRemainingSeconds: number;
 }
 export class ShipEngine implements Behavior {
   readonly requires: readonly Behavior[];
@@ -38,15 +33,9 @@ export class ShipEngine implements Behavior {
   #requested = true;
   #intent: Readonly<ShipIntent> = { thrust: zeroVector(), yaw: 0 };
   #activityDemandW = 0;
-  #temperatureK: number;
-  #tripped = false;
-  #restartRemaining = 0;
+  #thermal: ModuleThermal;
   #operating = false;
   #powerRequested = false;
-  #starting = false;
-  #tripThisStep = false;
-  #generatedHeatW = 0;
-  #removedHeatJ = 0;
   #reading: Readonly<EngineReading>;
   constructor(
     profile: EngineProfile,
@@ -56,21 +45,14 @@ export class ShipEngine implements Behavior {
     this.profile = validateEngineProfile(profile);
     this.#power = power;
     this.requires = [power];
-    this.#temperatureK = numberIn(
-      'initial engine temperature',
+    this.#thermal = new ModuleThermal(
+      this.profile.thermal,
       initialTemperatureK,
-      0,
-      1e6,
     );
-    if (this.#temperatureK >= this.profile.thermal.tripTemperatureK) {
-      this.#tripThisStep = true;
-      this.#tripped = true;
-      this.#restartRemaining = this.profile.thermal.rebootSeconds;
-    }
     this.#reading = Object.freeze({
       requested: true,
-      state: this.#tripped ? 'overheated' : 'off',
-      thermal: this.thermalReading(),
+      state: this.#thermal.state(true) ?? 'off',
+      thermal: this.#thermal.telemetry,
       demandW: 0,
       suppliedW: 0,
       activityFraction: 0,
@@ -78,17 +60,11 @@ export class ShipEngine implements Behavior {
       yawTorqueNm: 0,
     });
   }
-  private thermalReading(): Readonly<EngineThermalReading> {
-    return Object.freeze({
-      temperatureK: this.#temperatureK,
-      generatedHeatW: this.#generatedHeatW,
-      removedHeatW: 0,
-      tripped: this.#tripped,
-      restartRemainingSeconds: this.#restartRemaining,
-    });
-  }
   get temperatureK(): number {
-    return this.#temperatureK;
+    return this.#thermal.temperatureK;
+  }
+  heatAbove(sinkTemperatureK: number): number {
+    return this.#thermal.heatAbove(sinkTemperatureK);
   }
   onAttach(): undefined {
     this.#port = this.#power.connect(this.profile.restartEnergyJ);
@@ -100,23 +76,16 @@ export class ShipEngine implements Behavior {
   requestEnabled(value: boolean): void {
     if (typeof value !== 'boolean')
       throw new TypeError('Engine request must be boolean');
-    if (value && !this.#requested && !this.#tripped)
-      this.#restartRemaining = this.profile.thermal.manualStartSeconds;
+    this.#thermal.requestChanged(this.#requested, value);
     this.#requested = value;
   }
   declare(
     intent: Readonly<ShipIntent>,
   ): Pick<EngineReading, 'thrustN' | 'yawTorqueNm' | 'requested'> {
     this.#intent = intent;
-    this.#tripThisStep = false;
-    this.#generatedHeatW = 0;
-    this.#removedHeatJ = 0;
-    this.#starting = this.#restartRemaining > 0;
-    this.#operating = this.#requested && !this.#tripped && !this.#starting;
-    this.#powerRequested =
-      this.#requested &&
-      (!this.#tripped ||
-        this.#temperatureK <= this.profile.thermal.restartTemperatureK);
+    const thermal = this.#thermal.begin(this.#requested);
+    this.#operating = thermal.operating;
+    this.#powerRequested = thermal.powerRequested;
     const throttle = Math.hypot(
       intent.thrust.x,
       intent.thrust.y,
@@ -157,18 +126,14 @@ export class ShipEngine implements Behavior {
     });
     this.#reading = Object.freeze({
       requested: this.#requested,
-      state: !this.#requested
-        ? 'off'
-        : this.#tripped
-          ? 'overheated'
-          : this.#starting
-            ? 'restarting'
-            : allocation.suppliedW === 0
-              ? 'waiting-for-charge'
-              : fraction < 1
-                ? 'limited'
-                : 'online',
-      thermal: this.thermalReading(),
+      state:
+        this.#thermal.state(this.#requested) ??
+        (allocation.suppliedW === 0
+          ? 'waiting-for-charge'
+          : fraction < 1
+            ? 'limited'
+            : 'online'),
+      thermal: this.#thermal.telemetry,
       demandW: this.#powerRequested
         ? this.profile.baselineW + this.#activityDemandW
         : 0,
@@ -179,71 +144,27 @@ export class ShipEngine implements Behavior {
     });
     return this.#reading;
   }
-  /** Heat follows actual supplied electrical energy, including standby/restart losses. */
   generateHeat(dt: number): void {
-    this.#generatedHeatW =
-      this.#reading.suppliedW * this.profile.thermal.wasteHeatFraction;
-    this.#temperatureK +=
-      (this.#generatedHeatW * dt) / this.profile.thermal.heatCapacityJPerK;
-    if (this.#temperatureK >= this.profile.thermal.tripTemperatureK) {
-      this.#tripThisStep = true;
-      this.#tripped = true;
-      this.#restartRemaining = this.profile.thermal.rebootSeconds;
-    }
+    this.#thermal.generate(this.#reading.suppliedW, dt);
   }
-  /** The cooling component transfers heat; the engine remains its temperature owner. */
   removeHeat(maxEnergyJ: number, sinkTemperatureK: number): number {
-    numberIn('Cooling energy', maxEnergyJ, 0);
-    numberIn('Cooling sink temperature', sinkTemperatureK, 0, 1e6);
-    const removed = Math.min(
-      maxEnergyJ,
-      Math.max(0, this.#temperatureK - sinkTemperatureK) *
-        this.profile.thermal.heatCapacityJPerK,
-    );
-    this.#temperatureK -= removed / this.profile.thermal.heatCapacityJPerK;
-    this.#removedHeatJ += removed;
-    return removed;
+    return this.#thermal.removeHeat(maxEnergyJ, sinkTemperatureK);
   }
   finishThermalStep(dt: number): void {
-    const coolEnough =
-      !this.#tripped ||
-      this.#temperatureK <= this.profile.thermal.restartTemperatureK;
-    if (
-      this.#requested &&
-      this.#starting &&
-      !this.#tripThisStep &&
-      this.#powerRequested &&
-      coolEnough
-    ) {
-      const funded = Math.min(
-        1,
-        this.#reading.suppliedW / this.profile.baselineW,
-      );
-      this.#restartRemaining = Math.max(
-        0,
-        this.#restartRemaining - dt * funded,
-      );
-      if (this.#restartRemaining < 1e-9) {
-        this.#restartRemaining = 0;
-        this.#tripped = false;
-      }
-    }
+    this.#thermal.finish(
+      dt,
+      this.#requested,
+      this.#reading.suppliedW,
+      this.profile.baselineW,
+    );
+    const thermalState = this.#thermal.state(this.#requested);
+    const startupCompleted =
+      this.#reading.state === 'restarting' && thermalState === undefined;
     this.#reading = Object.freeze({
       ...this.#reading,
-      state: !this.#requested
-        ? 'off'
-        : this.#tripped &&
-            this.#temperatureK > this.profile.thermal.restartTemperatureK
-          ? 'overheated'
-          : this.#restartRemaining > 0
-            ? 'restarting'
-            : this.#starting && this.#restartRemaining === 0
-              ? 'online'
-              : this.#reading.state,
-      thermal: Object.freeze({
-        ...this.thermalReading(),
-        removedHeatW: this.#removedHeatJ / dt,
-      }),
+      state:
+        thermalState ?? (startupCompleted ? 'online' : this.#reading.state),
+      thermal: this.#thermal.telemetry,
     });
   }
   get telemetry(): Readonly<EngineReading> {

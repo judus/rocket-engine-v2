@@ -50,14 +50,14 @@ Positive speed sliders use logarithmic exploration; other sliders are linear. Ex
 
 ## Capture response model (not yet connected to this UI)
 
-The next model slice is [documented separately](../../docs/SHIP-CAPTURE-MODEL.md). `games/ship/CaptureResponse.ts` takes an equipment profile and an entry speed, grows duration and braking concentration above a reference excess speed, and reports nominal crew G from the profile's transmission fraction. It does not cap crew G to the ideal planner's target. The assembled ship screen now integrates this plan through a powered damper capability; the curve planner remains separate. Engine heat and one powered cooling circuit are implemented on the assembled ship; crew injury is not.
+The next model slice is [documented separately](../../docs/SHIP-CAPTURE-MODEL.md). `games/ship/CaptureResponse.ts` takes an equipment profile and an entry speed, grows duration and braking concentration above a reference excess speed, and reports nominal crew G from the profile's transmission fraction. It does not cap crew G to the ideal planner's target. The assembled ship screen now integrates this plan through a powered damper capability; the curve planner remains separate. Engine/damper heat and one shared powered cooling circuit are implemented on the assembled ship; crew injury is not.
 
 ## Assembled ship telemetry
 
 Open <http://localhost:8092/apps/flight-foundry/ship.html> for the actual attached ship architecture, separate from the analytical curve tools. It runs game-owned control, engine, power and movement capabilities, with resource-limited Newtonian motion. See [the ship assembly documentation](../../games/ship/README.md).
 
-The assembled ship loads its equipment from `games/ship/profiles/*.json`, referenced by `games/ship/ships/science-ship.json`. Edit the JSON and reload to tune definitions; Reset repeats the loaded setup. Starting charge, velocity and engine temperature are separate initial-state data.
+The assembled ship loads its equipment from `games/ship/profiles/*.json`, referenced by `games/ship/ships/science-ship.json`. Edit the JSON and reload to tune definitions; Reset repeats the loaded setup. Starting charge, velocity and engine/damper temperatures are separate initial-state data.
 
 The assembled ship includes an inertia-damper switch, separate JSON profile, editable reset velocity, assisted-flight/capture state and actual ship/crew G telemetry. See [ship ownership and behavior](../../games/ship/README.md#powered-inertia-dampers).
 
-The engine now owns temperature and a thermal-trip/reboot latch. A separate attached cooling circuit consumes shared power to remove heat. The ship page exposes its switch, actual generated/removed MW, engine temperature, and powered restart countdown. Thermal JSON parameters and separate initial temperature are documented in `games/ship/README.md`. Reactor/damper heat is not yet modeled.
+The engine now owns temperature and a thermal-trip/reboot latch. Engine and dampers use the same private thermal calculation while keeping independent state. A separate attached cooling circuit consumes shared power and divides one heat-removal budget between them. The ship page exposes its switch, actual generated/removed MW, engine temperature, and powered restart countdown. Thermal JSON parameters and separate initial temperature are documented in `games/ship/README.md`. Damper thermal trips remove assistance/protection and replan capture after recovery. Reactor heat is not yet modeled.
