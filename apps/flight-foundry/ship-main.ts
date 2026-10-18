@@ -212,6 +212,7 @@ function paint(): void {
         t.power.thermal.generatedHeatW,
         t.power.passiveRemovedHeatW + t.cooling.reactorRemovedHeatW,
       ),
+      healthCell(t.power.health),
     ],
     [
       'Engine',
@@ -222,6 +223,7 @@ function paint(): void {
         t.engine.thermal.generatedHeatW,
         t.cooling.engineRemovedHeatW,
       ),
+      healthCell(t.engine.health),
     ],
     [
       'Inertia dampers',
@@ -232,6 +234,7 @@ function paint(): void {
         t.dampers.thermal.generatedHeatW,
         t.cooling.damperRemovedHeatW,
       ),
+      healthCell(t.dampers.health),
     ],
     [
       'Cargo link',
@@ -242,12 +245,14 @@ function paint(): void {
         t.cargo.thermal.generatedHeatW,
         t.cooling.cargoRemovedHeatW,
       ),
+      healthCell(t.cargo.health),
     ],
     [
       'Cooling',
       `<strong>${t.cooling.state}</strong><small>${requested(t.cooling.requested)}</small>`,
       electrical(t.cooling.suppliedW, t.cooling.demandW),
       `${fmt(t.cooling.removedHeatW / 1e6)} MW removed<small>shared cooling circuit</small>`,
+      healthCell(t.cooling.health),
     ],
     [
       'Shields',
@@ -258,12 +263,36 @@ function paint(): void {
         t.shields.thermal.generatedHeatW,
         t.cooling.shieldRemovedHeatW,
       ),
+      healthCell(t.shields.health),
     ],
   ];
+  const escapeText = (value: string): string => {
+    const node = document.createElement('span');
+    node.textContent = value;
+    return node.innerHTML;
+  };
+  for (const installation of t.mounts.installations) {
+    const equipment = ship.mounts.profile.equipment.find(
+      (e) => e.id === installation.equipmentId,
+    );
+    if (!equipment) throw new Error('Missing installed equipment definition');
+    const operation = installation.operation;
+    modules.push([
+      `${escapeText(equipment.label)}<small>${escapeText(installation.slotId)} · ${escapeText(installation.installationId)}</small>`,
+      `<strong>${operation.state}</strong><small>${requested(operation.requested)} · ${equipment.kind}<br>restart ${fmt(operation.thermal.restartRemainingSeconds)} s</small>`,
+      `${electrical(operation.suppliedW, operation.demandW)}<small>${fmt(operation.outputW / 1e6)} MW output</small>`,
+      thermal(
+        operation.thermal.temperatureK,
+        operation.thermal.generatedHeatW,
+        operation.thermal.removedHeatW,
+      ),
+      healthCell(operation.health),
+    ]);
+  }
   find('#module-readings').innerHTML = modules
     .map(
-      ([name, state, energy, heat]) =>
-        `<tr><th scope="row">${name}</th><td>${state}</td><td>${energy}</td><td>${heat}</td><td>${name === 'Engine' ? healthCell(t.engine.health) : name === 'Reactor' ? healthCell(t.power.health) : name === 'Cooling' ? healthCell(t.cooling.health) : name === 'Inertia dampers' ? healthCell(t.dampers.health) : name === 'Shields' ? healthCell(t.shields.health) : name === 'Cargo link' ? healthCell(t.cargo.health) : '—'}</td></tr>`,
+      ([name, state, energy, heat, health]) =>
+        `<tr><th scope="row">${name}</th><td>${state}</td><td>${energy}</td><td>${heat}</td><td>${health}</td></tr>`,
     )
     .join('');
   find('#module-totals').innerHTML =
