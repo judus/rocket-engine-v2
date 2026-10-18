@@ -125,6 +125,15 @@ export async function loadShipSetup(
     0,
     power.capacityJ,
   );
+  for (const e of mounts.equipment) {
+    validateThermalInstallation(cooling, e.thermal);
+    numberIn(
+      'Equipment restartEnergyJ for reserve',
+      e.restartEnergyJ,
+      0,
+      power.capacityJ,
+    );
+  }
   validateThermalInstallation(cooling, cargo.thermal);
   validateThermalInstallation(cooling, power.thermal);
   validateThermalInstallation(cooling, engine.thermal);

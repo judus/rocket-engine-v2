@@ -347,13 +347,69 @@ valid. The selected group returns each installed weapon once, in loadout order.
 Commands stage validated state; the existing ship coordinator commits it at its
 next fixed boundary and includes an immutable snapshot in telemetry. Paused
 commands do not alter committed readings. Disposal drops pending edits and rejects
-further commands. There is no new clock, power port or inventory. In particular,
-this is not firing or a declaration that selected weapons actually operate.
+further commands. The grouping logic has no private clock or inventory. Powered device operation
+now uses per-installation ports on the existing ship ledger, as described below.
+Selection alone does not fire a weapon.
 
 Flight Foundry exposes a slot/equipment editor, selected group and per-slot group
 checkboxes. Its free installation commands create lab instance IDs; they do not
-transfer goods from Workshop. Run/Single step applies edits. Firing/activation,
-projectiles, equipment health/heat/power, inventory-backed installation/removal and
-mount positions/orientation remain separate slices. `ShipInternals` remains a
+transfer goods from Workshop. Run/Single step applies edits. Projectiles, inventory-backed installation/removal and mount positions/orientation
+remain separate slices. Powered operation and per-device condition are described below. `ShipInternals` remains a
 separate future capability for replaceable onboard installations, without fire
 group behavior.
+
+### Powered mounted equipment
+
+Mounted equipment now declares required JSON `health`, `thermal`,
+`initialTemperatureK`, `baselineW`, `operatingW`, `outputEfficiency` and
+`restartEnergyJ`. Validate these against the ship's reserve and cooling sink
+before constructing the loadout. Each installation owns independent health,
+thermal state, an exact power port and cumulative output. New lab installations
+start at full health, their configured temperature and requested off. Slot hardware
+itself is not an additional health pool.
+
+```ts
+ship.mounts.requestEnabled('mount-1', true);
+ship.mounts.requestFiring(true); // sustained selected-group trigger
+ship.mounts.damage('mount-1', 25); // lab command
+ship.mounts.repair('mount-1', 25);
+ship.mounts.requestFiring(false);
+```
+
+Commands commit on the existing fixed tick. Enabled equipment funds baseline and
+manual startup even when not firing. Only enabled weapons in the selected group
+request operating power while the trigger is on; enabled utilities request it
+independently of fire groups. There are no automatic trigger events from group
+selection. Changing group while the trigger is held changes the serviced weapons
+on the next tick. Empty groups and disabled/failed devices produce no weapon output.
+
+Output uses a **continuous-energy** demonstration contract, not ammunition,
+projectiles, shots or hull damage. After fully funding baseline, remaining supplied
+power funds operation. Useful output is funded operating input times equipment
+output efficiency times health output fraction. Health degradation therefore
+reduces output without a free electrical discount. Heat is baseline power times
+its configured waste fraction plus operating input minus useful output. A device
+reports interval output joules, cumulative output joules, actual power, heat,
+health and operating/restart state; these are not a count of shots or damage dealt.
+
+Zero health removes equipment demand/output while remembering the requested state.
+Repair invokes manual startup and never erases an existing thermal trip/reboot.
+Thermal thresholds latch before shared cooling, so a threshold crossed during the
+interval still trips even if the cooler immediately removes that heat. Delivered
+output remains credited to that interval; subsequent output stops. The existing
+cooling circuit includes the mounted devices in its ONE removal budget and reports
+`mountRemovedHeatW`. The mount bank distributes only its allocated cooling energy
+proportionally among device temperatures above the sink. No second power allocator,
+cooling capacity or simulation clock exists.
+
+Removal requires requested off (or a queued off command) and temperature at/below
+the device's restart threshold. It retires the exact port and clears group
+assignments. Installation IDs cannot be recycled during the ship lifetime; new
+hardware gets a new identity and cannot inherit an old runtime accidentally. This
+lab creates fresh devices for free; inventory-backed preservation of existing
+items/condition and runtime save/restore remain future contracts.
+
+Flight Foundry provides per-slot enable/disable, damage/repair, a selected-group
+trigger and live device telemetry. Editing controls persist across ordinary
+telemetry refreshes. Projectiles, aiming, hit routing, ammunition, recoil and real
+utility effects remain outside this power/heat/health proof.

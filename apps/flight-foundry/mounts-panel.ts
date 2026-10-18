@@ -18,6 +18,35 @@ export class MountsPanel {
     private readonly ship: () => Ship,
     private readonly message: HTMLElement,
   ) {}
+  private paintOperations(reading: Readonly<MountsReading>): void {
+    const root = document.querySelector<HTMLElement>('#mount-runtime');
+    if (!root) throw new Error('Missing mount operation telemetry');
+    const table = element('table');
+    table.setAttribute('aria-label', 'Mounted equipment operation');
+    const head = element('thead'),
+      row = element('tr');
+    for (const label of ['Mount / state', 'Power', 'Output', 'Heat', 'Health'])
+      row.append(element('th', label));
+    head.append(row);
+    const body = element('tbody');
+    const n = (value: number) =>
+      value.toLocaleString('en', { maximumFractionDigits: 2 });
+    for (const i of reading.installations) {
+      const o = i.operation,
+        r = element('tr');
+      for (const text of [
+        `${i.slotId} · ${o.state} · requested ${o.requested ? 'on' : 'off'}`,
+        `${n(o.suppliedW / 1e6)} / ${n(o.demandW / 1e6)} MW`,
+        `${n(o.outputW / 1e6)} MW · ${n(o.totalOutputJ / 1e6)} MJ total`,
+        `${n(o.thermal.temperatureK - 273.15)} °C · +${n(o.thermal.generatedHeatW / 1e6)} / −${n(o.thermal.removedHeatW / 1e6)} MW · restart ${n(o.thermal.restartRemainingSeconds)} s`,
+        `${n(o.health.points)} / ${n(o.health.maxPoints)} HP`,
+      ])
+        r.append(element('td', text));
+      body.append(r);
+    }
+    table.append(head, body);
+    root.replaceChildren(table);
+  }
   private command(action: () => void): void {
     try {
       action();
@@ -31,7 +60,12 @@ export class MountsPanel {
     }
   }
   paint(reading: Readonly<MountsReading>, reset = false): void {
-    const key = JSON.stringify(reading);
+    this.paintOperations(reading);
+    const key = JSON.stringify({
+      slots: reading.slots,
+      groups: reading.groups,
+      selectedGroupId: reading.selectedGroupId,
+    });
     if (!reset && key === this.#last) return;
     this.#last = key;
     const mounts = this.ship().mounts;
@@ -74,6 +108,22 @@ export class MountsPanel {
     const toolbar = element('div');
     toolbar.className = 'toolbar';
     toolbar.append(slot, equipment, install, remove);
+    const controls = element('div');
+    controls.className = 'toolbar';
+    for (const [label, action] of [
+      ['Enable selected mount', () => mounts.requestEnabled(slot.value, true)],
+      [
+        'Disable selected mount',
+        () => mounts.requestEnabled(slot.value, false),
+      ],
+      ['Damage selected mount · 25 HP', () => mounts.damage(slot.value, 25)],
+      ['Repair selected mount · 25 HP', () => mounts.repair(slot.value, 25)],
+    ] as const) {
+      const button = element('button', label);
+      button.type = 'button';
+      button.addEventListener('click', () => this.command(action));
+      controls.append(button);
+    }
     const groupbar = element('div');
     groupbar.className = 'toolbar';
     groupbar.append(group, choose);
@@ -120,6 +170,6 @@ export class MountsPanel {
     const wrapper = element('div');
     wrapper.className = 'table-wrap module-matrix';
     wrapper.append(table);
-    this.root.replaceChildren(status, groupbar, toolbar, wrapper);
+    this.root.replaceChildren(status, groupbar, toolbar, controls, wrapper);
   }
 }

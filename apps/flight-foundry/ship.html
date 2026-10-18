@@ -289,10 +289,19 @@
           Seven configurable slots; weapons may belong to multiple groups.
           Utilities have no fire-group assignments. Removing equipment clears
           its assignments. Install/remove in this lab is free; changes commit on
-          Run or Single step. Firing, equipment health and inventory transfers
-          follow in later slices.
+          Run or Single step. Power, output, heat and health are shown below.
+          Inventory transfers remain separate.
+        </p>
+        <label class="switch"
+          ><input id="mount-fire" type="checkbox" />Fire selected group</label
+        >
+        <p class="muted">
+          Only enabled weapons in the selected group operate. Enabled utilities
+          run independently. Output is continuous energy, with no projectiles or
+          hits yet. Disable and cool equipment before removal.
         </p>
         <div id="mounts-editor"></div>
+        <div id="mount-runtime" class="table-wrap module-matrix"></div>
         <h3>Engine condition · lab controls</h3>
         <div class="toolbar">
           <button id="damage-engine" type="button">Damage engine · 25 HP</button

@@ -93,11 +93,13 @@ export class ShipMovement implements Behavior {
     const requestedEngine = this.engine.declare(this.control.intent);
     this.dampers.declare(this.control.intent, requestedEngine, dt);
     this.cargo.declare();
+    this.mounts.declare();
     this.cooling.declare();
     this.shields.declare(dt);
     this.power.allocate(dt);
     this.shields.deliver(dt);
     this.cargo.deliver();
+    this.mounts.deliver(dt);
     this.hull.resolve();
     const delivered = this.engine.deliver();
     const damperReading = this.dampers.deliver(delivered.activityFraction);
@@ -112,6 +114,7 @@ export class ShipMovement implements Behavior {
     this.dampers.finishThermalStep(dt);
     this.shields.finishThermalStep(dt);
     this.cargo.finishStep(dt);
+    this.mounts.finishStep(dt);
     const engineForce = this.body.localToWorld(delivered.thrustN);
     const worldForceN = Object.freeze({
       x: engineForce.x + damperReading.worldForceN.x,

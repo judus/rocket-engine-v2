@@ -86,9 +86,10 @@ export class Ship extends Node2D {
       profile.power.capacityJ,
     );
     validateThermalInstallation(profile.cooling, profile.cargo.thermal);
+    for (const e of profile.mounts.equipment)
+      validateThermalInstallation(profile.cooling, e.thermal);
     this.cargoLink = new CargoLink(initial.cargoPocketId);
     try {
-      this.mounts = this.attach(new ShipMounts(profile.mounts));
       this.body = this.attach(new ShipBody(profile.body, initial.velocityMps));
       this.control = this.attach(new ShipControl());
       this.power = this.attach(
@@ -99,6 +100,7 @@ export class Ship extends Node2D {
           initial.reactorHealthPoints,
         ),
       );
+      this.mounts = this.attach(new ShipMounts(profile.mounts, this.power));
       this.engine = this.attach(
         new ShipEngine(
           profile.engine,
@@ -141,6 +143,7 @@ export class Ship extends Node2D {
           this.dampers,
           this.shields,
           this.cargo,
+          this.mounts,
           initial.coolingHealthPoints,
         ),
       );

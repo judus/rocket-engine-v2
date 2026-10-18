@@ -124,6 +124,7 @@ function reset(): void {
   rows = [];
   lastHistoryTime = -1;
   renderElapsed = 0;
+  find<HTMLInputElement>('#mount-fire').checked = false;
   find<HTMLInputElement>('#engine').checked = true;
   find<HTMLInputElement>('#reactor').checked = true;
   find<HTMLInputElement>('#dampers').checked = false;
@@ -188,7 +189,8 @@ function paint(): void {
     t.dampers.demandW +
     t.cooling.demandW +
     t.shields.demandW +
-    t.cargo.demandW;
+    t.cargo.demandW +
+    t.mounts.demandW;
   const electrical = (suppliedW: number, demandW: number) =>
     `${fmt(suppliedW / 1e6)} / ${fmt(demandW / 1e6)} MW<small>supplied / requested</small>`;
   const thermal = (
@@ -344,6 +346,9 @@ for (const [prefix, module, label] of [
     });
   }
 }
+find('#mount-fire').addEventListener('change', () =>
+  ship.mounts.requestFiring(find<HTMLInputElement>('#mount-fire').checked),
+);
 find('#cargo').addEventListener('change', () =>
   ship.cargo.requestEnabled(find<HTMLInputElement>('#cargo').checked),
 );

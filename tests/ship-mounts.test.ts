@@ -1,10 +1,22 @@
-import test from 'node:test';
+import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { ShipMounts, validateMountsProfile } from '../games/ship/ShipMounts.js';
 import { Ship } from '../games/ship/Ship.js';
 import { starterSetup } from './helpers/shipSetup.js';
 
 const profile = starterSetup.profile.mounts;
+const owners: Ship[] = [];
+afterEach(() => {
+  for (const ship of owners.splice(0)) ship.dispose();
+});
+function createMounts(profile: typeof starterSetup.profile.mounts): ShipMounts {
+  const ship = new Ship(
+    { ...starterSetup.profile, mounts: profile },
+    starterSetup.initialState,
+  );
+  owners.push(ship);
+  return ship.mounts;
+}
 function step(ship: Ship) {
   ship.fixedUpdate(1 / 60, {
     dt: 1 / 60,
@@ -13,7 +25,7 @@ function step(ship: Ship) {
   });
 }
 void test('Starter mounts provide seven slots, independent installations, six editable groups and immutable telemetry', () => {
-  const mounts = new ShipMounts(profile),
+  const mounts = createMounts(profile),
     t = mounts.telemetry;
   assert.equal(t.slots.length, 7);
   assert.equal(t.groups.length, 6);
@@ -25,7 +37,7 @@ void test('Starter mounts provide seven slots, independent installations, six ed
   assert.ok(Object.isFrozen(t.slots[0]));
   assert.ok(Object.isFrozen(t.groups[0]?.mountIds));
   assert.ok(Object.isFrozen(t.slots[0]?.installation));
-  const other = new ShipMounts(profile);
+  const other = createMounts(profile);
   mounts.remove('mount-1');
   mounts.commit();
   assert.equal(
@@ -37,7 +49,7 @@ void test('Starter mounts provide seven slots, independent installations, six ed
   other.dispose();
 });
 void test('Any number of installed weapons may share a group and a weapon may belong to several groups', () => {
-  const mounts = new ShipMounts(profile);
+  const mounts = createMounts(profile);
   mounts.remove('mount-3');
   for (let i = 3; i <= 7; i++)
     mounts.install(`mount-${i}`, 'pulse-cannon', `cannon-${i}`);
@@ -59,7 +71,7 @@ void test('Any number of installed weapons may share a group and a weapon may be
   mounts.dispose();
 });
 void test('Removing and replacing a weapon clears every assignment and does not transfer them to replacement equipment', () => {
-  const mounts = new ShipMounts(profile);
+  const mounts = createMounts(profile);
   mounts.assign('group-2', 'mount-1', true);
   mounts.remove('mount-1');
   mounts.install('mount-1', 'mining-laser', 'miner');
@@ -74,7 +86,7 @@ void test('Removing and replacing a weapon clears every assignment and does not 
   mounts.dispose();
 });
 void test('Invalid commands fail atomically without erasing earlier queued edits; slot compatibility and instance identity are enforced', () => {
-  const mounts = new ShipMounts({
+  const mounts = createMounts({
     ...profile,
     slots: profile.slots.map((s) => ({
       ...s,
@@ -92,7 +104,7 @@ void test('Invalid commands fail atomically without erasing earlier queued edits
   );
   assert.throws(
     () => mounts.install('mount-4', 'pulse-cannon', 'cannon-port'),
-    /duplicate/,
+    /duplicate/i,
   );
   assert.throws(
     () => mounts.install('missing', 'pulse-cannon', 'new'),
