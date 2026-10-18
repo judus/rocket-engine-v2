@@ -28,7 +28,7 @@ const fields: readonly Field[] = [
     unit: 'km/s',
     factor: 1000,
     low: 0.05,
-    high: 50,
+    high: 10_000,
     log: true,
   },
   {
@@ -43,14 +43,14 @@ const fields: readonly Field[] = [
     label: 'Time to cruise',
     unit: 's',
     low: 0.1,
-    high: 20,
+    high: 60,
   },
   {
     key: 'decelerationSeconds',
     label: 'Time to arrive',
     unit: 's',
     low: 0.1,
-    high: 20,
+    high: 60,
   },
   {
     key: 'accelerationShape',
