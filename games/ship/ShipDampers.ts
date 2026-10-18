@@ -1,3 +1,5 @@
+import { ModuleHealth } from './ModuleHealth.js';
+import type { HealthReading } from './ModuleHealth.js';
 import { ModuleThermal } from './ModuleThermal.js';
 import type { ThermalReading } from './ModuleThermal.js';
 import type { Behavior } from '../../src/index.js';
@@ -14,12 +16,16 @@ import type { DamperProfile } from './ShipProfiles.js';
 export interface DamperReading {
   readonly requested: boolean;
   readonly state:
+    | 'failed'
+    | 'damaged'
     | 'off'
     | 'online'
     | 'limited'
     | 'waiting-for-charge'
     | 'overheated'
     | 'restarting';
+  readonly health: Readonly<HealthReading>;
+  readonly powerFraction: number;
   readonly thermal: Readonly<ThermalReading>;
   readonly mode: 'coast' | 'assisted' | 'capture';
   readonly demandW: number;
@@ -47,6 +53,7 @@ export class ShipDampers implements Behavior {
   #torque = 0;
   #activityW = 0;
   #dt = 0;
+  #health: ModuleHealth;
   #thermal: ModuleThermal;
   #operating = false;
   #powerRequested = false;
@@ -56,16 +63,20 @@ export class ShipDampers implements Behavior {
     private readonly power: ShipPowerPlant,
     private readonly body: ShipBody,
     initialTemperatureK: number,
+    initialHealthPoints: number,
   ) {
     this.profile = validateDamperProfile(profile);
     this.requires = [power, body];
+    this.#health = new ModuleHealth(this.profile.health, initialHealthPoints);
     this.#thermal = new ModuleThermal(
       this.profile.thermal,
       initialTemperatureK,
     );
     this.#reading = Object.freeze({
       requested: false,
-      state: this.#thermal.state(false) ?? 'off',
+      state: this.#health.telemetry.failed ? 'failed' : 'off',
+      health: this.#health.telemetry,
+      powerFraction: 0,
       thermal: this.#thermal.telemetry,
       mode: 'coast',
       demandW: 0,
@@ -88,6 +99,14 @@ export class ShipDampers implements Behavior {
     if (!this.#port) throw new Error('Dampers are not attached');
     return this.#port;
   }
+  damage(points: number): void {
+    this.port();
+    this.#health.damage(points);
+  }
+  repair(points: number): void {
+    this.port();
+    this.#health.repair(points);
+  }
   requestEnabled(value: boolean): void {
     if (typeof value !== 'boolean')
       throw new TypeError('Damper request must be boolean');
@@ -105,7 +124,12 @@ export class ShipDampers implements Behavior {
     dt: number,
   ): void {
     this.#dt = dt;
-    const thermal = this.#thermal.begin(this.#requested);
+    const wasFailed = this.#health.telemetry.failed;
+    this.#health.commit();
+    const failed = this.#health.telemetry.failed;
+    if (wasFailed && !failed)
+      this.#thermal.requestChanged(false, this.#requested);
+    const thermal = this.#thermal.begin(this.#requested && !failed);
     this.#operating = thermal.operating;
     this.#powerRequested = thermal.powerRequested;
     const body = this.body.telemetry;
@@ -189,7 +213,7 @@ export class ShipDampers implements Behavior {
   }
   deliver(engineFraction: number): Readonly<DamperReading> {
     const allocation = this.port().delivery();
-    const fraction =
+    const powerFraction =
       this.#operating && allocation.suppliedW >= this.profile.baselineW
         ? this.#activityW > 0
           ? Math.min(
@@ -198,17 +222,24 @@ export class ShipDampers implements Behavior {
             )
           : 1
         : 0;
+    const health = this.#health.telemetry;
+    const fraction = powerFraction * health.outputFraction;
     const capturing = this.#capture !== undefined;
     if (capturing && fraction > 0) this.#captureElapsed += this.#dt * fraction;
     this.#reading = Object.freeze({
       requested: this.#requested,
-      state:
-        this.#thermal.state(this.#requested) ??
-        (fraction === 0
-          ? 'waiting-for-charge'
-          : fraction < 1
-            ? 'limited'
-            : 'online'),
+      state: health.failed
+        ? 'failed'
+        : (this.#thermal.state(this.#requested) ??
+          (powerFraction === 0
+            ? 'waiting-for-charge'
+            : powerFraction < 1
+              ? 'limited'
+              : health.fraction < 1
+                ? 'damaged'
+                : 'online')),
+      health,
+      powerFraction,
       thermal: this.#thermal.telemetry,
       mode: fraction === 0 ? 'coast' : capturing ? 'capture' : 'assisted',
       demandW: this.#powerRequested
@@ -262,8 +293,14 @@ export class ShipDampers implements Behavior {
       this.#reading.state === 'restarting' && thermalState === undefined;
     this.#reading = Object.freeze({
       ...this.#reading,
-      state:
-        thermalState ?? (startupCompleted ? 'online' : this.#reading.state),
+      state: this.#health.telemetry.failed
+        ? 'failed'
+        : (thermalState ??
+          (startupCompleted
+            ? this.#health.telemetry.fraction < 1
+              ? 'damaged'
+              : 'online'
+            : this.#reading.state)),
       thermal: this.#thermal.telemetry,
     });
     if (this.#thermal.telemetry.tripped) {

@@ -56,6 +56,7 @@ export interface EngineProfile {
   restartEnergyJ: number;
 }
 export interface DamperProfile {
+  health: Readonly<HealthProfile>;
   id: string;
   thermal: Readonly<ThermalProfile>;
   responseSeconds: number;
@@ -93,6 +94,7 @@ export interface ShipProfile {
   readonly hull: Readonly<HullProfile>;
 }
 export interface ShipInitialState {
+  readonly damperHealthPoints: number;
   readonly coolingHealthPoints: number;
   readonly reactorHealthPoints: number;
   readonly engineHealthPoints: number;
@@ -222,12 +224,14 @@ export function validateInitialState(
   engineMaxHealthPoints: number,
   reactorMaxHealthPoints: number,
   coolingMaxHealthPoints: number,
+  damperMaxHealthPoints: number,
 ): Readonly<ShipInitialState> {
   const p = recordWithKeys(
     value,
     [
       'engineHealthPoints',
       'reactorHealthPoints',
+      'damperHealthPoints',
       'coolingHealthPoints',
       'energyJ',
       'velocityMps',
@@ -240,6 +244,12 @@ export function validateInitialState(
   );
   const v = recordWithKeys(p.velocityMps, ['x', 'y', 'z'], 'Initial velocity');
   return Object.freeze({
+    damperHealthPoints: readNumber(
+      p,
+      'damperHealthPoints',
+      0,
+      damperMaxHealthPoints,
+    ),
     coolingHealthPoints: readNumber(
       p,
       'coolingHealthPoints',
@@ -275,6 +285,7 @@ export function validateDamperProfile(value: unknown): Readonly<DamperProfile> {
   const p = recordWithKeys(
     value,
     [
+      'health',
       'id',
       'thermal',
       'responseSeconds',
@@ -288,6 +299,7 @@ export function validateDamperProfile(value: unknown): Readonly<DamperProfile> {
     'Damper profile',
   );
   return Object.freeze({
+    health: validateHealthProfile(p.health),
     id: profileId(p.id, 'Damper id'),
     thermal: validateThermalProfile(p.thermal),
     responseSeconds: readNumber(p, 'responseSeconds', 0.01, 120),

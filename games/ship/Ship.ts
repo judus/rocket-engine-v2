@@ -41,6 +41,7 @@ export class Ship extends Node2D {
       profile.engine.health.maxPoints,
       profile.power.health.maxPoints,
       profile.cooling.health.maxPoints,
+      profile.dampers.health.maxPoints,
     );
     numberIn(
       'Engine restartEnergyJ for installed reserve',
@@ -95,6 +96,7 @@ export class Ship extends Node2D {
           this.power,
           this.body,
           initial.damperTemperatureK,
+          initial.damperHealthPoints,
         ),
       );
       this.shields = this.attach(

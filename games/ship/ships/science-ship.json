@@ -16,7 +16,8 @@
     "shieldTemperatureK": 293.15,
     "engineHealthPoints": 100,
     "reactorHealthPoints": 100,
-    "coolingHealthPoints": 100
+    "coolingHealthPoints": 100,
+    "damperHealthPoints": 100
   },
   "damperProfile": "dampers-starter",
   "coolingProfile": "cooling-starter",

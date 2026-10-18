@@ -15,6 +15,7 @@ function step(ship: Ship, dt = 1 / 60): void {
   });
 }
 const initial = {
+  damperHealthPoints: 100,
   coolingHealthPoints: 100,
   reactorHealthPoints: 100,
   engineHealthPoints: 100,

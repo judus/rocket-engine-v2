@@ -222,3 +222,30 @@ A repair restores only the repaired capacity on the next simulation step, when t
 Flight Foundry adds cooling health to the existing matrix and cooling damage/failure/partial/full repair lab buttons. Lab commands bypass shields/hull, cost no resources, and commit only through Run/Single step. Engine, reactor and cooling now have independent condition; dampers and shields remain the next two health integrations.
 
 `tests/ship-cooling-health.test.ts` covers the single four-target degraded budget, thermal/electrical conservation, multiplied power/condition limits, nonlinear profiles, zero-demand pump failure, continued passive cooling, repaired/off pump behavior, engine overheating after pump failure with retained thermal reboot, invalid inputs and independent/disposed lifetimes. The strict loadout tests cover cooling-health profiles and initial bounds.
+
+### Damper condition
+
+`ShipDampers` owns independent `ModuleHealth`, configured by its required JSON
+`health: { maxPoints, outputExponent }` and `initialState.damperHealthPoints`.
+The starter module has 100 HP and linear degradation. Queued `damage(points)`
+and `repair(points)` commit before demand declaration on the next fixed step.
+Telemetry includes immutable health, electrical `powerFraction`, and effective
+`activityFraction = powerFraction * health.outputFraction`.
+
+Condition scales all damper force, yaw torque and crew suppression. With the
+starter's 1% nominal transmission, a fully funded 50 HP module transmits 50.5%
+of ship load; this is not a crew-load cap. A damaged working module retains
+nominal demand and electrical heat losses. Zero HP stops damper demand,
+assistance and suppression without changing body momentum or engine operation.
+Other modules retain their own health.
+
+Repair preserves the requested switch and existing thermal trip/reboot. Repair
+from failure uses manual startup when requested on. Interrupted capture replans
+from actual velocity when assistance returns; the capture clock advances by
+effective activity, so its displayed plan duration is not a guaranteed wall-clock
+arrival time under damage or partial power. Neutral assisted braking continues
+after the capture plan ends. No health command sets body velocity directly.
+
+Flight Foundry's module matrix and damper condition buttons expose this behavior.
+Lab repairs are free and damage bypasses shields/hull; automatic damage routing,
+crew injuries and module repair economies remain outside this slice.

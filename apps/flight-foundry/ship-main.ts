@@ -240,7 +240,7 @@ function paint(): void {
   find('#module-readings').innerHTML = modules
     .map(
       ([name, state, energy, heat]) =>
-        `<tr><th scope="row">${name}</th><td>${state}</td><td>${energy}</td><td>${heat}</td><td>${name === 'Engine' ? healthCell(t.engine.health) : name === 'Reactor' ? healthCell(t.power.health) : name === 'Cooling' ? healthCell(t.cooling.health) : '—'}</td></tr>`,
+        `<tr><th scope="row">${name}</th><td>${state}</td><td>${energy}</td><td>${heat}</td><td>${name === 'Engine' ? healthCell(t.engine.health) : name === 'Reactor' ? healthCell(t.power.health) : name === 'Cooling' ? healthCell(t.cooling.health) : name === 'Inertia dampers' ? healthCell(t.dampers.health) : '—'}</td></tr>`,
     )
     .join('');
   find('#module-totals').innerHTML =
@@ -300,6 +300,7 @@ for (const [prefix, module, label] of [
   ['engine', (ship: Ship) => ship.engine, 'Engine'],
   ['reactor', (ship: Ship) => ship.power, 'Reactor'],
   ['cooling', (ship: Ship) => ship.cooling, 'Cooling'],
+  ['dampers', (ship: Ship) => ship.dampers, 'Dampers'],
 ] as const) {
   for (const [action, repair, points] of [
     ['damage', false, 25],
