@@ -29,6 +29,7 @@ export interface InternalDefinition extends PoweredModuleProfile {
   readonly label: string;
   readonly facilityDefinitionId: string | null;
   readonly inventoryCapacity: number | null;
+  readonly inventoryAccepts: readonly string[] | null;
 }
 export interface InternalInstallation {
   readonly slotId: string;
@@ -70,6 +71,7 @@ export function validateInternalsProfile(
         'label',
         'facilityDefinitionId',
         'inventoryCapacity',
+        'inventoryAccepts',
         'health',
         'thermal',
         'initialTemperatureK',
@@ -93,6 +95,15 @@ export function validateInternalsProfile(
           );
     if (inventoryCapacity !== null && !Number.isSafeInteger(inventoryCapacity))
       throw new Error('Internal inventory capacity must be an integer');
+    const inventoryAccepts =
+      d.inventoryAccepts === null
+        ? null
+        : array(d.inventoryAccepts, 'Inventory accepts').map((v) =>
+            profileId(v, 'Accepted resource'),
+          );
+    if (inventoryAccepts) unique(inventoryAccepts, 'accepted resources');
+    if (inventoryCapacity === null && inventoryAccepts !== null)
+      throw new Error('Inventory rules require an inventory');
     const facilityDefinitionId =
       d.facilityDefinitionId === null
         ? null
@@ -104,6 +115,8 @@ export function validateInternalsProfile(
       label: d.label,
       facilityDefinitionId,
       inventoryCapacity,
+      inventoryAccepts:
+        inventoryAccepts === null ? null : Object.freeze(inventoryAccepts),
       health: validateHealthProfile(d.health),
       thermal: validateThermalProfile(d.thermal),
       initialTemperatureK: numberIn(
@@ -241,6 +254,8 @@ export class ShipInternals implements Behavior {
         0,
         power.profile.capacityJ,
       );
+      for (const resource of d.inventoryAccepts ?? [])
+        production.registry.resource(resource);
       if (d.facilityDefinitionId) {
         const f = production.registry.facility(d.facilityDefinitionId);
         if (
@@ -294,6 +309,8 @@ export class ShipInternals implements Behavior {
         id: inventoryId,
         capacity: { kind: 'units', limit: d.inventoryCapacity! },
         attachment: { objectId: i.installationId, slot: 'buffer' },
+        rules:
+          d.inventoryAccepts === null ? {} : { accepts: d.inventoryAccepts },
       });
     let facilityId: string | null = null;
     if (d.facilityDefinitionId) {
@@ -444,6 +461,41 @@ export class ShipInternals implements Behavior {
             ? 'Lab stock supplied'
             : 'Lab stock collected'
           : 'Stock unavailable or inventory full',
+      };
+    });
+  }
+  transfer(
+    fromSlot: string,
+    toSlot: string,
+    resourceId: string,
+    quantity: number,
+  ): void {
+    this.binding(fromSlot);
+    this.binding(toSlot);
+    if (fromSlot === toSlot)
+      throw new Error('Choose a different destination slot');
+    this.production.registry.resource(resourceId);
+    numberIn(
+      'Internal transfer quantity',
+      quantity,
+      1,
+      Number.MAX_SAFE_INTEGER,
+    );
+    if (!Number.isSafeInteger(quantity))
+      throw new Error('Transfer quantity must be an integer');
+    this.#commands.push(() => {
+      const from = this.#bindings.get(fromSlot),
+        to = this.#bindings.get(toSlot);
+      if (!from?.inventoryId || !to?.inventoryId)
+        return { ok: false, message: 'Both installations need an inventory' };
+      const ok = this.production.transfer(from.inventoryId, to.inventoryId, {
+        [resourceId]: quantity,
+      });
+      return {
+        ok,
+        message: ok
+          ? 'Internal stock transferred'
+          : 'Transfer refused: stock unavailable or destination admission failed',
       };
     });
   }

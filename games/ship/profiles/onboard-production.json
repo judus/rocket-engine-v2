@@ -9,6 +9,21 @@
       "id": "part",
       "label": "Machine part",
       "kind": "material"
+    },
+    {
+      "id": "ore",
+      "label": "Ore",
+      "kind": "material"
+    },
+    {
+      "id": "ingredients",
+      "label": "Food ingredients",
+      "kind": "material"
+    },
+    {
+      "id": "meal",
+      "label": "Prepared meal",
+      "kind": "material"
     }
   ],
   "recipes": [
@@ -22,6 +37,28 @@
       "outputs": {
         "part": 1
       }
+    },
+    {
+      "id": "refine-alloy",
+      "label": "Refine alloy",
+      "durationSeconds": 4,
+      "inputs": {
+        "ore": 2
+      },
+      "outputs": {
+        "alloy": 1
+      }
+    },
+    {
+      "id": "prepare-meal",
+      "label": "Prepare meal",
+      "durationSeconds": 3,
+      "inputs": {
+        "ingredients": 2
+      },
+      "outputs": {
+        "meal": 1
+      }
     }
   ],
   "facilities": [
@@ -30,6 +67,22 @@
       "label": "Onboard fabricator",
       "category": "fabrication",
       "recipes": ["fabricate-part"],
+      "constructionCost": {},
+      "operatingConditions": ["powered", "temperature-safe", "healthy"]
+    },
+    {
+      "id": "onboard-refinery",
+      "label": "Onboard refinery",
+      "category": "refining",
+      "recipes": ["refine-alloy"],
+      "constructionCost": {},
+      "operatingConditions": ["powered", "temperature-safe", "healthy"]
+    },
+    {
+      "id": "onboard-galley",
+      "label": "Onboard galley",
+      "category": "cooking",
+      "recipes": ["prepare-meal"],
       "constructionCost": {},
       "operatingConditions": ["powered", "temperature-safe", "healthy"]
     }

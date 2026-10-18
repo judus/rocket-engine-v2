@@ -44,7 +44,15 @@ export class InternalsPanel {
       const previous = this.#slot?.value;
       this.#slot = node('select');
       this.#slot.setAttribute('aria-label', 'Internal slot');
-      for (const id of reading.slots) this.#slot.add(new Option(id, id));
+      this.#slot.addEventListener('change', () =>
+        this.paint(this.ship().telemetry.internals),
+      );
+      for (const id of reading.slots) {
+        const installed = reading.installations.find((i) => i.slotId === id);
+        this.#slot.add(
+          new Option(`${id} · ${installed?.label ?? 'Empty'}`, id),
+        );
+      }
       if (previous && reading.slots.includes(previous))
         this.#slot.value = previous;
       const slot = () => this.#slot!.value;
@@ -116,8 +124,40 @@ export class InternalsPanel {
         );
         stock.append(button);
       }
+      const destination = node('select');
+      destination.setAttribute('aria-label', 'Internal transfer destination');
+      for (const i of reading.installations)
+        if (i.inventory)
+          destination.add(new Option(`${i.slotId} · ${i.label}`, i.slotId));
+      const transfer = node('button', 'Transfer internal stock');
+      transfer.type = 'button';
+      transfer.addEventListener('click', () =>
+        this.command(() => {
+          if (!quantity.checkValidity() || !quantity.value)
+            throw new Error('Enter a positive whole stock quantity');
+          internals.transfer(
+            slot(),
+            destination.value,
+            resources.value,
+            Number(quantity.value),
+          );
+        }),
+      );
+      const transfers = node('div');
+      transfers.className = 'toolbar';
+      transfers.append(
+        node('span', 'Transfer selected resource/quantity to'),
+        destination,
+        transfer,
+      );
       this.#inspection = node('div');
-      this.root.replaceChildren(toolbar, buttons, stock, this.#inspection);
+      this.root.replaceChildren(
+        toolbar,
+        buttons,
+        stock,
+        transfers,
+        this.#inspection,
+      );
     }
     const selected = reading.installations.find(
       (i) => i.slotId === this.#slot?.value,
@@ -140,6 +180,14 @@ export class InternalsPanel {
       if (selected.inventory)
         facts.push(
           `Inventory ${selected.inventory.id}: ${JSON.stringify(selected.inventory.quantities)}. Reserved: ${JSON.stringify(selected.inventory.reserved)}. Capacity ${JSON.stringify(selected.inventory.capacity)}.`,
+        );
+      if (selected.inventory)
+        facts.push(
+          `Accepts: ${selected.inventory.rules?.accepts?.join(', ') ?? 'all resources'}.`,
+        );
+      if (selected.definitionId === 'fridge-starter')
+        facts.push(
+          'Food storage retains stock during power loss. Food spoilage is not modeled.',
         );
       if (selected.facility) {
         facts.push(

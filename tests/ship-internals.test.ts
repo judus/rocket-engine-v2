@@ -31,6 +31,9 @@ const profile = {
   },
   internals: {
     ...starterSetup.profile.internals,
+    loadout: starterSetup.profile.internals.loadout.filter(
+      (i) => i.slotId === 'internal-1',
+    ),
     definitions: starterSetup.profile.internals.definitions.map((d) => ({
       ...d,
       baselineW: 2,
@@ -102,10 +105,11 @@ void test('One attached fabricator uses actual Workshop stock/jobs and the share
     ship.production.inventory(i.inventory!.id).summary().quantities,
     reading(ship).inventory?.quantities,
   );
-  assert.deepEqual(before.internals.installations[0]?.inventory?.quantities, {
-    alloy: 0,
-    part: 0,
-  });
+  assert.ok(
+    Object.values(
+      before.internals.installations[0]!.inventory!.quantities,
+    ).every((v) => v === 0),
+  );
   ship.dispose();
 });
 void test('An outage freezes active work and consumed inputs; recovery finishes the same batch without a second debit', () => {
@@ -224,6 +228,7 @@ void test('Drain, evacuation and safe removal preserve stock; a different instal
           label: 'Recreation room',
           facilityDefinitionId: null,
           inventoryCapacity: null,
+          inventoryAccepts: null,
         },
       ],
     },
@@ -267,7 +272,9 @@ void test('Ordinary command refusals are atomic and visible; inspection/disposal
   ship.internals.supply('internal-1', 'alloy', 21);
   step(ship);
   assert.equal(ship.telemetry.internals.commands[0]?.ok, false);
-  assert.deepEqual(reading(ship).inventory?.quantities, { alloy: 0, part: 0 });
+  assert.ok(
+    Object.values(reading(ship).inventory!.quantities).every((v) => v === 0),
+  );
   step(ship);
   assert.equal(ship.telemetry.internals.commands[0]?.ok, false);
   ship.internals.supply('internal-1', 'alloy', 2);
@@ -344,5 +351,101 @@ void test('Profile, installation and stock boundaries fail early; duplicate/occu
   step(ship);
   assert.equal(ship.telemetry.internals.commands[0]?.ok, false);
   assert.equal(ship.production.summary().facilityCount, 1);
+  ship.dispose();
+});
+
+function outfitted() {
+  return make({
+    ...profile,
+    internals: {
+      ...profile.internals,
+      loadout: [...starterSetup.profile.internals.loadout],
+    },
+  });
+}
+function at(ship: Ship, slot: string) {
+  const installed = ship.telemetry.internals.installations.find(
+    (i) => i.slotId === slot,
+  );
+  assert.ok(installed);
+  return installed;
+}
+void test('Refinery output transfers to the fabricator and becomes a part through real Workshop jobs', () => {
+  const ship = outfitted();
+  ship.internals.supply('internal-2', 'ore', 4);
+  ship.internals.requestEnabled('internal-2', true);
+  step(ship, 9);
+  assert.equal(at(ship, 'internal-2').inventory?.quantities.alloy, 2);
+  assert.equal(at(ship, 'internal-2').facility?.jobs[0]?.batchesCompleted, 2);
+  ship.internals.transfer('internal-2', 'internal-1', 'alloy', 2);
+  ship.internals.requestEnabled('internal-1', true);
+  step(ship, 4);
+  assert.equal(at(ship, 'internal-2').inventory?.quantities.alloy, 0);
+  assert.equal(at(ship, 'internal-1').inventory?.quantities.part, 1);
+  assert.equal(ship.production.summary().inventoryCount, 4);
+  assert.equal(ship.production.summary().facilityCount, 3);
+  ship.dispose();
+});
+void test('Galley meals enter the fridge; storage retains goods across powered operation, outage and disposal', () => {
+  const ship = outfitted();
+  ship.internals.supply('internal-3', 'ingredients', 2);
+  ship.internals.requestEnabled('internal-3', true);
+  step(ship, 4);
+  assert.equal(at(ship, 'internal-3').inventory?.quantities.meal, 1);
+  ship.internals.transfer('internal-3', 'internal-4', 'meal', 1);
+  ship.internals.requestEnabled('internal-4', true);
+  step(ship);
+  const fridge = at(ship, 'internal-4');
+  assert.equal(fridge.facility, null);
+  assert.equal(fridge.operation.state, 'operating');
+  assert.equal(fridge.operation.suppliedW, 22);
+  assert.ok(fridge.operation.thermal.generatedHeatW > 0);
+  ship.internals.requestEnabled('internal-4', false);
+  ship.power.requestEnabled(false);
+  step(ship, 3);
+  assert.equal(at(ship, 'internal-4').inventory?.quantities.meal, 1);
+  ship.internals.remove('internal-4');
+  step(ship);
+  assert.match(ship.telemetry.internals.commands.at(-1)!.message, /goods/);
+  ship.dispose();
+  assert.equal(
+    ship.production.inventory(fridge.inventory!.id).summary().quantities.meal,
+    1,
+  );
+});
+void test('Internal transfers enforce food admission and capacity atomically without losing source stock', () => {
+  const ship = outfitted();
+  ship.internals.supply('internal-2', 'alloy', 2);
+  ship.internals.supply('internal-3', 'meal', 2);
+  ship.internals.supply('internal-4', 'meal', 59);
+  step(ship);
+  ship.internals.transfer('internal-2', 'internal-4', 'alloy', 1);
+  step(ship);
+  assert.equal(ship.telemetry.internals.commands.at(-1)?.ok, false);
+  assert.equal(at(ship, 'internal-2').inventory?.quantities.alloy, 2);
+  assert.equal(at(ship, 'internal-4').inventory?.quantities.alloy, 0);
+  ship.internals.transfer('internal-3', 'internal-4', 'meal', 2);
+  step(ship);
+  assert.equal(ship.telemetry.internals.commands.at(-1)?.ok, false);
+  assert.equal(at(ship, 'internal-3').inventory?.quantities.meal, 2);
+  assert.equal(at(ship, 'internal-4').inventory?.quantities.meal, 59);
+  ship.internals.transfer('internal-3', 'internal-4', 'meal', 1);
+  step(ship);
+  assert.equal(at(ship, 'internal-4').inventory?.quantities.meal, 60);
+  assert.equal(at(ship, 'internal-3').inventory?.quantities.meal, 1);
+  ship.internals.transfer('internal-3', 'internal-4', 'meal', 2);
+  step(ship);
+  assert.equal(ship.telemetry.internals.commands.at(-1)?.ok, false);
+  assert.throws(
+    () => ship.internals.transfer('internal-3', 'internal-3', 'meal', 1),
+    /different destination/,
+  );
+  assert.throws(
+    () => ship.internals.transfer('internal-3', 'internal-4', 'meal', 1.5),
+    /integer/,
+  );
+  assert.throws(() =>
+    ship.internals.transfer('internal-3', 'internal-4', 'unknown', 1),
+  );
   ship.dispose();
 });

@@ -418,7 +418,7 @@ utility effects remain outside this power/heat/health proof.
 
 `ship.internals` is a typed attached capability with configurable internal slots,
 independent installation identities and a catalogue loaded from JSON. The starter
-has six slots and one fabricator. An internal definition owns its power/thermal/
+has six slots, with a fabricator, refinery, galley and fridge installed. An internal definition owns its power/thermal/
 health profile and may bind a Workshop facility and/or local inventory; both are
 nullable, allowing a powered room with neither. Occupancy and room scenes are not
 implemented. External fire groups remain specific to `ShipMounts`.
@@ -432,7 +432,18 @@ The ship/lab owns one `production-workshop` 2.4.0 `Simulation`, passed to
 `ShipInternals`. Slots bind to stable facility/inventory IDs. Workshop alone owns
 stock, reservations, jobs and production outcomes. The fabricator recipe is
 **2 alloy → 1 machine part in 3 seconds** under full funded/healthy operation.
-It uses one 20-unit local buffer; it is independent of `ShipCargo`'s pocket link.
+The refinery converts **2 ore → 1 alloy in 4 powered seconds** (40-unit buffer);
+the galley converts **2 ingredients → 1 meal in 3 seconds** (20-unit buffer).
+The fabricator has a 20-unit buffer. The fridge is inventory-only, with 60 units
+of food storage and the same power, heat, health and cooling lifecycle. It has
+no production job or food spoilage model. Outages retain its stock.
+
+JSON `inventoryAccepts` rules restrict each buffer to its inputs/outputs; the
+fridge accepts ingredients and meals. Workshop enforces admission atomically.
+`ship.internals.transfer(fromSlot, toSlot, resourceId, quantity)` queues one
+Workshop transfer: insufficient unreserved stock, capacity or admission refusals
+leave both inventories intact. Transfers and physical buffer access do not
+require powered machinery. These buffers are independent of `ShipCargo`'s pocket link.
 The lab's supply/collect commands create or remove test stock for free rather
 than claim a trading/cargo integration. Initial installation also costs nothing;
 this slice requires autonomous definitions without construction/population costs.
@@ -444,7 +455,9 @@ ship.internals.setDraining('internal-1', true); // finish active batch; no new s
 ship.internals.collect('internal-1', 'part', 1);
 ship.internals.requestEnabled('internal-1', false);
 ship.internals.remove('internal-1'); // refuses active work or remaining goods
-ship.internals.install('internal-2', 'fabricator-starter', 'fabricator-second');
+ship.internals.transfer('internal-2', 'internal-1', 'alloy', 2);
+ship.internals.transfer('internal-3', 'internal-4', 'meal', 1);
+ship.internals.install('internal-5', 'fabricator-starter', 'fabricator-second');
 ```
 
 Inventory/installation commands are queued to the ship boundary. Ordinary refusals
@@ -485,4 +498,4 @@ Workshop facility snapshots and inventory summaries, plus ship power/health/heat
 there is no assumed package inspection widget hook. Read models are detached and
 frozen. The inspector refreshes at the existing UI cadence, not through nested
 observer commands. Save/restore, real cargo transfers, physical occupancy,
-infirmary/research semantics and the other authored installations remain later slices.
+infirmary/research semantics and food spoilage remain later slices.

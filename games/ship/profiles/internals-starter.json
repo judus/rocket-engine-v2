@@ -30,7 +30,80 @@
       "outputEfficiency": 0.5,
       "restartEnergyJ": 0,
       "facilityDefinitionId": "onboard-fabricator",
-      "inventoryCapacity": 20
+      "inventoryCapacity": 20,
+      "inventoryAccepts": ["alloy", "part"]
+    },
+    {
+      "id": "refinery-starter",
+      "label": "Refinery",
+      "health": {
+        "maxPoints": 100,
+        "outputExponent": 1
+      },
+      "thermal": {
+        "heatCapacityJPerK": 10000000,
+        "wasteHeatFraction": 0.1,
+        "tripTemperatureK": 390,
+        "restartTemperatureK": 330,
+        "manualStartSeconds": 0.25,
+        "rebootSeconds": 6
+      },
+      "initialTemperatureK": 290,
+      "baselineW": 8000000,
+      "operatingW": 30000000,
+      "outputEfficiency": 0.5,
+      "restartEnergyJ": 0,
+      "facilityDefinitionId": "onboard-refinery",
+      "inventoryCapacity": 40,
+      "inventoryAccepts": ["ore", "alloy"]
+    },
+    {
+      "id": "galley-starter",
+      "label": "Galley",
+      "health": {
+        "maxPoints": 100,
+        "outputExponent": 1
+      },
+      "thermal": {
+        "heatCapacityJPerK": 10000000,
+        "wasteHeatFraction": 0.1,
+        "tripTemperatureK": 390,
+        "restartTemperatureK": 330,
+        "manualStartSeconds": 0.25,
+        "rebootSeconds": 6
+      },
+      "initialTemperatureK": 290,
+      "baselineW": 1000000,
+      "operatingW": 4000000,
+      "outputEfficiency": 0.5,
+      "restartEnergyJ": 0,
+      "facilityDefinitionId": "onboard-galley",
+      "inventoryCapacity": 20,
+      "inventoryAccepts": ["ingredients", "meal"]
+    },
+    {
+      "id": "fridge-starter",
+      "label": "Fridge",
+      "health": {
+        "maxPoints": 100,
+        "outputExponent": 1
+      },
+      "thermal": {
+        "heatCapacityJPerK": 10000000,
+        "wasteHeatFraction": 0.1,
+        "tripTemperatureK": 390,
+        "restartTemperatureK": 330,
+        "manualStartSeconds": 0.25,
+        "rebootSeconds": 6
+      },
+      "initialTemperatureK": 290,
+      "baselineW": 500000,
+      "operatingW": 1500000,
+      "outputEfficiency": 0.5,
+      "restartEnergyJ": 0,
+      "facilityDefinitionId": null,
+      "inventoryCapacity": 60,
+      "inventoryAccepts": ["ingredients", "meal"]
     }
   ],
   "loadout": [
@@ -38,6 +111,21 @@
       "slotId": "internal-1",
       "definitionId": "fabricator-starter",
       "installationId": "fabricator-main"
+    },
+    {
+      "slotId": "internal-2",
+      "definitionId": "refinery-starter",
+      "installationId": "refinery-main"
+    },
+    {
+      "slotId": "internal-3",
+      "definitionId": "galley-starter",
+      "installationId": "galley-main"
+    },
+    {
+      "slotId": "internal-4",
+      "definitionId": "fridge-starter",
+      "installationId": "fridge-main"
     }
   ]
 }
