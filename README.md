@@ -8,7 +8,7 @@ The old spaceship demo was an exploration and stress test, not the engine's defi
 
 ## Game examples
 
-Actual game assembly examples live separately in [`games/`](games/README.md). Open `/games/` for the first platformer: Rocket facades, typed attached capabilities, player/AI intent, fixed execution order and entity cleanup. The existing cockpit remains a rendering and feature testbed.
+Actual game assembly examples live separately in [`games/`](games/README.md). Open `/games/` for the platformer and top-down salvage games: Rocket facades, typed attached capabilities, player/AI intent, configurable bodies, inventory, fixed execution order and entity cleanup. The existing cockpit remains a rendering and feature testbed.
 
 ## Particles and projectiles
 
