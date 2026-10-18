@@ -16,8 +16,8 @@ The old game is a reference for the desired experience. It is not a compatibilit
 
 These labels make the comparison actionable without adopting a final roadmap:
 
-- **A — Flight contract and scale:** mode/input semantics, units and reference frames, dimension anchors, resource-degradation policy and initial profile.
-- **B — Visible inertial flight lab:** one ship, references, editable basic profile, thrust/rotation/coast/braking and measured traversal.
+- **A — Flight contract and scale:** mode/input semantics, units and reference frames, dimension anchors, initial profile and decisions scoped to the next slice.
+- **B — Visible inertial flight lab:** one ship, references, editable basic profile, thrust/rotation/coast/braking and measured traversal; explicit simulation-owner/presentation boundary.
 - **C — Assisted flight and rapid capture:** combat/approach controls, high-speed capture, actual/interior load, explicit supplied-resource budgets and shortage behavior.
 - **D — Full power/thermal coupling:** generation/reserve/allocation, heat/cooling, shutdown/recovery and equipment comparison.
 - **E — Journey and balance:** combined travel/capture/approach, large-distance precision, predictions and Julien's playtest.
@@ -92,16 +92,28 @@ An isolated Node probe on this checkout loaded the genuine legacy Vector3D, Quat
 
 Source inspection additionally confirms the unsupported scalar quaternion multiply and uncleared linear acceleration in [L2]. Earlier topic probes support neutral-modifier 2D force integration; this comparison does not independently certify the entire legacy demo. No new full runtime quality-gate or browser certification is claimed for a planning-only document. Its checks are source/ID/link validation, Markdown formatting and the focused probes above.
 
-## Decisions needed before the first ship slice
+## Decisions and acceptance by slice
 
-1. **Units and physical anchors:** agree the proposed metre/second/kg convention for this game, intended cockpit dimensions and the physical hull/inertia model. A fitted visual facade is not its own dimensional specification.
-2. **Command semantics:** settle F05/F14, reference frames, manual rotation assistance, ownership/takeover and initial input devices. Reuse existing binding/capture machinery.
-3. **Propulsion progression:** settle what drives/resets the ramp and how thrust relates to configured ship mass. No unexplained speed cap in unassisted mode.
-4. **Capture:** choose the response curve, completion criterion, assisted target/envelope and cancellation. It must support the deliberately risky few-second capture requirement, rather than silently imposing normal reverse-thruster or comfort limits.
-5. **Protection and shortages:** choose separate interior-transmission/capacity and allocation/degradation rules. Agree what capture and protection each deliver under inadequate supply; the v2 allocator does not decide this for the new game.
-6. **First bounded demonstration:** agree the visible inertial lab and its acceptance scenarios, then the capture/assisted slice with explicit budgets. Crew professions, full landing contact and Resonance Run remain later.
+Review refinements from Ivy #816 and Luna #817: the first visible lab needs explicit experimental assumptions, not final balanced handling. Later capture/protection choices must remain visible without blocking the bounded inertial experiment.
 
-These choices should result in ship/game profiles and narrow contracts. They do not justify a universal physics hierarchy, an ECS rewrite, or a second engine scheduler.
+### Before B — visible inertial flight lab
+
+- **Units, anchors and bounds:** choose metre/second/kg conventions, a documented initial hull size/mass/inertia profile and representative distances. A fitted visual facade is not its own dimensional specification. These are experiment inputs, not final ship balance.
+- **Commands and control ownership:** declare supported axes/reference frames, thrust/braking and rotation semantics, initial input devices, and the sole command owner/takeover behavior. Reuse existing binding/capture machinery.
+- **Propulsion hypothesis:** document the initial ramp, its reset conditions and force/mass relationship. Make the basic profile editable; do not require its final curve before the lab exists. No unexplained speed cap in unassisted mode.
+- **Simulation-to-presentation acceptance:** agree the smallest connection to Node3D. One simulation owner holds authoritative position/orientation and physical state; presentation reads a committed pose or interpolates committed poses without feeding the result back into physics. Declare who creates, attaches and removes the presentation and simulation resources. Demonstrate movement and cleanup through that connection; do not create two independently writable authoritative poses or require a general 3D capability framework first.
+- **Bounded evidence:** one visible ship, references/rulers, explicit profile apply/reset and repeatable thrust/coast/brake/rotation/traversal checks. Declare any resource fixture or omitted coupling so the lab cannot be mistaken for the complete ship game.
+
+### Before accepting C — assistance, rapid capture and protection
+
+- **Capture hypothesis:** choose a documented initial response curve, completion criterion, assisted target/envelope and cancellation behavior. Tune it in the lab. It must support the deliberately risky few-second capture requirement, rather than silently imposing normal reverse-thruster or comfort limits.
+- **Protection and shortages:** declare separate interior-transmission/capacity and allocation/degradation rules, including what capture and protection each deliver under partial or zero supply. Use explicit bounded budgets/fixtures; the v2 demonstration allocator does not decide this policy. These decisions and actual/interior-load evidence are prerequisites for accepting C, not B.
+
+### Before D/E acceptance
+
+D replaces declared resource fixtures with the agreed generation/reserve/allocation, heat/cooling and shutdown/recovery model, including equipment comparisons. E validates combined travel/capture/approach, the chosen system-scale precision bounds and Julien's handling approval. Detailed tuning remains iterative; crew professions, full landing contact and Resonance Run remain later.
+
+These choices should result in ship/game profiles and narrow contracts. They do not justify a universal physics hierarchy, an ECS rewrite, or a second engine scheduler. The slice sequence remains a proposal for Julien's agreement, not implementation authorization.
 
 ## Source index
 
