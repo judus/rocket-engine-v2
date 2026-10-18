@@ -68,6 +68,7 @@ export interface DamperProfile {
   capture: Readonly<CaptureProfile>;
 }
 export interface ShieldProfile {
+  health: Readonly<HealthProfile>;
   thermal: Readonly<ThermalProfile>;
   diversionW: number;
   diversionEfficiency: number;
@@ -94,6 +95,7 @@ export interface ShipProfile {
   readonly hull: Readonly<HullProfile>;
 }
 export interface ShipInitialState {
+  readonly shieldHealthPoints: number;
   readonly damperHealthPoints: number;
   readonly coolingHealthPoints: number;
   readonly reactorHealthPoints: number;
@@ -225,12 +227,14 @@ export function validateInitialState(
   reactorMaxHealthPoints: number,
   coolingMaxHealthPoints: number,
   damperMaxHealthPoints: number,
+  shieldMaxHealthPoints: number,
 ): Readonly<ShipInitialState> {
   const p = recordWithKeys(
     value,
     [
       'engineHealthPoints',
       'reactorHealthPoints',
+      'shieldHealthPoints',
       'damperHealthPoints',
       'coolingHealthPoints',
       'energyJ',
@@ -244,6 +248,12 @@ export function validateInitialState(
   );
   const v = recordWithKeys(p.velocityMps, ['x', 'y', 'z'], 'Initial velocity');
   return Object.freeze({
+    shieldHealthPoints: readNumber(
+      p,
+      'shieldHealthPoints',
+      0,
+      shieldMaxHealthPoints,
+    ),
     damperHealthPoints: readNumber(
       p,
       'damperHealthPoints',
@@ -450,6 +460,7 @@ export function validateShieldProfile(value: unknown): Readonly<ShieldProfile> {
   const p = recordWithKeys(
     value,
     [
+      'health',
       'id',
       'thermal',
       'capacityJ',
@@ -464,6 +475,7 @@ export function validateShieldProfile(value: unknown): Readonly<ShieldProfile> {
     'Shield profile',
   );
   return Object.freeze({
+    health: validateHealthProfile(p.health),
     id: profileId(p.id, 'Shield id'),
     thermal: validateThermalProfile(p.thermal),
     capacityJ: readNumber(p, 'capacityJ', 1),

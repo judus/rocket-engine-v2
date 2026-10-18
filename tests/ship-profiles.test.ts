@@ -111,6 +111,7 @@ void test('Actual JSON loadout produces the typed installed equipment and separa
 });
 void test('One immutable equipment definition can initialize independently charged moving ships', () => {
   const first = new Ship(starterSetup.profile, {
+    shieldHealthPoints: 100,
     damperHealthPoints: 100,
     coolingHealthPoints: 100,
     reactorHealthPoints: 100,
@@ -123,6 +124,7 @@ void test('One immutable equipment definition can initialize independently charg
     velocityMps: { x: 1, y: 2, z: 3 },
   });
   const second = new Ship(starterSetup.profile, {
+    shieldHealthPoints: 100,
     damperHealthPoints: 100,
     coolingHealthPoints: 100,
     reactorHealthPoints: 100,
@@ -320,6 +322,7 @@ void test('Loadout rejects incompatible restart energy and invalid initial state
   );
   for (const initialState of [
     {
+      shieldHealthPoints: 100,
       damperHealthPoints: 100,
       coolingHealthPoints: 100,
       reactorHealthPoints: 100,
@@ -332,6 +335,7 @@ void test('Loadout rejects incompatible restart energy and invalid initial state
       velocityMps: { x: 0, y: 0, z: 0 },
     },
     {
+      shieldHealthPoints: 100,
       damperHealthPoints: 100,
       coolingHealthPoints: 100,
       reactorHealthPoints: 100,
@@ -344,6 +348,7 @@ void test('Loadout rejects incompatible restart energy and invalid initial state
       velocityMps: { x: 0, y: '0', z: 0 },
     },
     {
+      shieldHealthPoints: 100,
       damperHealthPoints: 100,
       coolingHealthPoints: 100,
       reactorHealthPoints: 100,

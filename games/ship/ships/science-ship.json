@@ -17,7 +17,8 @@
     "engineHealthPoints": 100,
     "reactorHealthPoints": 100,
     "coolingHealthPoints": 100,
-    "damperHealthPoints": 100
+    "damperHealthPoints": 100,
+    "shieldHealthPoints": 100
   },
   "damperProfile": "dampers-starter",
   "coolingProfile": "cooling-starter",

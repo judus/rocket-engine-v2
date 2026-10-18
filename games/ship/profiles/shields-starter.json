@@ -15,5 +15,9 @@
     "restartTemperatureK": 330,
     "manualStartSeconds": 0.5,
     "rebootSeconds": 6
+  },
+  "health": {
+    "maxPoints": 100,
+    "outputExponent": 1
   }
 }

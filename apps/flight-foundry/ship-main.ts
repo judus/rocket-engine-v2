@@ -228,7 +228,7 @@ function paint(): void {
     ],
     [
       'Shields',
-      `<strong>${t.shields.state}</strong><small>${requested(t.shields.requested)}${t.shields.thermal.tripped ? ' · thermal trip' : ''} · ${t.shields.active ? 'field powered' : 'no protection'}<br>recharge delay ${fmt(t.shields.rechargeDelaySeconds)} s · restart ${fmt(t.shields.thermal.restartRemainingSeconds)} s</small>`,
+      `<strong>${t.shields.state}</strong><small>${requested(t.shields.requested)}${t.shields.thermal.tripped ? ' · thermal trip' : ''} · ${t.shields.active ? `field powered · ${fmt(t.shields.protectionFraction * 100)}% absorption` : 'no protection'}<br>recharge delay ${fmt(t.shields.rechargeDelaySeconds)} s · restart ${fmt(t.shields.thermal.restartRemainingSeconds)} s</small>`,
       `${fmt(t.shields.energyJ / 1e9)} / ${fmt(t.shields.capacityJ / 1e9)} GJ stored<small>${fmt(t.shields.suppliedW / 1e6)} / ${fmt(t.shields.demandW / 1e6)} MW supplied / requested</small>`,
       thermal(
         t.shields.thermal.temperatureK,
@@ -240,7 +240,7 @@ function paint(): void {
   find('#module-readings').innerHTML = modules
     .map(
       ([name, state, energy, heat]) =>
-        `<tr><th scope="row">${name}</th><td>${state}</td><td>${energy}</td><td>${heat}</td><td>${name === 'Engine' ? healthCell(t.engine.health) : name === 'Reactor' ? healthCell(t.power.health) : name === 'Cooling' ? healthCell(t.cooling.health) : name === 'Inertia dampers' ? healthCell(t.dampers.health) : '—'}</td></tr>`,
+        `<tr><th scope="row">${name}</th><td>${state}</td><td>${energy}</td><td>${heat}</td><td>${name === 'Engine' ? healthCell(t.engine.health) : name === 'Reactor' ? healthCell(t.power.health) : name === 'Cooling' ? healthCell(t.cooling.health) : name === 'Inertia dampers' ? healthCell(t.dampers.health) : name === 'Shields' ? healthCell(t.shields.health) : '—'}</td></tr>`,
     )
     .join('');
   find('#module-totals').innerHTML =
@@ -254,7 +254,7 @@ function paint(): void {
   find<HTMLProgressElement>('#hull-integrity').value =
     t.hull.remainingJ / t.hull.capacityJ;
   find('#shield-state').textContent =
-    `Shields ${t.shields.state} · ${t.shields.active ? 'field powered' : 'NO PROTECTION'} · stored ${fmt(t.shields.energyJ / 1e9)} / ${fmt(t.shields.capacityJ / 1e9)} GJ · supply ${fmt(t.shields.suppliedW / 1e6)} MW · recharge delay ${fmt(t.shields.rechargeDelaySeconds)} s.`;
+    `Shields ${t.shields.state} · ${t.shields.active ? `field powered · ${fmt(t.shields.protectionFraction * 100)}% absorption` : 'NO PROTECTION'} · stored ${fmt(t.shields.energyJ / 1e9)} / ${fmt(t.shields.capacityJ / 1e9)} GJ · supply ${fmt(t.shields.suppliedW / 1e6)} MW · recharge delay ${fmt(t.shields.rechargeDelaySeconds)} s.`;
   const shieldCommands = ship.shields.telemetry;
   find<HTMLInputElement>('#shields').checked = shieldCommands.requested;
   find<HTMLButtonElement>('#divert-shields').disabled =
@@ -301,6 +301,7 @@ for (const [prefix, module, label] of [
   ['reactor', (ship: Ship) => ship.power, 'Reactor'],
   ['cooling', (ship: Ship) => ship.cooling, 'Cooling'],
   ['dampers', (ship: Ship) => ship.dampers, 'Dampers'],
+  ['shields', (ship: Ship) => ship.shields, 'Shields'],
 ] as const) {
   for (const [action, repair, points] of [
     ['damage', false, 25],

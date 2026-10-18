@@ -249,3 +249,32 @@ after the capture plan ends. No health command sets body velocity directly.
 Flight Foundry's module matrix and damper condition buttons expose this behavior.
 Lab repairs are free and damage bypasses shields/hull; automatic damage routing,
 crew injuries and module repair economies remain outside this slice.
+
+### Shield condition
+
+`ShipShields` owns its own `ModuleHealth`, required JSON `health` profile and
+`initialState.shieldHealthPoints`. The starter has 100 HP with linear output.
+Queued damage/repair commit in `beginStep`, before diversion, demand and hits.
+Health is separate from stored field energy and hull integrity.
+
+A powered field absorbs `min(stored energy, impact * health.outputFraction)`;
+the hull receives the remainder through its existing hit ledger. Only absorbed
+energy is debited. The committed `protectionFraction` reports this fraction,
+including zero when off, failed, unpowered or thermally unavailable. Recharge
+conversion efficiency is nominal efficiency times health output. Lost recharge
+input becomes heat; demand is trimmed to remaining capacity using that effective
+efficiency. Capacity itself does not shrink and damage never deletes charge.
+At full charge, a damaged field still draws its normal maintenance power.
+
+Failure stops field maintenance and recharge, retaining charge and the requested
+switch. Repair from failure invokes manual startup, preserves thermal trips and
+longer reboots, and does not refill charge. A repaired module requested off stays
+off. The emergency diversion converter remains independent of field health:
+stored energy can still be salvaged at the configured rate/efficiency when the
+field generator has failed. Diversion still switches the field off, generates
+conversion heat and respects the existing thermal trip lockout.
+
+Flight Foundry includes shield health and absorption telemetry plus lab
+condition controls. These direct lab commands are free and bypass hull/shield
+routing. Automatic module damage, repair resources and destruction remain future
+game rules.

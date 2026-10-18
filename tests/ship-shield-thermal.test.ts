@@ -28,6 +28,7 @@ const profile: ShipProfile = {
   },
   shields: {
     id: 'thermal-shield',
+    health: starterSetup.profile.shields.health,
     capacityJ: 100,
     baselineW: 2,
     rechargeW: 20,

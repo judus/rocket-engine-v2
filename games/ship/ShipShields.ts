@@ -1,3 +1,5 @@
+import { ModuleHealth } from './ModuleHealth.js';
+import type { HealthReading } from './ModuleHealth.js';
 import { ModuleThermal } from './ModuleThermal.js';
 import type { ThermalReading } from './ModuleThermal.js';
 import type { Behavior } from '../../src/index.js';
@@ -7,6 +9,8 @@ import { numberIn, validateShieldProfile } from './ShipProfiles.js';
 import type { ShieldProfile } from './ShipProfiles.js';
 
 export interface ShieldReading {
+  readonly health: Readonly<HealthReading>;
+  readonly protectionFraction: number;
   readonly diverting: boolean;
   readonly divertedJ: number;
   readonly diversionReceivedJ: number;
@@ -15,6 +19,8 @@ export interface ShieldReading {
   readonly requested: boolean;
   readonly active: boolean;
   readonly state:
+    | 'failed'
+    | 'damaged'
     | 'off'
     | 'unpowered'
     | 'charging'
@@ -33,6 +39,7 @@ export interface ShieldReading {
 export class ShipShields implements Behavior {
   readonly requires: readonly Behavior[];
   readonly profile: Readonly<ShieldProfile>;
+  #health: ModuleHealth;
   #thermal: ModuleThermal;
   #operating = false;
   #powerRequested = false;
@@ -52,9 +59,11 @@ export class ShipShields implements Behavior {
     profile: Readonly<ShieldProfile>,
     private readonly power: ShipPowerPlant,
     initialTemperatureK: number,
+    initialHealthPoints: number,
   ) {
     this.profile = validateShieldProfile(profile);
     this.requires = [power];
+    this.#health = new ModuleHealth(this.profile.health, initialHealthPoints);
     this.#thermal = new ModuleThermal(
       this.profile.thermal,
       initialTemperatureK,
@@ -69,6 +78,14 @@ export class ShipShields implements Behavior {
   private port(): PowerPort {
     if (!this.#port) throw new Error('Shields are not attached');
     return this.#port;
+  }
+  damage(points: number): void {
+    this.port();
+    this.#health.damage(points);
+  }
+  repair(points: number): void {
+    this.port();
+    this.#health.repair(points);
   }
   requestEnabled(value: boolean): void {
     this.port();
@@ -124,22 +141,27 @@ export class ShipShields implements Behavior {
     return this.#thermal.removeHeat(maxEnergyJ, sinkTemperatureK);
   }
   beginStep(): void {
-    const thermal = this.#thermal.begin(this.#requested);
+    const wasFailed = this.#health.telemetry.failed;
+    this.#health.commit();
+    const failed = this.#health.telemetry.failed;
+    if (wasFailed && !failed)
+      this.#thermal.requestChanged(false, this.#requested);
+    const thermal = this.#thermal.begin(this.#requested && !failed);
     this.#operating = thermal.operating;
     this.#powerRequested = thermal.powerRequested;
     this.#diversionLossJ = 0;
   }
   declare(dt: number): void {
+    const efficiency =
+      this.profile.rechargeEfficiency * this.#health.telemetry.outputFraction;
     const chargeJ = this.#operating
       ? Math.min(
           this.profile.capacityJ - this.#energyJ,
-          this.profile.rechargeW *
-            this.profile.rechargeEfficiency *
-            Math.max(0, dt - this.#delay),
+          this.profile.rechargeW * efficiency * Math.max(0, dt - this.#delay),
         )
       : 0;
     this.#demandW = this.#powerRequested
-      ? this.profile.baselineW + chargeJ / this.profile.rechargeEfficiency / dt
+      ? this.profile.baselineW + (chargeJ > 0 ? chargeJ / efficiency / dt : 0)
       : 0;
     this.port().request(this.#powerRequested, this.#demandW);
   }
@@ -152,6 +174,7 @@ export class ShipShields implements Behavior {
           this.profile.capacityJ - this.#energyJ,
           Math.max(0, this.#suppliedW - this.profile.baselineW) *
             this.profile.rechargeEfficiency *
+            this.#health.telemetry.outputFraction *
             dt,
         )
       : 0;
@@ -185,14 +208,20 @@ export class ShipShields implements Behavior {
     this.port();
     numberIn('Shield impactJ', impactJ, 0);
     if (impactJ === 0 || !this.#active) return 0;
-    const absorbedJ = Math.min(this.#energyJ, impactJ);
+    const absorbedJ = Math.min(
+      this.#energyJ,
+      impactJ * this.#health.telemetry.outputFraction,
+    );
     this.#energyJ -= absorbedJ;
     this.#delay = this.profile.rechargeDelaySeconds;
     return absorbedJ;
   }
   get telemetry(): Readonly<ShieldReading> {
     const thermalState = this.#thermal.state(this.#requested);
+    const health = this.#health.telemetry;
     return Object.freeze({
+      health,
+      protectionFraction: this.#active ? health.outputFraction : 0,
       diverting: this.#diverting,
       divertedJ: this.#divertedJ,
       diversionReceivedJ: this.#diversionReceivedJ,
@@ -200,8 +229,9 @@ export class ShipShields implements Behavior {
       thermal: this.#thermal.telemetry,
       requested: this.#requested,
       active: this.#active,
-      state:
-        thermalState === 'overheated' || thermalState === 'restarting'
+      state: health.failed
+        ? 'failed'
+        : thermalState === 'overheated' || thermalState === 'restarting'
           ? thermalState
           : this.#diverting
             ? 'diverting'
@@ -211,7 +241,9 @@ export class ShipShields implements Behavior {
                 ? 'unpowered'
                 : this.#energyJ < this.profile.capacityJ
                   ? 'charging'
-                  : 'online',
+                  : health.fraction < 1
+                    ? 'damaged'
+                    : 'online',
       energyJ: this.#energyJ,
       capacityJ: this.profile.capacityJ,
       demandW: this.#demandW,

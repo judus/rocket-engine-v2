@@ -60,6 +60,7 @@ const profile: ShipProfile = {
 function make(health = 100, equipment = profile, energyJ = 10000) {
   const ship = new Ship(equipment, {
     ...starterSetup.initialState,
+    shieldHealthPoints: 100,
     damperHealthPoints: 100,
     coolingHealthPoints: health,
     energyJ,

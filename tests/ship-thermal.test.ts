@@ -57,6 +57,7 @@ function make(
   energyJ = 10000,
 ): Ship {
   return new Ship(equipment, {
+    shieldHealthPoints: 100,
     damperHealthPoints: 100,
     coolingHealthPoints: 100,
     reactorHealthPoints: 100,

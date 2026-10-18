@@ -27,6 +27,7 @@ function make(outputW = 100) {
       cooling: { ...p.cooling, restartEnergyJ: 0 },
       shields: {
         id: 'test-shield',
+        health: p.shields.health,
         thermal: { ...p.shields.thermal, manualStartSeconds: 0 },
         diversionW: 20,
         diversionEfficiency: 0.8,
@@ -165,6 +166,7 @@ void test('Shield recharge cannot consume emergency recovery output, and request
   const ship = new Ship(starterSetup.profile, {
     ...starterSetup.initialState,
     energyJ: 0,
+    shieldHealthPoints: 100,
     damperHealthPoints: 100,
     coolingHealthPoints: 100,
     reactorHealthPoints: 100,

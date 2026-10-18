@@ -118,6 +118,7 @@ export async function loadShipSetup(
     power.health.maxPoints,
     cooling.health.maxPoints,
     dampers.health.maxPoints,
+    shields.health.maxPoints,
   );
   return Object.freeze({
     profile: Object.freeze({
