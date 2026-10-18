@@ -32,6 +32,7 @@ const initial = {
 };
 const small: ShipProfile = {
   id: 'test-ship',
+  mounts: starterSetup.profile.mounts,
   cargo: starterSetup.profile.cargo,
   hull: starterSetup.profile.hull,
   shields: { ...starterSetup.profile.shields, restartEnergyJ: 50 },

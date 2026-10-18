@@ -284,6 +284,15 @@
             <tfoot id="module-totals"></tfoot>
           </table>
         </div>
+        <h3>External mounts &amp; fire groups</h3>
+        <p class="muted">
+          Seven configurable slots; weapons may belong to multiple groups.
+          Utilities have no fire-group assignments. Removing equipment clears
+          its assignments. Install/remove in this lab is free; changes commit on
+          Run or Single step. Firing, equipment health and inventory transfers
+          follow in later slices.
+        </p>
+        <div id="mounts-editor"></div>
         <h3>Engine condition · lab controls</h3>
         <div class="toolbar">
           <button id="damage-engine" type="button">Damage engine · 25 HP</button
@@ -437,6 +446,7 @@ ship
 ├─ engine     requests power, delivers thrust/torque
 ├─ dampers    powered assistance, capture and crew protection
 ├─ cargo      powered pocket access with a fixed recovery deadline
+├─ mounts     external installation slots and fire-group matrix
 ├─ cooling    one cooling budget across all thermal modules
 ├─ shields    stored field energy and powered protection
 ├─ hull       shield overflow becomes structural damage

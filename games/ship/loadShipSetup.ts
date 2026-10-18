@@ -1,3 +1,4 @@
+import { validateMountsProfile } from './ShipMounts.js';
 import {
   validateCargoProfile,
   numberIn,
@@ -36,6 +37,7 @@ export async function loadShipSetup(
   const manifest = recordWithKeys(
     await readJson(url, fetcher),
     [
+      'mountsProfile',
       'cargoProfile',
       'id',
       'bodyProfile',
@@ -49,6 +51,7 @@ export async function loadShipSetup(
     ],
     'Ship definition',
   );
+  const mountsId = profileId(manifest.mountsProfile, 'Mounts reference');
   const cargoId = profileId(manifest.cargoProfile, 'Cargo reference');
   const id = profileId(manifest.id, 'Ship id');
   const bodyId = profileId(manifest.bodyProfile, 'Body reference');
@@ -67,7 +70,9 @@ export async function loadShipSetup(
     readJson(new URL(`../profiles/${shieldId}.json`, url), fetcher),
     readJson(new URL(`../profiles/${hullId}.json`, url), fetcher),
     readJson(new URL(`../profiles/${cargoId}.json`, url), fetcher),
+    readJson(new URL(`../profiles/${mountsId}.json`, url), fetcher),
   ]);
+  const mounts = validateMountsProfile(results[8]);
   const cargo = validateCargoProfile(results[7]);
   const body = validateBodyProfile(results[0]);
   const power = validatePowerProfile(results[1]);
@@ -77,6 +82,7 @@ export async function loadShipSetup(
   const shields = validateShieldProfile(results[5]);
   const hull = validateHullProfile(results[6]);
   if (
+    mounts.id !== mountsId ||
     cargo.id !== cargoId ||
     shields.id !== shieldId ||
     hull.id !== hullId ||
@@ -138,6 +144,7 @@ export async function loadShipSetup(
     profile: Object.freeze({
       id,
       cargo,
+      mounts,
       body,
       power,
       engine,

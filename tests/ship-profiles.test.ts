@@ -16,12 +16,14 @@ const manifestUrl = new URL(
 );
 function fixtures(): Map<string, unknown> {
   return new Map([
-    ...['shields-starter', 'structure-starter'].map((id): [string, unknown] => [
-      `profiles/${id}.json`,
-      JSON.parse(
-        readFileSync(`games/ship/profiles/${id}.json`, 'utf8'),
-      ) as unknown,
-    ]),
+    ...['shields-starter', 'structure-starter', 'mounts-starter'].map(
+      (id): [string, unknown] => [
+        `profiles/${id}.json`,
+        JSON.parse(
+          readFileSync(`games/ship/profiles/${id}.json`, 'utf8'),
+        ) as unknown,
+      ],
+    ),
     [
       'profiles/cargo-starter.json',
       JSON.parse(

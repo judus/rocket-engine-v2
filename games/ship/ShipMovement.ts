@@ -1,3 +1,5 @@
+import { ShipMounts } from './ShipMounts.js';
+import type { MountsReading } from './ShipMounts.js';
 import { ShipCargo } from './ShipCargo.js';
 import type { CargoReading } from './ShipCargo.js';
 import { ShipShields } from './ShipShields.js';
@@ -20,6 +22,7 @@ import { numberIn } from './ShipProfiles.js';
 import type { PowerReading } from './ShipPowerPlant.js';
 
 export interface ShipTelemetry {
+  readonly mounts: Readonly<MountsReading>;
   readonly cargo: Readonly<CargoReading>;
   readonly tick: number;
   readonly timeSeconds: number;
@@ -50,6 +53,7 @@ export class ShipMovement implements Behavior {
     private readonly shields: ShipShields,
     private readonly hull: ShipHull,
     private readonly cargo: ShipCargo,
+    private readonly mounts: ShipMounts,
   ) {
     this.requires = [
       control,
@@ -61,6 +65,7 @@ export class ShipMovement implements Behavior {
       shields,
       hull,
       cargo,
+      mounts,
     ];
     this.#telemetry = Object.freeze({
       tick: 0,
@@ -73,6 +78,7 @@ export class ShipMovement implements Behavior {
       shields: shields.telemetry,
       hull: hull.telemetry,
       cargo: cargo.telemetry,
+      mounts: mounts.telemetry,
       shipG: 0,
       crewG: 0,
       worldForceN: Object.freeze({ x: 0, y: 0, z: 0 }),
@@ -80,6 +86,7 @@ export class ShipMovement implements Behavior {
   }
   fixedUpdate(dt: number): undefined {
     numberIn('ship fixed step', dt, 1e-6, 1);
+    this.mounts.commit();
     this.power.beginStep();
     this.shields.beginStep();
     this.shields.transfer(dt);
@@ -131,6 +138,7 @@ export class ShipMovement implements Behavior {
       shields: this.shields.telemetry,
       hull: this.hull.telemetry,
       cargo: this.cargo.telemetry,
+      mounts: this.mounts.telemetry,
       shipG,
       crewG: shipG * damperReading.transmittedFraction,
       worldForceN,

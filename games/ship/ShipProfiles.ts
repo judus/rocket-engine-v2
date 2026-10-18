@@ -1,3 +1,4 @@
+import type { MountsProfile } from './ShipMounts.js';
 import { validateCaptureProfile } from './CaptureResponse.js';
 import type { CaptureProfile } from './CaptureResponse.js';
 import type { Vec3 } from '../../src/3d/index.js';
@@ -94,6 +95,7 @@ export interface HullProfile {
   damageCapacityJ: number;
 }
 export interface ShipProfile {
+  readonly mounts: Readonly<MountsProfile>;
   readonly cargo: Readonly<CargoProfile>;
   readonly id: string;
   readonly body: Readonly<BodyProfile>;

@@ -1,0 +1,94 @@
+{
+  "id": "mounts-starter",
+  "slots": [
+    {
+      "id": "mount-1",
+      "accepts": ["weapon", "utility"]
+    },
+    {
+      "id": "mount-2",
+      "accepts": ["weapon", "utility"]
+    },
+    {
+      "id": "mount-3",
+      "accepts": ["weapon", "utility"]
+    },
+    {
+      "id": "mount-4",
+      "accepts": ["weapon", "utility"]
+    },
+    {
+      "id": "mount-5",
+      "accepts": ["weapon", "utility"]
+    },
+    {
+      "id": "mount-6",
+      "accepts": ["weapon", "utility"]
+    },
+    {
+      "id": "mount-7",
+      "accepts": ["weapon", "utility"]
+    }
+  ],
+  "equipment": [
+    {
+      "id": "pulse-cannon",
+      "label": "Pulse cannon",
+      "kind": "weapon"
+    },
+    {
+      "id": "mining-laser",
+      "label": "Mining laser",
+      "kind": "weapon"
+    },
+    {
+      "id": "survey-scanner",
+      "label": "Survey scanner",
+      "kind": "utility"
+    }
+  ],
+  "loadout": [
+    {
+      "slotId": "mount-1",
+      "equipmentId": "pulse-cannon",
+      "installationId": "cannon-port"
+    },
+    {
+      "slotId": "mount-2",
+      "equipmentId": "pulse-cannon",
+      "installationId": "cannon-starboard"
+    },
+    {
+      "slotId": "mount-3",
+      "equipmentId": "survey-scanner",
+      "installationId": "scanner-forward"
+    }
+  ],
+  "groups": [
+    {
+      "id": "group-1",
+      "mountIds": ["mount-1", "mount-2"]
+    },
+    {
+      "id": "group-2",
+      "mountIds": []
+    },
+    {
+      "id": "group-3",
+      "mountIds": []
+    },
+    {
+      "id": "group-4",
+      "mountIds": []
+    },
+    {
+      "id": "group-5",
+      "mountIds": []
+    },
+    {
+      "id": "group-6",
+      "mountIds": []
+    }
+  ],
+  "selectedGroupId": "group-1"
+}

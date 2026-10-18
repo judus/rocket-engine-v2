@@ -1,3 +1,4 @@
+import { MountsPanel } from './mounts-panel.js';
 import type { HealthReading } from '../../games/ship/ModuleHealth.js';
 import { Rocket } from '../../src/index.js';
 import { Stage2D } from '../../src/experimental/index.js';
@@ -15,6 +16,11 @@ let setup: Readonly<ShipSetup>;
 let runtime: Rocket | undefined;
 let stage: Stage2D;
 let ship: Ship;
+const mountsPanel = new MountsPanel(
+  find('#mounts-editor'),
+  () => ship,
+  find('#message'),
+);
 let running = false;
 let renderElapsed = 0;
 let rows: Readonly<ShipTelemetry>[] = [];
@@ -114,6 +120,7 @@ function reset(): void {
     onError: fail,
   });
   runtime.scene(stage, { keepAlive: true });
+  mountsPanel.paint(ship.telemetry.mounts, true);
   rows = [];
   lastHistoryTime = -1;
   renderElapsed = 0;
@@ -151,6 +158,7 @@ const vector = (v: {
   readonly z: number;
 }) => `X ${fmt(v.x)} / Y ${fmt(v.y)} / Z ${fmt(v.z)}`;
 function paint(): void {
+  mountsPanel.paint(ship.telemetry.mounts);
   const t = ship.telemetry;
   const speed = Math.hypot(
     t.body.velocityMps.x,

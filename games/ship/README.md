@@ -316,3 +316,44 @@ This slice proves the powered link lifecycle. Item transfers, mass-dependent
 costs, inertial coupling, save/restore and world recovery missions remain separate.
 The pocket ID is the future inventory reference seam; it does not claim a working
 Workshop transfer integration.
+
+### External mounts and fire groups
+
+`ship.mounts = this.attach(new ShipMounts(profile.mounts))` owns the external
+loadout and group matrix. The starter JSON defines seven slots accepting weapons
+or utilities, two independently identified pulse cannons, one survey scanner,
+four empty slots and six groups. Slot/group counts and accepted kinds belong to
+the ship profile; seven and six are starter configuration, not runtime limits.
+The equipment catalogue declares type and display label only in this slice.
+
+```ts
+ship.mounts.install('mount-4', 'mining-laser', 'mining-tool-port');
+ship.mounts.assign('group-2', 'mount-4', true);
+ship.mounts.selectGroup('group-2');
+// The next ship fixed tick commits these commands.
+ship.telemetry.mounts.selectedWeapons;
+ship.mounts.remove('mount-4');
+```
+
+Slots have stable IDs; installations have separate unique instance IDs. Multiple
+installations may use one equipment definition. Unknown IDs, occupied/incompatible
+slots and reused installation IDs fail before staging that command. A rejected
+command preserves earlier valid queued edits. Removing equipment clears its
+membership in every group. Reinstalling into that slot never inherits membership.
+Only installed weapons can join fire groups; utilities cannot. A weapon can join
+several groups and all installed weapons may join one group. Empty groups are
+valid. The selected group returns each installed weapon once, in loadout order.
+
+Commands stage validated state; the existing ship coordinator commits it at its
+next fixed boundary and includes an immutable snapshot in telemetry. Paused
+commands do not alter committed readings. Disposal drops pending edits and rejects
+further commands. There is no new clock, power port or inventory. In particular,
+this is not firing or a declaration that selected weapons actually operate.
+
+Flight Foundry exposes a slot/equipment editor, selected group and per-slot group
+checkboxes. Its free installation commands create lab instance IDs; they do not
+transfer goods from Workshop. Run/Single step applies edits. Firing/activation,
+projectiles, equipment health/heat/power, inventory-backed installation/removal and
+mount positions/orientation remain separate slices. `ShipInternals` remains a
+separate future capability for replaceable onboard installations, without fire
+group behavior.

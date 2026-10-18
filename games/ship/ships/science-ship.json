@@ -27,5 +27,6 @@
   "coolingProfile": "cooling-starter",
   "shieldProfile": "shields-starter",
   "hullProfile": "structure-starter",
-  "cargoProfile": "cargo-starter"
+  "cargoProfile": "cargo-starter",
+  "mountsProfile": "mounts-starter"
 }

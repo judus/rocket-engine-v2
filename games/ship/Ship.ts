@@ -1,3 +1,4 @@
+import { ShipMounts } from './ShipMounts.js';
 import { CargoLink } from './CargoLink.js';
 import { ShipCargo } from './ShipCargo.js';
 import { Node2D } from '../../src/index.js';
@@ -22,6 +23,7 @@ import type { ShipProfile, ShipInitialState } from './ShipProfiles.js';
 /** Established typed attachment host; its 2D visual transforms are unused. */
 export class Ship extends Node2D {
   readonly definitionId: string;
+  readonly mounts: ShipMounts;
   readonly cargoLink: CargoLink;
   readonly cargo: ShipCargo;
   readonly body: ShipBody;
@@ -86,6 +88,7 @@ export class Ship extends Node2D {
     validateThermalInstallation(profile.cooling, profile.cargo.thermal);
     this.cargoLink = new CargoLink(initial.cargoPocketId);
     try {
+      this.mounts = this.attach(new ShipMounts(profile.mounts));
       this.body = this.attach(new ShipBody(profile.body, initial.velocityMps));
       this.control = this.attach(new ShipControl());
       this.power = this.attach(
@@ -153,6 +156,7 @@ export class Ship extends Node2D {
           this.shields,
           this.hull,
           this.cargo,
+          this.mounts,
         ),
       );
     } catch (error) {
