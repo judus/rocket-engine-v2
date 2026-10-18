@@ -14,14 +14,20 @@ function step(ship: Ship, dt = 1 / 60): void {
     time: ship.telemetry.timeSeconds + dt,
   });
 }
-const initial = { energyJ: 100, velocityMps: { x: 0, y: 0, z: 0 } };
+const initial = {
+  engineTemperatureK: 293.15,
+  energyJ: 100,
+  velocityMps: { x: 0, y: 0, z: 0 },
+};
 const small: ShipProfile = {
   id: 'test-ship',
+  cooling: { ...starterSetup.profile.cooling, restartEnergyJ: 50 },
   dampers: { ...starterSetup.profile.dampers, restartEnergyJ: 50 },
   body: { id: 'test-hull', massKg: 2, yawInertiaKgM2: 2 },
   power: { id: 'test-reactor', capacityJ: 100, reactorOutputW: 0 },
   engine: {
     id: 'test-engine',
+    thermal: starterSetup.profile.engine.thermal,
     maxThrustN: 20,
     maxYawTorqueNm: 4,
     baselineW: 10,

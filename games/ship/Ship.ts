@@ -4,9 +4,15 @@ import { ShipControl } from './ShipControl.js';
 import { ShipPowerPlant } from './ShipPowerPlant.js';
 import { ShipEngine } from './ShipEngine.js';
 import { ShipDampers } from './ShipDampers.js';
+import { ShipCooling } from './ShipCooling.js';
 import { ShipMovement } from './ShipMovement.js';
 
-import { numberIn, profileId, validateInitialState } from './ShipProfiles.js';
+import {
+  numberIn,
+  profileId,
+  validateInitialState,
+  validateThermalInstallation,
+} from './ShipProfiles.js';
 import type { ShipProfile, ShipInitialState } from './ShipProfiles.js';
 
 /** Established typed attachment host; its 2D visual transforms are unused. */
@@ -17,6 +23,7 @@ export class Ship extends Node2D {
   readonly power: ShipPowerPlant;
   readonly engine: ShipEngine;
   readonly dampers: ShipDampers;
+  readonly cooling: ShipCooling;
   readonly movement: ShipMovement;
   constructor(
     profile: Readonly<ShipProfile>,
@@ -37,15 +44,27 @@ export class Ship extends Node2D {
       0,
       profile.power.capacityJ,
     );
+    numberIn(
+      'Cooling restartEnergyJ for installed reserve',
+      profile.cooling.restartEnergyJ,
+      0,
+      profile.power.capacityJ,
+    );
+    validateThermalInstallation(profile.cooling, profile.engine.thermal);
     try {
       this.body = this.attach(new ShipBody(profile.body, initial.velocityMps));
       this.control = this.attach(new ShipControl());
       this.power = this.attach(
         new ShipPowerPlant(profile.power, initial.energyJ),
       );
-      this.engine = this.attach(new ShipEngine(profile.engine, this.power));
+      this.engine = this.attach(
+        new ShipEngine(profile.engine, this.power, initial.engineTemperatureK),
+      );
       this.dampers = this.attach(
         new ShipDampers(profile.dampers, this.power, this.body),
+      );
+      this.cooling = this.attach(
+        new ShipCooling(profile.cooling, this.power, this.engine),
       );
       this.movement = this.attach(
         new ShipMovement(
@@ -54,6 +73,7 @@ export class Ship extends Node2D {
           this.power,
           this.body,
           this.dampers,
+          this.cooling,
         ),
       );
     } catch (error) {

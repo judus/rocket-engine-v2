@@ -12,8 +12,25 @@ export interface PowerPlantProfile {
   capacityJ: number;
   reactorOutputW: number;
 }
+export interface EngineThermalProfile {
+  heatCapacityJPerK: number;
+  wasteHeatFraction: number;
+  tripTemperatureK: number;
+  restartTemperatureK: number;
+  manualStartSeconds: number;
+  rebootSeconds: number;
+}
+export interface CoolingProfile {
+  id: string;
+  sinkTemperatureK: number;
+  maxCoolingW: number;
+  baselineW: number;
+  fullPowerW: number;
+  restartEnergyJ: number;
+}
 export interface EngineProfile {
   id: string;
+  thermal: Readonly<EngineThermalProfile>;
   maxThrustN: number;
   maxYawTorqueNm: number;
   baselineW: number;
@@ -37,8 +54,10 @@ export interface ShipProfile {
   readonly power: Readonly<PowerPlantProfile>;
   readonly engine: Readonly<EngineProfile>;
   readonly dampers: Readonly<DamperProfile>;
+  readonly cooling: Readonly<CoolingProfile>;
 }
 export interface ShipInitialState {
+  readonly engineTemperatureK: number;
   readonly energyJ: number;
   readonly velocityMps: Readonly<Vec3>;
 }
@@ -120,6 +139,7 @@ export function validateEngineProfile(value: unknown): Readonly<EngineProfile> {
     value,
     [
       'id',
+      'thermal',
       'maxThrustN',
       'maxYawTorqueNm',
       'baselineW',
@@ -131,6 +151,7 @@ export function validateEngineProfile(value: unknown): Readonly<EngineProfile> {
   );
   return Object.freeze({
     id: profileId(p.id, 'Engine id'),
+    thermal: validateEngineThermalProfile(p.thermal),
     maxThrustN: readNumber(p, 'maxThrustN', 0),
     maxYawTorqueNm: readNumber(p, 'maxYawTorqueNm', 0),
     baselineW: readNumber(p, 'baselineW', Number.MIN_VALUE),
@@ -143,9 +164,14 @@ export function validateInitialState(
   value: unknown,
   capacityJ: number,
 ): Readonly<ShipInitialState> {
-  const p = recordWithKeys(value, ['energyJ', 'velocityMps'], 'Initial state');
+  const p = recordWithKeys(
+    value,
+    ['energyJ', 'velocityMps', 'engineTemperatureK'],
+    'Initial state',
+  );
   const v = recordWithKeys(p.velocityMps, ['x', 'y', 'z'], 'Initial velocity');
   return Object.freeze({
+    engineTemperatureK: readNumber(p, 'engineTemperatureK', 0, 1e6),
     energyJ: readNumber(p, 'energyJ', 0, capacityJ),
     velocityMps: Object.freeze({
       x: readNumber(v, 'x', -1e30),
@@ -180,4 +206,81 @@ export function validateDamperProfile(value: unknown): Readonly<DamperProfile> {
     restartEnergyJ: readNumber(p, 'restartEnergyJ', 0),
     capture: validateCaptureProfile(p.capture),
   });
+}
+
+export function validateEngineThermalProfile(
+  value: unknown,
+): Readonly<EngineThermalProfile> {
+  const p = recordWithKeys(
+    value,
+    [
+      'heatCapacityJPerK',
+      'wasteHeatFraction',
+      'tripTemperatureK',
+      'restartTemperatureK',
+      'manualStartSeconds',
+      'rebootSeconds',
+    ],
+    'Engine thermal profile',
+  );
+  const tripTemperatureK = readNumber(
+    p,
+    'tripTemperatureK',
+    Number.MIN_VALUE,
+    1e6,
+  );
+  const restartTemperatureK = readNumber(
+    p,
+    'restartTemperatureK',
+    0,
+    tripTemperatureK,
+  );
+  const manualStartSeconds = readNumber(p, 'manualStartSeconds', 0, 120);
+  const rebootSeconds = readNumber(p, 'rebootSeconds', Number.MIN_VALUE, 600);
+  if (restartTemperatureK >= tripTemperatureK)
+    throw new RangeError('Restart temperature must be below trip temperature');
+  if (rebootSeconds <= manualStartSeconds)
+    throw new RangeError('Thermal reboot must be slower than manual start');
+  return Object.freeze({
+    heatCapacityJPerK: readNumber(p, 'heatCapacityJPerK', 1e-6),
+    wasteHeatFraction: readNumber(p, 'wasteHeatFraction', 0, 1),
+    tripTemperatureK,
+    restartTemperatureK,
+    manualStartSeconds,
+    rebootSeconds,
+  });
+}
+export function validateCoolingProfile(
+  value: unknown,
+): Readonly<CoolingProfile> {
+  const p = recordWithKeys(
+    value,
+    [
+      'id',
+      'sinkTemperatureK',
+      'maxCoolingW',
+      'baselineW',
+      'fullPowerW',
+      'restartEnergyJ',
+    ],
+    'Cooling profile',
+  );
+  return Object.freeze({
+    id: profileId(p.id, 'Cooling id'),
+    sinkTemperatureK: readNumber(p, 'sinkTemperatureK', 0, 1e6),
+    maxCoolingW: readNumber(p, 'maxCoolingW', Number.MIN_VALUE),
+    baselineW: readNumber(p, 'baselineW', Number.MIN_VALUE),
+    fullPowerW: readNumber(p, 'fullPowerW', Number.MIN_VALUE),
+    restartEnergyJ: readNumber(p, 'restartEnergyJ', 0),
+  });
+}
+
+export function validateThermalInstallation(
+  cooling: Readonly<CoolingProfile>,
+  thermal: Readonly<EngineThermalProfile>,
+): void {
+  if (cooling.sinkTemperatureK >= thermal.restartTemperatureK)
+    throw new RangeError(
+      'Cooling sink must be below the engine restart temperature',
+    );
 }

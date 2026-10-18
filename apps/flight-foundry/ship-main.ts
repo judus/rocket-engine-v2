@@ -48,6 +48,11 @@ function reset(): void {
     throw new RangeError(
       'Starting speed must be between -100,000,000 and 100,000,000 m/s',
     );
+  const temperature = find<HTMLInputElement>('#entry-temperature');
+  if (temperature.value === '' || !temperature.checkValidity())
+    throw new RangeError(
+      'Starting engine temperature must be at least -273.15 °C and below 999726.85 °C',
+    );
   runtime?.stop();
   if (runtime) void runtime.dispose().catch(fail);
   running = false;
@@ -65,6 +70,7 @@ function reset(): void {
     () =>
       new Ship(setup.profile, {
         ...setup.initialState,
+        engineTemperatureK: Number(temperature.value) + 273.15,
         velocityMps: {
           ...setup.initialState.velocityMps,
           z: Number(find<HTMLInputElement>('#entry-speed').value),
@@ -86,15 +92,18 @@ function reset(): void {
   find<HTMLInputElement>('#engine').checked = true;
   find<HTMLInputElement>('#reactor').checked = true;
   find<HTMLInputElement>('#dampers').checked = false;
+  find<HTMLInputElement>('#cooling').checked = false;
   find('#message').textContent = '';
   neutral();
   const p = setup.profile;
   find('#installed').textContent =
-    `Installed: ${p.body.id} · ${p.power.id} · ${p.engine.id} · ${p.dampers.id}`;
+    `Installed: ${p.body.id} · ${p.power.id} · ${p.engine.id} · ${p.dampers.id} · ${p.cooling.id}`;
   find('#ship-specs').textContent =
     `${p.body.massKg.toLocaleString('en')} kg · ${p.engine.maxThrustN / 1e6} MN thrust · ${p.power.reactorOutputW / 1e9} GW reactor · ${p.power.capacityJ / 1e9} GJ reserve capacity. Engine: ${p.engine.baselineW / 1e6} MW baseline + ${p.engine.fullThrustW / 1e9} GW translation + ${p.engine.fullYawW / 1e9} GW yaw. Loaded from JSON; demonstration balance.`;
   find('#damper-specs').textContent =
     `Assisted limit ${p.dampers.capture.assistedSpeedMps} m/s · 95% response ${p.dampers.responseSeconds} s · nominal transmitted load ${p.dampers.capture.transmittedFraction * 100}%. Capture anchor: remove ${p.dampers.capture.referenceExcessMps} m/s in ${p.dampers.capture.referenceDurationSeconds} s; higher entry speeds increase duration and curve steepness. Prototype tuning.`;
+  find('#thermal-specs').textContent =
+    `Engine thermal capacity ${p.engine.thermal.heatCapacityJPerK / 1e6} MJ/K · ${p.engine.thermal.wasteHeatFraction * 100}% of supplied power becomes module heat · trip ${(p.engine.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.engine.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · manual start ${p.engine.thermal.manualStartSeconds} s / thermal reboot ${p.engine.thermal.rebootSeconds} s. Cooling: ${p.cooling.maxCoolingW / 1e6} MW removal, ${(p.cooling.baselineW + p.cooling.fullPowerW) / 1e6} MW full electrical draw.`;
   paint();
 }
 const fmt = (value: number) =>
@@ -117,10 +126,17 @@ function paint(): void {
     ['Applied force', fmt(force / 1e6), 'MN'],
     ['Heading', fmt((t.body.yawRadians * 180) / Math.PI), '°'],
     ['Yaw rate', fmt((t.body.yawRateRadps * 180) / Math.PI), '°/s'],
-    ['Total demand', fmt((t.engine.demandW + t.dampers.demandW) / 1e9), 'GW'],
+    [
+      'Total demand',
+      fmt((t.engine.demandW + t.dampers.demandW + t.cooling.demandW) / 1e9),
+      'GW',
+    ],
     ['Total supplied', fmt(t.power.consumptionW / 1e9), 'GW'],
     ['Ship load', fmt(t.shipG), 'G'],
     ['Crew load', fmt(t.crewG), 'G'],
+    ['Engine temperature', fmt(t.engine.thermal.temperatureK - 273.15), '°C'],
+    ['Engine heat', fmt(t.engine.thermal.generatedHeatW / 1e6), 'MW'],
+    ['Heat removed', fmt(t.cooling.removedHeatW / 1e6), 'MW'],
     ['Reserve', fmt(t.power.energyJ / 1e9), 'GJ'],
     ['Simulation time', fmt(t.timeSeconds), 's'],
     ['Completed steps', String(t.tick), 'ticks'],
@@ -140,6 +156,8 @@ function paint(): void {
     `Reactor ${t.power.requested ? 'requested on' : 'off'} · generation ${fmt(t.power.generationW / 1e9)} GW · engine ${t.engine.state} · operation delivered ${fmt(t.engine.activityFraction * 100)}%. Readings are from tick ${t.tick}.`;
   find('#damper-state').textContent =
     `Dampers ${t.dampers.state} · ${t.dampers.mode} · delivered ${fmt(t.dampers.activityFraction * 100)}% · draw ${fmt(t.dampers.suppliedW / 1e9)} GW · crew receives ${fmt(t.dampers.transmittedFraction * 100)}% of translational load${t.dampers.mode === 'capture' ? ` · capture ${fmt(t.dampers.captureElapsedSeconds)} / ${fmt(t.dampers.captureDurationSeconds)} powered seconds` : ''}.`;
+  find('#thermal-state').textContent =
+    `Thermal trip ${t.engine.thermal.tripped ? 'latched' : 'clear'} · restart remaining ${fmt(t.engine.thermal.restartRemainingSeconds)} powered seconds · cooling ${t.cooling.state} · delivered ${fmt(t.cooling.activityFraction * 100)}% · draw ${fmt(t.cooling.suppliedW / 1e6)} MW. Engine remembers its requested switch during a trip.`;
   find('#vectors').textContent =
     `Position (m): ${vector(t.body.positionM)}\nVelocity (m/s): ${vector(t.body.velocityMps)}\nAcceleration (m/s²): ${vector(t.body.accelerationMps2)}`;
   if (t.timeSeconds - lastHistoryTime >= 0.5) {
@@ -151,7 +169,7 @@ function paint(): void {
     .reverse()
     .map(
       (r) =>
-        `<tr><td>${fmt(r.timeSeconds)}</td><td>${fmt(Math.hypot(r.body.velocityMps.x, r.body.velocityMps.y, r.body.velocityMps.z))}</td><td>${r.engine.state}</td><td>${r.dampers.state} / ${r.dampers.mode}</td><td>${fmt(r.crewG)}</td><td>${fmt(r.engine.activityFraction * 100)}</td><td>${fmt(r.power.energyJ / 1e9)}</td><td>${fmt(r.power.consumptionW / 1e9)}</td></tr>`,
+        `<tr><td>${fmt(r.timeSeconds)}</td><td>${fmt(Math.hypot(r.body.velocityMps.x, r.body.velocityMps.y, r.body.velocityMps.z))}</td><td>${r.engine.state} / ${fmt(r.engine.thermal.temperatureK - 273.15)} °C</td><td>${r.dampers.state} / ${r.dampers.mode}</td><td>${fmt(r.crewG)}</td><td>${fmt(r.engine.activityFraction * 100)}</td><td>${fmt(r.power.energyJ / 1e9)}</td><td>${fmt(r.power.consumptionW / 1e9)}</td></tr>`,
     )
     .join('');
 }
@@ -164,6 +182,9 @@ find('#engine').addEventListener('change', () =>
 );
 find('#dampers').addEventListener('change', () =>
   ship.dampers.requestEnabled(find<HTMLInputElement>('#dampers').checked),
+);
+find('#cooling').addEventListener('change', () =>
+  ship.cooling.requestEnabled(find<HTMLInputElement>('#cooling').checked),
 );
 find('#forward-full').addEventListener('click', () => {
   neutral();
@@ -223,6 +244,9 @@ void loadShipSetup(
     setup = loaded;
     find<HTMLInputElement>('#entry-speed').value = String(
       loaded.initialState.velocityMps.z,
+    );
+    find<HTMLInputElement>('#entry-temperature').value = String(
+      loaded.initialState.engineTemperatureK - 273.15,
     );
     reset();
     find('#ship-ui').inert = false;

@@ -4,6 +4,8 @@ import {
   recordWithKeys,
   validateBodyProfile,
   validateDamperProfile,
+  validateCoolingProfile,
+  validateThermalInstallation,
   validateEngineProfile,
   validateInitialState,
   validatePowerProfile,
@@ -36,6 +38,7 @@ export async function loadShipSetup(
       'powerProfile',
       'engineProfile',
       'damperProfile',
+      'coolingProfile',
       'initialState',
     ],
     'Ship definition',
@@ -45,17 +48,21 @@ export async function loadShipSetup(
   const powerId = profileId(manifest.powerProfile, 'Power reference');
   const engineId = profileId(manifest.engineProfile, 'Engine reference');
   const damperId = profileId(manifest.damperProfile, 'Damper reference');
+  const coolingId = profileId(manifest.coolingProfile, 'Cooling reference');
   const results = await Promise.all([
     readJson(new URL(`../profiles/${bodyId}.json`, url), fetcher),
     readJson(new URL(`../profiles/${powerId}.json`, url), fetcher),
     readJson(new URL(`../profiles/${engineId}.json`, url), fetcher),
     readJson(new URL(`../profiles/${damperId}.json`, url), fetcher),
+    readJson(new URL(`../profiles/${coolingId}.json`, url), fetcher),
   ]);
   const body = validateBodyProfile(results[0]);
   const power = validatePowerProfile(results[1]);
   const engine = validateEngineProfile(results[2]);
   const dampers = validateDamperProfile(results[3]);
+  const cooling = validateCoolingProfile(results[4]);
   if (
+    cooling.id !== coolingId ||
     dampers.id !== damperId ||
     body.id !== bodyId ||
     power.id !== powerId ||
@@ -76,12 +83,19 @@ export async function loadShipSetup(
     0,
     power.capacityJ,
   );
+  numberIn(
+    'Cooling restartEnergyJ for installed reserve',
+    cooling.restartEnergyJ,
+    0,
+    power.capacityJ,
+  );
+  validateThermalInstallation(cooling, engine.thermal);
   const initialState = validateInitialState(
     manifest.initialState,
     power.capacityJ,
   );
   return Object.freeze({
-    profile: Object.freeze({ id, body, power, engine, dampers }),
+    profile: Object.freeze({ id, body, power, engine, dampers, cooling }),
     initialState,
   });
 }

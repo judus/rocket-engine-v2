@@ -41,7 +41,11 @@ const funded: ShipProfile = {
   },
 };
 function make(speed = 0, profile = funded, energyJ = 1e6): Ship {
-  return new Ship(profile, { energyJ, velocityMps: { x: 0, y: 0, z: speed } });
+  return new Ship(profile, {
+    engineTemperatureK: 293.15,
+    energyJ,
+    velocityMps: { x: 0, y: 0, z: speed },
+  });
 }
 void test('Powered assistance approaches a bounded speed, stops drift/yaw, and disabling it preserves momentum', () => {
   const ship = make();
@@ -252,7 +256,11 @@ void test('Damper profiles reject malformed protection and impossible restart th
     () =>
       new Ship(
         { ...funded, dampers: { ...funded.dampers, restartEnergyJ: 1e13 } },
-        { energyJ: 0, velocityMps: { x: 0, y: 0, z: 0 } },
+        {
+          engineTemperatureK: 293.15,
+          energyJ: 0,
+          velocityMps: { x: 0, y: 0, z: 0 },
+        },
       ),
   );
   const ship = make();
