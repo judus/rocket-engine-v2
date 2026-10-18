@@ -20,6 +20,11 @@ const profile: ShipProfile = {
   body: { ...starterSetup.profile.body, massKg: 2, yawInertiaKgM2: 2 },
   power: {
     ...starterSetup.profile.power,
+    thermal: {
+      ...starterSetup.profile.power.thermal,
+      manualStartSeconds: 0,
+      wasteHeatFraction: 0,
+    },
     capacityJ: 1e6,
     reactorOutputW: 1000,
   },
@@ -58,6 +63,7 @@ function make(
   energyJ = 10000,
 ): Ship {
   return new Ship(equipment, {
+    reactorTemperatureK: 290,
     engineTemperatureK,
     damperTemperatureK,
     energyJ,

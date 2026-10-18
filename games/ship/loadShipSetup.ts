@@ -89,6 +89,7 @@ export async function loadShipSetup(
     0,
     power.capacityJ,
   );
+  validateThermalInstallation(cooling, power.thermal);
   validateThermalInstallation(cooling, engine.thermal);
   validateThermalInstallation(cooling, dampers.thermal);
   const initialState = validateInitialState(

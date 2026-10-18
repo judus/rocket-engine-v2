@@ -79,6 +79,8 @@ function changed(
 void test('Actual JSON loadout produces the typed installed equipment and separate initial state', () => {
   assert.equal(starterSetup.profile.cooling.id, 'cooling-starter');
   assert.equal(starterSetup.initialState.engineTemperatureK, 293.15);
+  assert.equal(starterSetup.initialState.reactorTemperatureK, 293.15);
+  assert.ok(Object.isFrozen(starterSetup.profile.power.recovery));
   assert.equal(starterSetup.initialState.damperTemperatureK, 293.15);
   assert.ok(Object.isFrozen(starterSetup.profile.dampers.thermal));
   assert.ok(Object.isFrozen(starterSetup.profile.engine.thermal));
@@ -95,12 +97,14 @@ void test('Actual JSON loadout produces the typed installed equipment and separa
 });
 void test('One immutable equipment definition can initialize independently charged moving ships', () => {
   const first = new Ship(starterSetup.profile, {
+    reactorTemperatureK: 290,
     damperTemperatureK: 293.15,
     engineTemperatureK: 293.15,
     energyJ: 1e9,
     velocityMps: { x: 1, y: 2, z: 3 },
   });
   const second = new Ship(starterSetup.profile, {
+    reactorTemperatureK: 290,
     damperTemperatureK: 293.15,
     engineTemperatureK: 293.15,
     energyJ: 70e9,
@@ -122,6 +126,24 @@ void test('Loadout boundary rejects missing/unknown properties and numeric strin
     ['profiles/engine-starter.json', { fullThrustW: '20000000000' }],
     ['profiles/engine-starter.json', { unrecognizedModifier: 2 }],
     ['profiles/reactor-starter.json', { initialEnergyJ: 100 }],
+    [
+      'profiles/reactor-starter.json',
+      {
+        recovery: {
+          ...starterSetup.profile.power.recovery,
+          emergencyStartSeconds: 8,
+        },
+      },
+    ],
+    [
+      'profiles/reactor-starter.json',
+      {
+        recovery: {
+          ...starterSetup.profile.power.recovery,
+          passiveCoolingW: 0,
+        },
+      },
+    ],
     ['profiles/hull-starter.json', { massKg: -1 }],
     ['profiles/cooling-starter.json', { restartEnergyJ: 201e9 }],
     ['profiles/cooling-starter.json', { sinkTemperatureK: 350 }],
@@ -202,18 +224,21 @@ void test('Loadout rejects incompatible restart energy and invalid initial state
   );
   for (const initialState of [
     {
+      reactorTemperatureK: 290,
       damperTemperatureK: 293.15,
       engineTemperatureK: 293.15,
       energyJ: 201e9,
       velocityMps: { x: 0, y: 0, z: 0 },
     },
     {
+      reactorTemperatureK: 290,
       damperTemperatureK: 293.15,
       engineTemperatureK: 293.15,
       energyJ: 100,
       velocityMps: { x: 0, y: '0', z: 0 },
     },
     {
+      reactorTemperatureK: 290,
       damperTemperatureK: 293.15,
       engineTemperatureK: 293.15,
       energyJ: 100,

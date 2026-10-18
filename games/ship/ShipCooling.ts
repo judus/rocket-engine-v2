@@ -13,10 +13,11 @@ export interface CoolingReading {
   readonly suppliedW: number;
   readonly activityFraction: number;
   readonly removedHeatW: number;
+  readonly reactorRemovedHeatW: number;
   readonly engineRemovedHeatW: number;
   readonly damperRemovedHeatW: number;
 }
-/** Shared cooling circuit: engine and dampers, one power port, no private clock. */
+/** Shared cooling circuit: reactor, engine and dampers, one power port, no private clock. */
 export class ShipCooling implements Behavior {
   readonly requires: readonly Behavior[];
   readonly profile: Readonly<CoolingProfile>;
@@ -30,6 +31,7 @@ export class ShipCooling implements Behavior {
     suppliedW: 0,
     activityFraction: 0,
     removedHeatW: 0,
+    reactorRemovedHeatW: 0,
     engineRemovedHeatW: 0,
     damperRemovedHeatW: 0,
   });
@@ -43,7 +45,7 @@ export class ShipCooling implements Behavior {
     this.requires = [power, engine, dampers];
   }
   onAttach(): undefined {
-    this.#port = this.power.connect(this.profile.restartEnergyJ);
+    this.#port = this.power.connect(this.profile.restartEnergyJ, 'utility');
   }
   private port(): PowerPort {
     if (!this.#port) throw new Error('Cooling is not attached');
@@ -56,6 +58,7 @@ export class ShipCooling implements Behavior {
   }
   declare(): void {
     this.#pumping =
+      this.power.temperatureK > this.profile.sinkTemperatureK ||
       this.engine.temperatureK > this.profile.sinkTemperatureK ||
       this.dampers.temperatureK > this.profile.sinkTemperatureK;
     this.port().request(
@@ -77,20 +80,28 @@ export class ShipCooling implements Behavior {
         : 0;
     const engineHeat = this.engine.heatAbove(this.profile.sinkTemperatureK);
     const damperHeat = this.dampers.heatAbove(this.profile.sinkTemperatureK);
-    const totalHeat = engineHeat + damperHeat;
+    const reactorHeat = this.power.heatAbove(this.profile.sinkTemperatureK);
+    const totalHeat = engineHeat + damperHeat + reactorHeat;
     const budgetJ = this.#pumping
       ? Math.min(totalHeat, this.profile.maxCoolingW * fraction * dt)
       : 0;
     // Share one removal budget in proportion to each module's heat above the sink.
     const engineBudget = totalHeat > 0 ? budgetJ * (engineHeat / totalHeat) : 0;
+    const remainingBudget = budgetJ - engineBudget;
+    const remainingHeat = damperHeat + reactorHeat;
+    const damperBudget =
+      remainingHeat > 0 ? remainingBudget * (damperHeat / remainingHeat) : 0;
     const engineRemovedHeatW =
       this.engine.removeHeat(engineBudget, this.profile.sinkTemperatureK) / dt;
     const damperRemovedHeatW =
-      this.dampers.removeHeat(
-        budgetJ - engineBudget,
+      this.dampers.removeHeat(damperBudget, this.profile.sinkTemperatureK) / dt;
+    const reactorRemovedHeatW =
+      this.power.removeHeat(
+        remainingBudget - damperBudget,
         this.profile.sinkTemperatureK,
       ) / dt;
-    const removedHeatW = engineRemovedHeatW + damperRemovedHeatW;
+    const removedHeatW =
+      reactorRemovedHeatW + engineRemovedHeatW + damperRemovedHeatW;
     this.#reading = Object.freeze({
       requested: this.#requested,
       state: !this.#requested
@@ -106,6 +117,7 @@ export class ShipCooling implements Behavior {
       suppliedW: allocation.suppliedW,
       activityFraction: fraction,
       removedHeatW,
+      reactorRemovedHeatW,
       engineRemovedHeatW,
       damperRemovedHeatW,
     });

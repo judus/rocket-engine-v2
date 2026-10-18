@@ -20,6 +20,11 @@ const funded: ShipProfile = {
   body: { ...starterSetup.profile.body, massKg: 2, yawInertiaKgM2: 2 },
   power: {
     ...starterSetup.profile.power,
+    thermal: {
+      ...starterSetup.profile.power.thermal,
+      manualStartSeconds: 0,
+      wasteHeatFraction: 0,
+    },
     capacityJ: 1e12,
     reactorOutputW: 1e9,
   },
@@ -43,6 +48,7 @@ const funded: ShipProfile = {
 };
 function make(speed = 0, profile = funded, energyJ = 1e6): Ship {
   return new Ship(profile, {
+    reactorTemperatureK: 290,
     damperTemperatureK: 293.15,
     engineTemperatureK: 293.15,
     energyJ,
@@ -259,6 +265,7 @@ void test('Damper profiles reject malformed protection and impossible restart th
       new Ship(
         { ...funded, dampers: { ...funded.dampers, restartEnergyJ: 1e13 } },
         {
+          reactorTemperatureK: 290,
           damperTemperatureK: 293.15,
           engineTemperatureK: 293.15,
           energyJ: 0,
@@ -284,7 +291,13 @@ void test('Interrupted capture preserves actual momentum and recovery captures f
   close(ship.telemetry.body.velocityMps.z, v);
   assert.equal(ship.telemetry.dampers.mode, 'coast');
   ship.power.requestEnabled(true);
-  step(ship, 1); // reactor output can fund this tick and restart the module
+  let recoveryTicks = 0;
+  while (ship.telemetry.power.emergency) {
+    step(ship, 1);
+    if (++recoveryTicks > 600)
+      assert.fail('Emergency reserve recovery did not finish');
+  }
+  step(ship, 1); // restored propulsion replans from current velocity
   assert.equal(ship.telemetry.dampers.state, 'online');
   assert.equal(ship.telemetry.dampers.mode, 'capture');
   close(ship.telemetry.dampers.captureElapsedSeconds, 1);

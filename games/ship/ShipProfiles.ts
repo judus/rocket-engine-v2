@@ -7,10 +7,20 @@ export interface BodyProfile {
   massKg: number;
   yawInertiaKgM2: number;
 }
+export interface ReactorRecoveryProfile {
+  startupPowerW: number;
+  emergencyStartSeconds: number;
+  emergencyOutputFraction: number;
+  restoreReserveFraction: number;
+  passiveCoolingW: number;
+  sinkTemperatureK: number;
+}
 export interface PowerPlantProfile {
   id: string;
   capacityJ: number;
   reactorOutputW: number;
+  thermal: Readonly<ThermalProfile>;
+  recovery: Readonly<ReactorRecoveryProfile>;
 }
 export interface ThermalProfile {
   heatCapacityJPerK: number;
@@ -58,6 +68,7 @@ export interface ShipProfile {
   readonly cooling: Readonly<CoolingProfile>;
 }
 export interface ShipInitialState {
+  readonly reactorTemperatureK: number;
   readonly engineTemperatureK: number;
   readonly damperTemperatureK: number;
   readonly energyJ: number;
@@ -127,10 +138,21 @@ export function validatePowerProfile(
 ): Readonly<PowerPlantProfile> {
   const p = recordWithKeys(
     value,
-    ['id', 'capacityJ', 'reactorOutputW'],
+    ['id', 'capacityJ', 'reactorOutputW', 'thermal', 'recovery'],
     'Power profile',
   );
+  const thermal = validateThermalProfile(p.thermal);
+  const recovery = validateReactorRecoveryProfile(p.recovery, thermal);
+  if (
+    readNumber(p, 'reactorOutputW', 0) *
+      recovery.emergencyOutputFraction *
+      thermal.wasteHeatFraction >=
+    recovery.passiveCoolingW
+  )
+    throw new RangeError('Emergency output must be passively sustainable');
   return Object.freeze({
+    thermal,
+    recovery,
     id: profileId(p.id, 'Power id'),
     capacityJ: readNumber(p, 'capacityJ', 1),
     reactorOutputW: readNumber(p, 'reactorOutputW', 0),
@@ -168,11 +190,18 @@ export function validateInitialState(
 ): Readonly<ShipInitialState> {
   const p = recordWithKeys(
     value,
-    ['energyJ', 'velocityMps', 'engineTemperatureK', 'damperTemperatureK'],
+    [
+      'energyJ',
+      'velocityMps',
+      'engineTemperatureK',
+      'damperTemperatureK',
+      'reactorTemperatureK',
+    ],
     'Initial state',
   );
   const v = recordWithKeys(p.velocityMps, ['x', 'y', 'z'], 'Initial velocity');
   return Object.freeze({
+    reactorTemperatureK: readNumber(p, 'reactorTemperatureK', 0, 1e6),
     damperTemperatureK: readNumber(p, 'damperTemperatureK', 0, 1e6),
     engineTemperatureK: readNumber(p, 'engineTemperatureK', 0, 1e6),
     energyJ: readNumber(p, 'energyJ', 0, capacityJ),
@@ -288,4 +317,59 @@ export function validateThermalInstallation(
     throw new RangeError(
       'Cooling sink must be below each module restart temperature',
     );
+}
+
+export function validateReactorRecoveryProfile(
+  value: unknown,
+  thermal: Readonly<ThermalProfile>,
+): Readonly<ReactorRecoveryProfile> {
+  const p = recordWithKeys(
+    value,
+    [
+      'startupPowerW',
+      'emergencyStartSeconds',
+      'emergencyOutputFraction',
+      'restoreReserveFraction',
+      'passiveCoolingW',
+      'sinkTemperatureK',
+    ],
+    'Reactor recovery profile',
+  );
+  const emergencyStartSeconds = readNumber(
+    p,
+    'emergencyStartSeconds',
+    Number.MIN_VALUE,
+    3600,
+  );
+  const emergencyOutputFraction = readNumber(
+    p,
+    'emergencyOutputFraction',
+    Number.MIN_VALUE,
+    1,
+  );
+  const restoreReserveFraction = readNumber(
+    p,
+    'restoreReserveFraction',
+    Number.MIN_VALUE,
+    1,
+  );
+  const sinkTemperatureK = readNumber(p, 'sinkTemperatureK', 0, 1e6);
+  if (emergencyStartSeconds <= thermal.rebootSeconds)
+    throw new RangeError('Emergency start must be slower than thermal reboot');
+  if (emergencyOutputFraction >= 1 || restoreReserveFraction >= 1)
+    throw new RangeError(
+      'Emergency output and restore reserve fractions must be below one',
+    );
+  if (sinkTemperatureK >= thermal.restartTemperatureK)
+    throw new RangeError(
+      'Passive cooling sink must be below reactor restart temperature',
+    );
+  return Object.freeze({
+    startupPowerW: readNumber(p, 'startupPowerW', Number.MIN_VALUE),
+    emergencyStartSeconds,
+    emergencyOutputFraction,
+    restoreReserveFraction,
+    passiveCoolingW: readNumber(p, 'passiveCoolingW', Number.MIN_VALUE),
+    sinkTemperatureK,
+  });
 }

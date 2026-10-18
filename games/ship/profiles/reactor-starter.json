@@ -1,5 +1,21 @@
 {
   "id": "reactor-starter",
   "capacityJ": 200000000000,
-  "reactorOutputW": 5000000000
+  "reactorOutputW": 5000000000,
+  "thermal": {
+    "heatCapacityJPerK": 10000000,
+    "wasteHeatFraction": 0.02,
+    "tripTemperatureK": 450,
+    "restartTemperatureK": 360,
+    "manualStartSeconds": 2,
+    "rebootSeconds": 8
+  },
+  "recovery": {
+    "startupPowerW": 20000000,
+    "emergencyStartSeconds": 30,
+    "emergencyOutputFraction": 0.2,
+    "restoreReserveFraction": 0.1,
+    "passiveCoolingW": 50000000,
+    "sinkTemperatureK": 293.15
+  }
 }

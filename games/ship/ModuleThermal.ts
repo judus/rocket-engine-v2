@@ -62,7 +62,7 @@ export class ModuleThermal {
     if (this.#temperatureK >= this.profile.tripTemperatureK) {
       this.#tripThisStep = true;
       this.#tripped = true;
-      this.#remaining = this.profile.rebootSeconds;
+      this.#remaining = Math.max(this.#remaining, this.profile.rebootSeconds);
     }
   }
   heatAbove(sinkTemperatureK: number): number {
@@ -79,12 +79,10 @@ export class ModuleThermal {
     this.#removedJ += removed;
     return removed;
   }
-  finish(
-    dt: number,
-    requested: boolean,
-    suppliedW: number,
-    baselineW: number,
-  ): void {
+  delayRestartAtLeast(seconds: number): void {
+    this.#remaining = Math.max(this.#remaining, seconds);
+  }
+  finish(dt: number, requested: boolean, restartFraction: number): void {
     const coolEnough =
       !this.#tripped || this.#temperatureK <= this.profile.restartTemperatureK;
     if (
@@ -94,10 +92,7 @@ export class ModuleThermal {
       this.#powerRequested &&
       coolEnough
     ) {
-      this.#remaining = Math.max(
-        0,
-        this.#remaining - dt * Math.min(1, suppliedW / baselineW),
-      );
+      this.#remaining = Math.max(0, this.#remaining - dt * restartFraction);
       if (this.#remaining < 1e-9) {
         this.#remaining = 0;
         this.#tripped = false;

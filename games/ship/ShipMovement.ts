@@ -55,15 +55,18 @@ export class ShipMovement implements Behavior {
   }
   fixedUpdate(dt: number): undefined {
     numberIn('ship fixed step', dt, 1e-6, 1);
+    this.power.beginStep();
     const requestedEngine = this.engine.declare(this.control.intent);
     this.dampers.declare(this.control.intent, requestedEngine, dt);
     this.cooling.declare();
     this.power.allocate(dt);
     const delivered = this.engine.deliver();
     const damperReading = this.dampers.deliver(delivered.activityFraction);
+    this.power.generateHeat(dt);
     this.engine.generateHeat(dt);
     this.dampers.generateHeat(dt);
     const coolingReading = this.cooling.deliver(dt);
+    this.power.finishThermalStep(dt);
     this.engine.finishThermalStep(dt);
     this.dampers.finishThermalStep(dt);
     const engineForce = this.body.localToWorld(delivered.thrustN);

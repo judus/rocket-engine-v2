@@ -15,6 +15,7 @@ function step(ship: Ship, dt = 1 / 60): void {
   });
 }
 const initial = {
+  reactorTemperatureK: 290,
   damperTemperatureK: 293.15,
   engineTemperatureK: 293.15,
   energyJ: 100,
@@ -25,7 +26,17 @@ const small: ShipProfile = {
   cooling: { ...starterSetup.profile.cooling, restartEnergyJ: 50 },
   dampers: { ...starterSetup.profile.dampers, restartEnergyJ: 50 },
   body: { id: 'test-hull', massKg: 2, yawInertiaKgM2: 2 },
-  power: { id: 'test-reactor', capacityJ: 100, reactorOutputW: 0 },
+  power: {
+    ...starterSetup.profile.power,
+    id: 'test-reactor',
+    capacityJ: 100,
+    reactorOutputW: 0,
+    thermal: {
+      ...starterSetup.profile.power.thermal,
+      manualStartSeconds: 0,
+      wasteHeatFraction: 0,
+    },
+  },
   engine: {
     id: 'test-engine',
     thermal: starterSetup.profile.engine.thermal,

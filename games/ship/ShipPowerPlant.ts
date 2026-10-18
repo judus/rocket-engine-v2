@@ -1,3 +1,5 @@
+import { ModuleThermal } from './ModuleThermal.js';
+import type { ThermalReading } from './ModuleThermal.js';
 import { numberIn, validatePowerProfile } from './ShipProfiles.js';
 import type { PowerPlantProfile } from './ShipProfiles.js';
 import type { Behavior } from '../../src/index.js';
@@ -13,6 +15,20 @@ import {
 
 export interface PowerReading {
   readonly requested: boolean;
+  readonly state:
+    | 'off'
+    | 'online'
+    | 'overheated'
+    | 'restarting'
+    | 'emergency-start'
+    | 'recovering';
+  readonly thermal: Readonly<ThermalReading>;
+  readonly emergency: boolean;
+  readonly propulsionAllowed: boolean;
+  readonly restoreEnergyJ: number;
+  readonly startupDemandW: number;
+  readonly startupSuppliedW: number;
+  readonly passiveRemovedHeatW: number;
   readonly energyJ: number;
   readonly capacityJ: number;
   readonly generationW: number;
@@ -34,9 +50,26 @@ export class ShipPowerPlant implements Behavior {
   #reactor = this.#world.create();
   #disposed = false;
   #requested = true;
+  #thermal: ModuleThermal;
+  #starterPort: PowerPort | undefined;
+  #emergency = false;
+  #operating = false;
+  #startupDemandW = 0;
+  #startupSuppliedW = 0;
+  #passiveRemovedHeatW = 0;
   readonly profile: Readonly<PowerPlantProfile>;
-  constructor(profile: Readonly<PowerPlantProfile>, initialEnergyJ: number) {
+  constructor(
+    profile: Readonly<PowerPlantProfile>,
+    initialEnergyJ: number,
+    initialTemperatureK: number,
+  ) {
     this.profile = validatePowerProfile(profile);
+    this.#thermal = new ModuleThermal(
+      this.profile.thermal,
+      initialTemperatureK,
+    );
+    if (initialEnergyJ === 0 && this.#thermal.state(true) !== undefined)
+      this.enterEmergency();
     const capacityJ = this.profile.capacityJ;
     this.#world.set(this.#ship, EnergyReserve, {
       capacityJ,
@@ -54,7 +87,79 @@ export class ShipPowerPlant implements Behavior {
       outputW: this.profile.reactorOutputW,
     });
   }
-  onAttach(): undefined {}
+  onAttach(): undefined {
+    this.#starterPort = this.connect(0, 'utility');
+  }
+  private enterEmergency(): void {
+    this.#emergency = true;
+    this.#thermal.delayRestartAtLeast(
+      this.profile.recovery.emergencyStartSeconds,
+    );
+  }
+  get temperatureK(): number {
+    return this.#thermal.temperatureK;
+  }
+  heatAbove(sinkTemperatureK: number): number {
+    return this.#thermal.heatAbove(sinkTemperatureK);
+  }
+  removeHeat(maxEnergyJ: number, sinkTemperatureK: number): number {
+    return this.#thermal.removeHeat(maxEnergyJ, sinkTemperatureK);
+  }
+  beginStep(): void {
+    this.live();
+    const reserve = this.#world.get(this.#ship, EnergyReserve)!;
+    if (
+      !this.#emergency &&
+      reserve.energyJ === 0 &&
+      this.#thermal.state(this.#requested) !== undefined
+    )
+      this.enterEmergency();
+    const thermal = this.#thermal.begin(this.#requested);
+    this.#operating = thermal.operating;
+    this.#world.get(this.#reactor, ShipModule)!.requested = thermal.operating;
+    this.#world.get(this.#reactor, Reactor)!.outputW =
+      this.profile.reactorOutputW *
+      (this.#emergency ? this.profile.recovery.emergencyOutputFraction : 1);
+    this.#startupDemandW =
+      thermal.powerRequested && !thermal.operating && !this.#emergency
+        ? this.profile.recovery.startupPowerW
+        : 0;
+    if (!this.#starterPort) throw new Error('Reactor is not attached');
+    this.#starterPort.request(this.#startupDemandW > 0, this.#startupDemandW);
+    this.#startupSuppliedW = 0;
+    this.#passiveRemovedHeatW = 0;
+  }
+  generateHeat(dt: number): void {
+    const generationW = this.#world.get(this.#ship, EnergyReserve)!.generationW;
+    this.#startupSuppliedW = this.#starterPort!.delivery().suppliedW;
+    this.#thermal.generate(generationW + this.#startupSuppliedW, dt);
+    this.#passiveRemovedHeatW =
+      this.#thermal.removeHeat(
+        this.profile.recovery.passiveCoolingW * dt,
+        this.profile.recovery.sinkTemperatureK,
+      ) / dt;
+  }
+  finishThermalStep(dt: number): void {
+    this.#thermal.finish(
+      dt,
+      this.#requested,
+      this.#emergency
+        ? 1
+        : Math.min(
+            1,
+            this.#startupSuppliedW / this.profile.recovery.startupPowerW,
+          ),
+    );
+    const reserve = this.#world.get(this.#ship, EnergyReserve)!;
+    if (
+      this.#emergency &&
+      this.#operating &&
+      this.#thermal.state(this.#requested) === undefined &&
+      reserve.energyJ >=
+        this.profile.capacityJ * this.profile.recovery.restoreReserveFraction
+    )
+      this.#emergency = false;
+  }
   private live(): void {
     if (this.#disposed) throw new Error('Power plant disposed');
   }
@@ -62,11 +167,13 @@ export class ShipPowerPlant implements Behavior {
     this.live();
     if (typeof value !== 'boolean')
       throw new TypeError('Reactor request must be boolean');
+    if (!this.#emergency) this.#thermal.requestChanged(this.#requested, value);
     this.#requested = value;
-    this.#world.get(this.#reactor, ShipModule)!.requested = value;
   }
-  connect(restartEnergyJ: number): PowerPort {
+  connect(restartEnergyJ: number, kind: 'propulsion' | 'utility'): PowerPort {
     this.live();
+    if (kind !== 'propulsion' && kind !== 'utility')
+      throw new TypeError('Power port kind must be propulsion or utility');
     numberIn('restartEnergyJ', restartEnergyJ, 0, this.telemetry.capacityJ);
     const entity = this.#world.create();
     this.#world.set(entity, ShipOwner, this.#ship);
@@ -88,7 +195,8 @@ export class ShipPowerPlant implements Behavior {
         if (typeof enabled !== 'boolean')
           throw new TypeError('Load request must be boolean');
         numberIn('demandW', demandW, 0);
-        this.#world.get(entity, ShipModule)!.requested = enabled;
+        this.#world.get(entity, ShipModule)!.requested =
+          enabled && (kind === 'utility' || !this.#emergency);
         this.#world.get(entity, PowerLoad)!.demandW = demandW;
       },
       delivery: () => {
@@ -112,8 +220,28 @@ export class ShipPowerPlant implements Behavior {
   get telemetry(): Readonly<PowerReading> {
     this.live();
     const p = this.#world.get(this.#ship, EnergyReserve)!;
+    const thermalState = this.#thermal.state(this.#requested);
+    const state =
+      thermalState === 'off' || thermalState === 'overheated'
+        ? thermalState
+        : thermalState === 'restarting'
+          ? this.#emergency
+            ? 'emergency-start'
+            : 'restarting'
+          : this.#emergency
+            ? 'recovering'
+            : 'online';
     return Object.freeze({
       requested: this.#requested,
+      state,
+      thermal: this.#thermal.telemetry,
+      emergency: this.#emergency,
+      propulsionAllowed: !this.#emergency,
+      restoreEnergyJ:
+        this.profile.capacityJ * this.profile.recovery.restoreReserveFraction,
+      startupDemandW: this.#startupDemandW,
+      startupSuppliedW: this.#startupSuppliedW,
+      passiveRemovedHeatW: this.#passiveRemovedHeatW,
       energyJ: p.energyJ,
       capacityJ: p.capacityJ,
       generationW: p.generationW,
@@ -122,6 +250,8 @@ export class ShipPowerPlant implements Behavior {
     });
   }
   dispose(): undefined {
+    this.#starterPort?.dispose();
+    this.#starterPort = undefined;
     this.#disposed = true;
     this.#world.clear();
   }

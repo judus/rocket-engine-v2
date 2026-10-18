@@ -58,6 +58,19 @@ function reset(): void {
     throw new RangeError(
       'Starting damper temperature must be at least -273.15 °C and below 999726.85 °C',
     );
+  const reactorTemperature = find<HTMLInputElement>(
+    '#entry-reactor-temperature',
+  );
+  const charge = find<HTMLInputElement>('#entry-charge');
+  if (
+    reactorTemperature.value === '' ||
+    !reactorTemperature.checkValidity() ||
+    charge.value === '' ||
+    !charge.checkValidity()
+  )
+    throw new RangeError(
+      'Enter a valid reactor temperature and reserve percentage (0–100)',
+    );
   runtime?.stop();
   if (runtime) void runtime.dispose().catch(fail);
   running = false;
@@ -75,6 +88,8 @@ function reset(): void {
     () =>
       new Ship(setup.profile, {
         ...setup.initialState,
+        reactorTemperatureK: Number(reactorTemperature.value) + 273.15,
+        energyJ: (setup.profile.power.capacityJ * Number(charge.value)) / 100,
         engineTemperatureK: Number(temperature.value) + 273.15,
         damperTemperatureK: Number(damperTemperature.value) + 273.15,
         velocityMps: {
@@ -111,7 +126,9 @@ function reset(): void {
   find('#thermal-specs').textContent =
     `Engine thermal capacity ${p.engine.thermal.heatCapacityJPerK / 1e6} MJ/K · ${p.engine.thermal.wasteHeatFraction * 100}% of supplied power becomes module heat · trip ${(p.engine.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.engine.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · manual start ${p.engine.thermal.manualStartSeconds} s / thermal reboot ${p.engine.thermal.rebootSeconds} s. Cooling: ${p.cooling.maxCoolingW / 1e6} MW removal, ${(p.cooling.baselineW + p.cooling.fullPowerW) / 1e6} MW full electrical draw.`;
   find('#damper-thermal-specs').textContent =
-    `Damper thermal capacity ${p.dampers.thermal.heatCapacityJPerK / 1e6} MJ/K · ${p.dampers.thermal.wasteHeatFraction * 100}% supplied-power losses · trip ${(p.dampers.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.dampers.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · manual start ${p.dampers.thermal.manualStartSeconds} s / thermal reboot ${p.dampers.thermal.rebootSeconds} s. The cooler shares one removal budget between both modules.`;
+    `Damper thermal capacity ${p.dampers.thermal.heatCapacityJPerK / 1e6} MJ/K · ${p.dampers.thermal.wasteHeatFraction * 100}% supplied-power losses · trip ${(p.dampers.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.dampers.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · manual start ${p.dampers.thermal.manualStartSeconds} s / thermal reboot ${p.dampers.thermal.rebootSeconds} s. The cooler shares one removal budget across reactor, engine and dampers.`;
+  find('#reactor-specs').textContent =
+    `Reactor trip ${(p.power.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.power.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · normal thermal reboot ${p.power.thermal.rebootSeconds} s / independent emergency start ${p.power.recovery.emergencyStartSeconds} s · emergency output ${p.power.recovery.emergencyOutputFraction * 100}% until ${(p.power.recovery.restoreReserveFraction * 100).toFixed(1)}% reserve · passive heat loss up to ${p.power.recovery.passiveCoolingW / 1e6} MW. Lab tuning.`;
   paint();
 }
 const fmt = (value: number) =>
@@ -136,12 +153,20 @@ function paint(): void {
     ['Yaw rate', fmt((t.body.yawRateRadps * 180) / Math.PI), '°/s'],
     [
       'Total demand',
-      fmt((t.engine.demandW + t.dampers.demandW + t.cooling.demandW) / 1e9),
+      fmt(
+        (t.power.startupDemandW +
+          t.engine.demandW +
+          t.dampers.demandW +
+          t.cooling.demandW) /
+          1e9,
+      ),
       'GW',
     ],
     ['Total supplied', fmt(t.power.consumptionW / 1e9), 'GW'],
     ['Ship load', fmt(t.shipG), 'G'],
     ['Crew load', fmt(t.crewG), 'G'],
+    ['Reactor temperature', fmt(t.power.thermal.temperatureK - 273.15), '°C'],
+    ['Reactor heat', fmt(t.power.thermal.generatedHeatW / 1e6), 'MW'],
     ['Engine temperature', fmt(t.engine.thermal.temperatureK - 273.15), '°C'],
     ['Damper temperature', fmt(t.dampers.thermal.temperatureK - 273.15), '°C'],
     ['Damper heat', fmt(t.dampers.thermal.generatedHeatW / 1e6), 'MW'],
@@ -163,13 +188,15 @@ function paint(): void {
   find<HTMLButtonElement>('#run').textContent = running ? 'Pause' : 'Run';
   find<HTMLButtonElement>('#step').disabled = running;
   find('#power-state').textContent =
-    `Reactor ${t.power.requested ? 'requested on' : 'off'} · generation ${fmt(t.power.generationW / 1e9)} GW · engine ${t.engine.state} · operation delivered ${fmt(t.engine.activityFraction * 100)}%. Readings are from tick ${t.tick}.`;
+    `Reactor ${t.power.state} · ${t.power.requested ? 'requested on' : 'off'} · generation ${fmt(t.power.generationW / 1e9)} GW · engine ${t.engine.state} · operation delivered ${fmt(t.engine.activityFraction * 100)}%. Readings are from tick ${t.tick}.`;
   find('#damper-state').textContent =
     `Dampers ${t.dampers.state} · ${t.dampers.mode} · delivered ${fmt(t.dampers.activityFraction * 100)}% · draw ${fmt(t.dampers.suppliedW / 1e9)} GW · crew receives ${fmt(t.dampers.transmittedFraction * 100)}% of translational load${t.dampers.mode === 'capture' ? ` · capture ${fmt(t.dampers.captureElapsedSeconds)} / ${fmt(t.dampers.captureDurationSeconds)} powered seconds` : ''}.`;
   find('#thermal-state').textContent =
     `Thermal trip ${t.engine.thermal.tripped ? 'latched' : 'clear'} · restart remaining ${fmt(t.engine.thermal.restartRemainingSeconds)} powered seconds · cooling ${t.cooling.state} · delivered ${fmt(t.cooling.activityFraction * 100)}% · draw ${fmt(t.cooling.suppliedW / 1e6)} MW. Engine remembers its requested switch during a trip.`;
   find('#damper-thermal-state').textContent =
-    `Damper thermal trip ${t.dampers.thermal.tripped ? 'latched' : 'clear'} · restart remaining ${fmt(t.dampers.thermal.restartRemainingSeconds)} powered seconds. Cooling removes ${fmt(t.cooling.engineRemovedHeatW / 1e6)} MW from engine + ${fmt(t.cooling.damperRemovedHeatW / 1e6)} MW from dampers within one ${fmt(setup.profile.cooling.maxCoolingW / 1e6)} MW limit.`;
+    `Damper thermal trip ${t.dampers.thermal.tripped ? 'latched' : 'clear'} · restart remaining ${fmt(t.dampers.thermal.restartRemainingSeconds)} powered seconds. Cooling removes ${fmt(t.cooling.engineRemovedHeatW / 1e6)} MW from engine + ${fmt(t.cooling.damperRemovedHeatW / 1e6)} MW from dampers + ${fmt(t.cooling.reactorRemovedHeatW / 1e6)} MW from reactor within one ${fmt(setup.profile.cooling.maxCoolingW / 1e6)} MW limit.`;
+  find('#reactor-state').textContent =
+    `Recovery ${t.power.emergency ? 'EMERGENCY' : 'normal'} · restart remaining ${fmt(t.power.thermal.restartRemainingSeconds)} s · propulsion ${t.power.propulsionAllowed ? 'available' : 'LOCKED until reserve recovers'} · restore threshold ${fmt(t.power.restoreEnergyJ / 1e9)} GJ · starter ${t.power.emergency ? 'independent' : `${fmt(t.power.startupSuppliedW / 1e6)} MW from reserve`} · reactor passive cooling ${fmt(t.power.passiveRemovedHeatW / 1e6)} MW + circuit ${fmt(t.cooling.reactorRemovedHeatW / 1e6)} MW.`;
   find('#vectors').textContent =
     `Position (m): ${vector(t.body.positionM)}\nVelocity (m/s): ${vector(t.body.velocityMps)}\nAcceleration (m/s²): ${vector(t.body.accelerationMps2)}`;
   if (t.timeSeconds - lastHistoryTime >= 0.5) {
@@ -181,7 +208,7 @@ function paint(): void {
     .reverse()
     .map(
       (r) =>
-        `<tr><td>${fmt(r.timeSeconds)}</td><td>${fmt(Math.hypot(r.body.velocityMps.x, r.body.velocityMps.y, r.body.velocityMps.z))}</td><td>${r.engine.state} / ${fmt(r.engine.thermal.temperatureK - 273.15)} °C</td><td>${r.dampers.state} / ${r.dampers.mode} / ${fmt(r.dampers.thermal.temperatureK - 273.15)} °C</td><td>${fmt(r.crewG)}</td><td>${fmt(r.engine.activityFraction * 100)}</td><td>${fmt(r.power.energyJ / 1e9)}</td><td>${fmt(r.power.consumptionW / 1e9)}</td></tr>`,
+        `<tr><td>${fmt(r.timeSeconds)}</td><td>${fmt(Math.hypot(r.body.velocityMps.x, r.body.velocityMps.y, r.body.velocityMps.z))}</td><td>${r.power.state} / ${fmt(r.power.thermal.temperatureK - 273.15)} °C</td><td>${r.engine.state} / ${fmt(r.engine.thermal.temperatureK - 273.15)} °C</td><td>${r.dampers.state} / ${r.dampers.mode} / ${fmt(r.dampers.thermal.temperatureK - 273.15)} °C</td><td>${fmt(r.crewG)}</td><td>${fmt(r.engine.activityFraction * 100)}</td><td>${fmt(r.power.energyJ / 1e9)}</td><td>${fmt(r.power.consumptionW / 1e9)}</td></tr>`,
     )
     .join('');
 }
@@ -215,6 +242,22 @@ find('#reset').addEventListener('click', () => {
   } catch (error) {
     fail(error);
   }
+});
+find('#emergency-test').addEventListener('click', () => {
+  find<HTMLInputElement>('#entry-charge').value = '0';
+  find<HTMLInputElement>('#entry-reactor-temperature').value = String(
+    setup.profile.power.thermal.tripTemperatureK - 273.15 + 5,
+  );
+  find<HTMLInputElement>('#entry-speed').value = '1000';
+  find<HTMLInputElement>('#entry-temperature').value = '20';
+  find<HTMLInputElement>('#entry-damper-temperature').value = '20';
+  reset();
+  find<HTMLInputElement>('#cooling').checked = true;
+  ship.cooling.requestEnabled(true);
+  find<HTMLInputElement>('#dampers').checked = true;
+  ship.dampers.requestEnabled(true);
+  find<HTMLInputElement>('#forward').value = '100';
+  commands();
 });
 find('#run').addEventListener('click', () => {
   if (running) {
@@ -262,6 +305,12 @@ void loadShipSetup(
     );
     find<HTMLInputElement>('#entry-damper-temperature').value = String(
       loaded.initialState.damperTemperatureK - 273.15,
+    );
+    find<HTMLInputElement>('#entry-reactor-temperature').value = String(
+      loaded.initialState.reactorTemperatureK - 273.15,
+    );
+    find<HTMLInputElement>('#entry-charge').value = String(
+      (loaded.initialState.energyJ / loaded.profile.power.capacityJ) * 100,
     );
     reset();
     find('#ship-ui').inert = false;

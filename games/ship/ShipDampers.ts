@@ -79,7 +79,7 @@ export class ShipDampers implements Behavior {
     });
   }
   onAttach(): undefined {
-    this.#port = this.power.connect(this.profile.restartEnergyJ);
+    this.#port = this.power.connect(this.profile.restartEnergyJ, 'propulsion');
   }
   private port(): PowerPort {
     if (!this.#port) throw new Error('Dampers are not attached');
@@ -252,8 +252,7 @@ export class ShipDampers implements Behavior {
     this.#thermal.finish(
       dt,
       this.#requested,
-      this.#reading.suppliedW,
-      this.profile.baselineW,
+      Math.min(1, this.#reading.suppliedW / this.profile.baselineW),
     );
     const thermalState = this.#thermal.state(this.#requested);
     const startupCompleted =
