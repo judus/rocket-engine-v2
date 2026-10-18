@@ -1,3 +1,4 @@
+import { InternalsPanel } from './internals-panel.js';
 import { MountsPanel } from './mounts-panel.js';
 import type { HealthReading } from '../../games/ship/ModuleHealth.js';
 import { Rocket } from '../../src/index.js';
@@ -18,6 +19,11 @@ let stage: Stage2D;
 let ship: Ship;
 const mountsPanel = new MountsPanel(
   find('#mounts-editor'),
+  () => ship,
+  find('#message'),
+);
+const internalsPanel = new InternalsPanel(
+  find('#internals-editor'),
   () => ship,
   find('#message'),
 );
@@ -121,6 +127,7 @@ function reset(): void {
   });
   runtime.scene(stage, { keepAlive: true });
   mountsPanel.paint(ship.telemetry.mounts, true);
+  internalsPanel.paint(ship.telemetry.internals, true);
   rows = [];
   lastHistoryTime = -1;
   renderElapsed = 0;
@@ -160,6 +167,7 @@ const vector = (v: {
 }) => `X ${fmt(v.x)} / Y ${fmt(v.y)} / Z ${fmt(v.z)}`;
 function paint(): void {
   mountsPanel.paint(ship.telemetry.mounts);
+  internalsPanel.paint(ship.telemetry.internals);
   const t = ship.telemetry;
   const speed = Math.hypot(
     t.body.velocityMps.x,
@@ -190,7 +198,8 @@ function paint(): void {
     t.cooling.demandW +
     t.shields.demandW +
     t.cargo.demandW +
-    t.mounts.demandW;
+    t.mounts.demandW +
+    t.internals.demandW;
   const electrical = (suppliedW: number, demandW: number) =>
     `${fmt(suppliedW / 1e6)} / ${fmt(demandW / 1e6)} MW<small>supplied / requested</small>`;
   const thermal = (
@@ -287,6 +296,20 @@ function paint(): void {
         operation.thermal.removedHeatW,
       ),
       healthCell(operation.health),
+    ]);
+  }
+  for (const i of t.internals.installations) {
+    const o = i.operation;
+    modules.push([
+      `${escapeText(i.label)}<small>${escapeText(i.slotId)} · ${escapeText(i.installationId)}</small>`,
+      `<strong>${o.state}</strong><small>${requested(o.requested)} · internal<br>restart ${fmt(o.thermal.restartRemainingSeconds)} s</small>`,
+      electrical(o.suppliedW, o.demandW),
+      thermal(
+        o.thermal.temperatureK,
+        o.thermal.generatedHeatW,
+        o.thermal.removedHeatW,
+      ),
+      healthCell(o.health),
     ]);
   }
   find('#module-readings').innerHTML = modules

@@ -413,3 +413,76 @@ Flight Foundry provides per-slot enable/disable, damage/repair, a selected-group
 trigger and live device telemetry. Editing controls persist across ordinary
 telemetry refreshes. Projectiles, aiming, hit routing, ammunition, recoil and real
 utility effects remain outside this power/heat/health proof.
+
+### Replaceable internal installations
+
+`ship.internals` is a typed attached capability with configurable internal slots,
+independent installation identities and a catalogue loaded from JSON. The starter
+has six slots and one fabricator. An internal definition owns its power/thermal/
+health profile and may bind a Workshop facility and/or local inventory; both are
+nullable, allowing a powered room with neither. Occupancy and room scenes are not
+implemented. External fire groups remain specific to `ShipMounts`.
+
+Mounts and internals reuse `PoweredModule` (extracted from `MountedEquipment`)
+for per-installation power, heat, condition and recovery. Internals never enter
+fire groups. Enabled internals request their rated operating power even when
+waiting for materials; this first model does not charge exact batch energy.
+
+The ship/lab owns one `production-workshop` 2.4.0 `Simulation`, passed to
+`ShipInternals`. Slots bind to stable facility/inventory IDs. Workshop alone owns
+stock, reservations, jobs and production outcomes. The fabricator recipe is
+**2 alloy → 1 machine part in 3 seconds** under full funded/healthy operation.
+It uses one 20-unit local buffer; it is independent of `ShipCargo`'s pocket link.
+The lab's supply/collect commands create or remove test stock for free rather
+than claim a trading/cargo integration. Initial installation also costs nothing;
+this slice requires autonomous definitions without construction/population costs.
+
+```ts
+ship.internals.supply('internal-1', 'alloy', 4); // lab stock, next fixed tick
+ship.internals.requestEnabled('internal-1', true);
+ship.internals.setDraining('internal-1', true); // finish active batch; no new starts
+ship.internals.collect('internal-1', 'part', 1);
+ship.internals.requestEnabled('internal-1', false);
+ship.internals.remove('internal-1'); // refuses active work or remaining goods
+ship.internals.install('internal-2', 'fabricator-starter', 'fabricator-second');
+```
+
+Inventory/installation commands are queued to the ship boundary. Ordinary refusals
+(e.g. full stock, empty slot, busy/occupied installation) leave state intact and
+appear in persistent `telemetry.internals.commands` results. Invalid identifiers,
+quantities and profiles fail on entry. Unexpected disagreement with a validated
+Workshop removal preflight aborts loudly instead of reporting partial success.
+Health commands use the same next-step health helper as the other modules.
+
+After power/thermal calculation, the adapter sets Workshop's named `powered`,
+`temperature-safe` and `healthy` conditions, and uses a production modifier for
+health derating. Any loss of full operating supply pauses starts, progress and
+publication; a zero productivity multiplier alone is not used as the outage gate.
+Consumed batch inputs remain spent, progress remains intact, and restoration
+finishes the same batch. Thermal trips latch before shared cooling. Internals
+share the existing ONE cooling budget (`internalRemovedHeatW`).
+
+Workshop advances exactly once per ship interval, regardless of installation count.
+Its own fractional fixed-tick accumulator is retained. A Workshop tick is
+conservatively blocked if any contributing ship interval lacked service, so a
+brief reconnection cannot backdate eligibility over an outage. A mixed advance
+may delay resumption by another host interval; no retroactive fractional work,
+second clock or per-installation timer is introduced. This lab owns an isolated
+ship world; a later multi-ship world must own and advance its shared Simulation
+centrally rather than advance one shared instance through several ships.
+
+Safe removal requires requested off and temperature below the restart threshold,
+no Workshop active-work/population/capacity blockers and no goods, reservations,
+external references or active deliveries in its buffer. Only the installation's
+own facility reference/attachment are discharged by removal. Draining still needs
+power/cooling to finish work. Removal retires the facility, empty buffer and exact
+power port; it never deletes stock to make space. New installations need fresh IDs.
+Equipment disposal gates its facility off but preserves Workshop state. Closing an
+inspection view does not dispose equipment or stop the simulation.
+
+Flight Foundry's main module table includes internals. Its separate inspector uses
+Workshop facility snapshots and inventory summaries, plus ship power/health/heat;
+there is no assumed package inspection widget hook. Read models are detached and
+frozen. The inspector refreshes at the existing UI cadence, not through nested
+observer commands. Save/restore, real cargo transfers, physical occupancy,
+infirmary/research semantics and the other authored installations remain later slices.

@@ -1,3 +1,5 @@
+import { Simulation } from 'production-workshop';
+import { ShipInternals } from './ShipInternals.js';
 import { ShipMounts } from './ShipMounts.js';
 import { CargoLink } from './CargoLink.js';
 import { ShipCargo } from './ShipCargo.js';
@@ -24,6 +26,8 @@ import type { ShipProfile, ShipInitialState } from './ShipProfiles.js';
 export class Ship extends Node2D {
   readonly definitionId: string;
   readonly mounts: ShipMounts;
+  readonly internals: ShipInternals;
+  readonly production: Simulation;
   readonly cargoLink: CargoLink;
   readonly cargo: ShipCargo;
   readonly body: ShipBody;
@@ -88,6 +92,9 @@ export class Ship extends Node2D {
     validateThermalInstallation(profile.cooling, profile.cargo.thermal);
     for (const e of profile.mounts.equipment)
       validateThermalInstallation(profile.cooling, e.thermal);
+    for (const d of profile.internals.definitions)
+      validateThermalInstallation(profile.cooling, d.thermal);
+    this.production = new Simulation(profile.production);
     this.cargoLink = new CargoLink(initial.cargoPocketId);
     try {
       this.body = this.attach(new ShipBody(profile.body, initial.velocityMps));
@@ -101,6 +108,9 @@ export class Ship extends Node2D {
         ),
       );
       this.mounts = this.attach(new ShipMounts(profile.mounts, this.power));
+      this.internals = this.attach(
+        new ShipInternals(profile.internals, this.power, this.production),
+      );
       this.engine = this.attach(
         new ShipEngine(
           profile.engine,
@@ -144,6 +154,7 @@ export class Ship extends Node2D {
           this.shields,
           this.cargo,
           this.mounts,
+          this.internals,
           initial.coolingHealthPoints,
         ),
       );
@@ -160,6 +171,7 @@ export class Ship extends Node2D {
           this.hull,
           this.cargo,
           this.mounts,
+          this.internals,
         ),
       );
     } catch (error) {

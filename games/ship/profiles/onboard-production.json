@@ -1,0 +1,39 @@
+{
+  "resources": [
+    {
+      "id": "alloy",
+      "label": "Alloy",
+      "kind": "material"
+    },
+    {
+      "id": "part",
+      "label": "Machine part",
+      "kind": "material"
+    }
+  ],
+  "recipes": [
+    {
+      "id": "fabricate-part",
+      "label": "Fabricate a machine part",
+      "durationSeconds": 3,
+      "inputs": {
+        "alloy": 2
+      },
+      "outputs": {
+        "part": 1
+      }
+    }
+  ],
+  "facilities": [
+    {
+      "id": "onboard-fabricator",
+      "label": "Onboard fabricator",
+      "category": "fabrication",
+      "recipes": ["fabricate-part"],
+      "constructionCost": {},
+      "operatingConditions": ["powered", "temperature-safe", "healthy"]
+    }
+  ],
+  "tickMilliseconds": 50,
+  "seed": 1
+}

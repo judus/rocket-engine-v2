@@ -3,6 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="importmap">
+      {
+        "imports": {
+          "production-workshop": "../../dist/vendor/production-workshop-2.4.0/index.js"
+        }
+      }
+    </script>
     <title>Flight Foundry · Assembled ship</title>
     <link rel="stylesheet" href="./style.css" />
     <style>
@@ -302,6 +309,16 @@
         </p>
         <div id="mounts-editor"></div>
         <div id="mount-runtime" class="table-wrap module-matrix"></div>
+        <h3>Ship internals · fabricator</h3>
+        <p class="muted">
+          One Workshop fabricator: 2 alloy → 1 machine part in 3 powered
+          seconds. Supply lab stock, enable the installation, then Run. Outages
+          preserve active work. Drain to finish without starting another batch;
+          collect all stock, disable and cool before removal. Lab installation
+          and supply are free. Stock is in a local buffer, independent of the
+          interdimensional cargo link. Occupancy and save/restore come later.
+        </p>
+        <div id="internals-editor"></div>
         <h3>Engine condition · lab controls</h3>
         <div class="toolbar">
           <button id="damage-engine" type="button">Damage engine · 25 HP</button
@@ -456,6 +473,7 @@ ship
 ├─ dampers    powered assistance, capture and crew protection
 ├─ cargo      powered pocket access with a fixed recovery deadline
 ├─ mounts     external installation slots and fire-group matrix
+├─ internals  replaceable installations bound to Workshop facilities/inventories
 ├─ cooling    one cooling budget across all thermal modules
 ├─ shields    stored field energy and powered protection
 ├─ hull       shield overflow becomes structural damage

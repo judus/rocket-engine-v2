@@ -28,5 +28,7 @@
   "shieldProfile": "shields-starter",
   "hullProfile": "structure-starter",
   "cargoProfile": "cargo-starter",
-  "mountsProfile": "mounts-starter"
+  "mountsProfile": "mounts-starter",
+  "internalsProfile": "internals-starter",
+  "productionProfile": "onboard-production"
 }

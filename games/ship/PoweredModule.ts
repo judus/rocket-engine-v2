@@ -2,10 +2,19 @@ import { ModuleHealth } from './ModuleHealth.js';
 import type { HealthReading } from './ModuleHealth.js';
 import { ModuleThermal } from './ModuleThermal.js';
 import type { ThermalReading } from './ModuleThermal.js';
-import type { MountEquipment } from './ShipMounts.js';
+import type { HealthProfile, ThermalProfile } from './ShipProfiles.js';
+export interface PoweredModuleProfile {
+  readonly health: Readonly<HealthProfile>;
+  readonly thermal: Readonly<ThermalProfile>;
+  readonly initialTemperatureK: number;
+  readonly baselineW: number;
+  readonly operatingW: number;
+  readonly outputEfficiency: number;
+  readonly restartEnergyJ: number;
+}
 import type { PowerPort, ShipPowerPlant } from './ShipPowerPlant.js';
 
-export interface MountedEquipmentReading {
+export interface PoweredModuleReading {
   readonly requested: boolean;
   readonly state:
     | 'off'
@@ -26,7 +35,7 @@ export interface MountedEquipmentReading {
   readonly totalOutputJ: number;
 }
 /** One installed device. Continuous output is measured; no projectile/hit is invented. */
-export class MountedEquipment {
+export class PoweredModule {
   readonly #health: ModuleHealth;
   readonly #thermal: ModuleThermal;
   readonly #port: PowerPort;
@@ -41,7 +50,7 @@ export class MountedEquipment {
   #totalOutputJ = 0;
   #disposed = false;
   constructor(
-    readonly profile: Readonly<MountEquipment>,
+    readonly profile: Readonly<PoweredModuleProfile>,
     power: ShipPowerPlant,
   ) {
     this.#health = new ModuleHealth(profile.health, profile.health.maxPoints);
@@ -121,7 +130,7 @@ export class MountedEquipment {
       Math.min(1, this.#suppliedW / this.profile.baselineW),
     );
   }
-  get telemetry(): Readonly<MountedEquipmentReading> {
+  get telemetry(): Readonly<PoweredModuleReading> {
     const health = this.#health.telemetry;
     return Object.freeze({
       requested: this.#requested,

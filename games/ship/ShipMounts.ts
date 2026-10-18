@@ -1,5 +1,5 @@
-import { MountedEquipment } from './MountedEquipment.js';
-import type { MountedEquipmentReading } from './MountedEquipment.js';
+import { PoweredModule } from './PoweredModule.js';
+import type { PoweredModuleReading } from './PoweredModule.js';
 import { ShipPowerPlant } from './ShipPowerPlant.js';
 import {
   numberIn,
@@ -50,7 +50,7 @@ export interface MountsReading {
   readonly suppliedW: number;
   readonly outputW: number;
   readonly installations: readonly Readonly<
-    MountInstallation & { operation: Readonly<MountedEquipmentReading> }
+    MountInstallation & { operation: Readonly<PoweredModuleReading> }
   >[];
   readonly slots: readonly Readonly<
     MountSlot & { installation: Readonly<MountInstallation> | null }
@@ -220,7 +220,7 @@ export class ShipMounts implements Behavior {
   #pending: Readonly<MountsProfile> | undefined;
   #disposed = false;
   readonly requires: readonly Behavior[];
-  #devices = new Map<string, MountedEquipment>();
+  #devices = new Map<string, PoweredModule>();
   #issuedIds = new Set<string>();
   #enabled = new Map<string, boolean>();
   #firing = false;
@@ -325,7 +325,7 @@ export class ShipMounts implements Behavior {
     if (!installation) throw new Error('Mount slot has no installation');
     this.#enabled.set(installation.installationId, value);
   }
-  private device(slotId: string): MountedEquipment {
+  private device(slotId: string): PoweredModule {
     this.live();
     const installation = this.#state.loadout.find((i) => i.slotId === slotId);
     const device =
@@ -355,7 +355,7 @@ export class ShipMounts implements Behavior {
         if (!profile) throw new Error('Missing equipment profile');
         this.#devices.set(
           installation.installationId,
-          new MountedEquipment(profile, this.power),
+          new PoweredModule(profile, this.power),
         );
       }
   }
@@ -381,7 +381,8 @@ export class ShipMounts implements Behavior {
     for (const i of this.#state.loadout) {
       const device = this.#devices.get(i.installationId)!;
       device.declare(
-        device.profile.kind === 'utility' ||
+        this.#state.equipment.find((e) => e.id === i.equipmentId)!.kind ===
+          'utility' ||
           (this.#firing && group.mountIds.includes(i.slotId)),
       );
     }

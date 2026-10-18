@@ -1,3 +1,7 @@
+import {
+  validateInternalsProfile,
+  validateProductionConfiguration,
+} from './ShipInternals.js';
 import { validateMountsProfile } from './ShipMounts.js';
 import {
   validateCargoProfile,
@@ -37,6 +41,8 @@ export async function loadShipSetup(
   const manifest = recordWithKeys(
     await readJson(url, fetcher),
     [
+      'internalsProfile',
+      'productionProfile',
       'mountsProfile',
       'cargoProfile',
       'id',
@@ -50,6 +56,14 @@ export async function loadShipSetup(
       'initialState',
     ],
     'Ship definition',
+  );
+  const internalsId = profileId(
+    manifest.internalsProfile,
+    'Internals reference',
+  );
+  const productionId = profileId(
+    manifest.productionProfile,
+    'Production reference',
   );
   const mountsId = profileId(manifest.mountsProfile, 'Mounts reference');
   const cargoId = profileId(manifest.cargoProfile, 'Cargo reference');
@@ -71,7 +85,11 @@ export async function loadShipSetup(
     readJson(new URL(`../profiles/${hullId}.json`, url), fetcher),
     readJson(new URL(`../profiles/${cargoId}.json`, url), fetcher),
     readJson(new URL(`../profiles/${mountsId}.json`, url), fetcher),
+    readJson(new URL(`../profiles/${internalsId}.json`, url), fetcher),
+    readJson(new URL(`../profiles/${productionId}.json`, url), fetcher),
   ]);
+  const internals = validateInternalsProfile(results[9]);
+  const production = validateProductionConfiguration(results[10]);
   const mounts = validateMountsProfile(results[8]);
   const cargo = validateCargoProfile(results[7]);
   const body = validateBodyProfile(results[0]);
@@ -82,6 +100,7 @@ export async function loadShipSetup(
   const shields = validateShieldProfile(results[5]);
   const hull = validateHullProfile(results[6]);
   if (
+    internals.id !== internalsId ||
     mounts.id !== mountsId ||
     cargo.id !== cargoId ||
     shields.id !== shieldId ||
@@ -134,6 +153,15 @@ export async function loadShipSetup(
       power.capacityJ,
     );
   }
+  for (const d of internals.definitions) {
+    validateThermalInstallation(cooling, d.thermal);
+    numberIn(
+      'Internal restartEnergyJ for reserve',
+      d.restartEnergyJ,
+      0,
+      power.capacityJ,
+    );
+  }
   validateThermalInstallation(cooling, cargo.thermal);
   validateThermalInstallation(cooling, power.thermal);
   validateThermalInstallation(cooling, engine.thermal);
@@ -154,6 +182,8 @@ export async function loadShipSetup(
       id,
       cargo,
       mounts,
+      internals,
+      production,
       body,
       power,
       engine,

@@ -1,3 +1,5 @@
+import type { Configuration } from 'production-workshop';
+import type { InternalsProfile } from './ShipInternals.js';
 import type { MountsProfile } from './ShipMounts.js';
 import { validateCaptureProfile } from './CaptureResponse.js';
 import type { CaptureProfile } from './CaptureResponse.js';
@@ -95,6 +97,8 @@ export interface HullProfile {
   damageCapacityJ: number;
 }
 export interface ShipProfile {
+  readonly internals: Readonly<InternalsProfile>;
+  readonly production: Readonly<Configuration>;
   readonly mounts: Readonly<MountsProfile>;
   readonly cargo: Readonly<CargoProfile>;
   readonly id: string;
