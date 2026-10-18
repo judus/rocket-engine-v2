@@ -5,9 +5,13 @@ import { numberIn, validateShieldProfile } from './ShipProfiles.js';
 import type { ShieldProfile } from './ShipProfiles.js';
 
 export interface ShieldReading {
+  readonly diverting: boolean;
+  readonly divertedJ: number;
+  readonly diversionReceivedJ: number;
+  readonly diversionLostJ: number;
   readonly requested: boolean;
   readonly active: boolean;
-  readonly state: 'off' | 'unpowered' | 'charging' | 'online';
+  readonly state: 'off' | 'unpowered' | 'charging' | 'online' | 'diverting';
   readonly energyJ: number;
   readonly capacityJ: number;
   readonly demandW: number;
@@ -27,6 +31,9 @@ export class ShipShields implements Behavior {
   #demandW = 0;
   #suppliedW = 0;
   #rechargeJ = 0;
+  #diverting = false;
+  #divertedJ = 0;
+  #diversionReceivedJ = 0;
   constructor(
     profile: Readonly<ShieldProfile>,
     private readonly power: ShipPowerPlant,
@@ -48,8 +55,42 @@ export class ShipShields implements Behavior {
     this.port();
     if (typeof value !== 'boolean')
       throw new TypeError('Shield request must be boolean');
+    if (value) this.cancelDiversion();
     this.#requested = value;
     if (!value) this.#active = false;
+  }
+  /** Explicit sacrifice: switch the field off until manually enabled again. */
+  startDiversion(): void {
+    this.port();
+    if (this.#diverting) return;
+    this.#requested = false;
+    this.#active = false;
+    this.#diverting = true;
+    this.#divertedJ = 0;
+    this.#diversionReceivedJ = 0;
+  }
+  cancelDiversion(): void {
+    this.port();
+    this.#diverting = false;
+  }
+  /** Runs after reactor recovery decisions, before load allocation. No pump power required. */
+  transfer(dt: number): void {
+    this.port();
+    if (!this.#diverting) return;
+    const offeredJ = Math.min(this.#energyJ, this.profile.diversionW * dt);
+    const receivedJ = this.power.receiveTransferredEnergy(
+      offeredJ * this.profile.diversionEfficiency,
+    );
+    const drawnJ = Math.min(
+      this.#energyJ,
+      receivedJ / this.profile.diversionEfficiency,
+    );
+    this.#energyJ -= drawnJ;
+    this.#divertedJ += drawnJ;
+    this.#diversionReceivedJ += receivedJ;
+    const reserve = this.power.telemetry;
+    if (this.#energyJ === 0 || reserve.energyJ === reserve.capacityJ)
+      this.#diverting = false;
   }
   declare(dt: number): void {
     const chargeJ = Math.min(
@@ -90,15 +131,21 @@ export class ShipShields implements Behavior {
   }
   get telemetry(): Readonly<ShieldReading> {
     return Object.freeze({
+      diverting: this.#diverting,
+      divertedJ: this.#divertedJ,
+      diversionReceivedJ: this.#diversionReceivedJ,
+      diversionLostJ: this.#divertedJ - this.#diversionReceivedJ,
       requested: this.#requested,
       active: this.#active,
-      state: !this.#requested
-        ? 'off'
-        : !this.#active
-          ? 'unpowered'
-          : this.#energyJ < this.profile.capacityJ
-            ? 'charging'
-            : 'online',
+      state: this.#diverting
+        ? 'diverting'
+        : !this.#requested
+          ? 'off'
+          : !this.#active
+            ? 'unpowered'
+            : this.#energyJ < this.profile.capacityJ
+              ? 'charging'
+              : 'online',
       energyJ: this.#energyJ,
       capacityJ: this.profile.capacityJ,
       demandW: this.#demandW,
@@ -111,5 +158,6 @@ export class ShipShields implements Behavior {
     this.#port?.dispose();
     this.#port = undefined;
     this.#active = false;
+    this.#diverting = false;
   }
 }

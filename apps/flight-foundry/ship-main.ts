@@ -129,7 +129,7 @@ function reset(): void {
   find('#damper-thermal-specs').textContent =
     `Damper thermal capacity ${p.dampers.thermal.heatCapacityJPerK / 1e6} MJ/K · ${p.dampers.thermal.wasteHeatFraction * 100}% supplied-power losses · trip ${(p.dampers.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.dampers.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · manual start ${p.dampers.thermal.manualStartSeconds} s / thermal reboot ${p.dampers.thermal.rebootSeconds} s. The cooler shares one removal budget across reactor, engine and dampers.`;
   find('#shield-specs').textContent =
-    `Shields: ${p.shields.capacityJ / 1e9} GJ capacity · ${p.shields.baselineW / 1e6} MW maintenance · ${p.shields.rechargeW / 1e6} MW recharge input at ${p.shields.rechargeEfficiency * 100}% efficiency · ${p.shields.rechargeDelaySeconds} s recharge delay after a hit. Hull: ${p.hull.damageCapacityJ / 1e9} GJ damage capacity. Prototype values; shield heat and emergency energy diversion follow separately.`;
+    `Shields: ${p.shields.capacityJ / 1e9} GJ capacity · ${p.shields.baselineW / 1e6} MW maintenance · ${p.shields.rechargeW / 1e6} MW recharge input at ${p.shields.rechargeEfficiency * 100}% efficiency · ${p.shields.rechargeDelaySeconds} s recharge delay after a hit. Hull: ${p.hull.damageCapacityJ / 1e9} GJ damage capacity. Diversion: ${p.shields.diversionW / 1e9} GJ/s from shields at ${p.shields.diversionEfficiency * 100}% efficiency. Shield heat follows separately; prototype tuning.`;
   find('#reactor-specs').textContent =
     `Reactor trip ${(p.power.thermal.tripTemperatureK - 273.15).toFixed(1)} °C / restart below ${(p.power.thermal.restartTemperatureK - 273.15).toFixed(1)} °C · normal thermal reboot ${p.power.thermal.rebootSeconds} s / independent emergency start ${p.power.recovery.emergencyStartSeconds} s · emergency output ${p.power.recovery.emergencyOutputFraction * 100}% until ${(p.power.recovery.restoreReserveFraction * 100).toFixed(1)}% reserve · passive heat loss up to ${p.power.recovery.passiveCoolingW / 1e6} MW. Lab tuning.`;
   paint();
@@ -194,6 +194,14 @@ function paint(): void {
     t.hull.remainingJ / t.hull.capacityJ;
   find('#shield-state').textContent =
     `Shields ${t.shields.state} · ${t.shields.active ? 'field powered' : 'NO PROTECTION'} · stored ${fmt(t.shields.energyJ / 1e9)} / ${fmt(t.shields.capacityJ / 1e9)} GJ · supply ${fmt(t.shields.suppliedW / 1e6)} MW · recharge delay ${fmt(t.shields.rechargeDelaySeconds)} s.`;
+  const shieldCommands = ship.shields.telemetry;
+  find<HTMLInputElement>('#shields').checked = shieldCommands.requested;
+  find<HTMLButtonElement>('#divert-shields').disabled =
+    shieldCommands.diverting || shieldCommands.energyJ === 0;
+  find<HTMLButtonElement>('#cancel-diversion').disabled =
+    !shieldCommands.diverting;
+  find('#diversion-state').textContent =
+    `Diversion ${t.shields.diverting ? 'ACTIVE — no protection' : 'idle'} · last/current transfer: drawn ${fmt(t.shields.divertedJ / 1e9)} GJ → reserve ${fmt(t.shields.diversionReceivedJ / 1e9)} GJ · conversion loss ${fmt(t.shields.diversionLostJ / 1e9)} GJ. This tick received ${fmt(t.power.receivedEnergyJ / 1e9)} GJ.`;
   find('#damage-state').textContent =
     `Hull ${t.hull.breached ? 'BREACHED' : `${fmt((t.hull.remainingJ / t.hull.capacityJ) * 100)}%`} · last hit ${fmt(t.hull.incomingJ / 1e9)} GJ → shields ${fmt(t.hull.shieldAbsorbedJ / 1e9)} / hull ${fmt(t.hull.hullDamageJ / 1e9)} / excess ${fmt(t.hull.excessJ / 1e9)} GJ.`;
   find('#state').textContent = running ? 'RUNNING' : 'PAUSED';
@@ -237,6 +245,18 @@ find('#dampers').addEventListener('change', () =>
 find('#cooling').addEventListener('change', () =>
   ship.cooling.requestEnabled(find<HTMLInputElement>('#cooling').checked),
 );
+find('#divert-shields').addEventListener('click', () => {
+  ship.shields.startDiversion();
+  find('#message').textContent =
+    'Diversion requested. Shields switched off. Run or Single step advances the transfer.';
+  paint();
+});
+find('#cancel-diversion').addEventListener('click', () => {
+  ship.shields.cancelDiversion();
+  find('#message').textContent =
+    'Diversion cancelled. Shields remain off until enabled.';
+  paint();
+});
 find('#shields').addEventListener('change', () =>
   ship.shields.requestEnabled(find<HTMLInputElement>('#shields').checked),
 );

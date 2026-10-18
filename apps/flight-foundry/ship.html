@@ -204,6 +204,17 @@
         <p id="shield-state" class="muted"></p>
         <p id="damage-state" class="muted"></p>
         <div class="toolbar">
+          <button id="divert-shields" type="button">Divert shield energy</button
+          ><button id="cancel-diversion" type="button">Cancel diversion</button>
+        </div>
+        <p id="diversion-state" class="muted"></p>
+        <p class="muted">
+          Diversion switches shields off and needs no reactor power. Run or
+          Single step to transfer stored energy. It stops when shields empty or
+          the reserve fills. Re-enable shields manually to restore protection;
+          enabling them also cancels diversion.
+        </p>
+        <div class="toolbar">
           <button id="hit-small" type="button">Test hit · 2 GJ</button
           ><button id="hit-large" type="button">Test hit · 12 GJ</button>
         </div>

@@ -31,6 +31,7 @@ export interface PowerReading {
   readonly passiveRemovedHeatW: number;
   readonly energyJ: number;
   readonly capacityJ: number;
+  readonly receivedEnergyJ: number;
   readonly generationW: number;
   readonly consumptionW: number;
   readonly spillW: number;
@@ -57,6 +58,7 @@ export class ShipPowerPlant implements Behavior {
   #startupDemandW = 0;
   #startupSuppliedW = 0;
   #passiveRemovedHeatW = 0;
+  #receivedEnergyJ = 0;
   readonly profile: Readonly<PowerPlantProfile>;
   constructor(
     profile: Readonly<PowerPlantProfile>,
@@ -107,6 +109,7 @@ export class ShipPowerPlant implements Behavior {
   }
   beginStep(): void {
     this.live();
+    this.#receivedEnergyJ = 0;
     const reserve = this.#world.get(this.#ship, EnergyReserve)!;
     if (
       !this.#emergency &&
@@ -213,6 +216,16 @@ export class ShipPowerPlant implements Behavior {
       },
     });
   }
+  /** Credits only reserve headroom; the source must debit the returned amount. */
+  receiveTransferredEnergy(energyJ: number): number {
+    this.live();
+    numberIn('Transferred energyJ', energyJ, 0);
+    const reserve = this.#world.get(this.#ship, EnergyReserve)!;
+    const receivedJ = Math.min(energyJ, reserve.capacityJ - reserve.energyJ);
+    reserve.energyJ += receivedJ;
+    this.#receivedEnergyJ += receivedJ;
+    return receivedJ;
+  }
   allocate(dt: number): void {
     this.live();
     shipPowerSystem(this.#world, dt);
@@ -244,6 +257,7 @@ export class ShipPowerPlant implements Behavior {
       passiveRemovedHeatW: this.#passiveRemovedHeatW,
       energyJ: p.energyJ,
       capacityJ: p.capacityJ,
+      receivedEnergyJ: this.#receivedEnergyJ,
       generationW: p.generationW,
       consumptionW: p.consumptionW,
       spillW: p.spillW,

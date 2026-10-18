@@ -60,6 +60,8 @@ export interface DamperProfile {
   capture: Readonly<CaptureProfile>;
 }
 export interface ShieldProfile {
+  diversionW: number;
+  diversionEfficiency: number;
   id: string;
   capacityJ: number;
   baselineW: number;
@@ -397,6 +399,8 @@ export function validateShieldProfile(value: unknown): Readonly<ShieldProfile> {
       'capacityJ',
       'baselineW',
       'rechargeW',
+      'diversionW',
+      'diversionEfficiency',
       'rechargeEfficiency',
       'rechargeDelaySeconds',
       'restartEnergyJ',
@@ -408,6 +412,13 @@ export function validateShieldProfile(value: unknown): Readonly<ShieldProfile> {
     capacityJ: readNumber(p, 'capacityJ', 1),
     baselineW: readNumber(p, 'baselineW', Number.MIN_VALUE),
     rechargeW: readNumber(p, 'rechargeW', Number.MIN_VALUE),
+    diversionW: readNumber(p, 'diversionW', Number.MIN_VALUE),
+    diversionEfficiency: readNumber(
+      p,
+      'diversionEfficiency',
+      Number.MIN_VALUE,
+      1,
+    ),
     rechargeEfficiency: readNumber(
       p,
       'rechargeEfficiency',

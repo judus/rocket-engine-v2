@@ -27,6 +27,8 @@ function make(outputW = 100) {
       cooling: { ...p.cooling, restartEnergyJ: 0 },
       shields: {
         id: 'test-shield',
+        diversionW: 20,
+        diversionEfficiency: 0.8,
         capacityJ: 100,
         baselineW: 2,
         rechargeW: 20,
@@ -215,4 +217,139 @@ void test('Bad damage/profile inputs fail before mutation, lifetimes retire port
   assert.throws(() =>
     validateHullProfile({ ...starterSetup.profile.hull, damageCapacityJ: 0 }),
   );
+});
+
+void test('Diversion debits stored energy at its configured rate, credits efficiency-adjusted energy once, and collapses protection', () => {
+  const ship = make();
+  ship.shields.requestEnabled(true);
+  step(ship, 5);
+  ship.power.requestEnabled(false);
+  const before = ship.telemetry;
+  ship.shields.startDiversion();
+  ship.shields.startDiversion(); // repeated requests cannot reset an active transfer
+  assert.equal(ship.telemetry, before); // commands do not advance simulation
+  ship.hull.hit(5);
+  step(ship);
+  close(ship.telemetry.shields.energyJ, 30);
+  close(ship.telemetry.power.energyJ, before.power.energyJ + 16);
+  close(ship.telemetry.power.receivedEnergyJ, 16);
+  close(ship.telemetry.shields.divertedJ, 20);
+  close(ship.telemetry.shields.diversionLostJ, 4);
+  close(ship.telemetry.shields.suppliedW, 0);
+  close(ship.telemetry.shields.demandW, 0);
+  close(ship.telemetry.hull.hullDamageJ, 5);
+  assert.equal(ship.telemetry.shields.state, 'diverting');
+  step(ship, 2);
+  close(ship.telemetry.shields.energyJ, 0);
+  close(ship.telemetry.shields.divertedJ, 50);
+  close(ship.telemetry.shields.diversionReceivedJ, 40);
+  close(ship.telemetry.shields.diversionLostJ, 10);
+  assert.equal(ship.telemetry.shields.diverting, false);
+  assert.equal(ship.telemetry.shields.requested, false);
+  step(ship);
+  close(ship.telemetry.power.receivedEnergyJ, 0);
+  close(ship.telemetry.shields.rechargeJ, 0);
+  ship.dispose();
+});
+void test('Diversion into a nearly full reserve only debits accepted energy; cancellation retains the rest and re-enabling cancels diversion', () => {
+  const ship = make();
+  ship.shields.requestEnabled(true);
+  step(ship, 10); // reserve 780 J, shields 100 J
+  ship.shields.requestEnabled(false);
+  ship.power.receiveTransferredEnergy(215); // reserve 995; owning ledger accepts 215
+  ship.power.requestEnabled(false);
+  ship.shields.startDiversion();
+  step(ship);
+  close(ship.telemetry.power.energyJ, 1000);
+  close(ship.telemetry.power.receivedEnergyJ, 5);
+  close(ship.telemetry.shields.energyJ, 93.75);
+  close(ship.telemetry.shields.diversionLostJ, 1.25);
+  assert.equal(ship.telemetry.shields.diverting, false);
+  ship.shields.startDiversion(); // already full: no energy discarded
+  step(ship);
+  close(ship.telemetry.shields.energyJ, 93.75);
+  close(ship.telemetry.shields.divertedJ, 0);
+  ship.shields.startDiversion();
+  ship.shields.cancelDiversion();
+  step(ship);
+  close(ship.telemetry.power.receivedEnergyJ, 0);
+  ship.shields.startDiversion();
+  ship.shields.requestEnabled(true);
+  step(ship);
+  assert.equal(ship.telemetry.shields.diverting, false);
+  assert.equal(ship.telemetry.shields.active, true);
+  close(ship.telemetry.power.receivedEnergyJ, 0);
+  ship.dispose();
+});
+void test('Empty-reserve diversion powers actual loads without a working reactor and cannot bypass emergency startup', () => {
+  const ship = make();
+  ship.shields.requestEnabled(true);
+  step(ship, 5);
+  ship.power.requestEnabled(false);
+  const drain = ship.power.connect(0, 'utility');
+  drain.request(true, 10000);
+  step(ship);
+  close(ship.telemetry.power.energyJ, 0);
+  const stored = ship.telemetry.shields.energyJ;
+  drain.request(true, 8);
+  ship.shields.startDiversion();
+  step(ship);
+  assert.equal(ship.telemetry.power.emergency, true);
+  close(ship.telemetry.power.generationW, 0);
+  close(ship.telemetry.power.receivedEnergyJ, 16);
+  close(drain.delivery().suppliedW, 8);
+  close(ship.telemetry.power.energyJ, 8);
+  close(ship.telemetry.shields.energyJ, stored - 20);
+  close(
+    ship.telemetry.power.thermal.restartRemainingSeconds,
+    ship.power.profile.recovery.emergencyStartSeconds,
+  );
+  const remaining = ship.telemetry.shields.energyJ;
+  ship.dispose();
+  assert.throws(() => ship.shields.startDiversion(), /attached/);
+  assert.throws(() => ship.shields.cancelDiversion(), /attached/);
+  assert.throws(() => ship.power.receiveTransferredEnergy(1), /disposed/);
+  close(ship.telemetry.shields.energyJ, remaining);
+});
+void test('Diversion conservation includes concurrent reactor generation, consumption and spill across different tick sizes', () => {
+  for (const dt of [1, 0.1, 1 / 60]) {
+    const ship = make();
+    ship.shields.requestEnabled(true);
+    step(ship, 5);
+    ship.shields.startDiversion();
+    let drawnJ = 0;
+    for (let i = 0; i < Math.ceil(3 / dt); i++) {
+      const before = ship.telemetry;
+      step(ship, 1, dt);
+      const after = ship.telemetry;
+      close(
+        after.power.energyJ - before.power.energyJ,
+        after.power.receivedEnergyJ +
+          (after.power.generationW -
+            after.power.consumptionW -
+            after.power.spillW) *
+            dt,
+      );
+      drawnJ += before.shields.energyJ - after.shields.energyJ;
+      close(
+        drawnJ,
+        after.shields.diversionReceivedJ + after.shields.diversionLostJ,
+      );
+      close(after.shields.demandW, 0);
+    }
+    close(ship.telemetry.shields.energyJ, 0);
+    ship.dispose();
+  }
+});
+void test('Invalid transferred energy leaves the reserve unchanged; empty diversion is harmless', () => {
+  const ship = make();
+  for (const value of [-1, NaN, Infinity])
+    assert.throws(() => ship.power.receiveTransferredEnergy(value));
+  close(ship.power.telemetry.energyJ, 0);
+  ship.shields.startDiversion();
+  step(ship);
+  close(ship.telemetry.shields.divertedJ, 0);
+  close(ship.telemetry.power.receivedEnergyJ, 0);
+  assert.equal(ship.telemetry.shields.diverting, false);
+  ship.dispose();
 });
