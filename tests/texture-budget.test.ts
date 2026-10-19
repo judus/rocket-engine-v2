@@ -46,19 +46,20 @@ void test('browser model decode budgets pass through isolated asset pools withou
   );
   let opened = 0,
     closed = 0;
+  let bitmapWidth = 2;
   let noContext = false,
     httpOk = true;
   class DecodeCanvas {
+    constructor(
+      readonly width: number,
+      readonly height: number,
+    ) {}
     getContext() {
       if (noContext) return null;
       return {
         drawImage() {},
-        getImageData() {
-          return {
-            data: new Uint8ClampedArray([
-              1, 2, 3, 255, 4, 5, 6, 255, 7, 8, 9, 255, 10, 11, 12, 255,
-            ]),
-          };
+        getImageData(_x: number, _y: number, width: number, height: number) {
+          return { data: new Uint8ClampedArray(width * height * 4).fill(255) };
         },
       };
     }
@@ -68,7 +69,7 @@ void test('browser model decode budgets pass through isolated asset pools withou
     value: () => {
       opened++;
       return Promise.resolve({
-        width: 2,
+        width: bitmapWidth,
         height: 2,
         close() {
           closed++;
@@ -106,6 +107,28 @@ void test('browser model decode budgets pass through isolated asset pools withou
     assert.equal(
       (await decodeTextureImage(new Blob(), { maxPixels: 4 })).width,
       2,
+    );
+    for (const maxDimension of [0, -1, 0.5, Infinity, NaN])
+      await assert.rejects(
+        decodeTextureImage(new Blob(), { maxDimension }),
+        /dimension limit/,
+      );
+    bitmapWidth = 8;
+    const wide = await decodeTextureImage(new Blob(), { maxDimension: 4 });
+    assert.equal(wide.width, 4);
+    assert.equal(wide.height, 1);
+    bitmapWidth = 2;
+    const small = await decodeTextureImage(new Blob(), { maxDimension: 1 });
+    assert.equal(small.width, 1);
+    assert.equal(small.height, 1);
+    const unchanged = await decodeTextureImage(new Blob(), {
+      maxDimension: 4096,
+    });
+    assert.equal(unchanged.width, 2);
+    assert.equal(unchanged.height, 2);
+    await assert.rejects(
+      decodeTextureImage(new Blob(), { maxDimension: 1, maxPixels: 3 }),
+      /pixel budget/,
     );
     await assert.rejects(
       decodeTexturedGlb(bytes, { maxTotalPixels: 0 }),
@@ -159,6 +182,7 @@ void test('browser model decode budgets pass through isolated asset pools withou
     view.setUint32(24 + padded, 0x004e4942, true);
     raw.set(binary, 28 + padded);
     await assert.rejects(decodeTexturedGlb(packed), /32 image budget/);
+    const fittedPool = new WebGLAssets({ maxTextureDimension: 1 });
     const defaultPool = new WebGLAssets(),
       restricted = new WebGLAssets({ maxImagePixels: 3, maxTexturePixels: 3 }),
       large = new WebGLAssets({
@@ -179,6 +203,10 @@ void test('browser model decode budgets pass through isolated asset pools withou
         restricted.acquireTexture('/sky-linear.png', { colorSpace: 'linear' }),
         /exceeds pixel budget/,
       );
+      const fitted = await fittedPool.acquireTexture('/sky.png');
+      assert.equal(fitted.value.width, 1);
+      assert.equal(fitted.value.height, 1);
+      fitted.dispose();
       const sky = await large.acquireTexture('/sky.png');
       const linearSky = await large.acquireTexture('/sky-linear.png', {
         colorSpace: 'linear',
@@ -197,6 +225,7 @@ void test('browser model decode budgets pass through isolated asset pools withou
       normal.dispose();
       big.dispose();
     } finally {
+      fittedPool.dispose();
       defaultPool.dispose();
       restricted.dispose();
       large.dispose();

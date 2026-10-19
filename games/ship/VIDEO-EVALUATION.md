@@ -82,3 +82,13 @@ the default. Video settings now expose Full, No normal maps and Scalar PBR;
 diffuse remains comparison-only. Switching rebuilds the renderer on resume and
 releases the previous GPU resources without recreating the ship. Preferences
 persist, with an explicit one-time migration of resolution-only records to Full.
+
+## Sky texture compatibility
+
+The ship fits its standalone sky texture to the context's `MAX_TEXTURE_SIZE`
+at decode time, keeping the panorama's aspect ratio. Devices that support the
+10,000 × 5,000 source retain full resolution; smaller GPU limits receive a
+smaller CPU image and upload. This is automatic hardware compatibility, independent
+of material quality and render scale. The original artwork stays unchanged.
+Source decoding still obeys the explicit pixel budget and briefly holds the source
+bitmap; this does not reduce download size or guarantee mobile memory availability.

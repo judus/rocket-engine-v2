@@ -26,13 +26,18 @@ export async function createCockpitView(
   signal.throwIfAborted();
   const loading = new AbortController();
   const assetSignal = AbortSignal.any([signal, loading.signal]);
-  const assets = new WebGLAssets({ maxTexturePixels: 67108864 });
   const surface = new WebGLSurface({
     target: host,
     scene,
     label:
       'Spaceship cockpit. Click to fly; use Systems for displays or Menu for settings.',
     onError,
+  });
+  const assets = new WebGLAssets({
+    maxTexturePixels: 67108864,
+    maxTextureDimension: surface.gl.getParameter(
+      surface.gl.MAX_TEXTURE_SIZE,
+    ) as number,
   });
   const base = new URL('../../../', import.meta.url);
   try {

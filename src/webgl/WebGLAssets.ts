@@ -9,12 +9,21 @@ export class WebGLAssets {
     maxImagePixels,
     maxTotalPixels,
     maxTexturePixels,
+    maxTextureDimension,
   }: Omit<GlbDecodeOptions, 'signal'> & {
     /** Standalone texture decode budget, separate from embedded model images. */
     readonly maxTexturePixels?: number;
+    /** Optional standalone texture output limit, e.g. the destination GPU capability. */
+    readonly maxTextureDimension?: number;
   } = {}) {
-    const textureOptions =
-      maxTexturePixels === undefined ? {} : { maxPixels: maxTexturePixels };
+    const textureOptions = {
+      ...(maxTexturePixels === undefined
+        ? {}
+        : { maxPixels: maxTexturePixels }),
+      ...(maxTextureDimension === undefined
+        ? {}
+        : { maxDimension: maxTextureDimension }),
+    };
     this.#textures = new AssetPool((url, signal) =>
       loadTextureImage(url, { signal, ...textureOptions }),
     );
