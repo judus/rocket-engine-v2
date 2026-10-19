@@ -6,6 +6,7 @@ import {
   saveControls,
   readControls,
   controlPreset,
+  virtualMode,
   settingsKey,
 } from '../games/ship/ControlSettings.js';
 import { ActionContext } from '../src/ActionContext.js';
@@ -121,4 +122,30 @@ void test('Retained flight pauses the entire ship in Settings and resumes the sa
   assert.ok(ship.telemetry.body.positionM.z > committed.body.positionM.z);
   await navigation.dispose();
   assert.equal(ship.disposed, true);
+});
+
+void test('Ship automatic controls use touch sticks without pointer lock and preserve explicit choices', () => {
+  const settings = defaultControls();
+  assert.equal(settings.virtual, 'auto');
+  assert.equal(virtualMode(settings, true), 'analog');
+  assert.equal(controlPreset(settings, true).capture, 'focus');
+  assert.equal(virtualMode(settings, false), 'off');
+  assert.equal(controlPreset(settings, false).capture, 'pointer-lock');
+  for (const mode of ['off', 'analog', 'digital'] as const) {
+    settings.virtual = mode;
+    assert.equal(virtualMode(settings, true), mode);
+    assert.equal(virtualMode(settings, false), mode);
+    assert.equal(
+      controlPreset(settings, true).capture,
+      mode === 'off' ? 'pointer-lock' : 'focus',
+    );
+  }
+  settings.virtual = 'auto';
+  const saved = saveControls({ setItem() {} }, settings);
+  assert.equal(saved.virtual, 'auto');
+  assert.equal(
+    settings.steering,
+    'mouse',
+    'device policy leaves the saved steering choice intact',
+  );
 });

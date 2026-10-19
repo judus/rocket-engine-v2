@@ -738,3 +738,18 @@ copied unchanged into `assets/farwake-wastebound-v3-uppercase.png`. The original
 outside the repository is retained. Launch/Resume and Settings remain HTML controls;
 portrait screens fit the complete artwork above the controls instead of cropping
 the title off-screen.
+
+### Touch-first controls and cockpit framing
+
+Virtual controllers default to Automatic: a primary coarse pointer selects analog
+sticks and focus-based input without requiring mouse pointer lock. Desktop defaults
+to mouse/keyboard. Off, Analog and Digital remain explicit persisted overrides;
+existing saved choices are preserved. Select Automatic in Controls to opt back in.
+Touch detection occurs at startup. The game supplies larger sticks and 56px action
+buttons on touch layouts, safe-area padding, and a compact portrait arrangement.
+
+The cockpit viewport fits a centered 16:9 frame with letterboxing/pillarboxing
+instead of exposing the asset's open sides on ultrawide screens. Menus and touch
+controls use the whole device screen; input and display hit testing continue to
+use the actual canvas bounds. Portrait play remains available, though landscape
+provides the intended cockpit view. Real phone usability still needs device tests.

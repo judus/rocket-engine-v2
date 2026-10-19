@@ -30,7 +30,7 @@ export interface ControlSettings {
   steering: 'keyboard' | 'mouse';
   sensitivity: number;
   invertPitch: boolean;
-  virtual: 'off' | 'analog' | 'digital';
+  virtual: 'auto' | 'off' | 'analog' | 'digital';
   bindings: Record<string, InputBinding>;
 }
 export const settingsKey = 'rocket.first-flight.controls';
@@ -39,7 +39,7 @@ export function defaultControls(): ControlSettings {
     steering: 'mouse',
     sensitivity: 1,
     invertPitch: false,
-    virtual: 'off',
+    virtual: 'auto',
     bindings: Object.fromEntries(
       controls.map(([id, , binding]) => [id, structuredClone(binding)]),
     ),
@@ -60,7 +60,7 @@ export function validateControls(value: unknown): ControlSettings {
     v.sensitivity < 0.1 ||
     v.sensitivity > 3 ||
     typeof v.invertPitch !== 'boolean' ||
-    !['off', 'analog', 'digital'].includes(String(v.virtual)) ||
+    !['auto', 'off', 'analog', 'digital'].includes(String(v.virtual)) ||
     !v.bindings ||
     typeof v.bindings !== 'object' ||
     Array.isArray(v.bindings)
@@ -113,14 +113,32 @@ export function saveControls(
   storage.setItem(settingsKey, JSON.stringify(settings));
   return settings;
 }
-export function controlPreset(settings: ControlSettings): InputPreset {
+/** Resolve device policy without replacing the user's persisted choice. */
+export function virtualMode(
+  settings: ControlSettings,
+  touchFirst: boolean,
+): 'off' | 'analog' | 'digital' {
+  return settings.virtual === 'auto'
+    ? touchFirst
+      ? 'analog'
+      : 'off'
+    : settings.virtual;
+}
+export function controlPreset(
+  settings: ControlSettings,
+  touchFirst = false,
+): InputPreset {
   const b = settings.bindings;
   const axis = (negative: string, positive: string) => ({
     kind: 'axis' as const,
     mapping: { negative: b[negative]!, positive: b[positive]! },
   });
   return {
-    capture: settings.steering === 'mouse' ? 'pointer-lock' : 'focus',
+    capture:
+      settings.steering === 'mouse' &&
+      virtualMode(settings, touchFirst) === 'off'
+        ? 'pointer-lock'
+        : 'focus',
     actions: {
       forward: axis('reverse', 'forward'),
       right: axis('left', 'right'),

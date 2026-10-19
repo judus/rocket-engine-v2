@@ -6,6 +6,7 @@ import { loadShipSetup } from './loadShipSetup.js';
 import { createCockpitView } from './CockpitView.js';
 import {
   controlPreset,
+  virtualMode,
   defaultControls,
   readControls,
   bindingLabel,
@@ -59,7 +60,9 @@ async function start(): Promise<void> {
   let binding: ReturnType<ActionContext['bind']>;
   let mouseYaw = 0,
     mousePitch = 0;
+  const touchFirst = window.matchMedia('(pointer: coarse)').matches;
   let preferences = defaultControls();
+  const activeVirtualMode = () => virtualMode(preferences, touchFirst);
   let controlPreferenceError = '';
   let videoPreferenceError = '';
   const preferenceError = () =>
@@ -134,7 +137,7 @@ async function start(): Promise<void> {
           entry.hidden = navigator.current !== 'menu';
           settingsRoot.hidden = navigator.current !== 'settings';
           touch.hidden =
-            !inFlight || preferences.virtual === 'off' || usingSystems;
+            !inFlight || activeVirtualMode() === 'off' || usingSystems;
           element<HTMLElement>('nav').hidden = !inFlight;
           feedback.hidden = !inFlight;
           if (!inFlight) {
@@ -169,7 +172,7 @@ async function start(): Promise<void> {
   );
   const setSystems = (active: boolean) => {
     usingSystems = active;
-    touch.hidden = active || preferences.virtual === 'off';
+    touch.hidden = active || activeVirtualMode() === 'off';
     actions.setEnabled(!active);
     systems.textContent = active
       ? 'Return to flight'
@@ -184,7 +187,7 @@ async function start(): Promise<void> {
   };
   const configure = () => {
     actions?.dispose();
-    actions = input.actions(stage).use(controlPreset(preferences));
+    actions = input.actions(stage).use(controlPreset(preferences, touchFirst));
     mouseYaw = mousePitch = 0;
     actions.on('lookX', (event) => {
       mouseYaw = event.cancelled
@@ -227,7 +230,8 @@ async function start(): Promise<void> {
       return undefined;
     });
     binding = actions.bind(view!.surface);
-    if (preferences.virtual !== 'off') {
+    const mode = activeVirtualMode();
+    if (mode !== 'off') {
       const corners = createVirtualCornerPreset(
         {
           sticks: [
@@ -245,13 +249,13 @@ async function start(): Promise<void> {
             { label: 'Menu', action: 'release' },
           ],
         },
-        preferences.virtual,
+        mode,
       );
       for (const corner of [corners.left, corners.right])
         actions.virtual({
           target: touch,
           corner,
-          theme: { color: '#fff', opacity: 0.5, size: 104 },
+          theme: { color: '#fff', opacity: 0.5 },
         });
     }
     actions.setEnabled(false);

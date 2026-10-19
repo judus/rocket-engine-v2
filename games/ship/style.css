@@ -16,10 +16,19 @@ body {
 [hidden] {
   display: none !important;
 }
-#game,
-#viewport {
+#game {
   position: fixed;
   inset: 0;
+}
+/* The cockpit asset is authored for this view; do not reveal its open sides. */
+#viewport {
+  position: absolute;
+  width: min(100vw, 177.777778dvh);
+  height: min(100dvh, 56.25vw);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
 }
 #viewport canvas {
   outline: none;
@@ -320,5 +329,37 @@ output {
   #entry {
     background: #02080b url('./assets/farwake-wastebound-v3-uppercase.png')
       center top / 100% auto no-repeat;
+  }
+}
+
+/* Game-specific layout: engine controllers stay independently customizable. */
+#touch-controls .rocket-virtual-controls {
+  --virtual-size: 104px;
+  --virtual-button-size: 48px;
+}
+@media (pointer: coarse) {
+  #touch-controls {
+    padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom)
+      env(safe-area-inset-left);
+  }
+  #touch-controls .rocket-virtual-controls {
+    --virtual-size: clamp(112px, 22vw, 160px);
+    --virtual-button-size: 56px;
+  }
+  #touch-controls .rocket-virtual-corner .rocket-virtual-buttons button {
+    font-size: 12px;
+  }
+  #game > nav button {
+    min-height: 48px;
+  }
+}
+@media (pointer: coarse) and (max-width: 480px) {
+  #touch-controls .rocket-virtual-controls {
+    --virtual-size: clamp(96px, 27vw, 128px);
+    --virtual-button-size: 48px;
+  }
+  #touch-controls .rocket-virtual-corner {
+    gap: 4px;
+    padding-inline: 0;
   }
 }
