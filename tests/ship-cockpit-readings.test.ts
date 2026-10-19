@@ -25,7 +25,7 @@ void test('Cockpit presents independent hull, stored shield charge and reserve w
     assert.equal(reading.overhead[0]!.fraction, 0.5);
     assert.equal(reading.overhead[0]!.warning, true);
     assert.equal(reading.overhead[1]!.fraction, 1);
-    assert.match(reading.overhead[1]!.footer, /OFF.*FIELD DOWN/);
+    assert.equal(reading.overhead[1]!.label, 'SHIELDS OFF');
     assert.equal(reading.overhead[1]!.muted, true);
     assert.equal(reading.overhead[2]!.fraction, 0.05);
     assert.equal(reading.overhead[2]!.warning, true);
@@ -58,7 +58,11 @@ void test('Cockpit selects hottest module and committed alert priority, with hon
       })),
     });
     assert.match(reading.heat, /200°C/);
-    assert.match(reading.overhead[0]!.footer, /THERMAL SHUTDOWN/);
+    assert.equal(
+      reading.overhead[0]!.warning,
+      false,
+      'thermal alarms do not change the hull indicator',
+    );
     assert.equal(reading.alert, alerts[0]!.message);
     assert.equal(reading.critical, true);
     const empty = cockpitReadings(

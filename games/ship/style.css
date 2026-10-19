@@ -425,6 +425,12 @@ output {
 }
 
 #flight-hud {
+  /* Compose all readouts, warning colors and glow as one translucent layer. */
+  --hud-opacity: 0.55;
+  --hud-tilt: -6deg;
+  opacity: var(--hud-opacity);
+  transform: perspective(900px) rotateX(var(--hud-tilt));
+  transform-origin: 50% 0;
   position: absolute;
   z-index: 1;
   top: 17%;
@@ -433,7 +439,7 @@ output {
   display: grid;
   grid-template-columns: 1fr 1.4fr 1fr;
   gap: 1rem;
-  color: #86ead6b3;
+  color: #86ead6;
   text-shadow:
     0 0 7px #86ead655,
     0 1px 3px #000;

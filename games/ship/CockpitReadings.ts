@@ -16,7 +16,6 @@ export function cockpitReadings(
         : hot,
     undefined,
   );
-  const thermalTrip = c.alerts.find((alert) => alert.id.endsWith('/thermal'));
   const heat = hottest
     ? `${hottest.label.toUpperCase()} ${(hottest.temperatureK! - 273.15).toFixed(0)}°C`
     : 'NO THERMAL DATA';
@@ -34,14 +33,12 @@ export function cockpitReadings(
       {
         label: 'HULL',
         fraction: t.hull.remainingJ / t.hull.capacityJ,
-        footer: thermalTrip ? 'THERMAL SHUTDOWN' : `HOT: ${heat}`,
-        warning: t.hull.remainingJ < t.hull.capacityJ || !!thermalTrip,
+        warning: t.hull.remainingJ < t.hull.capacityJ,
         muted: false,
       },
       {
-        label: 'SHIELDS',
+        label: t.shields.active ? 'SHIELDS' : 'SHIELDS OFF',
         fraction: t.shields.energyJ / t.shields.capacityJ,
-        footer: `${t.shields.state.toUpperCase()}${t.shields.active ? '' : ' / FIELD DOWN'}`,
         warning: ['failed', 'overheated', 'unpowered'].includes(
           t.shields.state,
         ),
@@ -50,7 +47,6 @@ export function cockpitReadings(
       {
         label: 'ENERGY',
         fraction: c.reserveFraction,
-        footer: `DRAW ${(c.consumptionW / 1e9).toFixed(2)} GW`,
         warning: c.reserveFraction <= 0.1,
         muted: false,
       },

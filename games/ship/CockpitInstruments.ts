@@ -115,22 +115,19 @@ export class CockpitInstruments {
       const reading = this.#status.overhead[i]!;
       const color = reading.warning ? amber : reading.muted ? muted : cyan;
       ctx.fillStyle = color;
-      ctx.font = 'bold 27px monospace';
+      ctx.font = 'bold 30px monospace';
       ctx.textAlign = 'left';
-      ctx.fillText(reading.label, 18, 24);
+      ctx.fillText(reading.label, 18, 30);
       ctx.textAlign = 'right';
       ctx.fillText(
         `${(reading.fraction * 100).toFixed(0)}%`,
         canvas.width - 18,
-        24,
+        30,
       );
       ctx.fillStyle = '#15312e';
-      ctx.fillRect(18, 46, canvas.width - 36, 13);
+      ctx.fillRect(18, 61, canvas.width - 36, 17);
       ctx.fillStyle = color;
-      ctx.fillRect(18, 46, (canvas.width - 36) * reading.fraction, 13);
-      ctx.font = 'bold 17px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(reading.footer, canvas.width / 2, 78, canvas.width - 24);
+      ctx.fillRect(18, 61, (canvas.width - 36) * reading.fraction, 17);
     });
     if (computer.alerts.length) {
       ctx.fillStyle = amber;
