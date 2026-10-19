@@ -98,14 +98,15 @@ export class ShipNavigation implements Behavior {
                 z * b.velocityMps.z) /
               distanceM;
         const arrived = distanceM <= c.arrivalRadiusM;
+        const local = this.body.worldToLocal({ x, y, z });
         return Object.freeze({
           ...c,
           distanceM,
           bearingDegrees: (degrees(bearing) + 360) % 360,
-          relativeBearingDegrees: degrees(
-            Math.atan2(Math.sin(bearing - yaw), Math.cos(bearing - yaw)),
+          relativeBearingDegrees: degrees(Math.atan2(local.x, local.z)),
+          elevationDegrees: degrees(
+            Math.atan2(local.y, Math.hypot(local.x, local.z)),
           ),
-          elevationDegrees: degrees(Math.atan2(y, planar)),
           closingSpeedMps,
           closingTimeSeconds: arrived
             ? 0
@@ -113,11 +114,7 @@ export class ShipNavigation implements Behavior {
               ? (distanceM - c.arrivalRadiusM) / closingSpeedMps
               : null,
           arrived,
-          localOffsetM: Object.freeze({
-            x: x * Math.cos(yaw) - z * Math.sin(yaw),
-            y,
-            z: x * Math.sin(yaw) + z * Math.cos(yaw),
-          }),
+          localOffsetM: Object.freeze(local),
         });
       })
       .sort((a, b) => a.distanceM - b.distanceM || a.id.localeCompare(b.id));

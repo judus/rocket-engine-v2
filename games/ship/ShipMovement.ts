@@ -139,7 +139,11 @@ export class ShipMovement implements Behavior {
     });
     this.body.advance(
       worldForceN,
-      delivered.yawTorqueNm + damperReading.yawTorqueNm,
+      {
+        x: -(delivered.pitchTorqueNm + damperReading.pitchTorqueNm),
+        y: delivered.yawTorqueNm + damperReading.yawTorqueNm,
+        z: -(delivered.rollTorqueNm + damperReading.rollTorqueNm),
+      },
       dt,
     );
     const shipG =

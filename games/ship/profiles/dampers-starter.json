@@ -27,5 +27,7 @@
   "health": {
     "maxPoints": 100,
     "outputExponent": 1
-  }
+  },
+  "maxPitchRateRadps": 0.6,
+  "maxRollRateRadps": 0.8
 }

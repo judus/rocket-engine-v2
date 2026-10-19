@@ -41,7 +41,7 @@ export class NavigationPanel {
     svg.setAttribute('role', 'img');
     svg.setAttribute(
       'aria-label',
-      'Heading-up navigation scope, 10 kilometre range',
+      'Ship-forward navigation scope, 10 kilometre range',
     );
     svg.style.cssText =
       'width:100%;max-width:320px;display:block;margin:12px 0;background:#09171e;border-radius:50%';
@@ -76,7 +76,7 @@ export class NavigationPanel {
     const d = reading.destination;
     const facts = [
       `Heading ${fmt(reading.headingDegrees)}° · speed ${fmt(reading.speedMps)} m/s.`,
-      `Known beacons within 10 km: ${reading.contacts.filter((c) => c.distanceM <= 10000).length}. Heading up; vertical separation is shown as elevation.`,
+      `Known beacons within 10 km: ${reading.contacts.filter((c) => c.distanceM <= 10000).length}. Ship forward at top; ship-relative elevation shown separately.`,
     ];
     if (!d) facts.push('No destination selected.');
     else

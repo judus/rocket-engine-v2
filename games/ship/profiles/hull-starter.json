@@ -1,5 +1,7 @@
 {
   "id": "hull-starter",
   "massKg": 100000,
-  "yawInertiaKgM2": 20000000
+  "yawInertiaKgM2": 20000000,
+  "pitchInertiaKgM2": 20000000,
+  "rollInertiaKgM2": 20000000
 }

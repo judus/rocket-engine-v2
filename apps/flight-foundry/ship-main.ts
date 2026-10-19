@@ -45,7 +45,14 @@ let renderElapsed = 0;
 let rows: Readonly<ShipTelemetry>[] = [];
 let lastHistoryTime = 0;
 let lastSwitchTick = -1;
-const commandIds = ['forward', 'strafe', 'vertical', 'yaw'] as const;
+const commandIds = [
+  'forward',
+  'strafe',
+  'vertical',
+  'yaw',
+  'pitch',
+  'roll',
+] as const;
 function commands(): void {
   const value = (id: string) =>
     Number(find<HTMLInputElement>(`#${id}`).value) / 100;
@@ -55,6 +62,8 @@ function commands(): void {
     z: value('forward'),
   });
   ship.control.turn(value('yaw'));
+  ship.control.pitch(value('pitch'));
+  ship.control.roll(value('roll'));
   for (const id of commandIds)
     find(`#${id}-value`).textContent = `${Math.round(value(id) * 100)}%`;
 }
@@ -166,7 +175,7 @@ function reset(): void {
   find('#installed').textContent =
     `Installed: ${p.body.id} · ${p.power.id} · ${p.engine.id} · ${p.dampers.id} · ${p.cooling.id} · ${p.shields.id} · ${p.cargo.id} · ${p.hull.id}`;
   find('#ship-specs').textContent =
-    `${p.body.massKg.toLocaleString('en')} kg · ${p.engine.maxThrustN / 1e6} MN thrust · ${p.power.reactorOutputW / 1e9} GW reactor · ${p.power.capacityJ / 1e9} GJ reserve capacity. Engine: ${p.engine.baselineW / 1e6} MW baseline + ${p.engine.fullThrustW / 1e9} GW translation + ${p.engine.fullYawW / 1e9} GW yaw. Reactor health ${p.power.health.maxPoints} HP; output follows health fraction raised to ${p.power.health.outputExponent}. Engine health ${p.engine.health.maxPoints} HP; output follows health fraction raised to ${p.engine.health.outputExponent}. Loaded from JSON; demonstration balance.`;
+    `${p.body.massKg.toLocaleString('en')} kg · ${p.engine.maxThrustN / 1e6} MN thrust · ${p.power.reactorOutputW / 1e9} GW reactor · ${p.power.capacityJ / 1e9} GJ reserve capacity. Engine: ${p.engine.baselineW / 1e6} MW baseline + ${p.engine.fullThrustW / 1e9} GW translation + ${p.engine.fullYawW / 1e9} / ${p.engine.fullPitchW / 1e9} / ${p.engine.fullRollW / 1e9} GW yaw/pitch/roll. Reactor health ${p.power.health.maxPoints} HP; output follows health fraction raised to ${p.power.health.outputExponent}. Engine health ${p.engine.health.maxPoints} HP; output follows health fraction raised to ${p.engine.health.outputExponent}. Loaded from JSON; demonstration balance.`;
   find('#damper-specs').textContent =
     `Assisted limit ${p.dampers.capture.assistedSpeedMps} m/s · 95% response ${p.dampers.responseSeconds} s · nominal transmitted load ${p.dampers.capture.transmittedFraction * 100}%. Capture anchor: remove ${p.dampers.capture.referenceExcessMps} m/s in ${p.dampers.capture.referenceDurationSeconds} s; higher entry speeds increase duration and curve steepness. Prototype tuning.`;
   find('#thermal-specs').textContent =
@@ -216,7 +225,11 @@ function paint(): void {
     ['Speed', fmt(speed), 'm/s'],
     ['Applied force', fmt(force / 1e6), 'MN'],
     ['Heading', fmt((t.body.yawRadians * 180) / Math.PI), '°'],
+    ['Pitch', fmt((t.body.pitchRadians * 180) / Math.PI), '°'],
+    ['Roll', fmt((t.body.rollRadians * 180) / Math.PI), '°'],
     ['Yaw rate', fmt((t.body.yawRateRadps * 180) / Math.PI), '°/s'],
+    ['Pitch rate', fmt((t.body.pitchRateRadps * 180) / Math.PI), '°/s'],
+    ['Roll rate', fmt((t.body.rollRateRadps * 180) / Math.PI), '°/s'],
     ['Ship load', fmt(t.shipG), 'G'],
     ['Crew load', fmt(t.crewG), 'G'],
   ];
@@ -395,7 +408,7 @@ function paint(): void {
   find('#reactor-state').textContent =
     `Recovery ${t.power.emergency ? 'EMERGENCY' : 'normal'} · restart remaining ${fmt(t.power.thermal.restartRemainingSeconds)} s · propulsion/shields ${t.power.nonessentialAllowed ? 'available' : 'LOCKED until reserve recovers'} · restore threshold ${fmt(t.power.restoreEnergyJ / 1e9)} GJ · starter ${t.power.emergency ? 'independent' : `${fmt(t.power.startupSuppliedW / 1e6)} MW from reserve`} · reactor passive cooling ${fmt(t.power.passiveRemovedHeatW / 1e6)} MW + circuit ${fmt(t.cooling.reactorRemovedHeatW / 1e6)} MW.`;
   find('#vectors').textContent =
-    `Position (m): ${vector(t.body.positionM)}\nVelocity (m/s): ${vector(t.body.velocityMps)}\nAcceleration (m/s²): ${vector(t.body.accelerationMps2)}`;
+    `Position (m): ${vector(t.body.positionM)}\nVelocity (m/s): ${vector(t.body.velocityMps)}\nAcceleration (m/s²): ${vector(t.body.accelerationMps2)}\nBody angular velocity (rad/s): ${vector(t.body.angularVelocityRadps)}\nQuaternion: X ${fmt(t.body.orientation.x)} / Y ${fmt(t.body.orientation.y)} / Z ${fmt(t.body.orientation.z)} / W ${fmt(t.body.orientation.w)}`;
   if (t.timeSeconds - lastHistoryTime >= 0.5) {
     rows.push(t);
     rows = rows.slice(-10);

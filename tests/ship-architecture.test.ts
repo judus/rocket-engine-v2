@@ -40,7 +40,13 @@ const small: ShipProfile = {
   shields: { ...starterSetup.profile.shields, restartEnergyJ: 50 },
   cooling: { ...starterSetup.profile.cooling, restartEnergyJ: 50 },
   dampers: { ...starterSetup.profile.dampers, restartEnergyJ: 50 },
-  body: { id: 'test-hull', massKg: 2, yawInertiaKgM2: 2 },
+  body: {
+    id: 'test-hull',
+    massKg: 2,
+    yawInertiaKgM2: 2,
+    pitchInertiaKgM2: 2,
+    rollInertiaKgM2: 2,
+  },
   power: {
     ...starterSetup.profile.power,
     id: 'test-reactor',
@@ -58,9 +64,13 @@ const small: ShipProfile = {
     thermal: starterSetup.profile.engine.thermal,
     maxThrustN: 20,
     maxYawTorqueNm: 4,
+    maxPitchTorqueNm: 4,
+    maxRollTorqueNm: 4,
     baselineW: 10,
     fullThrustW: 100,
     fullYawW: 20,
+    fullPitchW: 20,
+    fullRollW: 20,
     restartEnergyJ: 50,
   },
 };

@@ -9,6 +9,8 @@ export interface BodyProfile {
   id: string;
   massKg: number;
   yawInertiaKgM2: number;
+  rollInertiaKgM2: number;
+  pitchInertiaKgM2: number;
 }
 export interface ReactorRecoveryProfile {
   startupPowerW: number;
@@ -53,9 +55,13 @@ export interface EngineProfile {
   thermal: Readonly<ThermalProfile>;
   maxThrustN: number;
   maxYawTorqueNm: number;
+  maxRollTorqueNm: number;
+  maxPitchTorqueNm: number;
   baselineW: number;
   fullThrustW: number;
   fullYawW: number;
+  fullRollW: number;
+  fullPitchW: number;
   restartEnergyJ: number;
 }
 export interface DamperProfile {
@@ -64,6 +70,8 @@ export interface DamperProfile {
   thermal: Readonly<ThermalProfile>;
   responseSeconds: number;
   maxYawRateRadps: number;
+  maxRollRateRadps: number;
+  maxPitchRateRadps: number;
   baselineW: number;
   wattsPerNewton: number;
   wattsPerNewtonMeter: number;
@@ -176,13 +184,15 @@ function readNumber(
 export function validateBodyProfile(value: unknown): Readonly<BodyProfile> {
   const p = recordWithKeys(
     value,
-    ['id', 'massKg', 'yawInertiaKgM2'],
+    ['id', 'massKg', 'pitchInertiaKgM2', 'rollInertiaKgM2', 'yawInertiaKgM2'],
     'Body profile',
   );
   return Object.freeze({
     id: profileId(p.id, 'Body id'),
     massKg: readNumber(p, 'massKg', 1e-6),
     yawInertiaKgM2: readNumber(p, 'yawInertiaKgM2', 1e-6),
+    rollInertiaKgM2: readNumber(p, 'rollInertiaKgM2', 1e-6),
+    pitchInertiaKgM2: readNumber(p, 'pitchInertiaKgM2', 1e-6),
   });
 }
 export function validatePowerProfile(
@@ -220,9 +230,13 @@ export function validateEngineProfile(value: unknown): Readonly<EngineProfile> {
       'health',
       'maxThrustN',
       'maxYawTorqueNm',
+      'maxRollTorqueNm',
+      'maxPitchTorqueNm',
       'baselineW',
       'fullThrustW',
       'fullYawW',
+      'fullRollW',
+      'fullPitchW',
       'restartEnergyJ',
     ],
     'Engine profile',
@@ -233,9 +247,13 @@ export function validateEngineProfile(value: unknown): Readonly<EngineProfile> {
     health: validateHealthProfile(p.health),
     maxThrustN: readNumber(p, 'maxThrustN', 0),
     maxYawTorqueNm: readNumber(p, 'maxYawTorqueNm', 0),
+    maxRollTorqueNm: readNumber(p, 'maxRollTorqueNm', 0),
+    maxPitchTorqueNm: readNumber(p, 'maxPitchTorqueNm', 0),
     baselineW: readNumber(p, 'baselineW', Number.MIN_VALUE),
     fullThrustW: readNumber(p, 'fullThrustW', Number.MIN_VALUE),
     fullYawW: readNumber(p, 'fullYawW', Number.MIN_VALUE),
+    fullRollW: readNumber(p, 'fullRollW', Number.MIN_VALUE),
+    fullPitchW: readNumber(p, 'fullPitchW', Number.MIN_VALUE),
     restartEnergyJ: readNumber(p, 'restartEnergyJ', 0),
   });
 }
@@ -331,6 +349,8 @@ export function validateDamperProfile(value: unknown): Readonly<DamperProfile> {
       'thermal',
       'responseSeconds',
       'maxYawRateRadps',
+      'maxRollRateRadps',
+      'maxPitchRateRadps',
       'baselineW',
       'wattsPerNewton',
       'wattsPerNewtonMeter',
@@ -345,6 +365,8 @@ export function validateDamperProfile(value: unknown): Readonly<DamperProfile> {
     thermal: validateThermalProfile(p.thermal),
     responseSeconds: readNumber(p, 'responseSeconds', 0.01, 120),
     maxYawRateRadps: readNumber(p, 'maxYawRateRadps', 0, 10),
+    maxRollRateRadps: readNumber(p, 'maxRollRateRadps', 0, 10),
+    maxPitchRateRadps: readNumber(p, 'maxPitchRateRadps', 0, 10),
     baselineW: readNumber(p, 'baselineW', Number.MIN_VALUE),
     wattsPerNewton: readNumber(p, 'wattsPerNewton', Number.MIN_VALUE),
     wattsPerNewtonMeter: readNumber(p, 'wattsPerNewtonMeter', Number.MIN_VALUE),

@@ -6,11 +6,15 @@ import { numberIn } from './ShipProfiles.js';
 export interface ShipIntent {
   readonly thrust: Readonly<Vec3>;
   readonly yaw: number;
+  readonly pitch: number;
+  readonly roll: number;
 }
 /** Commands only. A player, AI or script can supply the same ship-local intent. */
 export class ShipControl implements Behavior {
   #thrust = zeroVector();
   #yaw = 0;
+  #pitch = 0;
+  #roll = 0;
   onAttach(): undefined {}
   thrust(value: Readonly<Vec3>): void {
     const next = copyVector(value, 'thrust');
@@ -22,14 +26,24 @@ export class ShipControl implements Behavior {
   turn(yaw: number): void {
     this.#yaw = numberIn('yaw intent', yaw, -1, 1);
   }
+  pitch(value: number): void {
+    this.#pitch = numberIn('pitch intent', value, -1, 1);
+  }
+  roll(value: number): void {
+    this.#roll = numberIn('roll intent', value, -1, 1);
+  }
   clear(): void {
     this.#thrust = zeroVector();
     this.#yaw = 0;
+    this.#pitch = 0;
+    this.#roll = 0;
   }
   get intent(): Readonly<ShipIntent> {
     return Object.freeze({
       thrust: Object.freeze({ ...this.#thrust }),
       yaw: this.#yaw,
+      pitch: this.#pitch,
+      roll: this.#roll,
     });
   }
 }

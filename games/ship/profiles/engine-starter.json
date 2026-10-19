@@ -17,5 +17,9 @@
   "health": {
     "maxPoints": 100,
     "outputExponent": 1
-  }
+  },
+  "maxPitchTorqueNm": 10000000,
+  "maxRollTorqueNm": 10000000,
+  "fullPitchW": 1000000000,
+  "fullRollW": 1000000000
 }

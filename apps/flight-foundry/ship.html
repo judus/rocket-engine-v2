@@ -139,7 +139,8 @@
         <h2>Ship commands</h2>
         <p class="muted">
           Dampers off: commands request thrust and neutral coasts. Dampers on:
-          commands request assisted speed and yaw rate; neutral brakes drift.
+          commands request assisted speed and angular rates; neutral brakes
+          drift.
         </p>
         <label class="command" for="forward"
           ><span>Forward / reverse <output id="forward-value">0%</output></span
@@ -156,6 +157,14 @@
         <label class="command" for="yaw"
           ><span>Yaw right / left <output id="yaw-value">0%</output></span
           ><input id="yaw" type="range" min="-100" max="100" value="0"
+        /></label>
+        <label class="command" for="pitch"
+          ><span>Pitch up / down <output id="pitch-value">0%</output></span
+          ><input id="pitch" type="range" min="-100" max="100" value="0"
+        /></label>
+        <label class="command" for="roll"
+          ><span>Roll right / left <output id="roll-value">0%</output></span
+          ><input id="roll" type="range" min="-100" max="100" value="0"
         /></label>
         <div class="toolbar">
           <button id="forward-full" type="button">Full forward</button
@@ -259,12 +268,14 @@
           ><button id="reset" type="button">Reset ship</button>
         </div>
         <p class="muted">
-          Dampers off: yaw retains inertia. Try a starting speed of 12,300 m/s,
-          Reset, then enable dampers to inspect capture and its power limits.
-          Capture first reduces speed to the assisted limit along the entry
-          trajectory; afterward current commands take over. Reset creates a new
-          ship; ordinary control and module switches preserve the current ship
-          and reserve.
+          Dampers off: rotation retains angular momentum. Pitch up and bank
+          right are positive. Attitude angles wrap; quaternion orientation
+          permits full loops. Try a starting speed of 12,300 m/s, Reset, then
+          enable dampers to inspect capture and its power limits. Capture first
+          reduces speed to the assisted limit along the entry trajectory;
+          afterward current commands take over. Reset creates a new ship;
+          ordinary control and module switches preserve the current ship and
+          reserve.
         </p>
       </section>
       <section class="panel">
@@ -278,7 +289,7 @@
         <h2>Ship navigation</h2>
         <p class="muted">
           Known lab beacons in a fixed world frame, measured in metres. Select a
-          destination, then Run or Single step. The heading-up scope covers 10
+          destination, then Run or Single step. The ship-forward scope covers 10
           km; distant destinations remain selectable. Guidance only: sensor
           detection, navigation power/health and autopilot are not modeled yet.
         </p>
@@ -359,10 +370,10 @@
         </div>
         <p class="muted">
           Applies on the next simulation step. These lab commands bypass shields
-          and hull; repair costs no resources. Damage reduces thrust and yaw
-          capacity. Zero health disables the engine; it still remembers its
-          requested switch. Reactor health is modeled below; other module health
-          comes later.
+          and hull; repair costs no resources. Damage reduces thrust and
+          rotational capacity. Zero health disables the engine; it still
+          remembers its requested switch. Reactor health is modeled below; other
+          module health comes later.
         </p>
         <h3>Reactor condition · lab controls</h3>
         <div class="toolbar">
@@ -494,7 +505,7 @@
         <h3>Assembly</h3>
         <pre class="architecture">
 ship
-├─ body       owns position, velocity and yaw
+├─ body       owns position, velocity and quaternion orientation
 ├─ control    accepts intent from any controller
 ├─ navigation post-motion position fix and destination guidance
 ├─ power      owns reserve and allocation
@@ -540,13 +551,13 @@ ship
     </main>
     <p id="message" role="status"></p>
     <footer>
-      3D translation and one yaw axis. Reactor, engine, damper, shield and cargo
-      heat with one shared cooling circuit, plus shield and hull test damage. No
-      collision, crew injury or relativistic model yet. Power costs are explicit
-      prototype profile values. Assisted velocity is a powered force response,
-      not a hard speed clamp. Crew G measures translation only. Engine shortage
-      scales operation after funding its baseline; reserve recharge uses the
-      existing demonstration hysteresis.
+      3D translation plus pitch, yaw and roll. Reactor, engine, damper, shield
+      and cargo heat with one shared cooling circuit, plus shield and hull test
+      damage. No collision, crew injury or relativistic model yet. Power costs
+      are explicit prototype profile values. Assisted velocity is a powered
+      force response, not a hard speed clamp. Crew G measures translation only.
+      Engine shortage scales operation after funding its baseline; reserve
+      recharge uses the existing demonstration hysteresis.
       <a href="../../games/ship/README.md">Source, ownership and limitations</a>
     </footer>
     <script

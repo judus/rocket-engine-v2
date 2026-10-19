@@ -38,14 +38,20 @@ void test('Navigation uses the same committed post-motion body state and never c
   assert.throws(() => ship.navigation.selectDestination(null), /disposed/);
 });
 void test('Yaw-relative bearing and scope offsets follow the existing +Z forward convention', () => {
-  const body = new ShipBody({ id: 'body', massKg: 1, yawInertiaKgM2: 1 });
+  const body = new ShipBody({
+    id: 'body',
+    massKg: 1,
+    yawInertiaKgM2: 1,
+    pitchInertiaKgM2: 1,
+    rollInertiaKgM2: 1,
+  });
   const nav = new ShipNavigation(body, [
     { ...contact, positionM: { x: 1000, y: 100, z: 0 } },
   ]);
   nav.selectDestination(contact.id);
   nav.commit();
   close(nav.telemetry.destination!.relativeBearingDegrees, 90);
-  body.advance({ x: 0, y: 0, z: 0 }, Math.PI, 1);
+  body.advance({ x: 0, y: 0, z: 0 }, { x: 0, y: Math.PI, z: 0 }, 1);
   nav.commit();
   close(nav.telemetry.headingDegrees, 90);
   close(nav.telemetry.destination!.relativeBearingDegrees, 0);

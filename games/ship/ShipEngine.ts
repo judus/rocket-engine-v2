@@ -30,6 +30,8 @@ export interface EngineReading {
   readonly activityFraction: number;
   readonly thrustN: Readonly<Vec3>;
   readonly yawTorqueNm: number;
+  readonly pitchTorqueNm: number;
+  readonly rollTorqueNm: number;
 }
 export class ShipEngine implements Behavior {
   readonly requires: readonly Behavior[];
@@ -37,7 +39,12 @@ export class ShipEngine implements Behavior {
   #power: ShipPowerPlant;
   #port: PowerPort | undefined;
   #requested = true;
-  #intent: Readonly<ShipIntent> = { thrust: zeroVector(), yaw: 0 };
+  #intent: Readonly<ShipIntent> = {
+    thrust: zeroVector(),
+    yaw: 0,
+    pitch: 0,
+    roll: 0,
+  };
   #activityDemandW = 0;
   #health: ModuleHealth;
   #thermal: ModuleThermal;
@@ -71,6 +78,8 @@ export class ShipEngine implements Behavior {
       activityFraction: 0,
       thrustN: Object.freeze(zeroVector()),
       yawTorqueNm: 0,
+      pitchTorqueNm: 0,
+      rollTorqueNm: 0,
     });
   }
   get temperatureK(): number {
@@ -105,7 +114,10 @@ export class ShipEngine implements Behavior {
   }
   declare(
     intent: Readonly<ShipIntent>,
-  ): Pick<EngineReading, 'thrustN' | 'yawTorqueNm' | 'requested'> {
+  ): Pick<
+    EngineReading,
+    'thrustN' | 'yawTorqueNm' | 'pitchTorqueNm' | 'rollTorqueNm' | 'requested'
+  > {
     this.#intent = intent;
     const wasFailed = this.#health.telemetry.failed;
     this.#health.commit();
@@ -122,7 +134,9 @@ export class ShipEngine implements Behavior {
     );
     this.#activityDemandW = this.#operating
       ? this.profile.fullThrustW * throttle +
-        this.profile.fullYawW * Math.abs(intent.yaw)
+        this.profile.fullYawW * Math.abs(intent.yaw) +
+        this.profile.fullPitchW * Math.abs(intent.pitch) +
+        this.profile.fullRollW * Math.abs(intent.roll)
       : 0;
     this.port().request(
       this.#powerRequested,
@@ -138,6 +152,10 @@ export class ShipEngine implements Behavior {
       },
       yawTorqueNm:
         intent.yaw * this.profile.maxYawTorqueNm * Number(this.#operating),
+      pitchTorqueNm:
+        intent.pitch * this.profile.maxPitchTorqueNm * Number(this.#operating),
+      rollTorqueNm:
+        intent.roll * this.profile.maxRollTorqueNm * Number(this.#operating),
     };
   }
   deliver(): Readonly<EngineReading> {
@@ -178,6 +196,9 @@ export class ShipEngine implements Behavior {
       activityFraction: fraction,
       thrustN,
       yawTorqueNm: this.#intent.yaw * this.profile.maxYawTorqueNm * fraction,
+      pitchTorqueNm:
+        this.#intent.pitch * this.profile.maxPitchTorqueNm * fraction,
+      rollTorqueNm: this.#intent.roll * this.profile.maxRollTorqueNm * fraction,
     });
     return this.#reading;
   }

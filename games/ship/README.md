@@ -15,7 +15,9 @@ const ship = stage.entity(() => new Ship(setup.profile, setup.initialState), {
 });
 
 ship.control.thrust({ x: 0, y: 0, z: 1 }); // persistent ship-local intent
-ship.control.turn(0.5); // yaw intent, not a forced orientation
+ship.control.turn(0.5); // yaw right
+ship.control.pitch(0.5); // nose up
+ship.control.roll(0.5); // bank right
 ship.cooling.requestEnabled(true); // one powered engine cooling circuit
 ship.dampers.requestEnabled(true); // powered assisted flight; false coasts
 ship.engine.requestEnabled(false); // normal module command
@@ -25,16 +27,16 @@ const reading = ship.telemetry; // one immutable completed-step snapshot
 await runtime.start(); // no canvas required
 ```
 
-`Ship.ts` attaches ordinary typed capabilities with the established `this.attach(new …)` syntax. Handles retain concrete types; no string component lookup, property bag or new ECS framework is exposed. The Node2D attachment host's 2D transforms are unused: authoritative 3D translation and yaw live in `ShipBody`. This is not a new general 3D node facade.
+`Ship.ts` attaches ordinary typed capabilities with the established `this.attach(new …)` syntax. Handles retain concrete types; no string component lookup, property bag or new ECS framework is exposed. The Node2D attachment host's 2D transforms are unused: authoritative 3D translation and quaternion orientation live in `ShipBody`. This is not a new general 3D node facade.
 
-- **ShipControl** owns requested translation/yaw intent. It validates and normalizes translation so diagonal input cannot gain extra thrust. HTML controls, a future input adapter, AI or scripts can issue the same commands. The current page is a command instrument, not a pointer-capture/input-preset demo. Multiple controllers are not arbitrated yet.
+- **ShipControl** owns requested translation and pitch/yaw/roll intent. It validates and normalizes translation so diagonal input cannot gain extra thrust. HTML controls, a future input adapter, AI or scripts can issue the same commands. The current page is a command instrument, not a pointer-capture/input-preset demo. Multiple controllers are not arbitrated yet.
 - **ShipPowerPlant** owns reserve, reactor request and power ports. It wraps the actual existing `examples/ship/ShipPower.ts` J/W ledger rather than copying another allocator. Typed ports submit demand and receive allocated supply. World/ECS details remain private. Port registration/removal is tied to each consuming capability’s attachment/disposal.
 - **ShipEngine** owns requested enable state and the installed engine profile. Each tick it declares baseline + activity demand, then converts actual allocation into thrust and yaw torque. It never subtracts reserve itself. Partial allocation first funds the baseline; remaining supply scales translation and yaw together. Below baseline, no operation is delivered. Energy spent during that incomplete baseline is still accounted for.
 - **ShipDampers** owns requested enable state, a separate JSON profile, assistance and capture planning. It registers its own power port. Propulsion assistance scales with actual engine delivery; powered damping can arrest drift even with the engine disabled. It contributes world force and yaw torque, never body/reserve mutations. Translation and yaw damping effort plus drive assistance determine demand; opposing efforts still consume power even when their net force is small.
 - **ShipCooling** owns its switch, power port and shared reactor/engine/damper/shield cooling circuit. Its pump uses the shared allocation; actual supply determines heat removal. Each module owns its temperature and overheat/restart state through a private `ModuleThermal` calculation. No module temperature is stored twice.
 - **ShipShields** owns stored shield energy, recharge and powered protection; its own nonessential power port participates in the same allocation.
 - **ShipHull** owns structural integrity and queued impacts. Shield overflow becomes hull damage; a breach is a game-rule signal.
-- **ShipBody** owns mass, yaw inertia, position, velocity, yaw and yaw rate. It integrates the delivered force/torque exactly for a constant-force interval. Existing momentum is never rotated to follow the nose. Rotating the ship changes only the direction of subsequent local thrust. Yaw torque uses a single declared inertia axis, not a full 3D inertia tensor.
+- **ShipBody** owns mass, three principal moments of inertia, position, world velocity, a unit quaternion and body-local angular velocity. Translation integrates a constant-force interval; rotation uses midpoint Euler rigid-body dynamics and a quaternion exponential. Existing world momentum is never rotated to follow the nose. Orientation changes the direction of subsequent local thrust.
 - **ShipMovement** is the attached fixed-step controller/coordinator: intent → engine/damper/cooling/shield demands → one power allocation → delivered forces and shield recharge → queued hit resolution → engine heat/cooling/restart → body integration → committed telemetry. It declares same-entity dependencies and a unique motion-writer claim. Rocket invokes it automatically; the UI does not update components individually or calculate positions.
 
 There is one fixed-step path and one advance per body. Different ships have independent owned power ledgers and bodies, so attachment order between independent ships does not share or steal reserve. A future shared collision/physics service would be stepped by its world owner, not once per ship.
@@ -53,7 +55,7 @@ All instruments read `ship.telemetry` after a completed step, including forces a
 
 ## Scope and checks
 
-Implemented: actual attached body/control/power/engine/dampers/cooling/shields/hull/movement, 3D translation, one yaw axis, commands, standby/activity costs, reserve generation/depletion, partial/zero delivery, inherited recharge eligibility and immutable telemetry. Runtime uses the existing headless Stage2D and Rocket clock; pause/single-step work on the same simulation path.
+Implemented: actual attached body/control/power/engine/dampers/cooling/shields/hull/movement, 3D translation, pitch/yaw/roll, commands, standby/activity costs, reserve generation/depletion, partial/zero delivery, inherited recharge eligibility and immutable telemetry. Runtime uses the existing headless Stage2D and Rocket clock; pause/single-step work on the same simulation path.
 
 Not implemented: crew injury, destruction rules, cargo item transfers, collision, pitch/roll or general rigid-body dynamics, keyboard/mouse input handover, runtime equipment replacement, or the cockpit presentation adapter. The earlier capture calculation now lives in `games/ship/CaptureResponse.ts` and drives the powered damper component. It still describes nominal fully supplied response; power delivery determines actual motion and protection.
 
@@ -73,7 +75,7 @@ To tune the demonstration, edit the relevant JSON and reload the telemetry page;
 
 ## Powered inertia dampers
 
-Dampers start requested off. Enable their switch and request forward motion: the fully powered velocity servo approaches 300 m/s, reaching 95% of a command change in the profile’s three-second response time. Neutral commands bring linear drift and yaw rate toward zero. This is a force response with one ordinary body integration, not a velocity overwrite or hard cap. The helper page accepts a starting forward velocity applied only by Reset; the JSON initial velocity remains separate equipment-independent state.
+Dampers start requested off. Enable their switch and request forward motion: the fully powered velocity servo approaches 300 m/s, reaching 95% of a command change in the profile’s three-second response time. Neutral commands bring linear drift and all three angular rates toward zero. This is a force response with one ordinary body integration, not a velocity overwrite or hard cap. The helper page accepts a starting forward velocity applied only by Reset; the JSON initial velocity remains separate equipment-independent state.
 
 Engaging above the assisted envelope selects one immutable `CapturePlan` from entry speed/direction. Capture first removes the excess along that trajectory; translation commands take over after capture. Yaw remains assisted. The reference **excess** of 12 km/s, four-second duration, curve power, duration-growth exponent and steepness growth are exposed in the damper JSON. They are illustration values. Higher excess speeds increase both capture duration and braking concentration, not Newtonian speed limits. At full supply, tenfold reference excess takes twice as long but produces substantially higher crew G.
 
@@ -565,8 +567,8 @@ The model follows the existing ship convention: +Z forward, +X right, +Y up,
 positive yaw turns +Z toward +X; bearings are degrees clockwise from world +Z.
 
 Flight Foundry supplies four illustrative beacons from
-`apps/flight-foundry/navigation-contacts.ts`. Its 10 km heading-up scope projects
-horizontal offsets; elevation is reported separately. The full destination list
+`apps/flight-foundry/navigation-contacts.ts`. Its 10 km ship-forward scope projects
+ship-local offsets; ship-relative elevation is reported separately. The full destination list
 includes contacts outside scope range. These are known world landmarks, not
 sensor detections. The current spatial index is 2D, so this four-contact 3D view
 uses direct distance calculations rather than inventing a second spatial system.
@@ -613,3 +615,40 @@ synchronize on new committed frames; the computer panel adds no simulation timer
 The same capability is available to a later cockpit adapter without importing
 lab DOM code. Cockpit display wiring and a powered computer module remain later
 slices.
+
+### Full 3D flight rotation
+
+Pitch, yaw and roll share the existing control → engine/dampers → body step.
+`turn(value)` requests yaw; `pitch(value)` and `roll(value)` request the other
+axes, each in [-1, 1]. Positive inputs mean yaw right, nose up and bank right.
+`clear()` clears every translational and rotational command. The lab exposes all
+six axes and its Neutral button clears all six.
+
+The body stores a normalized body-to-world quaternion and right-handed local
+angular velocity. +X is right, +Y up and +Z forward. Positive pitch and bank-right
+commands therefore apply negative X and Z torques; yaw applies positive Y.
+`BodyReading.orientation` is authoritative; pitch/yaw/roll angles are derived
+instrument readings and wrap at conventional angle boundaries. Vertical flight
+makes horizontal heading ambiguous, but imposes no orientation limit or gimbal
+lock. Named angular-rate readings are signed body-axis rates, not derivatives of
+the displayed Euler angles. Existing world velocity never rotates with the hull.
+
+JSON now requires `pitchInertiaKgM2` and `rollInertiaKgM2` alongside yaw inertia,
+`maxPitchTorqueNm`/`maxRollTorqueNm` and `fullPitchW`/`fullRollW` alongside the yaw
+engine settings, and `maxPitchRateRadps`/`maxRollRateRadps` in the damper profile.
+Each axis has its own authority/cost; simultaneous rotations add their electrical
+requests to translation under the SAME allocation, health and heat calculations.
+
+Free rotation includes the principal-axis gyroscopic term. Midpoint integration
+is numerical, not an exact general rigid-body solver; the fixed step controls its
+accuracy. Tests check finite-step momentum conservation with unequal inertias.
+Assistance adds funded braking and target angular rates on every axis, including
+gyroscopic compensation. Power loss, shutdown or failure never erases angular
+momentum. Damage derates rotational authority through the existing health factor.
+
+Navigation transforms known contacts through the complete inverse orientation;
+its scope points ship-forward and banks with the ship. Absolute bearing remains
+world-horizontal, while relative bearing/elevation refer to the ship frame.
+Crew G-load still measures translational acceleration only: rotational loads at
+specific seats and crew injury remain unmodeled. Cockpit rendering/input wiring
+is unchanged by this Flight Foundry slice.

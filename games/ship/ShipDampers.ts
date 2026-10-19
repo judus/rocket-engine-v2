@@ -33,6 +33,8 @@ export interface DamperReading {
   readonly activityFraction: number;
   readonly worldForceN: Readonly<Vec3>;
   readonly yawTorqueNm: number;
+  readonly pitchTorqueNm: number;
+  readonly rollTorqueNm: number;
   readonly captureDurationSeconds: number;
   readonly captureElapsedSeconds: number;
   readonly transmittedFraction: number;
@@ -51,6 +53,10 @@ export class ShipDampers implements Behavior {
   #drive = zeroVector();
   #driveTorque = 0;
   #torque = 0;
+  #pitchTorque = 0;
+  #rollTorque = 0;
+  #pitchDriveTorque = 0;
+  #rollDriveTorque = 0;
   #activityW = 0;
   #dt = 0;
   #health: ModuleHealth;
@@ -84,6 +90,8 @@ export class ShipDampers implements Behavior {
       activityFraction: 0,
       worldForceN: Object.freeze(zeroVector()),
       yawTorqueNm: 0,
+      pitchTorqueNm: 0,
+      rollTorqueNm: 0,
       captureDurationSeconds: 0,
       captureElapsedSeconds: 0,
       transmittedFraction: 1,
@@ -120,7 +128,10 @@ export class ShipDampers implements Behavior {
   }
   declare(
     intent: Readonly<ShipIntent>,
-    engine: Pick<EngineReading, 'thrustN' | 'yawTorqueNm' | 'requested'>,
+    engine: Pick<
+      EngineReading,
+      'thrustN' | 'yawTorqueNm' | 'pitchTorqueNm' | 'rollTorqueNm' | 'requested'
+    >,
     dt: number,
   ): void {
     this.#dt = dt;
@@ -188,22 +199,55 @@ export class ShipDampers implements Behavior {
       y: (this.body.massKg * driveChange.y) / dt - engineForce.y,
       z: (this.body.massKg * driveChange.z) / dt - engineForce.z,
     };
-    const yawGain = -Math.expm1((-3 * dt) / this.profile.responseSeconds);
+    const angularGain = -Math.expm1((-3 * dt) / this.profile.responseSeconds);
+    const gyro = this.body.gyroscopicTorqueNm();
     this.#torque =
-      (-this.body.yawInertiaKgM2 * body.yawRateRadps * yawGain) / dt;
+      (-this.body.yawInertiaKgM2 * body.yawRateRadps * angularGain) / dt +
+      gyro.y;
+    this.#pitchTorque =
+      (-this.body.profile.pitchInertiaKgM2 *
+        body.pitchRateRadps *
+        angularGain) /
+        dt -
+      gyro.x;
+    this.#rollTorque =
+      (-this.body.profile.rollInertiaKgM2 * body.rollRateRadps * angularGain) /
+        dt -
+      gyro.z;
+    this.#pitchDriveTorque =
+      (this.body.profile.pitchInertiaKgM2 *
+        Number(engine.requested) *
+        intent.pitch *
+        this.profile.maxPitchRateRadps *
+        angularGain) /
+        dt -
+      engine.pitchTorqueNm;
+    this.#rollDriveTorque =
+      (this.body.profile.rollInertiaKgM2 *
+        Number(engine.requested) *
+        intent.roll *
+        this.profile.maxRollRateRadps *
+        angularGain) /
+        dt -
+      engine.rollTorqueNm;
     this.#driveTorque =
       (this.body.yawInertiaKgM2 *
         Number(engine.requested) *
         intent.yaw *
         this.profile.maxYawRateRadps *
-        yawGain) /
+        angularGain) /
         dt -
       engine.yawTorqueNm;
     this.#activityW = this.#operating
       ? (Math.hypot(this.#force.x, this.#force.y, this.#force.z) +
           Math.hypot(this.#drive.x, this.#drive.y, this.#drive.z)) *
           this.profile.wattsPerNewton +
-        (Math.abs(this.#torque) + Math.abs(this.#driveTorque)) *
+        (Math.abs(this.#torque) +
+          Math.abs(this.#driveTorque) +
+          Math.abs(this.#pitchTorque) +
+          Math.abs(this.#rollTorque) +
+          Math.abs(this.#pitchDriveTorque) +
+          Math.abs(this.#rollDriveTorque)) *
           this.profile.wattsPerNewtonMeter
       : 0;
     this.port().request(
@@ -254,6 +298,11 @@ export class ShipDampers implements Behavior {
       }),
       yawTorqueNm:
         (this.#torque + this.#driveTorque * engineFraction) * fraction,
+      pitchTorqueNm:
+        (this.#pitchTorque + this.#pitchDriveTorque * engineFraction) *
+        fraction,
+      rollTorqueNm:
+        (this.#rollTorque + this.#rollDriveTorque * engineFraction) * fraction,
       captureDurationSeconds: this.#capture?.durationSeconds ?? 0,
       captureElapsedSeconds: Math.min(
         this.#captureElapsed,
