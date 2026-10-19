@@ -465,13 +465,23 @@ export class ShipInternals implements Behavior {
       return { ok: true, message: `Removed ${b.installationId}` };
     });
   }
-  requestEnabled(slotId: string, value: boolean): void {
-    this.binding(slotId);
+  requestEnabled(
+    slotId: string,
+    value: boolean,
+    expectedInstallationId?: string,
+  ): void {
+    const installationId = this.binding(slotId).installationId;
+    if (
+      expectedInstallationId !== undefined &&
+      installationId !== expectedInstallationId
+    )
+      throw new Error('Internal installation changed');
     if (typeof value !== 'boolean')
       throw new TypeError('Internal request must be boolean');
     this.#commands.push(() => {
       const b = this.#bindings.get(slotId);
-      if (!b) return { ok: false, message: 'Internal slot is empty' };
+      if (!b || b.installationId !== installationId)
+        return { ok: false, message: 'Internal installation changed' };
       b.device.requestEnabled(value);
       return { ok: true, message: 'Internal switch applied' };
     });

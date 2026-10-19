@@ -572,3 +572,44 @@ sensor detections. The current spatial index is 2D, so this four-contact 3D view
 uses direct distance calculations rather than inventing a second spatial system.
 No navigation power/thermal/health profile, collision or sensor occlusion is
 claimed by this first guidance slice. The cockpit renderer is unchanged.
+
+### Ship computer · first Flight Foundry slice
+
+`ship.computer` is an attached instrument and command router. It depends on
+`ShipMovement`, is attached after it, and uses `fixedOrder = 1` after movement's
+order 0. Each fixed pass reads the completed `ShipTelemetry` frame, producing
+an immutable `ship.computer.telemetry` with the same tick/time. It owns no ship
+state, ledger, factory, clock or physical computer power/health model.
+
+The snapshot exposes module summaries (core equipment, installed mounts,
+internals and hull), reserve fraction, generation/consumption, Workshop job
+progress/completions and current alerts. Alerts cover failed/damaged equipment,
+latched thermal shutdowns, requested demand exceeding supplied power, reserve
+at or below 10%, interrupted/lost cargo link, hull damage/breach, emergency
+reactor recovery and requested factories without operators. Critical alerts sort
+first; IDs are stable per condition. These are current conditions, not an alert
+history, diagnosis system, acknowledgement log or automatic recovery policy.
+Intentionally disabled factories do not emit staffing warnings. Reactor module
+power figures describe its starter; total generation is reported separately.
+
+```ts
+ship.computer.setEnabled('core:cooling', true);
+ship.computer.setEnabled('internal:fabricator-main', true);
+ship.computer.setEnabled('mount:cannon-port', false);
+```
+
+Commands validate the requested switch value/target and forward to the owning
+module's existing command boundary. Committed snapshots do not change until the
+next fixed pass. Hull is read-only. Computer switches do not bypass power, heat,
+health, staffing or cargo-link recovery rules. A failed module can remember an
+on request without becoming operational. Physical installation identity is part
+of each mount/internal target: stale controls cannot switch a replacement in the
+same slot. Their owners enforce the optional expected-installation precondition;
+queued internal switch commands also revalidate identity at execution.
+
+Flight Foundry adds a selected-module switch/status panel, current warning list
+and production overview above the detailed module matrix. Existing lab switches
+synchronize on new committed frames; the computer panel adds no simulation timer.
+The same capability is available to a later cockpit adapter without importing
+lab DOM code. Cockpit display wiring and a powered computer module remain later
+slices.

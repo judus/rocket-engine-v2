@@ -283,6 +283,16 @@
           detection, navigation power/health and autopilot are not modeled yet.
         </p>
         <div id="navigation-panel"></div>
+        <h2>Ship computer</h2>
+        <p class="muted">
+          One committed module overview and command router. Choose a module and
+          switch it on/off, then Run or Single step. Warnings show current
+          faults, reserve at or below 10%, power shortages and requested
+          factories without operators. Production state comes directly from
+          Workshop. The computer itself has no power or health simulation in
+          this first slice.
+        </p>
+        <div id="computer-panel"></div>
         <h2>Modules</h2>
         <div class="table-wrap module-matrix">
           <table aria-label="Module telemetry">
@@ -496,7 +506,8 @@ ship
 ├─ cooling    one cooling budget across all thermal modules
 ├─ shields    stored field energy and powered protection
 ├─ hull       shield overflow becomes structural damage
-└─ movement   orders one fixed simulation step</pre>
+├─ movement   orders one fixed simulation step
+└─ computer   reads the committed frame and routes module commands</pre>
         <p id="installed" class="muted"></p>
         <p id="ship-specs" class="muted"></p>
         <p id="damper-specs" class="muted"></p>

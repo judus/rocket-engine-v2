@@ -317,12 +317,21 @@ export class ShipMounts implements Behavior {
       throw new TypeError('Firing request must be boolean');
     this.#pendingFiring = value;
   }
-  requestEnabled(slotId: string, value: boolean): void {
+  requestEnabled(
+    slotId: string,
+    value: boolean,
+    expectedInstallationId?: string,
+  ): void {
     const p = this.live();
     if (typeof value !== 'boolean')
       throw new TypeError('Equipment request must be boolean');
     const installation = p.loadout.find((i) => i.slotId === slotId);
     if (!installation) throw new Error('Mount slot has no installation');
+    if (
+      expectedInstallationId !== undefined &&
+      installation.installationId !== expectedInstallationId
+    )
+      throw new Error('Mount installation changed');
     this.#enabled.set(installation.installationId, value);
   }
   private device(slotId: string): PoweredModule {

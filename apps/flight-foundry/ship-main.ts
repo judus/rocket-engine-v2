@@ -1,3 +1,4 @@
+import { ComputerPanel } from './computer-panel.js';
 import { NavigationPanel } from './navigation-panel.js';
 import { navigationContacts } from './navigation-contacts.js';
 import { InternalsPanel } from './internals-panel.js';
@@ -34,10 +35,16 @@ const navigationPanel = new NavigationPanel(
   () => ship,
   find('#message'),
 );
+const computerPanel = new ComputerPanel(
+  find('#computer-panel'),
+  () => ship,
+  find('#message'),
+);
 let running = false;
 let renderElapsed = 0;
 let rows: Readonly<ShipTelemetry>[] = [];
 let lastHistoryTime = 0;
+let lastSwitchTick = -1;
 const commandIds = ['forward', 'strafe', 'vertical', 'yaw'] as const;
 function commands(): void {
   const value = (id: string) =>
@@ -137,9 +144,11 @@ function reset(): void {
     onError: fail,
   });
   runtime.scene(stage, { keepAlive: true });
+  computerPanel.paint(ship.computer.telemetry, true);
   navigationPanel.paint(ship.telemetry.navigation, true);
   mountsPanel.paint(ship.telemetry.mounts, true);
   internalsPanel.paint(ship.telemetry.internals, true);
+  lastSwitchTick = ship.telemetry.tick;
   rows = [];
   lastHistoryTime = -1;
   renderElapsed = 0;
@@ -178,10 +187,25 @@ const vector = (v: {
   readonly z: number;
 }) => `X ${fmt(v.x)} / Y ${fmt(v.y)} / Z ${fmt(v.z)}`;
 function paint(): void {
+  computerPanel.paint(ship.computer.telemetry);
   navigationPanel.paint(ship.telemetry.navigation);
   mountsPanel.paint(ship.telemetry.mounts);
   internalsPanel.paint(ship.telemetry.internals);
   const t = ship.telemetry;
+  if (t.tick !== lastSwitchTick) {
+    lastSwitchTick = t.tick;
+    for (const id of [
+      'reactor',
+      'engine',
+      'dampers',
+      'cooling',
+      'shields',
+      'cargo',
+    ] as const)
+      find<HTMLInputElement>(`#${id}`).checked = (
+        id === 'reactor' ? t.power : t[id]
+      ).requested;
+  }
   const speed = Math.hypot(
     t.body.velocityMps.x,
     t.body.velocityMps.y,

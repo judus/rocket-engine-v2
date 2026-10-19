@@ -14,6 +14,7 @@ import { ShipDampers } from './ShipDampers.js';
 import { ShipCooling } from './ShipCooling.js';
 import { ShipShields } from './ShipShields.js';
 import { ShipHull } from './ShipHull.js';
+import { ShipComputer } from './ShipComputer.js';
 import { ShipMovement } from './ShipMovement.js';
 
 import {
@@ -42,6 +43,7 @@ export class Ship extends Node2D {
   readonly shields: ShipShields;
   readonly hull: ShipHull;
   readonly movement: ShipMovement;
+  readonly computer: ShipComputer;
   constructor(
     profile: Readonly<ShipProfile>,
     initialState: Readonly<ShipInitialState>,
@@ -179,6 +181,18 @@ export class Ship extends Node2D {
           this.internals,
           this.navigation,
         ),
+      );
+      this.computer = this.attach(
+        new ShipComputer(this.movement, {
+          reactor: this.power,
+          engine: this.engine,
+          dampers: this.dampers,
+          cooling: this.cooling,
+          shields: this.shields,
+          cargo: this.cargo,
+          mounts: this.mounts,
+          internals: this.internals,
+        }),
       );
     } catch (error) {
       this.dispose();
