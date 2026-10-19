@@ -1,5 +1,7 @@
 import { DynamicTextureImage } from '../../src/3d/index.js';
 import { updateTextureFromCanvas } from '../../src/webgl/index.js';
+import { cockpitReadings } from './CockpitReadings.js';
+import type { CockpitReading } from './CockpitReadings.js';
 import type { Ship } from './Ship.js';
 
 const cyan = '#86ead6',
@@ -30,11 +32,21 @@ export class CockpitInstruments {
   ] as const;
   #elapsed = 1;
   #page = 0;
-  constructor(private readonly ship: Ship) {}
+  #status: CockpitReading;
+  constructor(private readonly ship: Ship) {
+    this.#status = cockpitReadings(ship.telemetry, ship.computer.telemetry);
+  }
+  get status(): CockpitReading {
+    return this.#status;
+  }
   update(dt: number): void {
     this.#elapsed += dt;
     if (this.#elapsed < 1 / 15) return;
     this.#elapsed %= 1 / 15;
+    this.#status = cockpitReadings(
+      this.ship.telemetry,
+      this.ship.computer.telemetry,
+    );
     const t = this.ship.telemetry,
       computer = this.ship.computer.telemetry;
     const all = [this.navigation, this.computer, ...this.overhead];
@@ -99,16 +111,26 @@ export class CockpitInstruments {
       470,
     );
     this.drawComputer();
-    const rows = [
-      `HDG ${t.navigation.headingDegrees.toFixed(1)} / P ${((t.body.pitchRadians * 180) / Math.PI).toFixed(1)}`,
-      `${t.navigation.speedMps.toFixed(1)} M/S`,
-      `X ${(t.body.positionM.x / 1000).toFixed(1)} Y ${(t.body.positionM.y / 1000).toFixed(1)} Z ${(t.body.positionM.z / 1000).toFixed(1)} KM`,
-    ];
     this.overhead.forEach(({ ctx, canvas }, i) => {
-      ctx.fillStyle = cyan;
-      ctx.font = 'bold 30px monospace';
+      const reading = this.#status.overhead[i]!;
+      const color = reading.warning ? amber : reading.muted ? muted : cyan;
+      ctx.fillStyle = color;
+      ctx.font = 'bold 27px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(reading.label, 18, 24);
+      ctx.textAlign = 'right';
+      ctx.fillText(
+        `${(reading.fraction * 100).toFixed(0)}%`,
+        canvas.width - 18,
+        24,
+      );
+      ctx.fillStyle = '#15312e';
+      ctx.fillRect(18, 46, canvas.width - 36, 13);
+      ctx.fillStyle = color;
+      ctx.fillRect(18, 46, (canvas.width - 36) * reading.fraction, 13);
+      ctx.font = 'bold 17px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(rows[i]!, canvas.width / 2, 48, canvas.width - 16);
+      ctx.fillText(reading.footer, canvas.width / 2, 78, canvas.width - 24);
     });
     if (computer.alerts.length) {
       ctx.fillStyle = amber;

@@ -776,3 +776,19 @@ frame intervals using the existing render loop and updates twice per second.
 Menus, hidden tabs and lost/restored contexts reset the sampling window. This is
 presentation cadence, not a GPU timer or physics tick rate; no extra animation
 loop is created. Existing video records migrate explicitly with the counter off.
+
+### Condition displays and flight HUD
+
+The overhead instruments show hull integrity, stored shield charge and energy
+reserve as bars and percentages. A shield with retained charge but no active field
+is muted and explicitly labelled FIELD DOWN. Hull's footer shows the hottest
+reported module temperature, or THERMAL SHUTDOWN while a module is thermally tripped;
+the energy footer shows current power draw. Existing computer alerts own alarm state.
+
+A sparse, non-interactive HTML HUD inside the actual cockpit viewport shows speed,
+damper mode, destination/distance, selected-group mount availability, hottest module
+and the computer's first prioritized alert. It hides in menus/settings. The existing
+reticle and cockpit geometry remain unchanged. HUD text refreshes only when the
+15 Hz instrument snapshot changes. Mounts ready means idle/operating device state,
+not implemented projectiles, ammunition, target tracking or guaranteed firepower.
+Detailed module state and switches remain on the right systems display.
