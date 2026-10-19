@@ -277,15 +277,19 @@ export function parseGlb(
       ...(options.resolveImage ? [] : ['normalTexture', 'occlusionTexture']),
       'emissiveTexture',
     ]);
-    if (
-      (m.alphaMode !== undefined && m.alphaMode !== 'OPAQUE') ||
-      m.doubleSided === true
-    )
-      fail('only opaque single-sided materials supported');
+    const alphaMode = m.alphaMode ?? 'OPAQUE';
+    if (alphaMode !== 'OPAQUE' && alphaMode !== 'BLEND')
+      fail('only OPAQUE and uniform BLEND materials supported');
+    if (m.doubleSided !== undefined && typeof m.doubleSided !== 'boolean')
+      fail('doubleSided must be boolean');
     const p = object(m.pbrMetallicRoughness ?? {});
     absent(p, ['extensions']);
     if (!options.resolveImage)
       absent(p, ['baseColorTexture', 'metallicRoughnessTexture']);
+    // The GPU's current transparency contract is per-primitive coverage.
+    // Texture alpha and MASK require a different shader/depth contract.
+    if (alphaMode === 'BLEND' && p.baseColorTexture !== undefined)
+      fail('BLEND base-color texture alpha is not supported');
     const base = vector(p.baseColorFactor ?? [1, 1, 1, 1], 4).map(unit);
     const emissive = vector(m.emissiveFactor ?? [0, 0, 0], 3).map(unit);
     const srgb = (n: number) =>
@@ -297,7 +301,8 @@ export function parseGlb(
     return {
       name: name(m.name, `material-${i}`),
       color: `#${base.slice(0, 3).map(srgb).join('')}`,
-      baseColorFactor: base,
+      baseColorFactor: [base[0]!, base[1]!, base[2]!, 1],
+      ...(alphaMode === 'BLEND' ? { opacity: base[3]! } : {}),
       metallicFactor: unit(p.metallicFactor ?? 1),
       roughnessFactor: unit(p.roughnessFactor ?? 1),
       emissiveFactor: emissive,

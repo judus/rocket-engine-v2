@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import {
   WindshieldHud,
   hudGlyphGeometry,
-  windshieldProjection,
 } from '../games/ship/WindshieldHud.js';
 import { cockpitReadings } from '../games/ship/CockpitReadings.js';
 import { surfaceVariantSwitcher } from '../games/ship/SurfaceVariants.js';
@@ -52,13 +51,14 @@ void test('Reticle and changing text share one 3D tilt and opacity without mater
     assert.equal(hud.reticle.transform.position.y, 0);
     assert.equal(
       hud.root.transform.rotation.x,
-      (windshieldProjection.tiltDegrees * Math.PI) / 180,
+      0,
+      'tilt is inherited from the authored pane',
     );
     const speed = hud.root.children.find((n) => n.name === 'HUD speed')!;
     const before = speed.mesh!;
     const core = hud.reticle.children[0]!;
     const originalAlpha = core.mesh!.materials[0]!.opacity!;
-    hud.setAppearance(0.275, -15);
+    hud.setOpacity(0.275);
     assert.equal(speed.mesh!.materials[0]!.opacity, 0.275);
     assert.equal(speed.mesh!.geometry, before.geometry);
     assert.equal(core.mesh!.materials[0]!.opacity, originalAlpha / 2);
@@ -71,8 +71,8 @@ void test('Reticle and changing text share one 3D tilt and opacity without mater
       assert.equal(speed.mesh, changed);
       assert.equal(core.mesh!.materials[0]!.opacity, originalAlpha / 2);
     }
-    assert.throws(() => hud.setAppearance(2, 0), /projection/);
-    assert.throws(() => hud.setAppearance(0.5, NaN), /projection/);
+    assert.throws(() => hud.setOpacity(2), /projection/);
+    assert.throws(() => hud.setOpacity(NaN), /projection/);
     assert.equal(
       speed.mesh,
       changed,

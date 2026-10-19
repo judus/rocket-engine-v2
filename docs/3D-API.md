@@ -92,10 +92,10 @@ Cancellation stops fetching, not synchronous parsing already in progress.
 The bounded GLB 2.0 subset supports one embedded BIN, triangle primitives,
 indexed (unsigned byte/short/int) or unindexed FLOAT positions, optional FLOAT
 normals/UV0, interleaved attributes, multiple primitives, hierarchy, affine
-matrices or quaternion TRS, opaque single-sided materials, and finite perspective
+matrices or quaternion TRS, opaque or uniform-alpha blended materials, and finite perspective
 cameras. Vertex/accessor ranges, component alignment, hierarchy and container
 lengths are checked. Extensions, compression, textures, extra attributes, skins,
-animations, morphs, sparse accessors, transparency, double-sided materials,
+animations, morphs, sparse accessors, textured alpha, MASK materials,
 orthographic and infinite cameras reject explicitly. This is not a general
 Khronos validator or a complete glTF importer.
 
@@ -633,7 +633,7 @@ and use, so an unusual image reused for both color/data remains distinct. Tempor
 decoded pixels do not become a global cache. Source camera, model placement and
 hierarchy remain data; the host chooses how to present them.
 
-Explicit subset: embedded PNG/JPEG, UV0, opaque single-sided triangle materials,
+Explicit subset: embedded PNG/JPEG, UV0, opaque textured or uniform BLEND triangle materials,
 existing scalar factors, no extensions/animation/skins/emissive textures. Supported
 filter pairs are nearest/nearest, linear/linear, linear/trilinear; other glTF sampler
 combinations reject. Missing sampler fields default to repeat and trilinear with
@@ -840,3 +840,27 @@ Strength zero in composite mode and scene view bypass extraction/blur while
 retaining existing scratch storage. Debug bright/glow show unscaled intermediate
 values. `stats` reports fullscreen draws, scratch width/height and estimated bytes;
 add the caller-owned target bytes separately. Recreate after context restoration.
+
+## Geometry picking and authored smart-glass surfaces
+
+`pickMesh3D(root, camera, width, height, x, y, eligible?)` returns the nearest
+visible eligible mesh hit: node, face ID, world point, ray distance and interpolated
+UV (or null when the geometry has no UVs). Pixel positions use the supplied
+viewport; UVs remain normalized with their authored origin. The game maps these
+to a particular display's dimensions/origin. Full hierarchy matrices, reflections,
+nonuniform scales and camera yaw/pitch/roll are retained. Hidden ancestors and
+near/far clipping reject hits. Convex faces use triangle fans, matching the mesh
+renderer; imported irregular panes supply their actual triangle lists.
+
+This is geometric picking: zero-opacity glass remains selectable, and an opaque
+frame nearer than that glass wins the same query. The optional predicate chooses
+eligible geometry, not whole subtrees. Exclude presentation-only HUD glyphs in the
+host. Alpha masks, per-pixel transparency, acceleration structures and animation
+skinning are not provided. Queries scan eligible mesh triangles; this is an input
+query rather than a per-frame visibility pass.
+
+Uniform GLB `BLEND` maps base alpha to coverage; `OPAQUE` ignores alpha. The
+existing WebGL backend renders both faces, so boolean `doubleSided` is accepted.
+Its existing two-sided shading convention is unchanged; this does not introduce
+glTF-specific back-face normal flipping or single-sided culling. Texture alpha
+and `MASK` still reject. See [current transparency boundaries](WEBGL-TRANSPARENCY.md).

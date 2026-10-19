@@ -19,9 +19,18 @@ including on draw failure. Translucent geometry is excluded from the opaque
 shadow caster pass; partial transmission shadows are not implemented.
 Compositing uses the existing LDR output; bloom processes the composited scene.
 
-This is scalar coverage support. Texture alpha, alpha-test cutouts, imported
-glTF alpha modes, physically based transmission/refraction and order-independent
-transparency are not included. Intersecting transparent primitives or complex
+This is scalar coverage support. The GLB importer now accepts uniform `BLEND`
+materials without base-color textures and maps their base-color alpha to
+`Material3D.opacity`. `OPAQUE` ignores the authored alpha, as glTF specifies.
+RGB factors remain linear; the internal base-color factor has alpha 1 because
+coverage has one owner, `opacity`. Zero-alpha primitives retain CPU geometry.
+Boolean `doubleSided` declarations are accepted; the current WebGL backend already
+rasterizes both sides. This does not add glTF-specific back-face lighting or
+single-sided culling to the existing backend.
+
+Missing capabilities: texture alpha, `MASK` cutouts, physically based
+transmission/refraction and order-independent transparency. `BLEND` base-color
+textures and `MASK` reject explicitly rather than silently losing coverage. Intersecting transparent primitives or complex
 self-overlapping meshes can require splitting because sorting is per primitive,
 not per triangle. Canvas/software renderers do not consume this WebGL field.
 

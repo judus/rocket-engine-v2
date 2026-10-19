@@ -17,14 +17,14 @@ eligibility and hit consequences; effects remain presentation. See
 [Particles and projectiles](EFFECTS-AND-PROJECTILES.md). GPU/3D adapters, moving-target
 relative sweeps and finite-radius projectiles are future slices, not delivered here.
 
-## Planned WebGL transparency — 16 October 2026
+## WebGL transparency — current bounded implementation
 
-Julien requested transparency support for translucent cockpit lamps and future
-materials. Plan a bounded renderer slice with explicit opaque/masked/blended
-material modes, correct blending and depth-write behavior, transparent ordering,
-GLB alpha bindings, and overlap/lifecycle/browser verification. Implementation is
-pending; current GPU mesh materials remain opaque. See the
-[3D deferred ideas](3D-MILESTONES.md#deferred-ideas).
+Delivered scalar material opacity, opaque/translucent passes, depth-tested blending,
+zero-opacity skipping, and uniform GLB `BLEND` alpha mapping for the smart-glass
+cockpit. The geometry picker retains invisible panes and resolves the nearest
+frame hit. Texture-driven alpha, `MASK`, transmission/refraction and glTF-specific
+back-face lighting/culling remain future capabilities. See
+[the current transparency contract](WEBGL-TRANSPARENCY.md).
 
 ## Delivery discipline
 

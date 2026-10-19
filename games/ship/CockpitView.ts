@@ -61,7 +61,7 @@ export async function createCockpitView(
   try {
     const [model, sky, family] = await Promise.all([
       assets.acquireModel(
-        new URL('examples/3d/assets/cockpit-hi3d-v3-gap-filled.glb', base).href,
+        new URL('examples/3d/assets/cockpit-hi3d-v3-smartglass.glb', base).href,
         { signal: assetSignal },
       ),
       assets.acquireTexture(

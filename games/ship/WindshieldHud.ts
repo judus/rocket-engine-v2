@@ -3,12 +3,9 @@ import type { GeometryFace, Vec3 } from '../../src/3d/index.js';
 import { cockpitReticle } from '../../examples/webgl/CockpitReticle.js';
 import type { CockpitReading } from './CockpitReadings.js';
 
-/** Fit to the windshield framing; this is a game presentation calibration. */
+/** Shared HUD appearance. Placement and tilt come from the imported glass node. */
 export const windshieldProjection = {
   opacity: 0.55,
-  tiltDegrees: -13.7,
-  anchor: { x: 0, y: 1.48, z: 0.397 },
-  behindFrameM: 0.12,
 } as const;
 
 /** Glyph coverage becomes geometry: untouched pixels remain genuinely empty space. */
@@ -113,25 +110,12 @@ export class WindshieldHud {
       this.root.add(node);
       this.#lines.set(key, { node, text: '', color: '', alignment });
     }
-    this.setAppearance(
-      windshieldProjection.opacity,
-      windshieldProjection.tiltDegrees,
-    );
+    this.setOpacity(windshieldProjection.opacity);
   }
-  setAppearance(opacity: number, tiltDegrees: number): void {
-    if (
-      !Number.isFinite(opacity) ||
-      opacity < 0 ||
-      opacity > 1 ||
-      !Number.isFinite(tiltDegrees) ||
-      Math.abs(tiltDegrees) >= 80
-    )
-      throw new Error('Invalid HUD projection opacity or tilt');
+  setOpacity(opacity: number): void {
+    if (!Number.isFinite(opacity) || opacity < 0 || opacity > 1)
+      throw new Error('Invalid HUD projection opacity');
     this.#opacity = opacity;
-    this.root.transform = {
-      ...this.root.transform,
-      rotation: { x: (tiltDegrees * Math.PI) / 180, y: 0, z: 0 },
-    };
     for (const [node, mesh] of this.#reticleMaterials)
       node.mesh = new Mesh3D(
         mesh.geometry,

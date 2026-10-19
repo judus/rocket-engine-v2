@@ -787,15 +787,11 @@ integrity. Existing computer alerts own alarm state.
 
 A sparse windshield HUD shows speed, damper mode, destination/distance,
 selected-group mount availability, hottest module and the computer's first
-prioritized alert. Text and reticle are now ordinary unlit 3D meshes beneath one
-`WindshieldHud.root`, attached to the pilot rig. They share projection tilt and
-opacity through `setAppearance`; the reticle's core/glow intensity ratios remain
-preserved. Calibration is in `windshieldProjection`, currently 55% opacity and
--13.7° tilt from the cockpit designer’s nominal frame-plane fit. The asset SHA-256
-was verified as e96b1023c09715eb4807559e8f9bffb2b4d876c8f568e309e287113734050bd2.
-The provided source plane and GLB hierarchy/game transforms place its centre at
-approximately pilot-rig Y=1.48, Z=0.397. This is a fitted frame plane, not an
-existing glass surface. Pane outline/extents still require visual calibration.
+prioritized alert. Text and reticle are ordinary unlit 3D meshes beneath one
+`WindshieldHud.root`, attached to the authored front-glass node. They inherit
+its exact tilt and share opacity through `setOpacity`; reticle core/glow intensity
+ratios remain preserved. The current HUD opacity is 55%. Placement follows the
+full imported hierarchy and game fitting, rather than a guessed plane angle.
 
 Text is rasterized offscreen and covered horizontal pixel runs become geometry.
 There is no HTML HUD, texture rectangle, or opaque text background. Changed text
@@ -809,26 +805,49 @@ Menus/settings and touch controls remain HTML. Mounts ready means idle/operating
 device state, not implemented projectiles, ammunition, target tracking or guaranteed
 firepower. Detailed module state and switches remain on the right systems display.
 
-### Switchable windshield prototype
+### Switchable windshield
 
-`WindshieldSurface` adds one fitted four-corner pane behind the projection, under
-its same 13.7° parent. The outline is visually calibrated with a slight overlap
-under the cockpit frame; its lower edge extends behind the dashboard. It retains
-UVs for a later interactive display. The original GLB is unchanged.
+Systems / I darkens the five authored panes, hides the flight reticle and shows a
+windshield heading above existing telemetry. Return to flight restores clear glass
+and the reticle. Steering is released under the existing systems-input policy;
+ship simulation continues. Launch/Resume consistently clears the glass. Both modes
+retain the same fitted geometry and alignment, behind the cockpit frame.
 
-Systems / I switches to display mode: the pane darkens, the flight reticle hides,
-and a windshield heading appears above the existing live telemetry. Return to
-flight restores clear glass and the reticle. Steering is released using the
-existing systems-input policy; ship simulation continues. Launch/Resume clears
-the pane consistently. Both modes retain the same geometry and alignment.
+Clear mode uses faint tint; display mode uses a dark translucent backing. These
+are depth-tested alpha materials, not physical refraction/reflection. Interactive
+windshield navigation/system/galaxy maps remain future work. Existing physical
+display switches remain available in systems mode.
 
-Clear mode is a very faint tint/edge glint; display mode is a dark translucent
-backing. These are ordinary depth-tested alpha materials, not a physically based
-refraction/reflection simulation. This slice tests the surface and mode switch;
-interactive windshield navigation/system/galaxy maps remain future work. Existing
-physical display switches remain available in systems mode.
+## Authored cockpit / smart glass
 
-The entire projection (glass, reticle and text) is offset 0.12 m behind the nominal
-frame plane so the opaque bezel can mask the rounded corners. This pass changes
-depth only: size and the shared 13.7° angle stay unchanged; apparent size changes
-naturally with distance. The offset lives in `windshieldProjection.behindFrameM`.
+The game loads `examples/3d/assets/cockpit-hi3d-v3-smartglass.glb`, copied unchanged
+from Bart's stable snapshot `c820d3e0067ff28ac7aab613519a1684d4c6deed`.
+SHA256: `a724137d9a8de03c347bfa99965c7d39da92e0178aeffff9195be4c7f55db2ae`.
+The original rendering-testbed model remains separate. This snapshot adds five
+named planar panes (44 triangles) and pulls the side rails into alignment.
+
+`CockpitModel.ts` owns game placement, axis reflection and pilot fitting.
+`WindshieldSurface.ts` binds the five authored node names and preserves their
+complete inherited matrices, irregular boundaries and UVs. Each pane receives
+its own runtime material. Clear mode uses faint tint; Systems switches the panes
+to dark display mode. The HUD and reticle are children of `WindshieldSurface`,
+with one opacity setting and the mesh's actual tilt. The reticle anchor is the
+pilot's forward sightline intersecting the plane, with a small local offset toward
+the pilot to avoid coplanarity. No guessed tilt or replacement trapezoid remains.
+The dashboard and overhead instruments retain their existing content/calibration.
+
+Engine responsibilities are GLB uniform-alpha import and `pickMesh3D` triangle/UV
+intersection. Game responsibilities are content, mode/input policy, surface
+materials and calibrated placement. Dashboard input queries the cockpit frame,
+authored panes and instrument overlays together: the nearest geometry wins.
+The diagnostic 512×400 helper now delegates to the same engine query; the game
+uses each actual display's dimensions. Glass interaction is geometric even at
+zero opacity; no picking through a nearer metal frame is implied.
+
+The front display currently shows the existing HUD telemetry. Side panes support
+clear/display material switching; maps and independent interactive window content
+are later game features. This snapshot does not add a full cabin or uncropped
+outer borders for extreme head movement. Automated checks use real GLB geometry
+with tiny decoded-image fixtures; real textures, modes and dashboard interaction
+are checked separately in the browser. Physical mobile-device validation remains
+separate from desktop browser evidence.

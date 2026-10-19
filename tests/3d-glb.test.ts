@@ -139,7 +139,7 @@ void test('GLB rejects truncated containers, bad accessor spans, invalid topolog
       (d.accessors as Record<string, unknown>[])[0]!.sparse = {};
     },
     (d) => {
-      d.materials = [{ alphaMode: 'BLEND' }];
+      d.materials = [{ alphaMode: 'MASK' }];
     },
   ];
   for (const edit of edits) {
@@ -402,4 +402,47 @@ void test('textured GLB rejects external/bad image descriptors, unsupported UV/f
       }),
     /transfer function/,
   );
+});
+
+void test('Uniform BLEND maps alpha to coverage; OPAQUE ignores base alpha, invalid modes and textured alpha reject', () => {
+  for (const [alphaMode, expected] of [
+    ['BLEND', 0.2],
+    ['OPAQUE', 1],
+  ] as const) {
+    const { doc, bin } = fixture();
+    const d = doc as unknown as Record<string, unknown>;
+    d.materials = [
+      {
+        alphaMode,
+        doubleSided: true,
+        pbrMetallicRoughness: { baseColorFactor: [0.25, 0.5, 1, 0.2] },
+      },
+    ];
+    (
+      d.meshes as { primitives: Record<string, unknown>[] }[]
+    )[0]!.primitives[0]!.material = 0;
+    const material = parseGlb(pack(d, bin)).instantiate().nodes[0]!.mesh!
+      .materials[0]!;
+    assert.equal(material.opacity ?? 1, expected);
+    assert.deepEqual(material.baseColorFactor, [0.25, 0.5, 1, 1]);
+    for (const invalid of [
+      { alphaMode: 'MASK' },
+      { alphaMode: 'BLEND', doubleSided: 'yes' },
+      {
+        alphaMode: 'BLEND',
+        pbrMetallicRoughness: { baseColorTexture: { index: 0 } },
+      },
+    ]) {
+      d.materials = [invalid];
+      assert.throws(
+        () =>
+          parseGlb(pack(d, bin), {
+            resolveImage: () => {
+              throw new Error('decoder must not run');
+            },
+          }),
+        /GLB:/,
+      );
+    }
+  }
 });

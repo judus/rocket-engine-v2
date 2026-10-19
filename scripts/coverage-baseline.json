@@ -55,6 +55,11 @@
       "coveredBranchPercent": 91.5,
       "coveredFunctionPercent": 99.5
     },
+    "3d/MeshPicking.js": {
+      "coveredLinePercent": 99.5,
+      "coveredBranchPercent": 99.5,
+      "coveredFunctionPercent": 99.5
+    },
     "3d/Node3D.js": {
       "coveredLinePercent": 96.76027397260275,
       "coveredBranchPercent": 92.60344827586206,

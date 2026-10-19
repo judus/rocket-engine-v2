@@ -1,11 +1,16 @@
-import { Node3D, PerspectiveCamera, matrixPoint } from '../../src/3d/index.js';
+import {
+  Node3D,
+  PerspectiveCamera,
+  matrixPoint,
+  pickMesh3D,
+} from '../../src/3d/index.js';
 import type { Matrix4, Mesh3D, TextureImage } from '../../src/3d/index.js';
 import type { WebGLMeshRenderer3D } from '../../src/webgl/index.js';
 import { hi3dCockpitDisplays } from '../../examples/webgl/Hi3dCockpitDisplays.js';
 import { hi3dCockpitLamps } from '../../examples/webgl/Hi3dCockpitLamps.js';
+import { mountCockpitModel } from './CockpitModel.js';
 import { WindshieldSurface } from './WindshieldSurface.js';
-import { WindshieldHud, windshieldProjection } from './WindshieldHud.js';
-import { cockpitScreenPoint } from '../../examples/webgl/CockpitScreenPoint.js';
+import { WindshieldHud } from './WindshieldHud.js';
 import { originalAsteroidField } from '../../examples/space/OriginalAsteroidField.js';
 import { distantSun } from '../../examples/space/DistantSun.js';
 import { CockpitInstruments } from './CockpitInstruments.js';
@@ -19,35 +24,11 @@ export function createCockpitScene(
   variants: readonly (readonly Mesh3D[])[],
 ) {
   const root = new Node3D('flight world'),
-    rig = new Node3D('ship cockpit'),
-    assembly = new Node3D('source coordinates'),
-    fit = new Node3D('pilot fit'),
-    placement = new Node3D('cockpit model');
+    rig = new Node3D('ship cockpit');
+  const { assembly, fit } = mountCockpitModel(modelRoot);
   const field = originalAsteroidField(2126, 72, variants, true);
-  root.add(field);
-  root.add(rig);
+  root.add(field).add(rig);
   rig.add(assembly);
-  assembly.add(fit);
-  fit.add(placement);
-  assembly.transform = {
-    ...assembly.transform,
-    scale: { x: 1, y: 1, z: -1 },
-  };
-  fit.transform = {
-    position: { x: 0, y: 1.53, z: 0.44 },
-    rotation: { x: 0, y: 0, z: 0 },
-    scale: { x: 0.8, y: 0.93, z: 1 },
-  };
-  placement.transform = {
-    position: { x: 0, y: -0.8191118254985987 - 1.5, z: 0 },
-    rotation: { x: 0, y: 0, z: 0 },
-    scale: {
-      x: 94.70412249158481,
-      y: 94.70412249158481,
-      z: 94.70412249158481,
-    },
-  };
-  placement.add(modelRoot);
   const instruments = new CockpitInstruments(ship);
   const displays = hi3dCockpitDisplays(
     { image: instruments.navigation.image },
@@ -108,17 +89,9 @@ export function createCockpitScene(
   lamps.setSize(4, 0.686);
   lamps.setSize(5, 0.686);
   fit.add(lamps.root);
-  const pilotEye = { x: 0, y: windshieldProjection.anchor.y, z: -3.37 };
+  const pilotEye = { x: 0, y: 1.48, z: -3.37 };
   const hud = new WindshieldHud();
-  hud.root.transform = {
-    ...hud.root.transform,
-    position: {
-      ...windshieldProjection.anchor,
-      z: windshieldProjection.anchor.z + windshieldProjection.behindFrameM,
-    },
-  };
-  const windshield = new WindshieldSurface(hud);
-  rig.add(hud.root);
+  const windshield = new WindshieldSurface(modelRoot, hud, pilotEye);
   const camera = new PerspectiveCamera();
   camera.near = 0.05;
   camera.far = 100000;
@@ -209,24 +182,25 @@ export function createCockpitScene(
       });
     },
     click(x: number, y: number, width: number, height: number) {
-      const right = cockpitScreenPoint(
-        displays.children[1]!,
+      // HUD glyphs are presentation, not selectable occluders. The authored
+      // cockpit (including invisible panes) and dashboard compete by hit depth.
+      const projection = new Set<Node3D>();
+      hud.root.traverse((node) => projection.add(node));
+      const hit = pickMesh3D(
+        assembly,
         camera,
         width,
         height,
         x,
         y,
+        (node) => !projection.has(node),
       );
-      if (right) instruments.clickComputer(right.x, right.y);
-      const left = cockpitScreenPoint(
-        displays.children[0]!,
-        camera,
-        width,
-        height,
-        x,
-        y,
-      );
-      if (left) instruments.nextDestination();
+      if (hit && hit.node === displays.children[1] && hit.uv)
+        instruments.clickComputer(
+          hit.uv[0] * instruments.computer.image.width,
+          hit.uv[1] * instruments.computer.image.height,
+        );
+      if (hit?.node === displays.children[0]) instruments.nextDestination();
     },
   };
 }
