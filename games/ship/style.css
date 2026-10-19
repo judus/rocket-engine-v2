@@ -1,0 +1,161 @@
+:root {
+  color-scheme: dark;
+  font:
+    16px system-ui,
+    sans-serif;
+  color: #bfeee4;
+  background: #03090c;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  overflow: hidden;
+}
+#game,
+#viewport {
+  position: fixed;
+  inset: 0;
+}
+#viewport canvas {
+  outline: none;
+}
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: 1px solid #86ead640;
+  border-radius: 5px;
+  background: #061116d9;
+  padding: 0.65rem 1rem;
+}
+button:hover,
+button:focus-visible {
+  border-color: #86ead6;
+  background: #12312f;
+  outline: none;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: wait;
+}
+nav {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+kbd {
+  font: inherit;
+  opacity: 0.55;
+  margin-left: 0.5rem;
+}
+#flight-feedback {
+  position: absolute;
+  left: 50%;
+  top: 1rem;
+  transform: translateX(-50%);
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+  color: #bfeee4;
+  background: #061116c9;
+  border-radius: 5px;
+  pointer-events: none;
+}
+#flight-feedback:empty {
+  display: none;
+}
+#entry {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #02080bbb;
+  backdrop-filter: blur(5px);
+}
+#entry[hidden] {
+  display: none;
+}
+.entry-card {
+  text-align: center;
+  max-width: 30rem;
+  padding: 2rem;
+}
+.eyebrow {
+  letter-spacing: 0.5em;
+  color: #86ead6;
+  font-size: 0.8rem;
+}
+h1 {
+  font-weight: 400;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  margin: 0.5rem 0 1rem;
+}
+#loading {
+  color: #92aaa8;
+  line-height: 1.6;
+}
+#fly {
+  margin-top: 1rem;
+  min-width: 13rem;
+  border-color: #86ead680;
+}
+dialog {
+  color: inherit;
+  background: #071218f5;
+  border: 1px solid #86ead650;
+  border-radius: 10px;
+  width: min(36rem, 95vw);
+  padding: 1.5rem;
+}
+dialog::backdrop {
+  background: #0009;
+}
+h2 {
+  margin-top: 0;
+  font-size: 1.4rem;
+  font-weight: 400;
+}
+dl {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 0.8rem 1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+dd {
+  margin: 0;
+  color: #92aaa8;
+}
+form {
+  text-align: right;
+}
+@media (max-width: 600px) {
+  nav {
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+  #flight-feedback {
+    top: auto;
+    bottom: 1rem;
+    width: max-content;
+    max-width: 94vw;
+  }
+}
+/* The game supplies its own capture feedback above the viewport. */
+.rocket-input-activation {
+  display: none;
+}
+#keyboard-fly {
+  display: block;
+  margin: 0.75rem auto 0;
+  background: transparent;
+  border-color: transparent;
+  color: #92aaa8;
+}
+.steering {
+  display: flex;
+  gap: 0.5rem;
+}

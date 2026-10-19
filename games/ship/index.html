@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#03090c" />
+    <title>Rocket · First flight</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "production-workshop": "../../dist/vendor/production-workshop-2.4.0/index.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main id="game" aria-label="Space flight">
+      <div id="viewport"></div>
+      <div id="flight-feedback" role="status" aria-live="polite"></div>
+      <nav aria-label="Cockpit controls">
+        <button id="systems" type="button" disabled>
+          Systems <kbd>I</kbd>
+        </button>
+        <button id="help" type="button" aria-label="Flight controls">?</button>
+      </nav>
+      <section id="entry" aria-labelledby="entry-title">
+        <div class="entry-card">
+          <p class="eyebrow">ROCKET</p>
+          <h1 id="entry-title">First flight</h1>
+          <p id="loading" role="status">Bringing the ship online…</p>
+          <button id="fly" type="button" disabled>Fly with mouse</button>
+          <button id="keyboard-fly" type="button" disabled>
+            Fly with keyboard
+          </button>
+        </div>
+      </section>
+      <dialog id="controls">
+        <h2>Flight controls</h2>
+        <dl>
+          <dt>W / S · A / D</dt>
+          <dd>Forward / reverse · strafe</dd>
+          <dt>Left Alt / Left Ctrl</dt>
+          <dd>Thrust up / down</dd>
+          <dt>Mouse / arrow keys</dt>
+          <dd>Pitch and yaw</dd>
+          <dt>Q / E</dt>
+          <dd>Roll</dd>
+          <dt>X</dt>
+          <dd>Inertia dampers</dd>
+          <dt>Space / left mouse</dt>
+          <dd>Fire selected weapon group</dd>
+          <dt>1–6</dt>
+          <dd>Select weapon group</dd>
+          <dt>I</dt>
+          <dd>Use cockpit displays; flight continues</dd>
+          <dt>Esc</dt>
+          <dd>Release flight controls</dd>
+        </dl>
+        <p class="steering">
+          <button id="keyboard-mode" type="button">Keyboard steering</button>
+          <button id="mouse-mode" type="button">Mouse steering</button>
+        </p>
+        <form method="dialog"><button>Close</button></form>
+      </dialog>
+    </main>
+    <script type="module" src="../../dist/games/ship/main.js"></script>
+  </body>
+</html>

@@ -2,6 +2,30 @@
 
 Open <http://localhost:8092/apps/flight-foundry/ship.html> after the usual `npm run start`. The game-owned ship source lives here; its HTML telemetry instrument lives under `apps/flight-foundry/`. Existing cockpit rendering, motion bench and curve planners are unchanged.
 
+## First flight game
+
+Open <http://localhost:8092/games/ship/> for the clean cockpit app. `index.html`
+owns the launch screen and help; `main.ts` assembles Rocket, a fixed Stage2D and
+one typed Ship entity. `CockpitView.ts` owns presentation/assets/context resources;
+`CockpitInstruments.ts` paints committed navigation/computer state at 15 Hz using
+the existing engine frame. There is no second flight model or animation loop.
+
+Choose mouse or keyboard flight at launch (or change steering under `?`). Mouse
+flight requests browser pointer lock; keyboard flight explicitly uses focus
+capture. WASD translates, Left Alt/Ctrl moves vertically, arrows rotate, Q/E
+rolls, X requests dampers, and 1–6 selects a fire group. Weapon triggers reach the
+mount system; projectiles/hits and combat remain future work. I releases flight
+input to use the physical cockpit screens while simulation continues. Click the
+left screen to cycle known asteroid contacts; the right screen routes switches
+through ShipComputer and paginates the module list. Esc releases flight input.
+
+The asteroid meshes, textures, sky, cockpit model and reticle reuse existing
+presentation assets/helpers. Asset URLs resolve from their owning module so
+nested entry points work. The rendering testbed and Flight Foundry remain
+separate. The game still uses the starter JSON balance; it has no collision,
+crew injury, campaign/objective loop or persistence yet. Navigation contacts mark
+actual field asteroid centres; they do not imply settlements or sensor detection.
+
 ## The assembly is the example
 
 ```ts
@@ -57,7 +81,7 @@ All instruments read `ship.telemetry` after a completed step, including forces a
 
 Implemented: actual attached body/control/power/engine/dampers/cooling/shields/hull/movement, 3D translation, pitch/yaw/roll, commands, standby/activity costs, reserve generation/depletion, partial/zero delivery, inherited recharge eligibility and immutable telemetry. Runtime uses the existing headless Stage2D and Rocket clock; pause/single-step work on the same simulation path.
 
-Not implemented: crew injury, destruction rules, cargo-pocket item transfers, collision, general rigid-body contact dynamics, keyboard/mouse input handover, core-equipment runtime replacement, or the cockpit presentation adapter. The earlier capture calculation now lives in `games/ship/CaptureResponse.ts` and drives the powered damper component. It still describes nominal fully supplied response; power delivery determines actual motion and protection.
+Not implemented: crew injury, destruction rules, cargo-pocket item transfers, collision, general rigid-body contact dynamics, core-equipment runtime replacement, or the cockpit presentation adapter. The earlier capture calculation now lives in `games/ship/CaptureResponse.ts` and drives the powered damper component. It still describes nominal fully supplied response; power delivery determines actual motion and protection.
 
 `npm run check` includes `tests/ship-architecture.test.ts`: actual engine/power/body outcomes, resource conservation, final partial versus zero supply, baseline admission/recharge, manual switches/coasting, yaw/thrust frames, normalized combined demand, independent ship lifetimes, coherent observations and fail-before-side-effect boundaries. Render-rate foundations are existing Rocket tests. Browser checks inspect the telemetry page; this is not a full game or real-device certification.
 
@@ -491,6 +515,15 @@ appear in persistent `telemetry.internals.commands` results. Invalid identifiers
 quantities and profiles fail on entry. Unexpected disagreement with a validated
 Workshop removal preflight aborts loudly instead of reporting partial success.
 Health commands use the same next-step health helper as the other modules.
+
+Workshop may commit a mutation and then throw because an observer failed.
+Installation, removal, stock, transfer and staffing/draining commands reconcile
+verified domain postconditions before recording committed outcomes and surfacing
+that reporting error. A completed operation is never replayed. Receipts publish
+incrementally; the unexecuted queue tail stays pending for a subsequent explicit
+commit. Unexpected failures still abort with a failed/incomplete receipt rather
+than an ordinary refusal. Loadout construction and disposal also surface observer
+errors while releasing owned power-port resources.
 
 After power/thermal calculation, the adapter sets Workshop's named `powered`,
 `temperature-safe` and `healthy` conditions, and uses a production modifier for

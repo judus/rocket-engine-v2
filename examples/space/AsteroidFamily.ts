@@ -5,7 +5,10 @@ import type {
   TextureBinding3D,
 } from '../../src/3d/index.js';
 import { loadTextureImage } from '../../src/webgl/index.js';
-const base = './examples/assets/asteroid-family-v1/';
+const base = new URL(
+  '../../../examples/assets/asteroid-family-v1/',
+  import.meta.url,
+).href;
 interface CatalogEntry {
   name: string;
   geometryFile: string;

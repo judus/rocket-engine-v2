@@ -1,0 +1,267 @@
+import { Node3D, PerspectiveCamera, matrixPoint } from '../../src/3d/index.js';
+import type { Matrix4 } from '../../src/3d/index.js';
+import {
+  WebGLSurface,
+  WebGLAssets,
+  WebGLMeshRenderer3D,
+} from '../../src/webgl/index.js';
+import type { Rocket } from '../../src/index.js';
+import type { Stage2D } from '../../src/experimental/index.js';
+import { hi3dCockpitDisplays } from '../../examples/webgl/Hi3dCockpitDisplays.js';
+import { hi3dCockpitLamps } from '../../examples/webgl/Hi3dCockpitLamps.js';
+import { cockpitReticle } from '../../examples/webgl/CockpitReticle.js';
+import { cockpitScreenPoint } from '../../examples/webgl/CockpitScreenPoint.js';
+import { loadAsteroidFamily } from '../../examples/space/AsteroidFamily.js';
+import { originalAsteroidField } from '../../examples/space/OriginalAsteroidField.js';
+import { distantSun } from '../../examples/space/DistantSun.js';
+import { CockpitInstruments } from './CockpitInstruments.js';
+import type { Ship } from './Ship.js';
+import type { NavigationContact } from './ShipNavigation.js';
+
+/** Game presentation: reads the ship, owns GPU/asset lifetime, never advances physics. */
+export async function createCockpitView(
+  runtime: Rocket,
+  scene: Stage2D,
+  ship: Ship,
+  host: HTMLElement,
+  signal: AbortSignal,
+  onError: (error: unknown) => void,
+) {
+  signal.throwIfAborted();
+  const loading = new AbortController();
+  const assetSignal = AbortSignal.any([signal, loading.signal]);
+  const assets = new WebGLAssets({ maxTexturePixels: 67108864 });
+  const surface = new WebGLSurface({
+    target: host,
+    scene,
+    label:
+      'Spaceship cockpit. Click to fly; I for systems; Escape releases controls.',
+    onError,
+  });
+  const base = new URL('../../../', import.meta.url);
+  try {
+    const [model, sky, family] = await Promise.all([
+      assets.acquireModel(
+        new URL('examples/3d/assets/cockpit-hi3d-v3-gap-filled.glb', base).href,
+        { signal: assetSignal },
+      ),
+      assets.acquireTexture(
+        new URL(
+          'examples/3d/assets/galactic-plane-1/galactic-plane-1.png',
+          base,
+        ).href,
+        { signal: assetSignal },
+      ),
+      loadAsteroidFamily(assetSignal),
+    ]);
+    assetSignal.throwIfAborted();
+    const root = new Node3D('flight world'),
+      rig = new Node3D('ship cockpit'),
+      assembly = new Node3D('source coordinates'),
+      fit = new Node3D('pilot fit'),
+      placement = new Node3D('cockpit model');
+    const field = originalAsteroidField(2126, 72, family.variants, true);
+    root.add(field);
+    root.add(rig);
+    rig.add(assembly);
+    assembly.add(fit);
+    fit.add(placement);
+    assembly.transform = {
+      ...assembly.transform,
+      scale: { x: 1, y: 1, z: -1 },
+    };
+    fit.transform = {
+      position: { x: 0, y: 1.53, z: 0.44 },
+      rotation: { x: 0, y: 0, z: 0 },
+      scale: { x: 0.8, y: 0.93, z: 1 },
+    };
+    placement.transform = {
+      position: { x: 0, y: -0.8191118254985987 - 1.5, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      scale: {
+        x: 94.70412249158481,
+        y: 94.70412249158481,
+        z: 94.70412249158481,
+      },
+    };
+    placement.add(model.value.instantiate().root);
+    const instruments = new CockpitInstruments(ship);
+    const displays = hi3dCockpitDisplays(
+      { image: instruments.navigation.image },
+      { image: instruments.computer.image },
+      instruments.overhead.map((d) => ({ image: d.image })) as [
+        { image: typeof instruments.navigation.image },
+        { image: typeof instruments.navigation.image },
+        { image: typeof instruments.navigation.image },
+      ],
+    );
+    displays.transform = {
+      ...displays.transform,
+      position: { x: 0, y: -1.5, z: 0 },
+    };
+    fit.add(displays);
+    const lamps = hi3dCockpitLamps();
+    lamps.root.transform = displays.transform;
+    lamps.setCockpitScale(0.8, 0.93);
+    fit.add(lamps.root);
+    const reticle = cockpitReticle('hi3d');
+    reticle.transform = {
+      ...reticle.transform,
+      position: { x: 0, y: 1.48, z: 0.63 },
+    };
+    rig.add(reticle);
+    const camera = new PerspectiveCamera();
+    camera.near = 0.05;
+    camera.far = 100000;
+    const sun = distantSun();
+    root.add(sun.node);
+    const sunDirection = { x: -0.6, y: 0.35, z: -0.72 };
+    const contacts: NavigationContact[] = field.children
+      .slice(0, 12)
+      .map((n, i) => ({
+        id: `rock-${i + 1}`,
+        label: `Asteroid ${String(i + 1).padStart(2, '0')}`,
+        positionM: matrixPoint(n.worldMatrix(), { x: 0, y: 0, z: 0 }),
+        arrivalRadiusM: 100,
+      }));
+    ship.navigation.setContacts(contacts);
+    ship.navigation.selectDestination(contacts[0]!.id);
+    const gpu = surface.manage(() => {
+      const renderer = new WebGLMeshRenderer3D(surface.gl, {
+        lighting: true,
+        textures: true,
+        materialResponse: true,
+        materialMaps: true,
+        normalMapping: true,
+      });
+      return {
+        value: renderer,
+        dispose(): undefined {
+          renderer.dispose();
+        },
+      };
+    });
+    const presentation = runtime.presentation({
+      scene,
+      render() {
+        const renderer = gpu.current;
+        if (!renderer) return;
+        surface.resize(1, host.clientWidth / Math.max(1, host.clientHeight));
+        const b = ship.telemetry.body,
+          p = b.positionM;
+        const r = ship.body.localToWorld({ x: 1, y: 0, z: 0 }),
+          u = ship.body.localToWorld({ x: 0, y: 1, z: 0 }),
+          f = ship.body.localToWorld({ x: 0, y: 0, z: 1 });
+        const pose: Matrix4 = [
+          r.x,
+          r.y,
+          r.z,
+          0,
+          u.x,
+          u.y,
+          u.z,
+          0,
+          f.x,
+          f.y,
+          f.z,
+          0,
+          p.x,
+          p.y,
+          p.z,
+          1,
+        ];
+        rig.matrix = pose;
+        const eye = matrixPoint(pose, { x: 0, y: 1.48, z: -3.37 });
+        camera.x = eye.x;
+        camera.y = eye.y;
+        camera.z = eye.z;
+        camera.yaw = b.yawRadians;
+        camera.pitch = b.pitchRadians;
+        camera.roll = b.rollRadians;
+        sun.update(eye, sunDirection);
+        lamps.setPowered(0, true);
+        lamps.setPowered(1, true);
+        lamps.setPowered(2, ship.telemetry.engine.activityFraction > 0);
+        lamps.setPowered(3, ship.telemetry.dampers.activityFraction > 0);
+        lamps.setPowered(
+          4,
+          ship.computer.telemetry.alerts.some((a) => a.severity === 'warning'),
+        );
+        lamps.setPowered(
+          5,
+          ship.computer.telemetry.alerts.some((a) => a.severity === 'critical'),
+        );
+        renderer.render(
+          root,
+          camera,
+          surface.canvas.width,
+          surface.canvas.height,
+          {
+            clearColor: [0, 0, 0],
+            background: { image: sky.value, yaw: Math.PI / 2 },
+            lights: [
+              { kind: 'ambient', color: [1, 1, 1], intensity: 0.015 },
+              {
+                kind: 'directional',
+                color: [1, 0.97, 0.9],
+                intensity: 1.1,
+                direction: sunDirection,
+              },
+            ],
+            lightingEnabled: true,
+            materialResponseEnabled: true,
+            normalMappingEnabled: true,
+          },
+        );
+      },
+      dispose(): undefined {
+        loading.abort();
+        surface.dispose();
+        model.dispose();
+        sky.dispose();
+        assets.dispose();
+      },
+    });
+    return {
+      surface,
+      instruments,
+      update(dt: number) {
+        instruments.update(dt);
+      },
+      click(event: MouseEvent) {
+        const rect = surface.canvas.getBoundingClientRect();
+        const point = surface.clientToWorld({
+          x: event.clientX,
+          y: event.clientY,
+        });
+        if (!rect.width || !rect.height) return;
+        const right = cockpitScreenPoint(
+          displays.children[1]!,
+          camera,
+          surface.width,
+          surface.height,
+          point.x,
+          point.y,
+        );
+        if (right) instruments.clickComputer(right.x, right.y);
+        const left = cockpitScreenPoint(
+          displays.children[0]!,
+          camera,
+          surface.width,
+          surface.height,
+          point.x,
+          point.y,
+        );
+        if (left) instruments.nextDestination();
+      },
+      dispose() {
+        presentation.dispose();
+      },
+    };
+  } catch (error) {
+    loading.abort();
+    surface.dispose();
+    assets.dispose();
+    throw error;
+  }
+}
