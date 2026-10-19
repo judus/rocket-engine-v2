@@ -753,3 +753,13 @@ instead of exposing the asset's open sides on ultrawide screens. Menus and touch
 controls use the whole device screen; input and display hit testing continue to
 use the actual canvas bounds. Portrait play remains available, though landscape
 provides the intended cockpit view. Real phone usability still needs device tests.
+
+### Mobile fullscreen and orientation
+
+On a primary coarse-pointer device, Launch/Resume requests fullscreen directly
+from the click gesture, then requests a landscape orientation lock after fullscreen
+entry. Menus remain inside the same fullscreen game element. A later Resume retries
+entry if fullscreen was exited. Desktop launching does not request fullscreen.
+Unsupported or refused browser requests leave flight playable and show a short
+status; a portrait-only rotate hint remains available. Actual fullscreen/orientation
+support is controlled by the browser/platform and requires real-device testing.

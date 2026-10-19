@@ -2,6 +2,7 @@ import { Rocket, Input, createVirtualCornerPreset } from '../../src/index.js';
 import type { ActionContext } from '../../src/index.js';
 import { Stage2D, SceneNavigator } from '../../src/experimental/index.js';
 import { Ship } from './Ship.js';
+import { enterMobileScreen } from './MobileScreen.js';
 import { loadShipSetup } from './loadShipSetup.js';
 import { createCockpitView } from './CockpitView.js';
 import {
@@ -140,6 +141,8 @@ async function start(): Promise<void> {
             !inFlight || activeVirtualMode() === 'off' || usingSystems;
           element<HTMLElement>('nav').hidden = !inFlight;
           feedback.hidden = !inFlight;
+          element('#rotate-hint').hidden = !inFlight;
+          element('#screen-status').hidden = !inFlight;
           if (!inFlight) {
             binding.capture?.release();
             view!.surface.canvas.blur();
@@ -390,6 +393,20 @@ async function start(): Promise<void> {
   fly.addEventListener(
     'click',
     () => {
+      // Fullscreen must be requested within the original user gesture.
+      if (touchFirst) {
+        void enterMobileScreen(
+          element('#game'),
+          document,
+          window.screen.orientation as ScreenOrientation & {
+            lock?: (orientation: 'landscape') => Promise<void>;
+          },
+        )
+          .then((message) => {
+            element('#screen-status').textContent = message;
+          })
+          .catch(fail);
+      }
       launched = true;
       fly.textContent = 'Resume flight';
       loading.textContent = preferenceError() || 'Flight paused.';

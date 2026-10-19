@@ -363,3 +363,42 @@ output {
     padding-inline: 0;
   }
 }
+
+#game:fullscreen {
+  background: #03090c;
+}
+#screen-status {
+  position: absolute;
+  top: 4.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: min(32rem, 90vw);
+  margin: 0;
+  padding: 0.5rem 0.8rem;
+  border-radius: 5px;
+  background: #061116e8;
+  font-size: 0.8rem;
+  text-align: center;
+  pointer-events: none;
+}
+#screen-status:empty,
+#rotate-hint {
+  display: none;
+}
+@media (pointer: coarse) and (orientation: portrait) {
+  #rotate-hint {
+    display: block;
+    position: absolute;
+    top: 22%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: max-content;
+    max-width: 90vw;
+    padding: 1rem;
+    border: 1px solid #86ead640;
+    border-radius: 8px;
+    background: #061116ed;
+    text-align: center;
+    pointer-events: none;
+  }
+}
