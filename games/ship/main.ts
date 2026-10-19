@@ -1,6 +1,7 @@
 import { Rocket, Input, createVirtualCornerPreset } from '../../src/index.js';
 import type { ActionContext } from '../../src/index.js';
 import { Stage2D, SceneNavigator } from '../../src/experimental/index.js';
+import { createShipInteriors } from './ShipInteriors.js';
 import { Ship } from './Ship.js';
 import { enterMobileScreen } from './MobileScreen.js';
 import { loadShipSetup } from './loadShipSetup.js';
@@ -43,6 +44,7 @@ function fail(error: unknown): void {
   fly.disabled = true;
   settingsButton.disabled = true;
   settingsRoot.hidden = true;
+  element('#interior-scene').hidden = true;
   loading.textContent = error instanceof Error ? error.message : String(error);
   feedback.textContent = 'Flight unavailable';
 }
@@ -117,6 +119,7 @@ async function start(): Promise<void> {
       return undefined;
     },
   });
+  let interiors: ReturnType<typeof createShipInteriors> | undefined;
   const ship = stage.entity(() => new Ship(setup.profile, setup.initialState), {
     id: 'player-ship',
     tags: ['ship', 'player'],
@@ -133,13 +136,14 @@ async function start(): Promise<void> {
         onChange() {
           engine.refreshScenes();
           const inFlight = navigator.current === 'flight';
+          const inRoom = interiors?.show(navigator.current) ?? false;
           actions.setEnabled(inFlight && !usingSystems);
           element('#viewport').inert = !inFlight;
           entry.hidden = navigator.current !== 'menu';
           settingsRoot.hidden = navigator.current !== 'settings';
           touch.hidden =
             !inFlight || activeVirtualMode() === 'off' || usingSystems;
-          element<HTMLElement>('nav').hidden = !inFlight;
+          element<HTMLElement>('#cockpit-controls').hidden = !inFlight;
           feedback.hidden = !inFlight;
           element('#rotate-hint').hidden = !inFlight;
           element('#screen-status').hidden = !inFlight;
@@ -154,7 +158,8 @@ async function start(): Promise<void> {
               videoPanel.open();
               selectSettingsPage('controls');
               element<HTMLButtonElement>('#settings-back').focus();
-            } else fly.focus();
+            } else if (inRoom) interiors!.focus();
+            else fly.focus();
           }
           return undefined;
         },
@@ -267,8 +272,26 @@ async function start(): Promise<void> {
   const navigate = (route: string) => {
     actions.setEnabled(false);
     binding.capture?.release();
-    void navigator.run(route).catch(fail);
+    void navigator
+      .run(route)
+      .then(() => {
+        if (route === 'flight' && !usingSystems) actions.activate();
+      })
+      .catch(fail);
   };
+  interiors = createShipInteriors(
+    engine,
+    navigator,
+    element('#interior-scene'),
+    () => ship.telemetry.internals,
+    navigate,
+    lifetime.signal,
+  );
+  const aboard = element<HTMLButtonElement>('#aboard');
+  aboard.disabled = false;
+  aboard.addEventListener('click', () => navigate(interiors!.lastRoute), {
+    signal: lifetime.signal,
+  });
   const panel = new SettingsPanel(
     settingsRoot,
     () => preferences,
@@ -343,7 +366,12 @@ async function start(): Promise<void> {
   document.addEventListener(
     'keydown',
     (event) => {
-      if (event.repeat || navigator.current !== 'flight') return;
+      if (
+        event.defaultPrevented ||
+        event.repeat ||
+        navigator.current !== 'flight'
+      )
+        return;
       if (event.code === 'Escape') {
         event.preventDefault();
         navigate('menu');

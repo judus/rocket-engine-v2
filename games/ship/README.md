@@ -867,3 +867,27 @@ the screen; reversing midway retains current progress. The existing frame loop
 owns timing. Parent `Node3D.opacity` changes GPU draw coverage without rebuilding
 meshes each frame. No simulation/input policy, GLB geometry or side-window content
 changes are needed for this experiment.
+
+### Aboard: first compartment scenes
+
+The cockpit's **Aboard** button opens the last inspected compartment (initially
+Infirmary). The room selector provides nine current background views: the seven
+installed internals, plus Engine room and Cargo Link for the core systems. Galley
+and Fridge have separate focus images; Fabricator and Refinery likewise. These are
+inspection views, not nine claims about separate physical rooms.
+
+`ShipInteriors.ts` registers ordinary Rocket `Stage2D` scenes with the existing
+`SceneNavigator` and one engine Canvas view. Background images load lazily through
+Rocket Assets; each visit owns a lease and releases it when the scene leaves.
+They fill the 4:3–16:9 viewport using a centered source crop without stretching.
+Only the current room bitmap remains leased. Canvas size follows the viewport;
+room rendering is independent of the cockpit's WebGL render scale.
+
+This first presentation slice uses straight cuts and the existing non-flight
+pause behavior. The original ship remains retained: equipment, production and
+flight state are not recreated, copied or reset. Flight controls, pointer capture
+and touch sticks are released while browsing; Cockpit / Escape returns to the
+same flight scene. Leaving-cockpit simulation policy and animated scene transitions
+remain for the next discussion. No character overlays, hotspots, production
+controls or invented telemetry have been added. Current warm artwork is used
+unchanged while Julien and Bart work on color correction.

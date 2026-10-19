@@ -423,3 +423,62 @@ output {
   gap: 0.6rem;
   min-height: 44px;
 }
+
+/* Inspection rooms use the same supported viewport range, with separate game UI. */
+#interior-scene {
+  position: absolute;
+  inset: 0;
+  background: #03090c;
+}
+#interior-viewport {
+  position: absolute;
+  width: min(100vw, 177.777778dvh);
+  height: min(100dvh, 75vw);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+}
+#interior-viewport canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.interior-header {
+  position: absolute;
+  inset: max(1rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right)) auto
+    max(1rem, env(safe-area-inset-left));
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.interior-header h1 {
+  margin: 0;
+  padding: 0.5rem 0.8rem;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  background: #061116ce;
+  border-radius: 5px;
+}
+#interior-choices {
+  position: absolute;
+  left: max(1rem, env(safe-area-inset-left));
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding: 0.4rem;
+  background: #03090cbf;
+  border-radius: 6px;
+  scrollbar-width: thin;
+}
+#interior-choices button {
+  flex: 0 0 auto;
+  min-height: 44px;
+}
+#interior-choices button[aria-current='page'] {
+  background: #16443e;
+  border-color: #86ead6;
+}

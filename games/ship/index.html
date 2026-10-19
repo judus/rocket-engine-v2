@@ -27,7 +27,8 @@
       <div id="flight-feedback" role="status" aria-live="polite"></div>
       <p id="screen-status" role="status" aria-live="polite" hidden></p>
       <p id="rotate-hint" hidden>Rotate your phone to landscape to fly.</p>
-      <nav aria-label="Cockpit controls">
+      <nav id="cockpit-controls" aria-label="Cockpit controls">
+        <button id="aboard" type="button" disabled>Aboard</button>
         <button id="systems" type="button" disabled>
           Systems <kbd>I</kbd>
         </button>
@@ -36,6 +37,16 @@
         </button>
       </nav>
       <div id="touch-controls" hidden></div>
+      <section id="interior-scene" aria-labelledby="interior-title" hidden>
+        <div id="interior-viewport"></div>
+        <header class="interior-header">
+          <h1 id="interior-title">Infirmary</h1>
+          <button id="interior-cockpit" type="button">
+            Cockpit <kbd>Esc</kbd>
+          </button>
+        </header>
+        <nav id="interior-choices" aria-label="Ship compartments"></nav>
+      </section>
       <section id="entry" class="scene-panel" aria-labelledby="entry-title">
         <div class="entry-card">
           <h1 id="entry-title" class="visually-hidden">FARWAKE: WASTEBOUND</h1>
