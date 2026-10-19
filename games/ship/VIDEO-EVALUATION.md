@@ -67,3 +67,15 @@ interleaved measurements, and GPU time plus upload/texture counters. Check visua
 readability and test at least one actual mobile GPU before selecting presets.
 Texture resolution, decorative density, shadows and other options remain separate
 later evaluations. No reduction of gameplay objects is authorized by a quality preset.
+
+## Explicit renderer variants: completed first comparison
+
+The next experiment now lives in
+[Flight Foundry](../../apps/flight-foundry/surface-benchmark.html), sharing the
+actual game cockpit assembly rather than the earlier 96-asteroid testbed.
+[Method and recorded results](../../apps/flight-foundry/SURFACE-BENCHMARK.md)
+include two warmed, interleaved RTX 5080 runs at 1920×1080. Proper no-normal and
+map-averaged scalar-PBR variants reduced both GPU time and retained GPU allocations;
+plain diffuse was slower than scalar PBR in both runs. This supersedes the short
+runtime-toggle reconnaissance as evidence for these explicit variants. Full remains
+the game's renderer, and no surface-detail settings have been added.

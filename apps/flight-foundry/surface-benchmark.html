@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Flight Foundry · Surface renderer comparison</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "production-workshop": "../../dist/vendor/production-workshop-2.4.0/index.js"
+        }
+      }
+    </script>
+    <style>
+      :root {
+        color-scheme: dark;
+        font: 15px system-ui;
+        background: #071016;
+        color: #bfeee4;
+      }
+      body {
+        max-width: 1100px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      h1 {
+        font-weight: 400;
+      }
+      button,
+      select {
+        font: inherit;
+        color: inherit;
+        background: #12302d;
+        border: 1px solid #86ead660;
+        border-radius: 5px;
+        padding: 0.6rem;
+        margin-right: 0.5rem;
+      }
+      button:disabled {
+        opacity: 0.4;
+      }
+      #viewport {
+        width: 960px;
+        height: 540px;
+        background: black;
+      }
+      canvas {
+        width: 100% !important;
+        height: 100% !important;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-variant-numeric: tabular-nums;
+      }
+      td,
+      th {
+        padding: 0.5rem;
+        text-align: left;
+        border-bottom: 1px solid #86ead630;
+      }
+      pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font-size: 12px;
+      }
+      p {
+        line-height: 1.6;
+      }
+      .muted {
+        color: #92aaa8;
+      }
+      #status {
+        color: #86ead6;
+      }
+      a {
+        color: #86ead6;
+      }
+    </style>
+  </head>
+  <body>
+    <p class="muted">FLIGHT FOUNDRY / EXPERIMENT</p>
+    <h1>Surface renderer comparison</h1>
+    <p>
+      The game's unchanged cockpit and 72 asteroids. Fixed 1920×1080 buffer,
+      antialiasing on, frozen pilot-seat pose and instruments. Each pass
+      rebuilds one renderer, warms 60 frames, then measures 32 frames. Three
+      interleaved rounds. No simulation, asset loading or shader compilation is
+      timed.
+    </p>
+    <p>
+      <button id="run" disabled>Run comparison</button
+      ><label for="inspect">Inspect variant </label
+      ><select id="inspect" disabled>
+        <option value="full">Full PBR + maps + normals</option>
+        <option value="no-normal">PBR + maps, no normals</option>
+        <option value="scalar-pbr">PBR with scalar materials</option>
+        <option value="diffuse">Textured diffuse</option>
+      </select>
+    </p>
+    <p id="status" role="status">Loading shared game assets…</p>
+    <div id="viewport"></div>
+    <h2>Measurement windows</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Pass</th>
+          <th>Variant</th>
+          <th>GPU mean ms</th>
+          <th>CPU mean ms</th>
+          <th>Geometry MiB</th>
+          <th>Material MiB</th>
+          <th>Sky MiB</th>
+        </tr>
+      </thead>
+      <tbody id="results"></tbody>
+    </table>
+    <h2>Summary</h2>
+    <p id="summary">No comparison yet.</p>
+    <p class="muted">
+      GPU queries are asynchronous. Unsupported/disjoint results never become
+      CPU-derived GPU estimates. Values describe this browser and scene, not
+      mobile certification. Full-detail passes are interleaved to reveal drift.
+      Geometry and decoded source images remain on the CPU in this experiment.
+    </p>
+    <details>
+      <summary>Raw results</summary>
+      <pre id="raw">No results.</pre>
+    </details>
+    <script
+      type="module"
+      src="../../dist/apps/flight-foundry/surface-benchmark.js"
+    ></script>
+  </body>
+</html>
