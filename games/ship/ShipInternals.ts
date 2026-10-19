@@ -292,6 +292,7 @@ export class ShipInternals implements Behavior {
   #bindings = new Map<string, Binding>();
   #used = new Set<string>();
   #commands: Command[] = [];
+  #reportingErrors: unknown[] = [];
   #results: readonly Readonly<{ ok: boolean; message: string }>[] = [];
   #blocked = new Set<string>();
   #unstaffed = new Set<string>();
@@ -337,9 +338,26 @@ export class ShipInternals implements Behavior {
             throw new Error(`Internal factory missing ${gate} gate`);
       }
     }
-    for (const i of this.profile.loadout) {
-      const result = this.installNow(i);
-      if (!result.ok) throw new Error(result.message);
+    try {
+      for (const i of this.profile.loadout) {
+        const result = this.installNow(i);
+        if (!result.ok) throw new Error(result.message);
+      }
+      if (this.#reportingErrors.length)
+        throw new AggregateError(
+          this.#reportingErrors,
+          'Internal loadout committed; Workshop observer reporting failed',
+        );
+    } catch (error) {
+      try {
+        this.dispose();
+      } catch (cleanup) {
+        throw new AggregateError(
+          [error, cleanup],
+          'Internal loadout and cleanup failed',
+        );
+      }
+      throw error;
     }
   }
   private live(): void {
@@ -370,18 +388,41 @@ export class ShipInternals implements Behavior {
     const inventoryId =
       d.inventoryCapacity === null ? null : `internal-${i.installationId}`;
     if (inventoryId)
-      this.production.createInventory({
-        id: inventoryId,
-        capacity: { kind: 'units', limit: d.inventoryCapacity! },
-        attachment: { objectId: i.installationId, slot: 'buffer' },
-        rules:
-          d.inventoryAccepts === null ? {} : { accepts: d.inventoryAccepts },
-      });
+      this.mutation(
+        () => {
+          this.production.createInventory({
+            id: inventoryId,
+            capacity: { kind: 'units', limit: d.inventoryCapacity! },
+            attachment: { objectId: i.installationId, slot: 'buffer' },
+            rules:
+              d.inventoryAccepts === null
+                ? {}
+                : { accepts: d.inventoryAccepts },
+          });
+          return true;
+        },
+        () =>
+          this.production.inventoryIds().includes(inventoryId)
+            ? true
+            : undefined,
+      );
     let facilityId: string | null = null;
     if (d.facilityDefinitionId) {
-      const result = this.production.addFacility(
-        d.facilityDefinitionId,
-        inventoryId!,
+      const definitionId = d.facilityDefinitionId;
+      const result = this.mutation(
+        () => this.production.addFacility(definitionId, inventoryId!),
+        () => {
+          const facility = this.production
+            .snapshot()
+            .facilities.find(
+              (f) =>
+                f.inventoryId === inventoryId &&
+                f.definitionId === definitionId,
+            );
+          return facility
+            ? { ok: true as const, facilityId: facility.id }
+            : undefined;
+        },
       );
       if (!result.ok)
         throw new Error(
@@ -403,6 +444,18 @@ export class ShipInternals implements Behavior {
     this.#commands.push(() =>
       this.installNow({ slotId, definitionId, installationId }),
     );
+  }
+  /** A reporting failure can follow a successful Workshop mutation. Reconcile
+   * only a verified postcondition; never retry the operation or hide its error. */
+  private mutation<T>(run: () => T, committed: () => T | undefined): T {
+    try {
+      return run();
+    } catch (error) {
+      const result = committed();
+      if (result === undefined) throw error;
+      this.#reportingErrors.push(error);
+      return result;
+    }
   }
   remove(slotId: string): void {
     const installationId = this.binding(slotId).installationId;
@@ -447,13 +500,37 @@ export class ShipInternals implements Behavior {
           message: `Removal blocked: ${inventoryBlocks.map((v) => v.code).join(', ')}`,
         };
       if (b.facilityId) {
-        const removed = this.production.removeFacility(b.facilityId);
+        const facilityId = b.facilityId;
+        const removed = this.mutation(
+          () => this.production.removeFacility(facilityId),
+          () =>
+            !this.production
+              .snapshot()
+              .facilities.some((f) => f.id === facilityId)
+              ? { ok: true as const, facilityId }
+              : undefined,
+        );
         if (!removed.ok)
           throw new Error('Internal removal preflight disagreed with Workshop');
       }
       if (b.inventoryId) {
-        this.production.detachInventory(b.inventoryId);
-        const removed = this.production.removeInventory(b.inventoryId);
+        const inventoryId = b.inventoryId;
+        this.mutation(
+          () => this.production.detachInventory(inventoryId),
+          () =>
+            this.production.inventoryAttachment(inventoryId) === null
+              ? null
+              : undefined,
+        );
+        const removed = this.mutation(
+          () => this.production.removeInventory(inventoryId),
+          () =>
+            !this.production
+              .snapshot()
+              .inventories.some((i) => i.id === inventoryId)
+              ? { ok: true as const, inventoryId, prunedDeliveryIds: [] }
+              : undefined,
+        );
         if (!removed.ok)
           throw new Error(
             'Internal inventory removal preflight disagreed with Workshop',
@@ -517,23 +594,44 @@ export class ShipInternals implements Behavior {
           message: 'Worker is already operating another installation',
         };
       const staffing = this.definition(b.definitionId).staffing!;
-      this.production.setWorkerSlot(
-        b.facilityId,
-        0,
-        worker
-          ? {
-              id: worker.id,
-              efficiency:
-                worker.specialty === staffing.specialty
-                  ? staffing.specialistMultiplier
-                  : 1,
-            }
-          : null,
+      const facilityId = b.facilityId;
+      this.mutation(
+        () => {
+          this.production.setWorkerSlot(
+            facilityId,
+            0,
+            worker
+              ? {
+                  id: worker.id,
+                  efficiency:
+                    worker.specialty === staffing.specialty
+                      ? staffing.specialistMultiplier
+                      : 1,
+                }
+              : null,
+          );
+          return true;
+        },
+        () =>
+          (this.production.facilitySnapshot(facilityId).workerSlots[0]?.id ??
+            null) === workerId
+            ? true
+            : undefined,
       );
-      this.production.setFacilityCondition(
-        b.facilityId,
-        'staffed',
-        Boolean(worker),
+      this.mutation(
+        () => {
+          this.production.setFacilityCondition(
+            facilityId,
+            'staffed',
+            Boolean(worker),
+          );
+          return true;
+        },
+        () =>
+          this.production.facilitySnapshot(facilityId).conditions.staffed ===
+          Boolean(worker)
+            ? true
+            : undefined,
       );
       return {
         ok: true,
@@ -562,7 +660,17 @@ export class ShipInternals implements Behavior {
           ok: false,
           message: 'Installation has no production facility',
         };
-      this.production.setFacilityDraining(b.facilityId, value);
+      const facilityId = b.facilityId;
+      this.mutation(
+        () => {
+          this.production.setFacilityDraining(facilityId, value);
+          return true;
+        },
+        () =>
+          this.production.facilitySnapshot(facilityId).draining === value
+            ? true
+            : undefined,
+      );
       return {
         ok: true,
         message: value ? 'Draining enabled' : 'Production resumed',
@@ -586,9 +694,22 @@ export class ShipInternals implements Behavior {
         return { ok: false, message: 'Internal installation changed' };
       if (!b.inventoryId)
         return { ok: false, message: 'Installation has no inventory' };
-      const ok = deposit
-        ? this.production.deposit(b.inventoryId, { [resourceId]: quantity })
-        : this.production.withdraw(b.inventoryId, { [resourceId]: quantity });
+      const inventoryId = b.inventoryId;
+      const before = this.production.inventory(inventoryId).summary()
+        .quantities[resourceId]!;
+      const expected = before + (deposit ? quantity : -quantity);
+      const ok = this.mutation(
+        () =>
+          deposit
+            ? this.production.deposit(inventoryId, { [resourceId]: quantity })
+            : this.production.withdraw(inventoryId, { [resourceId]: quantity }),
+        () =>
+          this.production.inventory(inventoryId).summary().quantities[
+            resourceId
+          ] === expected
+            ? true
+            : undefined,
+      );
       return {
         ok,
         message: ok
@@ -625,9 +746,27 @@ export class ShipInternals implements Behavior {
         return { ok: false, message: 'Internal installation changed' };
       if (!from.inventoryId || !to.inventoryId)
         return { ok: false, message: 'Both installations need an inventory' };
-      const ok = this.production.transfer(from.inventoryId, to.inventoryId, {
-        [resourceId]: quantity,
-      });
+      const source = from.inventoryId,
+        destination = to.inventoryId;
+      const beforeSource = this.production.inventory(source).summary()
+        .quantities[resourceId]!;
+      const beforeDestination = this.production.inventory(destination).summary()
+        .quantities[resourceId]!;
+      const ok = this.mutation(
+        () =>
+          this.production.transfer(source, destination, {
+            [resourceId]: quantity,
+          }),
+        () =>
+          this.production.inventory(source).summary().quantities[resourceId] ===
+            beforeSource - quantity &&
+          this.production.inventory(destination).summary().quantities[
+            resourceId
+          ] ===
+            beforeDestination + quantity
+            ? true
+            : undefined,
+      );
       return {
         ok,
         message: ok
@@ -644,13 +783,44 @@ export class ShipInternals implements Behavior {
   }
   commit(): void {
     this.live();
-    const commands = this.#commands;
-    this.#commands = [];
-    if (commands.length)
-      this.#results = Object.freeze(
-        commands.map((command) => Object.freeze(command())),
-      );
+    if (!this.#commands.length) return;
+    this.#results = Object.freeze([]);
+    while (this.#commands.length) {
+      const command = this.#commands.shift()!;
+      this.#reportingErrors = [];
+      let result: ReturnType<Command>;
+      try {
+        result = command();
+      } catch (error) {
+        this.#results = Object.freeze([
+          ...this.#results,
+          Object.freeze({
+            ok: false,
+            message:
+              'Command threw before a completed receipt; remaining commands retained',
+          }),
+        ]);
+        throw error;
+      }
+      this.#results = Object.freeze([
+        ...this.#results,
+        Object.freeze({
+          ...result,
+          message:
+            result.message +
+            (this.#reportingErrors.length
+              ? ' (committed; observer reporting failed)'
+              : ''),
+        }),
+      ]);
+      if (this.#reportingErrors.length)
+        throw new AggregateError(
+          this.#reportingErrors,
+          'Internal command committed; Workshop observer reporting failed; remaining commands retained',
+        );
+    }
   }
+
   declare(): void {
     for (const b of this.#bindings.values()) {
       b.device.declare(true);
@@ -756,12 +926,23 @@ export class ShipInternals implements Behavior {
   }
   dispose(): undefined {
     if (this.#disposed) return;
-    for (const b of this.#bindings.values()) {
-      if (b.facilityId)
-        this.production.setFacilityCondition(b.facilityId, 'powered', false);
-      b.device.dispose();
-    }
-    this.#commands = [];
     this.#disposed = true;
+    this.#commands = [];
+    const errors: unknown[] = [];
+    for (const b of this.#bindings.values()) {
+      try {
+        if (b.facilityId)
+          this.production.setFacilityCondition(b.facilityId, 'powered', false);
+      } catch (error) {
+        errors.push(error);
+      } finally {
+        b.device.dispose();
+      }
+    }
+    if (errors.length)
+      throw new AggregateError(
+        errors,
+        'Internals disposed; Workshop observer reporting failed',
+      );
   }
 }

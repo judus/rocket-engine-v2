@@ -703,3 +703,126 @@ for (const replacedSlot of ['internal-3', 'internal-4']) {
     ship.dispose();
   });
 }
+
+void test('A post-commit removal observer failure completes lifecycle cleanup before surfacing', () => {
+  const ship = make();
+  const unlisten = ship.production.onEvent((event) => {
+    if (event.type === 'facility-removed')
+      throw new Error('report sink failed');
+  });
+  ship.internals.remove('internal-1');
+  ship.internals.install(
+    'internal-1',
+    'fabricator-starter',
+    'replacement-after-fault',
+  );
+  assert.throws(() => ship.internals.commit(), /command committed.*observer/i);
+  unlisten();
+  assert.equal(ship.internals.telemetry.installations.length, 0);
+  assert.equal(ship.production.summary().facilityCount, 0);
+  assert.equal(ship.production.summary().inventoryCount, 0);
+  assert.equal(ship.internals.telemetry.commands[0]?.ok, true);
+  assert.match(
+    ship.internals.telemetry.commands[0]!.message,
+    /reporting failed/,
+  );
+  assert.doesNotThrow(() => ship.internals.finishStep(0.05));
+  ship.internals.commit();
+  step(ship);
+  assert.equal(reading(ship).installationId, 'replacement-after-fault');
+  ship.dispose();
+});
+void test('A committed deposit records its receipt and retains the unexecuted tail without replay', () => {
+  const ship = make();
+  const unlisten = ship.production.onInventoryEvent((event) => {
+    if (event.type === 'inventory-committed' && event.command === 'deposit')
+      throw new Error('stock observer failed');
+  });
+  ship.internals.supply('internal-1', 'alloy', 1);
+  ship.internals.supply('internal-1', 'alloy', 2);
+  assert.throws(() => ship.internals.commit(), /command committed.*observer/i);
+  unlisten();
+  assert.equal(
+    ship.internals.telemetry.installations[0]?.inventory?.quantities.alloy,
+    1,
+  );
+  assert.equal(ship.internals.telemetry.commands.length, 1);
+  assert.equal(ship.internals.telemetry.commands[0]?.ok, true);
+  ship.internals.commit();
+  assert.equal(
+    ship.internals.telemetry.installations[0]?.inventory?.quantities.alloy,
+    3,
+  );
+  ship.internals.commit();
+  assert.equal(
+    ship.internals.telemetry.installations[0]?.inventory?.quantities.alloy,
+    3,
+  );
+  ship.dispose();
+});
+void test('Post-commit installation and staffing observer faults leave readable bound facilities', () => {
+  const ship = make();
+  let unlisten = ship.production.onEvent((e) => {
+    if (e.type === 'facility-built') throw Error('build observer');
+  });
+  ship.internals.install(
+    'internal-2',
+    'fabricator-starter',
+    'observed-install',
+  );
+  assert.throws(() => ship.internals.commit(), /command committed.*observer/i);
+  unlisten();
+  assert.equal(
+    ship.internals.telemetry.installations.find(
+      (i) => i.slotId === 'internal-2',
+    )?.installationId,
+    'observed-install',
+  );
+  assert.equal(ship.internals.telemetry.commands[0]?.ok, true);
+  unlisten = ship.production.onEvent((e) => {
+    if (e.type === 'facility-condition') throw Error('staff observer');
+  });
+  ship.internals.assignWorker('internal-2', 'engineer-b');
+  assert.throws(() => ship.internals.commit(), /command committed.*observer/i);
+  unlisten();
+  const facility = ship.internals.telemetry.installations.find(
+    (i) => i.slotId === 'internal-2',
+  )!.facility!;
+  assert.equal(facility.workerSlots[0]?.id, 'engineer-b');
+  assert.equal(facility.conditions.staffed, true);
+  assert.equal(ship.internals.telemetry.commands[0]?.ok, true);
+  ship.dispose();
+});
+void test('Committed withdrawal and transfer faults never replay inventory changes', () => {
+  const ship = outfitted();
+  ship.internals.supply('internal-3', 'meal', 4);
+  ship.internals.commit();
+  const unlisten = ship.production.onInventoryEvent((e) => {
+    if (e.type === 'inventory-committed') throw Error('inventory observer');
+  });
+  ship.internals.collect('internal-3', 'meal', 1);
+  ship.internals.transfer('internal-3', 'internal-4', 'meal', 2);
+  assert.throws(() => ship.internals.commit(), /command committed.*observer/i);
+  assert.equal(
+    ship.internals.telemetry.installations.find(
+      (i) => i.slotId === 'internal-3',
+    )!.inventory!.quantities.meal,
+    3,
+  );
+  assert.throws(() => ship.internals.commit(), /command committed.*observer/i);
+  unlisten();
+  ship.internals.commit();
+  assert.equal(
+    ship.internals.telemetry.installations.find(
+      (i) => i.slotId === 'internal-3',
+    )!.inventory!.quantities.meal,
+    1,
+  );
+  assert.equal(
+    ship.internals.telemetry.installations.find(
+      (i) => i.slotId === 'internal-4',
+    )!.inventory!.quantities.meal,
+    2,
+  );
+  ship.dispose();
+});
