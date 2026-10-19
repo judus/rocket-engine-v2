@@ -5,6 +5,7 @@ export class VideoPanel {
   #scale: HTMLInputElement;
   #density: HTMLSelectElement;
   #detail: HTMLSelectElement;
+  #fps: HTMLInputElement;
   #output: HTMLElement;
   #resolution: HTMLElement;
   constructor(
@@ -27,6 +28,7 @@ export class VideoPanel {
     this.#scale = node('#render-scale');
     this.#density = node('#pixel-density');
     this.#detail = node('#surface-detail');
+    this.#fps = node('#show-fps');
     this.#output = node('#render-scale-value');
     this.#resolution = node('#render-resolution');
     this.#scale.addEventListener('input', () => this.preview(), { signal });
@@ -63,6 +65,7 @@ export class VideoPanel {
   private draft(): VideoSettings {
     return {
       surfaceDetail: this.#detail.value as SurfaceDetail,
+      showFps: this.#fps.checked,
       renderScale: Number(this.#scale.value) / 100,
       pixelDensityLimit:
         this.#density.value === 'native' ? null : Number(this.#density.value),
@@ -70,6 +73,7 @@ export class VideoPanel {
   }
   private render(settings: VideoSettings): void {
     this.#detail.value = settings.surfaceDetail;
+    this.#fps.checked = settings.showFps;
     this.#scale.value = String(settings.renderScale * 100);
     this.#density.value =
       settings.pixelDensityLimit === null

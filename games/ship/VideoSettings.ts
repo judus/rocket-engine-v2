@@ -10,12 +10,18 @@ export const surfaceDetails: readonly SurfaceDetail[] = [
 /** Player presentation preferences; no changes to simulation or CSS/input coordinates. */
 export interface VideoSettings {
   surfaceDetail: SurfaceDetail;
+  showFps: boolean;
   renderScale: number;
   pixelDensityLimit: number | null;
 }
 export const videoSettingsKey = 'rocket.first-flight.video';
 export function defaultVideo(): VideoSettings {
-  return { surfaceDetail: 'full', renderScale: 1, pixelDensityLimit: 2 };
+  return {
+    surfaceDetail: 'full',
+    showFps: false,
+    renderScale: 1,
+    pixelDensityLimit: 2,
+  };
 }
 export function validateVideo(value: unknown): VideoSettings {
   if (!value || typeof value !== 'object' || Array.isArray(value))
@@ -23,7 +29,8 @@ export function validateVideo(value: unknown): VideoSettings {
   const v = value as Record<string, unknown>;
   if (
     Object.keys(v).sort().join() !==
-      'pixelDensityLimit,renderScale,surfaceDetail' ||
+      'pixelDensityLimit,renderScale,showFps,surfaceDetail' ||
+    typeof v.showFps !== 'boolean' ||
     !surfaceDetails.includes(v.surfaceDetail as SurfaceDetail) ||
     typeof v.renderScale !== 'number' ||
     !Number.isFinite(v.renderScale) ||
@@ -38,6 +45,7 @@ export function validateVideo(value: unknown): VideoSettings {
     throw new Error('Invalid video settings');
   return {
     surfaceDetail: v.surfaceDetail as SurfaceDetail,
+    showFps: v.showFps,
     renderScale: v.renderScale,
     pixelDensityLimit: v.pixelDensityLimit as number | null,
   };
@@ -49,15 +57,22 @@ export function migrateVideoStorage(
   const saved = storage.getItem(videoSettingsKey);
   if (saved === null) return false;
   const value: unknown = JSON.parse(saved);
-  if (
-    value &&
-    typeof value === 'object' &&
-    !Array.isArray(value) &&
-    Object.keys(value).sort().join() === 'pixelDensityLimit,renderScale'
-  ) {
-    const migrated = validateVideo({ ...value, surfaceDetail: 'full' });
-    storage.setItem(videoSettingsKey, JSON.stringify(migrated));
-    return true;
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    const keys = Object.keys(value).sort().join();
+    if (
+      keys === 'pixelDensityLimit,renderScale' ||
+      keys === 'pixelDensityLimit,renderScale,surfaceDetail'
+    ) {
+      const migrated = validateVideo({
+        ...(keys === 'pixelDensityLimit,renderScale'
+          ? { surfaceDetail: 'full' }
+          : {}),
+        ...value,
+        showFps: false,
+      });
+      storage.setItem(videoSettingsKey, JSON.stringify(migrated));
+      return true;
+    }
   }
   validateVideo(value);
   return false;

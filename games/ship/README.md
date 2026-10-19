@@ -763,3 +763,12 @@ entry if fullscreen was exited. Desktop launching does not request fullscreen.
 Unsupported or refused browser requests leave flight playable and show a short
 status; a portrait-only rotate hint remains available. Actual fullscreen/orientation
 support is controlled by the browser/platform and requires real-device testing.
+
+### FPS overlay
+
+Settings → Video → Show FPS counter enables a top-left flight overlay, off by
+default and persisted independently of controls. It samples completed presentation
+frame intervals using the existing render loop and updates twice per second.
+Menus, hidden tabs and lost/restored contexts reset the sampling window. This is
+presentation cadence, not a GPU timer or physics tick rate; no extra animation
+loop is created. Existing video records migrate explicitly with the counter off.

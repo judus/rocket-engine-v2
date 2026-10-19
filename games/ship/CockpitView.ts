@@ -8,6 +8,7 @@ import type { Stage2D, SceneNavigator } from '../../src/experimental/index.js';
 import { loadAsteroidFamily } from '../../examples/space/AsteroidFamily.js';
 import { createCockpitScene } from './CockpitScene.js';
 import { surfaceVariants, surfaceVariantSwitcher } from './SurfaceVariants.js';
+import { FrameRate } from './FrameRate.js';
 import { videoSurfaceScale } from './VideoSettings.js';
 import type { VideoSettings, SurfaceDetail } from './VideoSettings.js';
 import type { Ship } from './Ship.js';
@@ -38,6 +39,23 @@ export async function createCockpitView(
     maxTextureDimension: surface.gl.getParameter(
       surface.gl.MAX_TEXTURE_SIZE,
     ) as number,
+  });
+  const counter = document.querySelector<HTMLOutputElement>('#fps-counter');
+  if (!counter) throw new Error('Missing FPS counter');
+  const frameRate = new FrameRate();
+  let measuring = false;
+  const resetFps = () => {
+    frameRate.reset();
+    counter.textContent = 'FPS —';
+  };
+  document.addEventListener('visibilitychange', resetFps, {
+    signal: assetSignal,
+  });
+  surface.canvas.addEventListener('webglcontextlost', resetFps, {
+    signal: assetSignal,
+  });
+  surface.canvas.addEventListener('webglcontextrestored', resetFps, {
+    signal: assetSignal,
   });
   const base = new URL('../../../', import.meta.url);
   try {
@@ -105,6 +123,12 @@ export async function createCockpitView(
     const presentation = runtime.presentation({
       scene: navigator,
       render() {
+        const showFps = video().showFps && navigator.scene === scene;
+        if (showFps !== measuring) {
+          measuring = showFps;
+          counter.hidden = !showFps;
+          resetFps();
+        }
         if (navigator.scene !== scene) return;
         const resource = gpu.current;
         if (!resource) return;
@@ -119,6 +143,10 @@ export async function createCockpitView(
           surface.canvas.height,
           sky.value,
         );
+        if (showFps) {
+          const fps = frameRate.frame(performance.now());
+          if (fps !== null) counter.textContent = `FPS ${fps.toFixed(1)}`;
+        }
       },
       dispose(): undefined {
         loading.abort();

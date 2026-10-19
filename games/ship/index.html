@@ -21,6 +21,9 @@
   <body>
     <main id="game" aria-label="Space flight">
       <div id="viewport"></div>
+      <output id="fps-counter" aria-label="Frames per second" hidden
+        >FPS —</output
+      >
       <div id="flight-feedback" role="status" aria-live="polite"></div>
       <p id="screen-status" role="status" aria-live="polite" hidden></p>
       <p id="rotate-hint" hidden>Rotate your phone to landscape to fly.</p>
@@ -176,6 +179,9 @@
                 high-density screens from rendering unnecessary pixels.
               </p>
               <p id="render-resolution" aria-live="polite"></p>
+              <label class="fps-option"
+                ><input id="show-fps" type="checkbox" /> Show FPS counter</label
+              >
               <h2>Surface detail</h2>
               <div class="preferences">
                 <label for="surface-detail"

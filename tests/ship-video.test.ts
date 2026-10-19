@@ -45,6 +45,7 @@ void test('Video preferences round-trip independently of control settings, with 
   assert.deepEqual(readVideo(store), defaultVideo());
   const value = {
     surfaceDetail: 'scalar-pbr' as const,
+    showFps: true,
     renderScale: 0.6,
     pixelDensityLimit: null,
   };
@@ -63,6 +64,7 @@ void test('Video rejects invalid saved values and reports storage failures befor
     { ...defaultVideo(), pixelDensityLimit: 0 },
     { ...defaultVideo(), pixelDensityLimit: '2' },
     { ...defaultVideo(), extra: true },
+    { ...defaultVideo(), showFps: 1 },
     { ...defaultVideo(), surfaceDetail: 'diffuse' },
     { ...defaultVideo(), surfaceDetail: undefined },
   ])
@@ -136,6 +138,7 @@ void test('Resolution-only saved preferences migrate once to Full; the reader it
   assert.equal(migrateVideoStorage(storage), true);
   assert.deepEqual(readVideo(storage), {
     surfaceDetail: 'full',
+    showFps: false,
     renderScale: 0.75,
     pixelDensityLimit: 1.5,
   });
@@ -144,4 +147,26 @@ void test('Resolution-only saved preferences migrate once to Full; the reader it
   saved = JSON.stringify({ renderScale: 9, pixelDensityLimit: 1.5 });
   assert.throws(() => migrateVideoStorage(storage), /Invalid video/);
   assert.equal(writes, 1);
+});
+
+void test('Surface-detail preferences migrate to an FPS-off default without losing quality settings', () => {
+  let saved = JSON.stringify({
+    surfaceDetail: 'scalar-pbr',
+    renderScale: 0.5,
+    pixelDensityLimit: 1,
+  });
+  const storage = {
+    getItem: () => saved,
+    setItem: (_key: string, value: string) => {
+      saved = value;
+    },
+  };
+  assert.equal(migrateVideoStorage(storage), true);
+  assert.deepEqual(readVideo(storage), {
+    surfaceDetail: 'scalar-pbr',
+    renderScale: 0.5,
+    pixelDensityLimit: 1,
+    showFps: false,
+  });
+  assert.equal(migrateVideoStorage(storage), false);
 });
