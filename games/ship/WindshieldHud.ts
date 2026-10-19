@@ -1,5 +1,12 @@
-import { Mesh3D, MeshGeometry, Node3D } from '../../src/3d/index.js';
-import type { GeometryFace, Vec3 } from '../../src/3d/index.js';
+import {
+  Mesh3D,
+  MeshGeometry,
+  Node3D,
+  transformMatrix,
+  multiplyMatrices,
+  matrixPoint,
+} from '../../src/3d/index.js';
+import type { GeometryFace, Vec3, ScreenDoor3D } from '../../src/3d/index.js';
 import { cockpitReticle } from '../../examples/webgl/CockpitReticle.js';
 import type { CockpitReading } from './CockpitReadings.js';
 
@@ -81,6 +88,10 @@ export class WindshieldHud {
   readonly reticle = cockpitReticle('hi3d');
   #opacity = windshieldProjection.opacity as number;
   #displayMode = false;
+  #screenDoor: {
+    pattern: ScreenDoor3D;
+    bounds: { minX: number; maxX: number; minY: number; maxY: number };
+  } | null = null;
   #reticleMaterials = new Map<Node3D, Mesh3D>();
   #lines = new Map<
     string,
@@ -126,12 +137,53 @@ export class WindshieldHud {
       );
     for (const line of this.#lines.values())
       if (line.node.mesh)
-        line.node.mesh = this.mesh(line.node.mesh.geometry, line.color);
+        line.node.mesh = this.mesh(
+          line.node.mesh.geometry,
+          line.color,
+          line.node,
+        );
   }
-  private mesh(geometry: MeshGeometry, color: string): Mesh3D {
+  configureScreenDoor(
+    pattern: ScreenDoor3D,
+    bounds: { minX: number; maxX: number; minY: number; maxY: number },
+  ): void {
+    if (
+      ![bounds.minX, bounds.maxX, bounds.minY, bounds.maxY].every(
+        Number.isFinite,
+      ) ||
+      bounds.maxX <= bounds.minX ||
+      bounds.maxY <= bounds.minY
+    )
+      throw new Error('Invalid HUD screen bounds');
+    this.#screenDoor = { pattern, bounds };
+  }
+  private mesh(geometry: MeshGeometry, color: string, node: Node3D): Mesh3D {
+    const screen = this.#displayMode ? this.#screenDoor : null;
+    if (screen) {
+      const { bounds } = screen;
+      const transform = multiplyMatrices(
+        transformMatrix(this.root.transform),
+        transformMatrix(node.transform),
+      );
+      geometry = new MeshGeometry(
+        geometry.vertices,
+        geometry.faces,
+        geometry.edges,
+        {
+          texCoords: geometry.vertices.map((v) => {
+            const p = matrixPoint(transform, v);
+            return [
+              (p.x - bounds.minX) / (bounds.maxX - bounds.minX),
+              (p.y - bounds.minY) / (bounds.maxY - bounds.minY),
+            ];
+          }),
+        },
+      );
+    }
     return new Mesh3D(geometry, [
       {
         color,
+        ...(screen ? { screenDoor: screen.pattern } : {}),
         unlit: true,
         opacity: this.#opacity,
         metallicFactor: 0,
@@ -140,6 +192,7 @@ export class WindshieldHud {
     ]);
   }
   setDisplayMode(active: boolean): void {
+    if (active === this.#displayMode) return;
     this.#displayMode = active;
     this.reticle.visible = !active;
     for (const [key, line] of this.#lines) {
@@ -155,6 +208,12 @@ export class WindshieldHud {
         },
       };
       if (key === 'heading') line.node.visible = active;
+      if (line.node.mesh)
+        line.node.mesh = this.mesh(
+          line.node.mesh.geometry,
+          line.color,
+          line.node,
+        );
     }
   }
   update(reading: CockpitReading): void {
@@ -172,7 +231,9 @@ export class WindshieldHud {
           ? reading.critical
             ? '#ff8b79'
             : '#edba76'
-          : '#86ead6';
+          : this.#displayMode
+            ? '#dde3e7'
+            : '#86ead6';
       if (text === line.text && color === line.color) continue;
       line.node.visible = text.length > 0;
       if (text)
@@ -181,6 +242,7 @@ export class WindshieldHud {
             ? line.node.mesh.geometry
             : this.rasterize(text, line.alignment),
           color,
+          line.node,
         );
       line.text = text;
       line.color = color;

@@ -8,12 +8,31 @@ export interface GeometryFace {
   readonly indices: readonly number[];
   readonly material: number;
 }
+export interface ScreenDoor3D {
+  /** Cells across the mesh UV domain. */
+  readonly repeat: readonly [number, number];
+  /** Fraction covered by wires, strictly between 0 and 1. */
+  readonly fill: number;
+}
+/** Shared validation at public material and low-level draw boundaries. */
+export function validateScreenDoor(pattern: ScreenDoor3D): void {
+  if (
+    pattern.repeat.length !== 2 ||
+    !pattern.repeat.every((v) => Number.isFinite(v) && v > 0 && v <= 1e5) ||
+    !Number.isFinite(pattern.fill) ||
+    pattern.fill <= 0 ||
+    pattern.fill >= 1
+  )
+    throw new Error('Invalid screen-door coverage');
+}
 export interface Material3D {
   readonly color: string;
   /** WebGL straight-alpha coverage, 0..1; opaque by default. */
   readonly opacity?: number;
   /** GPU surface bypasses illumination; depth and perspective remain active. */
   readonly unlit?: boolean;
+  /** Filtered screen-door coverage in UV space; requires the GPU texture pipeline. */
+  readonly screenDoor?: ScreenDoor3D;
   readonly baseColorTexture?: TextureBinding3D;
   /** Linear data: green roughness, blue metallic. */
   readonly metallicRoughnessTexture?: TextureBinding3D;
@@ -169,8 +188,20 @@ export class Mesh3D {
           throw new Error('Material opacity must be finite in 0..1');
         if (m.unlit !== undefined && typeof m.unlit !== 'boolean')
           throw new Error('Invalid unlit material flag');
+        if (m.screenDoor) validateScreenDoor(m.screenDoor);
         return Object.freeze({
           ...m,
+          ...(m.screenDoor
+            ? {
+                screenDoor: Object.freeze({
+                  repeat: Object.freeze([...m.screenDoor.repeat]) as readonly [
+                    number,
+                    number,
+                  ],
+                  fill: m.screenDoor.fill,
+                }),
+              }
+            : {}),
           ...(m.normalTexture
             ? { normalTexture: textureBinding(m.normalTexture) }
             : {}),

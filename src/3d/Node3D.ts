@@ -34,6 +34,19 @@ export class Node3D {
   }
   mesh: Mesh3D | null = null;
   visible = true;
+  #opacity = 1;
+  /** WebGL coverage multiplier inherited by descendants, independent of mesh uploads. */
+  get opacity(): number {
+    return this.#opacity;
+  }
+  set opacity(value: number) {
+    if (!Number.isFinite(value) || value < 0 || value > 1)
+      throw new Error('Node opacity must be finite in 0..1');
+    this.#opacity = value;
+  }
+  worldOpacity(): number {
+    return this.#opacity * (this.#parent?.worldOpacity() ?? 1);
+  }
   /** Optional shadow backend flags, independent of mesh/material identity. */
   castsShadow = true;
   receivesShadow = true;

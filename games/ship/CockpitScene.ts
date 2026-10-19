@@ -184,7 +184,7 @@ export function createCockpitScene(
     click(x: number, y: number, width: number, height: number) {
       // HUD glyphs are presentation, not selectable occluders. The authored
       // cockpit (including invisible panes) and dashboard compete by hit depth.
-      const projection = new Set<Node3D>();
+      const projection = new Set<Node3D>([windshield.screen]);
       hud.root.traverse((node) => projection.add(node));
       const hit = pickMesh3D(
         assembly,

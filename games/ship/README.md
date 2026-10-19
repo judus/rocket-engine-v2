@@ -807,13 +807,13 @@ firepower. Detailed module state and switches remain on the right systems displa
 
 ### Switchable windshield
 
-Systems / I darkens the five authored panes, hides the flight reticle and shows a
+Systems / I fades a fine black screen-door mesh onto the front pane, hides the flight reticle and shows a
 windshield heading above existing telemetry. Return to flight restores clear glass
 and the reticle. Steering is released under the existing systems-input policy;
 ship simulation continues. Launch/Resume consistently clears the glass. Both modes
 retain the same fitted geometry and alignment, behind the cockpit frame.
 
-Clear mode uses faint tint; display mode uses a dark translucent backing. These
+Clear mode uses faint tint; display mode uses a perforated dark mesh. Side windows remain clear. These
 are depth-tested alpha materials, not physical refraction/reflection. Interactive
 windshield navigation/system/galaxy maps remain future work. Existing physical
 display switches remain available in systems mode.
@@ -829,8 +829,7 @@ named planar panes (44 triangles) and pulls the side rails into alignment.
 `CockpitModel.ts` owns game placement, axis reflection and pilot fitting.
 `WindshieldSurface.ts` binds the five authored node names and preserves their
 complete inherited matrices, irregular boundaries and UVs. Each pane receives
-its own runtime material. Clear mode uses faint tint; Systems switches the panes
-to dark display mode. The HUD and reticle are children of `WindshieldSurface`,
+its own runtime material. Clear mode uses faint tint; Systems fades a mesh overlay onto the front pane only. The HUD and reticle are children of `WindshieldSurface`,
 with one opacity setting and the mesh's actual tilt. The reticle anchor is the
 pilot's forward sightline intersecting the plane, with a small local offset toward
 the pilot to avoid coplanarity. No guessed tilt or replacement trapezoid remains.
@@ -844,10 +843,27 @@ The diagnostic 512×400 helper now delegates to the same engine query; the game
 uses each actual display's dimensions. Glass interaction is geometric even at
 zero opacity; no picking through a nearer metal frame is implied.
 
-The front display currently shows the existing HUD telemetry. Side panes support
-clear/display material switching; maps and independent interactive window content
+The front display currently shows the existing HUD telemetry. Side panes remain clear; maps and independent interactive window content
 are later game features. This snapshot does not add a full cabin or uncropped
 outer borders for extreme head movement. Automated checks use real GLB geometry
 with tiny decoded-image fixtures; real textures, modes and dashboard interaction
 are checked separately in the browser. Physical mobile-device validation remains
 separate from desktop browser evidence.
+
+### Mesh-screen experiment
+
+The front pane's separate `screen` node shares its original geometry/UVs and sits
+just toward the pilot, behind the HUD and frame. Its unlit charcoal material uses
+procedural screen-door coverage: 240×170 cells, 72% wire coverage. Display glyphs
+use the same UV domain and pattern, so gaps cut the content as well as the backing.
+Display text is pale neutral; flight HUD remains turquoise. Derivative filtering
+softens unresolved cells toward their average coverage, rather than aliasing a
+hard high-frequency texture. Physical mobile shimmer/readability still needs
+Julien's device test; no device performance claim is made.
+
+`WindshieldSurface.update(dt)` advances the reversible 0.55-second presentation
+transition. The flight projection fades first, then display content fades onto
+the screen; reversing midway retains current progress. The existing frame loop
+owns timing. Parent `Node3D.opacity` changes GPU draw coverage without rebuilding
+meshes each frame. No simulation/input policy, GLB geometry or side-window content
+changes are needed for this experiment.

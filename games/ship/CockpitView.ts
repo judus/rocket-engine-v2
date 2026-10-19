@@ -164,6 +164,7 @@ export async function createCockpitView(
       },
       update(dt: number) {
         cockpit.instruments.update(dt);
+        cockpit.windshield.update(dt);
       },
       click(event: MouseEvent) {
         const rect = surface.canvas.getBoundingClientRect();

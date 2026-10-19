@@ -1492,3 +1492,176 @@ void test('transparent primitives sort by transformed bounds depth, share upload
   );
   renderer.dispose();
 });
+
+void test('Inherited node opacity animates coverage without replacing shared geometry', () => {
+  const f = fixture(),
+    renderer = new WebGLMeshRenderer3D(f.gl);
+  const group = new Node3D(),
+    child = new Node3D();
+  group.add(child);
+  group.opacity = 0.5;
+  child.opacity = 0.4;
+  child.mesh = new Mesh3D(
+    new MeshGeometry(
+      vertices.map((v) => v.position),
+      [{ id: 'triangle', indices: [0, 1, 2], material: 0 }],
+    ),
+    [{ color: '#ffffff', opacity: 0.5 }],
+  );
+  const camera = new PerspectiveCamera();
+  renderer.render(group, camera, 800, 600);
+  group.opacity = 0.25;
+  renderer.render(group, camera, 800, 600);
+  assert.deepEqual(
+    f.calls.filter((c) => c.name === 'uniform1f').map((c) => c.args[1]),
+    [0.1, 0.05],
+  );
+  assert.equal(f.calls.filter((c) => c.name === 'bufferData').length, 1);
+  assert.equal(child.opacity, 0.4);
+  assert.throws(() => {
+    group.opacity = -1;
+  }, /opacity/);
+  assert.throws(() => {
+    group.opacity = NaN;
+  }, /opacity/);
+  assert.equal(group.opacity, 0.25);
+  renderer.dispose();
+});
+
+void test('Screen-door coverage blends even at full opacity, resets for plain draws and validates before rendering', () => {
+  const f = fixture(),
+    renderer = new WebGLColorRenderer(f.gl, { lighting: true, textures: true });
+  const mesh = renderer.upload(
+    vertices.map((v) => ({
+      ...v,
+      normal: { x: 0, y: 0, z: -1 },
+      texCoord: [0, 0] as const,
+    })),
+  );
+  const pattern = { repeat: [240, 170] as const, fill: 0.72 };
+  renderer.drawFrame([
+    { mesh, transform: identityMatrix, screenDoor: pattern },
+    { mesh, transform: identityMatrix, opacity: 0.5 },
+  ]);
+  const coverage = f.calls
+    .filter((c) => c.name === 'uniform3fv')
+    .map((c) => c.args[1]);
+  assert.deepEqual(coverage, [
+    [240, 170, 0.72],
+    [1, 1, 0],
+  ]);
+  assert.ok(f.calls.some((c) => c.name === 'depthMask' && c.args[0] === false));
+  for (const value of [0, 1, NaN]) {
+    assert.throws(
+      () =>
+        renderer.drawFrame([
+          {
+            mesh,
+            transform: identityMatrix,
+            screenDoor: { ...pattern, fill: value },
+          },
+        ]),
+      /screen-door/,
+    );
+  }
+  const plain = new WebGLColorRenderer(f.gl);
+  const other = plain.upload(vertices);
+  assert.throws(
+    () =>
+      plain.drawFrame([
+        { mesh: other, transform: identityMatrix, screenDoor: pattern },
+      ]),
+    /pipeline/,
+  );
+  renderer.dispose();
+  plain.dispose();
+  const broken = fixture();
+  const lookup = broken.gl.getUniformLocation.bind(broken.gl);
+  const gl = new Proxy(broken.gl, {
+    get(target, property) {
+      if (property === 'getUniformLocation')
+        return (program: WebGLProgram, name: string) =>
+          name === 'screenDoor' ? null : lookup(program, name);
+      const value: unknown = Reflect.get(target, property);
+      return value;
+    },
+  });
+  assert.throws(
+    () => new WebGLColorRenderer(gl, { lighting: true, textures: true }),
+    /screen-door uniform/,
+  );
+  assert.equal(broken.programs.size, 0);
+});
+
+void test('Mesh screen-door materials require valid UVs, one pattern per primitive and immutable parameters', () => {
+  const geometry = new MeshGeometry(
+    vertices.map((v) => v.position),
+    [{ id: 'a', indices: [0, 1, 2], material: 0 }],
+    [],
+    {
+      texCoords: [
+        [0, 0],
+        [1, 0],
+        [0, 1],
+      ],
+    },
+  );
+  const pattern = { repeat: [200, 100] as const, fill: 0.7 };
+  const material = { color: '#ffffff', screenDoor: pattern };
+  const mesh = new Mesh3D(geometry, [material]);
+  assert.ok(Object.isFrozen(mesh.materials[0]!.screenDoor!.repeat));
+  for (const repeat of [
+    [0, 1],
+    [NaN, 1],
+    [1e6, 1],
+  ]) {
+    assert.throws(
+      () =>
+        new Mesh3D(geometry, [
+          {
+            ...material,
+            screenDoor: { repeat: repeat as [number, number], fill: 0.7 },
+          },
+        ]),
+      /coverage/,
+    );
+  }
+  assert.throws(
+    () =>
+      new Mesh3D(geometry, [
+        { ...material, screenDoor: { repeat: [1, 1], fill: 1 } },
+      ]),
+    /coverage/,
+  );
+  const f = fixture(),
+    renderer = new WebGLMeshRenderer3D(f.gl, {
+      lighting: true,
+      textures: true,
+    });
+  const root = new Node3D();
+  root.mesh = mesh;
+  renderer.render(root, new PerspectiveCamera(), 800, 600);
+  assert.equal(f.draws, 1);
+  const mixed = new MeshGeometry(
+    geometry.vertices,
+    [...geometry.faces, { id: 'b', indices: [0, 1, 2], material: 1 }],
+    [],
+    { texCoords: geometry.texCoords },
+  );
+  root.mesh = new Mesh3D(mixed, [
+    material,
+    { ...material, screenDoor: { ...pattern, fill: 0.6 } },
+  ]);
+  assert.throws(
+    () => renderer.render(root, new PerspectiveCamera(), 800, 600),
+    /different coverage/,
+  );
+  root.mesh = new Mesh3D(new MeshGeometry(geometry.vertices, geometry.faces), [
+    material,
+  ]);
+  assert.throws(
+    () => renderer.render(root, new PerspectiveCamera(), 800, 600),
+    /UV/,
+  );
+  renderer.dispose();
+});

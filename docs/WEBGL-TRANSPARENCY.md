@@ -57,3 +57,24 @@ occludes both (0/255/0/255). This diagnostic interrupts GPU timing; run it
 separately from performance comparisons. Temporary programs and buffers retire
 in finally. Automated tests cover validation, ordering with a rotated camera,
 shared uploads, zero-opacity skipping and restored depth/blend state.
+
+## Inherited fades and screen-door coverage
+
+`Node3D.opacity` is a finite 0..1 WebGL coverage multiplier inherited by descendants.
+It multiplies material opacity at draw time; it does not replace or upload geometry.
+The CPU painter/depth backends retain their existing opacity limitations. Geometric
+picking remains independent of coverage, including zero-opacity nodes.
+
+`Material3D.screenDoor: { repeat: [columns, rows], fill }` applies a UV-aligned grid
+of square apertures. Repeat counts must be positive and no greater than 100,000;
+fill is strictly between zero and one. Material descriptors are immutable. A mesh
+primitive must have one consistent pattern, complete UVs and the enabled texture
+pipeline. Content and backing can share UV coordinates to align their gaps.
+
+Fragment derivatives filter the apertures and blend unresolved cells toward their
+average fill. This is procedural coverage, not a transparency texture or physical
+woven-fibre lighting. Patterned draws always enter the translucent pass, including
+at opacity 1, keeping depth tests and disabling depth writes. They do not cast
+opaque shadow-map silhouettes. Every draw resets the pattern uniform; ordinary
+materials retain their existing coverage. Device-specific shimmer and readability
+require real-device inspection in addition to the numeric/state tests.

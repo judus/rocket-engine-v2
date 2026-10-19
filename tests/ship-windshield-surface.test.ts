@@ -5,6 +5,8 @@ import {
   PerspectiveCamera,
   matrixPoint,
   pickMesh3D,
+  multiplyMatrices,
+  transformMatrix,
 } from '../src/3d/index.js';
 import {
   WindshieldSurface,
@@ -54,10 +56,13 @@ void test('Authored five-pane glass keeps full hierarchy and separate runtime ma
   assert.equal(new Set(glass.panes.map((p) => p.mesh!.materials[0])).size, 5);
   const select = surfaceVariantSwitcher(assembly);
   glass.setMode('display');
+  assert.equal(glass.transition, 0);
+  glass.update(0.55);
+  assert.equal(glass.screen.opacity, 1);
   const meshes = glass.panes.map((p) => p.mesh);
   assert.equal(hud.reticle.visible, false);
   for (const pane of glass.panes)
-    assert.equal(pane.mesh!.materials[0]!.opacity, 0.94);
+    assert.equal(pane.mesh!.materials[0]!.opacity, 0.025);
   for (const variant of ['scalar-pbr', 'no-normal', 'full'] as const) {
     select(variant);
     assert.deepEqual(
@@ -72,6 +77,8 @@ void test('Authored five-pane glass keeps full hierarchy and separate runtime ma
   );
   assert.throws(() => glass.setMode('invalid' as 'clear'), /mode/);
   glass.setMode('clear');
+  glass.update(0.55);
+  assert.equal(glass.screen.opacity, 0);
   assert.equal(hud.reticle.visible, true);
   assert.throws(
     () => new WindshieldSurface(new Node3D(), hud, eye),
@@ -192,6 +199,7 @@ void test('Real GLB panes support triangle UV picking after head turn, with near
       screen.x,
       screen.y,
       (n) =>
+        n !== glass.screen &&
         n !== hud.root &&
         !n.name.startsWith('HUD') &&
         !n.name.includes('ring') &&
@@ -206,4 +214,60 @@ void test('Real GLB panes support triangle UV picking after head turn, with near
     'at least one buried front border loses to frame geometry',
   );
   assert.ok(open > 0, 'front glass remains selectable in the opening');
+});
+
+void test('Mesh fade reverses continuously and keeps glyph holes registered to the authored front pane', async () => {
+  const { modelRoot } = await cockpitModel();
+  const hud = new WindshieldHud(() =>
+    hudGlyphGeometry(1, 1, new Uint8ClampedArray([255, 255, 255, 255])),
+  );
+  const glass = new WindshieldSurface(modelRoot, hud, eye);
+  const mesh = glass.screen.mesh;
+  glass.setMode('display');
+  glass.update(0.2);
+  const halfway = glass.screen.opacity;
+  assert.ok(halfway > 0 && halfway < 1);
+  glass.setMode('clear');
+  assert.equal(glass.screen.opacity, halfway, 'request does not jump coverage');
+  glass.update(0.1);
+  assert.ok(glass.screen.opacity < halfway);
+  glass.setMode('display');
+  glass.update(1);
+  hud.setOpacity(0.5);
+  // Populate geometry using an existing committed reading.
+  const { Ship } = await import('../games/ship/Ship.js');
+  const { starterSetup } = await import('./helpers/shipSetup.js');
+  const { cockpitReadings } = await import('../games/ship/CockpitReadings.js');
+  const ship = new Ship(starterSetup.profile, starterSetup.initialState);
+  try {
+    hud.update(cockpitReadings(ship.telemetry, ship.computer.telemetry));
+    const text = hud.root.children.find((n) => n.name === 'HUD speed')!;
+    assert.deepEqual(
+      text.mesh!.materials[0]!.screenDoor,
+      glass.screen.mesh!.materials[0]!.screenDoor,
+    );
+    const points = glass.pane.mesh!.geometry.vertices;
+    const minX = Math.min(...points.map((v) => v.x)),
+      maxX = Math.max(...points.map((v) => v.x));
+    const minY = Math.min(...points.map((v) => v.y)),
+      maxY = Math.max(...points.map((v) => v.y));
+    const local = matrixPoint(
+      multiplyMatrices(
+        transformMatrix(hud.root.transform),
+        transformMatrix(text.transform),
+      ),
+      text.mesh!.geometry.vertices[0]!,
+    );
+    const uv = text.mesh!.geometry.texCoords[0]!;
+    assert.ok(Math.abs(uv[0] - (local.x - minX) / (maxX - minX)) < 1e-10);
+    assert.ok(Math.abs(uv[1] - (local.y - minY) / (maxY - minY)) < 1e-10);
+  } finally {
+    ship.dispose();
+  }
+  glass.setMode('clear');
+  glass.update(1);
+  assert.equal(hud.root.opacity, 1);
+  assert.equal(glass.screen.mesh, mesh, 'fade does not rebuild GPU geometry');
+  assert.throws(() => glass.update(-1), /delta/);
+  assert.throws(() => glass.update(NaN), /delta/);
 });

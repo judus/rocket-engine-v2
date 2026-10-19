@@ -231,6 +231,7 @@ export class WebGLMeshRenderer3D {
           );
         this.#opacities.set(node.mesh, opacity);
       }
+      opacity *= node.worldOpacity();
       if (opacity === 0) return;
       const texture = material.baseColorTexture,
         metallicRoughnessTexture = material.metallicRoughnessTexture,
@@ -248,6 +249,19 @@ export class WebGLMeshRenderer3D {
         )
           throw new Error(
             'Split lit and unlit materials into separate primitives',
+          );
+        if (
+          node.mesh.geometry.faces.some((face) => {
+            const pattern = node.mesh!.materials[face.material]!.screenDoor;
+            return (
+              pattern?.fill !== material.screenDoor?.fill ||
+              pattern?.repeat[0] !== material.screenDoor?.repeat[0] ||
+              pattern?.repeat[1] !== material.screenDoor?.repeat[1]
+            );
+          })
+        )
+          throw new Error(
+            'Split different coverage patterns into separate primitives',
           );
         for (const key of [
           'baseColorTexture',
@@ -308,7 +322,8 @@ export class WebGLMeshRenderer3D {
         )
           throw new Error('Material-map pipeline is not enabled');
         if (
-          (texture ||
+          (material.screenDoor ||
+            texture ||
             metallicRoughnessTexture ||
             occlusionTexture ||
             normalTexture) &&
@@ -333,6 +348,7 @@ export class WebGLMeshRenderer3D {
         mesh,
         opacity,
         unlit: material.unlit ?? false,
+        ...(material.screenDoor ? { screenDoor: material.screenDoor } : {}),
         castsShadow: node.castsShadow,
         receivesShadow: node.receivesShadow,
         transform: multiplyMatrices(clip, world),
@@ -349,7 +365,7 @@ export class WebGLMeshRenderer3D {
           : {}),
       };
       draws.push(draw);
-      if (opacity < 1) {
+      if (opacity < 1 || material.screenDoor) {
         let center = this.#centers.get(node.mesh);
         if (!center) {
           const min = { x: Infinity, y: Infinity, z: Infinity },
@@ -381,8 +397,8 @@ export class WebGLMeshRenderer3D {
       this.#cache.delete(source);
     }
     if (options.reverseOrder) draws.reverse();
-    const opaque = draws.filter((d) => d.opacity === 1);
-    const translucent = draws.filter((d) => d.opacity! < 1);
+    const opaque = draws.filter((d) => d.opacity === 1 && !d.screenDoor);
+    const translucent = draws.filter((d) => d.opacity! < 1 || d.screenDoor);
     // Primitive bounds-centre sorting; intersecting surfaces need content splitting.
     translucent.sort((a, b) => depths.get(b)! - depths.get(a)!);
     draws.splice(0, draws.length, ...opaque, ...translucent);

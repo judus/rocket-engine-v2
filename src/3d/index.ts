@@ -12,7 +12,7 @@ export type { Matrix4 } from './Matrix4.js';
 export { pickMesh3D } from './MeshPicking.js';
 export type { MeshHit3D } from './MeshPicking.js';
 export { MeshGeometry, Mesh3D } from './Mesh3D.js';
-export type { GeometryFace, Material3D } from './Mesh3D.js';
+export type { GeometryFace, Material3D, ScreenDoor3D } from './Mesh3D.js';
 export { Node3D } from './Node3D.js';
 export { CanvasRenderer3D } from './CanvasRenderer3D.js';
 export { collectFaces } from './collectFaces.js';

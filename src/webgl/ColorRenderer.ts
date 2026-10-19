@@ -1,3 +1,5 @@
+import { validateScreenDoor } from '../3d/Mesh3D.js';
+import type { ScreenDoor3D } from '../3d/Mesh3D.js';
 import { WebGLSkyBackgroundPass } from './SkyBackgroundPass.js';
 import type { SkyBackgroundView } from '../3d/SkyBackground.js';
 import type { WebGLRenderTarget } from './RenderTarget.js';
@@ -59,6 +61,7 @@ export interface ColorDraw {
   /** Straight alpha. Caller orders translucent draws back-to-front. */
   readonly opacity?: number;
   readonly unlit?: boolean;
+  readonly screenDoor?: ScreenDoor3D;
   readonly mesh: ColorMesh;
   readonly transform: Matrix4;
   readonly world?: Matrix4;
@@ -81,6 +84,7 @@ export class WebGLColorRenderer {
   #program: WebGLProgram;
   #transform: WebGLUniformLocation;
   #opacity: WebGLUniformLocation;
+  #screenDoor?: WebGLUniformLocation;
   #meshes = new Map<ColorMesh, Allocation>();
   #disposed = false;
   #skyPass: WebGLSkyBackgroundPass | undefined;
@@ -171,7 +175,20 @@ export class WebGLColorRenderer {
         if (kind === gl.FRAGMENT_SHADER) {
           code =
             code.replace('void main()', 'void surfaceMain()') +
-            '\nuniform float drawOpacity;\nvoid main(){surfaceMain();pixel.a*=drawOpacity;}';
+            '\nuniform float drawOpacity;\n' +
+            (this.#textures
+              ? `
+uniform vec3 screenDoor;
+float wireCoverage(){
+  vec2 cell=uv*screenDoor.xy;
+  vec2 footprint=max(fwidth(cell),vec2(0.0001));
+  float aperture=sqrt(1.0-screenDoor.z)*0.5;
+  vec2 hole=1.0-smoothstep(vec2(aperture)-footprint*0.5,vec2(aperture)+footprint*0.5,abs(fract(cell)-0.5));
+  float resolved=1.0-smoothstep(0.3,1.0,max(footprint.x,footprint.y));
+  return mix(screenDoor.z,1.0-hole.x*hole.y,resolved);
+}
+void main(){surfaceMain();pixel.a*=drawOpacity*(screenDoor.z>0.0 ? wireCoverage() : 1.0);}`
+              : 'void main(){surfaceMain();pixel.a*=drawOpacity;}');
         }
         gl.shaderSource(shader, code);
         gl.compileShader(shader);
@@ -191,6 +208,11 @@ export class WebGLColorRenderer {
       const opacity = gl.getUniformLocation(program, 'drawOpacity');
       if (opacity === null) throw new Error('Missing opacity uniform');
       this.#opacity = opacity;
+      if (this.#textures) {
+        const coverage = gl.getUniformLocation(program, 'screenDoor');
+        if (coverage === null) throw new Error('Missing screen-door uniform');
+        this.#screenDoor = coverage;
+      }
       const transform = gl.getUniformLocation(program, 'transform');
       if (transform === null) throw new Error('Missing transform uniform');
       if (this.#lighting) {
@@ -538,14 +560,22 @@ export class WebGLColorRenderer {
     // Validate before sorting or touching GL state. Preserve caller order within each pass.
     for (const draw of draws) {
       const opacity = draw.opacity ?? 1;
+      if (draw.screenDoor) {
+        if (!this.#textures)
+          throw new Error('Screen-door coverage requires the texture pipeline');
+        validateScreenDoor(draw.screenDoor);
+      }
       if (!Number.isFinite(opacity) || opacity < 0 || opacity > 1)
         throw new Error('Draw opacity must be finite in 0..1');
     }
     const translucent = draws.filter(
-      (d) => (d.opacity ?? 1) < 1 && (d.opacity ?? 1) > 0,
+      (d) => ((d.opacity ?? 1) < 1 || d.screenDoor) && (d.opacity ?? 1) > 0,
     );
     const blending = translucent.length > 0;
-    draws = [...draws.filter((d) => (d.opacity ?? 1) === 1), ...translucent];
+    draws = [
+      ...draws.filter((d) => (d.opacity ?? 1) === 1 && !d.screenDoor),
+      ...translucent,
+    ];
     const shadow = lighting.shadow;
     if (shadow) {
       if (!this.#shadows) throw new Error('Shadow pipeline is not enabled');
@@ -611,7 +641,7 @@ export class WebGLColorRenderer {
     const gl = this.gl;
     this.#shadowPass?.render(
       draws
-        .filter((d) => (d.opacity ?? 1) === 1)
+        .filter((d) => (d.opacity ?? 1) === 1 && !d.screenDoor)
         .map((d) => ({
           vao: this.#meshes.get(d.mesh)!.vao,
           vertexCount: d.mesh.vertexCount,
@@ -744,9 +774,10 @@ export class WebGLColorRenderer {
           receivesShadow,
           unlit,
           opacity = 1,
+          screenDoor,
         },
       ] of draws.entries()) {
-        if (opacity < 1) {
+        if (opacity < 1 || screenDoor) {
           gl.enable(gl.BLEND);
           gl.blendEquation(gl.FUNC_ADD);
           gl.blendFuncSeparate(
@@ -758,6 +789,13 @@ export class WebGLColorRenderer {
           gl.depthMask(false);
         }
         gl.uniform1f(this.#opacity, opacity);
+        if (this.#screenDoor)
+          gl.uniform3fv(
+            this.#screenDoor,
+            screenDoor
+              ? [screenDoor.repeat[0], screenDoor.repeat[1], screenDoor.fill]
+              : [1, 1, 0],
+          );
         if (this.#lighting)
           gl.uniform1i(
             this.#litUniforms.lightingEnabled!,

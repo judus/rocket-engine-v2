@@ -1,5 +1,5 @@
-import { Mesh3D } from '../../src/3d/index.js';
-import type { Node3D, Vec3, Matrix4 } from '../../src/3d/index.js';
+import { Mesh3D, Node3D } from '../../src/3d/index.js';
+import type { Vec3, Matrix4 } from '../../src/3d/index.js';
 import { normalMatrix } from '../../src/3d/NormalMatrix.js';
 import type { WindshieldHud } from './WindshieldHud.js';
 
@@ -11,12 +11,16 @@ export const cockpitPaneNames = [
   'WindowSurfaceTopRight',
 ] as const;
 export type WindshieldMode = 'clear' | 'display';
+export const windshieldMesh = { repeat: [240, 170] as const, fill: 0.72 };
+const transitionSeconds = 0.55;
 
 /** Game presentation on authored GLB panes. No replacement glass geometry or guessed tilt. */
 export class WindshieldSurface {
   readonly panes: readonly Node3D[];
   readonly pane: Node3D;
+  readonly screen = new Node3D('windshield mesh screen');
   #mode: WindshieldMode = 'clear';
+  #progress = 0;
   constructor(
     modelRoot: Node3D,
     private readonly hud: WindshieldHud,
@@ -72,6 +76,31 @@ export class WindshieldSurface {
     this.pane.add(hud.root);
     for (const pane of this.panes)
       pane.castsShadow = pane.receivesShadow = false;
+    for (const pane of this.panes)
+      pane.mesh = new Mesh3D(pane.mesh!.geometry, [
+        { color: '#86b9bd', opacity: 0.025, unlit: true },
+      ]);
+    this.screen.mesh = new Mesh3D(this.pane.mesh!.geometry, [
+      {
+        color: '#080b0e',
+        opacity: 0.96,
+        unlit: true,
+        screenDoor: windshieldMesh,
+      },
+    ]);
+    this.screen.transform = {
+      ...this.screen.transform,
+      position: { x: 0, y: 0, z: 0.001 },
+    };
+    this.screen.castsShadow = this.screen.receivesShadow = false;
+    this.pane.add(this.screen);
+    const vertices = this.pane.mesh!.geometry.vertices;
+    hud.configureScreenDoor(windshieldMesh, {
+      minX: Math.min(...vertices.map((v) => v.x)),
+      maxX: Math.max(...vertices.map((v) => v.x)),
+      minY: Math.min(...vertices.map((v) => v.y)),
+      maxY: Math.max(...vertices.map((v) => v.y)),
+    });
     this.apply();
   }
   get mode(): WindshieldMode {
@@ -82,20 +111,32 @@ export class WindshieldSurface {
       throw new Error('Invalid windshield mode');
     if (mode === this.#mode) return;
     this.#mode = mode;
+  }
+  get transition(): number {
+    return this.#progress;
+  }
+  update(dt: number): void {
+    if (!Number.isFinite(dt) || dt < 0)
+      throw new Error('Invalid windshield transition delta');
+    const next = Math.max(
+      0,
+      Math.min(
+        1,
+        this.#progress +
+          ((this.#mode === 'display' ? 1 : -1) * dt) / transitionSeconds,
+      ),
+    );
+    if (next === this.#progress) return;
+    this.#progress = next;
     this.apply();
   }
   private apply(): void {
-    const display = this.#mode === 'display';
-    for (const pane of this.panes) {
-      pane.mesh = new Mesh3D(pane.mesh!.geometry, [
-        {
-          color: display ? '#031016' : '#86b9bd',
-          opacity: display ? 0.94 : 0.025,
-          unlit: true,
-        },
-      ]);
-    }
+    const p = this.#progress;
+    this.screen.opacity = p * p * (3 - 2 * p);
+    const display = p >= 0.35;
     this.hud.setDisplayMode(display);
+    const alpha = display ? Math.min(1, (p - 0.35) / 0.5) : 1 - p / 0.35;
+    this.hud.root.opacity = alpha * alpha * (3 - 2 * alpha);
   }
 }
 
