@@ -854,7 +854,7 @@ separate from desktop browser evidence.
 
 The front pane's separate `screen` node shares its original geometry/UVs and sits
 just toward the pilot, behind the HUD and frame. Its unlit charcoal material uses
-procedural screen-door coverage: 240×170 cells, 72% wire coverage. Display glyphs
+procedural screen-door coverage: 480×340 cells, 72% wire coverage. Display glyphs
 use the same UV domain and pattern, so gaps cut the content as well as the backing.
 Display text is pale neutral; flight HUD remains turquoise. Derivative filtering
 softens unresolved cells toward their average coverage, rather than aliasing a

@@ -11,7 +11,7 @@ export const cockpitPaneNames = [
   'WindowSurfaceTopRight',
 ] as const;
 export type WindshieldMode = 'clear' | 'display';
-export const windshieldMesh = { repeat: [240, 170] as const, fill: 0.72 };
+export const windshieldMesh = { repeat: [480, 340] as const, fill: 0.72 };
 const transitionSeconds = 0.55;
 
 /** Game presentation on authored GLB panes. No replacement glass geometry or guessed tilt. */
