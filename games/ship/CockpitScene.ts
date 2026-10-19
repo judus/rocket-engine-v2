@@ -108,10 +108,14 @@ export function createCockpitScene(
   lamps.setSize(4, 0.686);
   lamps.setSize(5, 0.686);
   fit.add(lamps.root);
+  const pilotEye = { x: 0, y: windshieldProjection.anchor.y, z: -3.37 };
   const hud = new WindshieldHud();
   hud.root.transform = {
     ...hud.root.transform,
-    position: { ...windshieldProjection.anchor },
+    position: {
+      ...windshieldProjection.anchor,
+      z: windshieldProjection.anchor.z + windshieldProjection.behindFrameM,
+    },
   };
   const windshield = new WindshieldSurface(hud);
   rig.add(hud.root);
@@ -166,7 +170,7 @@ export function createCockpitScene(
         1,
       ];
       rig.matrix = pose;
-      const eye = matrixPoint(pose, { x: 0, y: 1.48, z: -3.37 });
+      const eye = matrixPoint(pose, pilotEye);
       camera.x = eye.x;
       camera.y = eye.y;
       camera.z = eye.z;

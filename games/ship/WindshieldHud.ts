@@ -8,6 +8,7 @@ export const windshieldProjection = {
   opacity: 0.55,
   tiltDegrees: -13.7,
   anchor: { x: 0, y: 1.48, z: 0.397 },
+  behindFrameM: 0.12,
 } as const;
 
 /** Glyph coverage becomes geometry: untouched pixels remain genuinely empty space. */

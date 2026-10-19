@@ -827,3 +827,8 @@ backing. These are ordinary depth-tested alpha materials, not a physically based
 refraction/reflection simulation. This slice tests the surface and mode switch;
 interactive windshield navigation/system/galaxy maps remain future work. Existing
 physical display switches remain available in systems mode.
+
+The entire projection (glass, reticle and text) is offset 0.12 m behind the nominal
+frame plane so the opaque bezel can mask the rounded corners. This pass changes
+depth only: size and the shared 13.7° angle stay unchanged; apparent size changes
+naturally with distance. The offset lives in `windshieldProjection.behindFrameM`.
