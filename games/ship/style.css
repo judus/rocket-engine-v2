@@ -427,7 +427,7 @@ output {
 #flight-hud {
   /* Compose all readouts, warning colors and glow as one translucent layer. */
   --hud-opacity: 0.55;
-  --hud-tilt: -6deg;
+  --hud-tilt: -45deg;
   opacity: var(--hud-opacity);
   transform: perspective(900px) rotateX(var(--hud-tilt));
   transform-origin: 50% 0;

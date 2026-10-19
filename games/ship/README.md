@@ -795,6 +795,6 @@ Detailed module state and switches remain on the right systems display.
 
 The HUD readouts retain their current content and share one `#flight-hud` parent.
 Its `--hud-opacity` applies to all text, warning colors and glow together (default
-0.55), and `--hud-tilt` controls the shared perspective tilt (initially -6deg;
+0.55), and `--hud-tilt` controls the shared perspective tilt (currently -45deg for an exaggerated visual comparison;
 set 0deg for a flat comparison). Child colors carry no separate opacity override.
 The existing depth-occluded 3D reticle remains independent of this HTML readout layer.
