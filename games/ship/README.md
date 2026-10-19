@@ -791,8 +791,11 @@ prioritized alert. Text and reticle are now ordinary unlit 3D meshes beneath one
 `WindshieldHud.root`, attached to the pilot rig. They share projection tilt and
 opacity through `setAppearance`; the reticle's core/glow intensity ratios remain
 preserved. Calibration is in `windshieldProjection`, currently 55% opacity and
--25° tilt as an initial fit to the windshield framing rather than the exaggerated
-45° comparison. Exact glass-plane fit remains visual asset calibration.
+-13.7° tilt from the cockpit designer’s nominal frame-plane fit. The asset SHA-256
+was verified as e96b1023c09715eb4807559e8f9bffb2b4d876c8f568e309e287113734050bd2.
+The provided source plane and GLB hierarchy/game transforms place its centre at
+approximately pilot-rig Y=1.48, Z=0.397. This is a fitted frame plane, not an
+existing glass surface. Pane outline/extents still require visual calibration.
 
 Text is rasterized offscreen and covered horizontal pixel runs become geometry.
 There is no HTML HUD, texture rectangle, or opaque text background. Changed text
@@ -805,3 +808,22 @@ shared projection. The cross/dot centre stays at the pilot's forward ray.
 Menus/settings and touch controls remain HTML. Mounts ready means idle/operating
 device state, not implemented projectiles, ammunition, target tracking or guaranteed
 firepower. Detailed module state and switches remain on the right systems display.
+
+### Switchable windshield prototype
+
+`WindshieldSurface` adds one fitted four-corner pane behind the projection, under
+its same 13.7° parent. The outline is visually calibrated with a slight overlap
+under the cockpit frame; its lower edge extends behind the dashboard. It retains
+UVs for a later interactive display. The original GLB is unchanged.
+
+Systems / I switches to display mode: the pane darkens, the flight reticle hides,
+and a windshield heading appears above the existing live telemetry. Return to
+flight restores clear glass and the reticle. Steering is released using the
+existing systems-input policy; ship simulation continues. Launch/Resume clears
+the pane consistently. Both modes retain the same geometry and alignment.
+
+Clear mode is a very faint tint/edge glint; display mode is a dark translucent
+backing. These are ordinary depth-tested alpha materials, not a physically based
+refraction/reflection simulation. This slice tests the surface and mode switch;
+interactive windshield navigation/system/galaxy maps remain future work. Existing
+physical display switches remain available in systems mode.

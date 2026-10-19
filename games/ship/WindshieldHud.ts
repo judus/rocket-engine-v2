@@ -6,7 +6,8 @@ import type { CockpitReading } from './CockpitReadings.js';
 /** Fit to the windshield framing; this is a game presentation calibration. */
 export const windshieldProjection = {
   opacity: 0.55,
-  tiltDegrees: -25,
+  tiltDegrees: -13.7,
+  anchor: { x: 0, y: 1.48, z: 0.397 },
 } as const;
 
 /** Glyph coverage becomes geometry: untouched pixels remain genuinely empty space. */
@@ -81,6 +82,7 @@ export class WindshieldHud {
   readonly root = new Node3D('windshield HUD projection');
   readonly reticle = cockpitReticle('hi3d');
   #opacity = windshieldProjection.opacity as number;
+  #displayMode = false;
   #reticleMaterials = new Map<Node3D, Mesh3D>();
   #lines = new Map<
     string,
@@ -96,6 +98,7 @@ export class WindshieldHud {
       if (node.mesh) this.#reticleMaterials.set(node, node.mesh);
     });
     for (const [key, x, y, alignment] of [
+      ['heading', -0.7, 1.4, 'center'],
       ['speed', -2.1, 1.5, 'left'],
       ['mode', -2.1, 1.35, 'left'],
       ['target', -0.7, 1.5, 'center'],
@@ -151,12 +154,34 @@ export class WindshieldHud {
       },
     ]);
   }
+  setDisplayMode(active: boolean): void {
+    this.#displayMode = active;
+    this.reticle.visible = !active;
+    for (const [key, line] of this.#lines) {
+      const upper = ['speed', 'target', 'heat'].includes(key);
+      line.node.transform = {
+        ...line.node.transform,
+        position: {
+          ...line.node.transform.position,
+          y:
+            key === 'heading'
+              ? 1.4
+              : (upper ? 1.5 : 1.35) - (active ? 0.28 : 0),
+        },
+      };
+      if (key === 'heading') line.node.visible = active;
+    }
+  }
   update(reading: CockpitReading): void {
     for (const [key, line] of this.#lines) {
       const text =
-        reading[
-          key as 'speed' | 'mode' | 'target' | 'weapons' | 'heat' | 'alert'
-        ];
+        key === 'heading'
+          ? this.#displayMode
+            ? 'WINDSHIELD / SHIP SYSTEMS'
+            : ''
+          : reading[
+              key as 'speed' | 'mode' | 'target' | 'weapons' | 'heat' | 'alert'
+            ];
       const color =
         key === 'alert'
           ? reading.critical

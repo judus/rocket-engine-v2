@@ -3,7 +3,8 @@ import type { Matrix4, Mesh3D, TextureImage } from '../../src/3d/index.js';
 import type { WebGLMeshRenderer3D } from '../../src/webgl/index.js';
 import { hi3dCockpitDisplays } from '../../examples/webgl/Hi3dCockpitDisplays.js';
 import { hi3dCockpitLamps } from '../../examples/webgl/Hi3dCockpitLamps.js';
-import { WindshieldHud } from './WindshieldHud.js';
+import { WindshieldSurface } from './WindshieldSurface.js';
+import { WindshieldHud, windshieldProjection } from './WindshieldHud.js';
 import { cockpitScreenPoint } from '../../examples/webgl/CockpitScreenPoint.js';
 import { originalAsteroidField } from '../../examples/space/OriginalAsteroidField.js';
 import { distantSun } from '../../examples/space/DistantSun.js';
@@ -110,8 +111,9 @@ export function createCockpitScene(
   const hud = new WindshieldHud();
   hud.root.transform = {
     ...hud.root.transform,
-    position: { x: 0, y: 1.48, z: 0.63 },
+    position: { ...windshieldProjection.anchor },
   };
+  const windshield = new WindshieldSurface(hud);
   rig.add(hud.root);
   const camera = new PerspectiveCamera();
   camera.near = 0.05;
@@ -133,6 +135,7 @@ export function createCockpitScene(
     root,
     instruments,
     hud,
+    windshield,
     draw(
       renderer: WebGLMeshRenderer3D,
       width: number,

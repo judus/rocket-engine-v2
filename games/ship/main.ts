@@ -175,6 +175,7 @@ async function start(): Promise<void> {
   );
   const setSystems = (active: boolean) => {
     usingSystems = active;
+    view!.setWindshieldDisplay(active);
     touch.hidden = active || activeVirtualMode() === 'off';
     actions.setEnabled(!active);
     systems.textContent = active
@@ -185,7 +186,7 @@ async function start(): Promise<void> {
       binding.capture?.release();
       view!.surface.canvas.focus();
       feedback.textContent =
-        'Systems · click a display · Return to flight to steer';
+        'Windshield display · Return to flight clears the glass and restores steering';
     } else actions.activate();
   };
   const configure = () => {
@@ -413,6 +414,7 @@ async function start(): Promise<void> {
       element('#menu-note').textContent =
         'Your ship is held here while the menu is open.';
       usingSystems = false;
+      view!.setWindshieldDisplay(false);
       systems.textContent = `Systems · ${bindingLabel(preferences.bindings.systems!)}`;
       systems.setAttribute('aria-pressed', 'false');
       void navigator

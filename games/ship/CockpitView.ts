@@ -159,6 +159,9 @@ export async function createCockpitView(
     return {
       surface,
       instruments: cockpit.instruments,
+      setWindshieldDisplay(active: boolean) {
+        cockpit.windshield.setMode(active ? 'display' : 'clear');
+      },
       update(dt: number) {
         cockpit.instruments.update(dt);
       },
