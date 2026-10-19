@@ -103,8 +103,9 @@ export class ShipMovement implements Behavior {
     this.power.beginStep();
     this.shields.beginStep();
     this.shields.transfer(dt);
-    const requestedEngine = this.engine.declare(this.control.intent);
-    this.dampers.declare(this.control.intent, requestedEngine, dt);
+    const admittedIntent = this.dampers.prepare(this.control.intent);
+    const requestedEngine = this.engine.declare(admittedIntent);
+    this.dampers.declare(admittedIntent, requestedEngine, dt);
     this.cargo.declare();
     this.mounts.declare();
     this.internals.declare();
@@ -146,6 +147,7 @@ export class ShipMovement implements Behavior {
       },
       dt,
     );
+    this.dampers.finishMotionStep();
     const shipG =
       Math.hypot(worldForceN.x, worldForceN.y, worldForceN.z) /
       this.body.massKg /

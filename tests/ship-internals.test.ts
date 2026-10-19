@@ -627,3 +627,79 @@ void test('Assigning halfway through a Workshop tick cannot backdate work over a
   assert.ok(job(ship).progress > 0);
   ship.dispose();
 });
+
+for (const command of [
+  'remove',
+  'switch',
+  'worker',
+  'drain',
+  'supply',
+  'collect',
+] as const) {
+  void test(`Queued ${command} refuses a replacement installation in the same slot`, () => {
+    const ship = make();
+    ship.internals.remove('internal-1');
+    ship.internals.install('internal-1', 'fabricator-starter', 'replacement');
+    switch (command) {
+      case 'remove':
+        ship.internals.remove('internal-1');
+        break;
+      case 'switch':
+        ship.internals.requestEnabled('internal-1', true);
+        break;
+      case 'worker':
+        ship.internals.assignWorker('internal-1', 'engineer-a');
+        break;
+      case 'drain':
+        ship.internals.setDraining('internal-1', true);
+        break;
+      case 'supply':
+        ship.internals.supply('internal-1', 'alloy', 1);
+        break;
+      case 'collect':
+        ship.internals.collect('internal-1', 'alloy', 1);
+        break;
+    }
+    step(ship);
+    assert.equal(reading(ship).installationId, 'replacement');
+    assert.equal(reading(ship).operation.requested, false);
+    assert.equal(reading(ship).facility?.workerSlots[0], null);
+    assert.equal(reading(ship).facility?.draining, false);
+    assert.equal(reading(ship).inventory?.quantities.alloy, 0);
+    assert.deepEqual(
+      ship.telemetry.internals.commands.map((c) => c.ok),
+      [true, true, false],
+    );
+    assert.equal(
+      ship.telemetry.internals.commands.at(-1)?.message,
+      'Internal installation changed',
+    );
+    ship.dispose();
+  });
+}
+for (const replacedSlot of ['internal-3', 'internal-4']) {
+  void test(`Queued transfer binds both endpoints when ${replacedSlot} is replaced`, () => {
+    const ship = outfitted();
+    const source = replacedSlot === 'internal-4' ? 'internal-3' : 'internal-4';
+    ship.internals.supply(source, 'meal', 1);
+    ship.internals.commit();
+    ship.internals.remove(replacedSlot);
+    const definition =
+      replacedSlot === 'internal-3' ? 'galley-starter' : 'fridge-starter';
+    ship.internals.install(replacedSlot, definition, 'replacement');
+    ship.internals.transfer('internal-3', 'internal-4', 'meal', 1);
+    step(ship);
+    assert.equal(at(ship, replacedSlot).installationId, 'replacement');
+    assert.equal(at(ship, source).inventory?.quantities.meal, 1);
+    assert.equal(at(ship, replacedSlot).inventory?.quantities.meal, 0);
+    assert.deepEqual(
+      ship.telemetry.internals.commands.map((c) => c.ok),
+      [true, true, false],
+    );
+    assert.equal(
+      ship.telemetry.internals.commands.at(-1)?.message,
+      'Internal installation changed',
+    );
+    ship.dispose();
+  });
+}

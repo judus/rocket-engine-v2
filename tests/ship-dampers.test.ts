@@ -327,3 +327,136 @@ void test('Interrupted capture preserves actual momentum and recovery captures f
   assert.deepEqual(ship.telemetry.body.velocityMps, after);
   ship.dispose();
 });
+
+const captureFunded: ShipProfile = {
+  ...funded,
+  engine: {
+    ...funded.engine,
+    thermal: {
+      ...funded.engine.thermal,
+      manualStartSeconds: 0,
+      wasteHeatFraction: 0,
+    },
+  },
+  dampers: {
+    ...funded.dampers,
+    thermal: { ...funded.dampers.thermal, wasteHeatFraction: 0 },
+  },
+};
+for (const dt of [1, 1 / 60]) {
+  void test(`Damaged capture completes at the physical endpoint with no pilot thrust leakage at dt=${dt}`, () => {
+    for (const thrust of [
+      { x: 1, y: 0, z: 0 },
+      { x: 0, y: 0, z: -1 },
+    ]) {
+      const ship = make(12300, captureFunded);
+      ship.dampers.damage(50);
+      ship.dampers.requestEnabled(true);
+      ship.control.thrust(thrust);
+      const intent = ship.control.intent;
+      let finished = false;
+      for (let i = 0; i < 3000; i++) {
+        const before = ship.telemetry.body.velocityMps.z;
+        step(ship, dt);
+        const t = ship.telemetry;
+        if (t.dampers.mode === 'assisted') {
+          assert.ok(before <= 300 + 1e-6, `Early handover at ${before}`);
+          assert.ok(t.engine.demandW > captureFunded.engine.baselineW);
+          finished = true;
+          break;
+        }
+        assert.equal(t.dampers.mode, 'capture');
+        assert.deepEqual(t.engine.thrustN, { x: 0, y: 0, z: 0 });
+        close(t.engine.demandW, captureFunded.engine.baselineW);
+        close(t.body.velocityMps.x, 0);
+        assert.ok(t.body.velocityMps.z >= 300 - 1e-6);
+        assert.ok(t.body.velocityMps.z <= before);
+        assert.ok(
+          t.dampers.captureElapsedSeconds <= t.dampers.captureDurationSeconds,
+        );
+        assert.deepEqual(ship.control.intent, intent);
+      }
+      assert.ok(finished, 'Capture never completed');
+      ship.dispose();
+    }
+  });
+}
+void test('Capture retains rotation controls and raw translation intent; disabling releases translation', () => {
+  const ship = make(12300, captureFunded);
+  ship.dampers.damage(50);
+  ship.dampers.requestEnabled(true);
+  ship.control.thrust({ x: 1, y: 0, z: 0 });
+  ship.control.turn(1);
+  ship.control.pitch(1);
+  ship.control.roll(1);
+  step(ship);
+  assert.equal(ship.telemetry.dampers.mode, 'capture');
+  assert.ok(ship.telemetry.body.yawRateRadps > 0);
+  assert.ok(ship.telemetry.body.pitchRateRadps > 0);
+  assert.ok(ship.telemetry.body.rollRateRadps > 0);
+  close(
+    ship.telemetry.engine.demandW,
+    captureFunded.engine.baselineW +
+      captureFunded.engine.fullYawW +
+      captureFunded.engine.fullPitchW +
+      captureFunded.engine.fullRollW,
+  );
+  close(ship.telemetry.body.velocityMps.x, 0);
+  ship.dampers.requestEnabled(false);
+  step(ship);
+  assert.equal(ship.telemetry.dampers.mode, 'coast');
+  assert.ok(ship.telemetry.engine.thrustN.x > 0);
+  ship.dispose();
+});
+void test('Changing partial power cannot advance capture past its physical endpoint', () => {
+  const profile = {
+    ...captureFunded,
+    power: { ...captureFunded.power, reactorOutputW: 100 },
+  };
+  const ship = make(12300, profile, 0);
+  ship.engine.requestEnabled(false);
+  ship.dampers.requestEnabled(true);
+  let partial = false,
+    complete = false;
+  for (let i = 0; i < 6000; i++) {
+    if (i === 30) ship.dampers.damage(50);
+    if (i === 60) ship.dampers.repair(50);
+    const before = ship.telemetry.body.velocityMps.z;
+    step(ship);
+    const t = ship.telemetry;
+    partial ||= t.dampers.powerFraction > 0 && t.dampers.powerFraction < 1;
+    if (t.dampers.mode === 'assisted') {
+      assert.ok(before <= 300 + 1e-6);
+      complete = true;
+      break;
+    }
+    assert.ok(t.body.velocityMps.z <= before);
+    assert.ok(t.body.velocityMps.z >= 300 - 1e-6);
+  }
+  assert.ok(partial);
+  assert.ok(complete);
+  ship.dispose();
+});
+
+void test('Zero-service capture coasts without translational demand; disabling admits held thrust', () => {
+  const ship = make(
+    12300,
+    { ...captureFunded, power: { ...captureFunded.power, reactorOutputW: 0 } },
+    0,
+  );
+  ship.dampers.requestEnabled(true);
+  ship.control.thrust({ x: 1, y: 0, z: 0 });
+  for (let i = 0; i < 3; i++) {
+    step(ship);
+    assert.equal(ship.telemetry.dampers.mode, 'coast');
+    assert.deepEqual(ship.telemetry.body.velocityMps, { x: 0, y: 0, z: 12300 });
+    close(ship.telemetry.engine.demandW, captureFunded.engine.baselineW);
+  }
+  ship.dampers.requestEnabled(false);
+  step(ship);
+  close(
+    ship.telemetry.engine.demandW,
+    captureFunded.engine.baselineW + captureFunded.engine.fullThrustW,
+  );
+  ship.dispose();
+});

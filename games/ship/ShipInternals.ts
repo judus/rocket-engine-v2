@@ -405,10 +405,11 @@ export class ShipInternals implements Behavior {
     );
   }
   remove(slotId: string): void {
-    this.binding(slotId);
+    const installationId = this.binding(slotId).installationId;
     this.#commands.push(() => {
       const b = this.#bindings.get(slotId);
-      if (!b) return { ok: false, message: 'Internal slot is empty' };
+      if (!b || b.installationId !== installationId)
+        return { ok: false, message: 'Internal installation changed' };
       if (
         b.device.telemetry.requested ||
         b.device.temperatureK > b.device.profile.thermal.restartTemperatureK
@@ -487,7 +488,7 @@ export class ShipInternals implements Behavior {
     });
   }
   assignWorker(slotId: string, workerId: string | null): void {
-    this.binding(slotId);
+    const installationId = this.binding(slotId).installationId;
     const worker =
       workerId === null
         ? null
@@ -496,6 +497,8 @@ export class ShipInternals implements Behavior {
       throw new Error('Unknown internal worker');
     this.#commands.push(() => {
       const b = this.#bindings.get(slotId);
+      if (!b || b.installationId !== installationId)
+        return { ok: false, message: 'Internal installation changed' };
       if (!b?.facilityId)
         return { ok: false, message: 'Installation has no operator slot' };
       if (
@@ -547,12 +550,13 @@ export class ShipInternals implements Behavior {
     this.binding(slotId).device.repair(points);
   }
   setDraining(slotId: string, value: boolean): void {
-    this.binding(slotId);
+    const installationId = this.binding(slotId).installationId;
     if (typeof value !== 'boolean')
       throw new TypeError('Draining must be boolean');
     this.#commands.push(() => {
       const b = this.#bindings.get(slotId);
-      if (!b) return { ok: false, message: 'Internal slot is empty' };
+      if (!b || b.installationId !== installationId)
+        return { ok: false, message: 'Internal installation changed' };
       if (!b.facilityId)
         return {
           ok: false,
@@ -571,14 +575,15 @@ export class ShipInternals implements Behavior {
     quantity: number,
     deposit: boolean,
   ): void {
-    this.binding(slotId);
+    const installationId = this.binding(slotId).installationId;
     this.production.registry.resource(resourceId);
     numberIn('Internal stock quantity', quantity, 1, Number.MAX_SAFE_INTEGER);
     if (!Number.isSafeInteger(quantity))
       throw new Error('Stock quantity must be an integer');
     this.#commands.push(() => {
       const b = this.#bindings.get(slotId);
-      if (!b) return { ok: false, message: 'Internal slot is empty' };
+      if (!b || b.installationId !== installationId)
+        return { ok: false, message: 'Internal installation changed' };
       if (!b.inventoryId)
         return { ok: false, message: 'Installation has no inventory' };
       const ok = deposit
@@ -600,8 +605,8 @@ export class ShipInternals implements Behavior {
     resourceId: string,
     quantity: number,
   ): void {
-    this.binding(fromSlot);
-    this.binding(toSlot);
+    const fromId = this.binding(fromSlot).installationId;
+    const toId = this.binding(toSlot).installationId;
     if (fromSlot === toSlot)
       throw new Error('Choose a different destination slot');
     this.production.registry.resource(resourceId);
@@ -616,7 +621,9 @@ export class ShipInternals implements Behavior {
     this.#commands.push(() => {
       const from = this.#bindings.get(fromSlot),
         to = this.#bindings.get(toSlot);
-      if (!from?.inventoryId || !to?.inventoryId)
+      if (from?.installationId !== fromId || to?.installationId !== toId)
+        return { ok: false, message: 'Internal installation changed' };
+      if (!from.inventoryId || !to.inventoryId)
         return { ok: false, message: 'Both installations need an inventory' };
       const ok = this.production.transfer(from.inventoryId, to.inventoryId, {
         [resourceId]: quantity,

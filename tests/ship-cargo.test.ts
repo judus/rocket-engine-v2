@@ -199,3 +199,30 @@ void test('Cargo JSON and command boundaries reject invalid timing, identifiers,
   assert.throws(() => ship.cargo.requestEnabled(1 as unknown as boolean));
   ship.dispose();
 });
+
+void test('Cargo recovery and expiry resolve in event order across coarse and fine partitions', () => {
+  for (const dt of [1 / 30, 1 / 60, 1 / 120, 1 / 240]) {
+    for (const stabilization of [
+      0.02,
+      1 / 30 - 1e-10,
+      1 / 30,
+      1 / 30 + 1e-10,
+      0.04,
+    ]) {
+      const link = new CargoLink('event-order');
+      link.advance(1 / 60, false, 0.05, stabilization);
+      let remaining = 1 / 30;
+      while (remaining > 1e-12) {
+        const interval = Math.min(dt, remaining);
+        link.advance(interval, true, 0.05, stabilization);
+        remaining -= interval;
+      }
+      assert.equal(
+        link.telemetry.state,
+        stabilization < 1 / 30 ? 'connected' : 'lost',
+      );
+      assert.equal(link.telemetry.remainingSeconds, 0);
+      assert.equal(link.telemetry.stabilizationSeconds, 0);
+    }
+  }
+});

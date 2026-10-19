@@ -227,3 +227,71 @@ void test('New axis commands and required profile parameters reject invalid inpu
   assert.equal(ship.control.intent.roll, 0);
   ship.dispose();
 });
+
+void test('Asymmetric torque-free motion stays bounded for ten simulated minutes at 60/120 Hz', () => {
+  for (const hz of [60, 120]) {
+    const body = new ShipBody({
+      ...bodyProfile,
+      pitchInertiaKgM2: 2,
+      yawInertiaKgM2: 3,
+      rollInertiaKgM2: 4,
+    });
+    body.advance(zero, { x: 3, y: 4, z: 5 }, 0.1);
+    const momentum = () => {
+      const w = body.telemetry.angularVelocityRadps;
+      return body.localToWorld({ x: w.x * 2, y: w.y * 3, z: w.z * 4 });
+    };
+    const energy = () => {
+      const w = body.telemetry.angularVelocityRadps;
+      return (2 * w.x ** 2 + 3 * w.y ** 2 + 4 * w.z ** 2) / 2;
+    };
+    const initial = momentum(),
+      initialEnergy = energy();
+    const scale = Math.hypot(initial.x, initial.y, initial.z);
+    for (let i = 0; i < 600 * hz; i++) {
+      body.advance(zero, zero, 1 / hz);
+      if (i % hz === 0) {
+        const current = momentum();
+        assert.ok(
+          Math.hypot(
+            current.x - initial.x,
+            current.y - initial.y,
+            current.z - initial.z,
+          ) /
+            scale <
+            0.0001,
+        );
+        assert.ok(Math.abs(energy() / initialEnergy - 1) < 0.0001);
+      }
+    }
+  }
+});
+void test('Simultaneous thrust and three-axis rotation converge as the fixed step shrinks', () => {
+  const simulate = (hz: number) => {
+    const ship = new Ship(profile, starterSetup.initialState);
+    ship.control.thrust({ x: 0.2, y: 0.1, z: 1 });
+    ship.control.turn(0.4);
+    ship.control.pitch(0.3);
+    ship.control.roll(-0.2);
+    step(ship, 4 * hz, 1 / hz);
+    const t = ship.telemetry.body;
+    assert.equal(ship.telemetry.engine.activityFraction, 1);
+    ship.dispose();
+    return t;
+  };
+  const reference = simulate(960);
+  const error = (t: ReturnType<typeof simulate>) =>
+    Math.hypot(
+      t.positionM.x - reference.positionM.x,
+      t.positionM.y - reference.positionM.y,
+      t.positionM.z - reference.positionM.z,
+      t.velocityMps.x - reference.velocityMps.x,
+      t.velocityMps.y - reference.velocityMps.y,
+      t.velocityMps.z - reference.velocityMps.z,
+    );
+  const coarse = error(simulate(30)),
+    normal = error(simulate(60)),
+    fine = error(simulate(120));
+  assert.ok(normal < coarse * 0.65, `${normal} >= ${coarse} * 0.65`);
+  assert.ok(fine < normal * 0.65, `${fine} >= ${normal} * 0.65`);
+});

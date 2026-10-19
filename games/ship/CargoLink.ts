@@ -31,17 +31,23 @@ export class CargoLink {
       this.#state = 'interrupted';
       this.#remaining = graceSeconds;
     }
-    // Recovery must finish strictly before expiry. Brief service never resets the deadline.
-    this.#remaining = Math.max(0, this.#remaining - dt);
-    this.#stable = service ? this.#stable + dt : 0;
-    if (this.#remaining < 1e-9) {
-      this.#remaining = 0;
-      this.#stable = 0;
-      this.#state = 'lost';
-    } else if (this.#stable + 1e-9 >= stabilizationSeconds) {
+    // Resolve the first event within this interval, rather than prioritizing
+    // whichever terminal condition happens to be checked first at its endpoint.
+    const recoveryIn = service ? stabilizationSeconds - this.#stable : Infinity;
+    const expiryIn = this.#remaining;
+    const tolerance = Number.EPSILON * 16 * Math.max(1, graceSeconds);
+    if (recoveryIn < expiryIn - tolerance && recoveryIn <= dt + tolerance) {
       this.#state = 'connected';
       this.#remaining = 0;
       this.#stable = 0;
+    } else if (expiryIn <= dt + tolerance) {
+      // Recovery must finish strictly before expiry; a tie loses the link.
+      this.#state = 'lost';
+      this.#remaining = 0;
+      this.#stable = 0;
+    } else {
+      this.#remaining -= dt;
+      this.#stable = service ? this.#stable + dt : 0;
     }
   }
   get telemetry(): Readonly<CargoLinkReading> {

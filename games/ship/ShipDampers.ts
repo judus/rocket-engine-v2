@@ -126,15 +126,8 @@ export class ShipDampers implements Behavior {
     }
     this.#requested = value;
   }
-  declare(
-    intent: Readonly<ShipIntent>,
-    engine: Pick<
-      EngineReading,
-      'thrustN' | 'yawTorqueNm' | 'pitchTorqueNm' | 'rollTorqueNm' | 'requested'
-    >,
-    dt: number,
-  ): void {
-    this.#dt = dt;
+  /** Admit one interval before propulsion declares demand. Preserve raw pilot intent. */
+  prepare(intent: Readonly<ShipIntent>): Readonly<ShipIntent> {
     const wasFailed = this.#health.telemetry.failed;
     this.#health.commit();
     const failed = this.#health.telemetry.failed;
@@ -160,6 +153,21 @@ export class ShipDampers implements Behavior {
           z: v.z / speed,
         };
     }
+    return this.#operating && this.#capture
+      ? Object.freeze({ ...intent, thrust: Object.freeze(zeroVector()) })
+      : intent;
+  }
+  declare(
+    intent: Readonly<ShipIntent>,
+    engine: Pick<
+      EngineReading,
+      'thrustN' | 'yawTorqueNm' | 'pitchTorqueNm' | 'rollTorqueNm' | 'requested'
+    >,
+    dt: number,
+  ): void {
+    this.#dt = dt;
+    const body = this.body.telemetry;
+    const v = body.velocityMps;
     const engineForce = this.body.localToWorld(engine.thrustN);
     let desiredChange: Vec3;
     let driveChange = zeroVector();
@@ -269,7 +277,11 @@ export class ShipDampers implements Behavior {
     const health = this.#health.telemetry;
     const fraction = powerFraction * health.outputFraction;
     const capturing = this.#capture !== undefined;
-    if (capturing && fraction > 0) this.#captureElapsed += this.#dt * fraction;
+    if (this.#capture && fraction > 0)
+      this.#captureElapsed = Math.min(
+        this.#capture.durationSeconds,
+        this.#captureElapsed + this.#dt * fraction,
+      );
     this.#reading = Object.freeze({
       requested: this.#requested,
       state: health.failed
@@ -311,13 +323,25 @@ export class ShipDampers implements Behavior {
       transmittedFraction:
         1 - fraction * (1 - this.profile.capture.transmittedFraction),
     });
-    if (this.#capture && this.#captureElapsed >= this.#capture.durationSeconds)
-      this.#capture = undefined;
     if (fraction === 0) {
       this.#engagement = true;
       this.#capture = undefined;
     }
     return this.#reading;
+  }
+  /** Release capture only after the body has physically reached its target. */
+  finishMotionStep(): void {
+    if (!this.#capture) return;
+    const v = this.body.telemetry.velocityMps;
+    const target = this.#capture.targetSpeedMps;
+    const error = Math.hypot(
+      v.x - this.#captureDirection.x * target,
+      v.y - this.#captureDirection.y * target,
+      v.z - this.#captureDirection.z * target,
+    );
+    // Numerical convergence tolerance in m/s, not a gameplay speed allowance.
+    // The interval remains a capture interval; held intent starts next step.
+    if (error <= 1e-6) this.#capture = undefined;
   }
   get temperatureK(): number {
     return this.#thermal.temperatureK;

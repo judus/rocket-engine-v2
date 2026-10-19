@@ -31,13 +31,13 @@ await runtime.start(); // no canvas required
 
 - **ShipControl** owns requested translation and pitch/yaw/roll intent. It validates and normalizes translation so diagonal input cannot gain extra thrust. HTML controls, a future input adapter, AI or scripts can issue the same commands. The current page is a command instrument, not a pointer-capture/input-preset demo. Multiple controllers are not arbitrated yet.
 - **ShipPowerPlant** owns reserve, reactor request and power ports. It wraps the actual existing `examples/ship/ShipPower.ts` J/W ledger rather than copying another allocator. Typed ports submit demand and receive allocated supply. World/ECS details remain private. Port registration/removal is tied to each consuming capability’s attachment/disposal.
-- **ShipEngine** owns requested enable state and the installed engine profile. Each tick it declares baseline + activity demand, then converts actual allocation into thrust and yaw torque. It never subtracts reserve itself. Partial allocation first funds the baseline; remaining supply scales translation and yaw together. Below baseline, no operation is delivered. Energy spent during that incomplete baseline is still accounted for.
-- **ShipDampers** owns requested enable state, a separate JSON profile, assistance and capture planning. It registers its own power port. Propulsion assistance scales with actual engine delivery; powered damping can arrest drift even with the engine disabled. It contributes world force and yaw torque, never body/reserve mutations. Translation and yaw damping effort plus drive assistance determine demand; opposing efforts still consume power even when their net force is small.
+- **ShipEngine** owns requested enable state and the installed engine profile. Each tick it declares baseline + activity demand, then converts actual allocation into thrust and pitch/yaw/roll torque. It never subtracts reserve itself. Partial allocation first funds the baseline; remaining supply scales translation and all rotational axes together. Below baseline, no operation is delivered. Energy spent during that incomplete baseline is still accounted for.
+- **ShipDampers** owns requested enable state, a separate JSON profile, assistance and capture planning. It registers its own power port. Propulsion assistance scales with actual engine delivery; powered damping can arrest drift even with the engine disabled. It contributes world force and pitch/yaw/roll torque, never body/reserve mutations. Translation and rotational damping effort plus drive assistance determine demand; opposing efforts still consume power even when their net force is small.
 - **ShipCooling** owns its switch, power port and shared reactor/engine/damper/shield cooling circuit. Its pump uses the shared allocation; actual supply determines heat removal. Each module owns its temperature and overheat/restart state through a private `ModuleThermal` calculation. No module temperature is stored twice.
 - **ShipShields** owns stored shield energy, recharge and powered protection; its own nonessential power port participates in the same allocation.
 - **ShipHull** owns structural integrity and queued impacts. Shield overflow becomes hull damage; a breach is a game-rule signal.
 - **ShipBody** owns mass, three principal moments of inertia, position, world velocity, a unit quaternion and body-local angular velocity. Translation integrates a constant-force interval; rotation uses midpoint Euler rigid-body dynamics and a quaternion exponential. Existing world momentum is never rotated to follow the nose. Orientation changes the direction of subsequent local thrust.
-- **ShipMovement** is the attached fixed-step controller/coordinator: intent → engine/damper/cooling/shield demands → one power allocation → delivered forces and shield recharge → queued hit resolution → engine heat/cooling/restart → body integration → committed telemetry. It declares same-entity dependencies and a unique motion-writer claim. Rocket invokes it automatically; the UI does not update components individually or calculate positions.
+- **ShipMovement** is the attached fixed-step controller/coordinator: intent → capture admission → engine/damper/cooling/shield demands → one power allocation → delivered forces and shield recharge → queued hit resolution → engine heat/cooling/restart → body integration → physical capture completion → committed telemetry. It declares same-entity dependencies and a unique motion-writer claim. Rocket invokes it automatically; the UI does not update components individually or calculate positions.
 
 There is one fixed-step path and one advance per body. Different ships have independent owned power ledgers and bodies, so attachment order between independent ships does not share or steal reserve. A future shared collision/physics service would be stepped by its world owner, not once per ship.
 
@@ -57,7 +57,7 @@ All instruments read `ship.telemetry` after a completed step, including forces a
 
 Implemented: actual attached body/control/power/engine/dampers/cooling/shields/hull/movement, 3D translation, pitch/yaw/roll, commands, standby/activity costs, reserve generation/depletion, partial/zero delivery, inherited recharge eligibility and immutable telemetry. Runtime uses the existing headless Stage2D and Rocket clock; pause/single-step work on the same simulation path.
 
-Not implemented: crew injury, destruction rules, cargo item transfers, collision, pitch/roll or general rigid-body dynamics, keyboard/mouse input handover, runtime equipment replacement, or the cockpit presentation adapter. The earlier capture calculation now lives in `games/ship/CaptureResponse.ts` and drives the powered damper component. It still describes nominal fully supplied response; power delivery determines actual motion and protection.
+Not implemented: crew injury, destruction rules, cargo-pocket item transfers, collision, general rigid-body contact dynamics, keyboard/mouse input handover, core-equipment runtime replacement, or the cockpit presentation adapter. The earlier capture calculation now lives in `games/ship/CaptureResponse.ts` and drives the powered damper component. It still describes nominal fully supplied response; power delivery determines actual motion and protection.
 
 `npm run check` includes `tests/ship-architecture.test.ts`: actual engine/power/body outcomes, resource conservation, final partial versus zero supply, baseline admission/recharge, manual switches/coasting, yaw/thrust frames, normalized combined demand, independent ship lifetimes, coherent observations and fail-before-side-effect boundaries. Render-rate foundations are existing Rocket tests. Browser checks inspect the telemetry page; this is not a full game or real-device certification.
 
@@ -77,9 +77,13 @@ To tune the demonstration, edit the relevant JSON and reload the telemetry page;
 
 Dampers start requested off. Enable their switch and request forward motion: the fully powered velocity servo approaches 300 m/s, reaching 95% of a command change in the profile’s three-second response time. Neutral commands bring linear drift and all three angular rates toward zero. This is a force response with one ordinary body integration, not a velocity overwrite or hard cap. The helper page accepts a starting forward velocity applied only by Reset; the JSON initial velocity remains separate equipment-independent state.
 
-Engaging above the assisted envelope selects one immutable `CapturePlan` from entry speed/direction. Capture first removes the excess along that trajectory; translation commands take over after capture. Yaw remains assisted. The reference **excess** of 12 km/s, four-second duration, curve power, duration-growth exponent and steepness growth are exposed in the damper JSON. They are illustration values. Higher excess speeds increase both capture duration and braking concentration, not Newtonian speed limits. At full supply, tenfold reference excess takes twice as long but produces substantially higher crew G.
+Engaging above the assisted envelope selects one immutable `CapturePlan` from entry speed/direction. Capture first removes the excess along that trajectory; translation commands take over after capture. Pitch, yaw and roll remain assisted. The reference **excess** of 12 km/s, four-second duration, curve power, duration-growth exponent and steepness growth are exposed in the damper JSON. They are illustration values. Higher excess speeds increase both capture duration and braking concentration, not Newtonian speed limits. At full supply, tenfold reference excess takes twice as long but produces substantially higher crew G.
 
-The engine declares requested output before allocation. Dampers plan braking and supplementary engine assistance; assistance depends on the engine’s actual operating fraction. Both submit demand to the existing shared power ledger. The damper baseline is funded first; funded activity scales forces, torque and protection. Unpowered dampers contribute zero force/protection. Motion and requested switches survive power loss. Recovery re-evaluates capture from actual speed instead of continuing a stale trajectory. Partial supply advances the capture clock only by its operating fraction; nominal duration is not a guaranteed arrival time under starvation. Applied translational G comes from actual combined force divided by mass and standard gravity. Crew G applies the delivered suppression fraction; it is never clamped to a comfort/survival target. Seat orientation, rotational crew loads and injury rules are not modeled.
+The engine declares requested output before allocation. Dampers plan braking and supplementary engine assistance; assistance depends on the engine’s actual operating fraction. Both submit demand to the existing shared power ledger. The damper baseline is funded first; funded activity scales forces, torque and protection. Unpowered dampers contribute zero force/protection. Motion and requested switches survive power loss. Recovery re-evaluates capture from actual speed instead of continuing a stale trajectory.
+
+The nominal curve clock advances by delivered activity; nominal duration is not a guaranteed arrival time under partial service. After that clock reaches the endpoint, the same powered servo continues correcting the remaining velocity error in capture mode. Capture finishes only after integrated velocity reaches the entry-trajectory target within a numerical tolerance of 0.000001 m/s, with no velocity snap.
+
+Translation is gated before engine demand declaration for the whole capture interval, including the final interval; held intent becomes available on the next step. Pitch/yaw/roll remain available. Zero damper delivery coasts and releases the current plan; the next operating interval attempts capture again from actual speed. Manually disabling dampers releases translation immediately. Applied translational G comes from actual combined force divided by mass and standard gravity. Crew G applies the delivered suppression fraction; it is never clamped to a comfort/survival target. Seat orientation, rotational crew loads and injury rules are not modeled.
 
 The existing 200 GJ reserve intentionally makes high-speed captures capable of running out of power. JSON values remain tuning inputs, not settled balance or a thermodynamic/reactor-efficiency model. The G display does not imply crew injury mechanics. Engine/damper heat and shared cooling are described below. Normal movement and power-loss/capture behavior are tested in `tests/ship-dampers.test.ts`; loading validates every referenced profile with the same strict boundary rules.
 
@@ -243,10 +247,11 @@ Other modules retain their own health.
 
 Repair preserves the requested switch and existing thermal trip/reboot. Repair
 from failure uses manual startup when requested on. Interrupted capture replans
-from actual velocity when assistance returns; the capture clock advances by
-effective activity, so its displayed plan duration is not a guaranteed wall-clock
-arrival time under damage or partial power. Neutral assisted braking continues
-after the capture plan ends. No health command sets body velocity directly.
+from actual velocity when assistance returns. The nominal capture clock advances by
+effective activity, but its elapsed time does not declare physical completion.
+The powered capture servo remains engaged until actual velocity reaches its
+target; the displayed plan duration is not a guaranteed wall-clock arrival time
+under damage or partial power. Neutral assisted braking continues after handover. No health command sets body velocity directly.
 
 Flight Foundry's module matrix and damper condition buttons expose this behavior.
 Lab repairs are free and damage bypasses shields/hull; automatic damage routing,
@@ -476,7 +481,11 @@ ship.internals.transfer('internal-3', 'internal-4', 'meal', 1);
 ship.internals.install('internal-2', 'fabricator-starter', 'fabricator-second');
 ```
 
-Inventory/installation commands are queued to the ship boundary. Ordinary refusals
+Inventory/installation commands are queued to the ship boundary. Removal, switches,
+worker assignment, draining, supply/collection and both ends of a transfer bind to
+the installation IDs present at admission. If a slot changes before execution,
+the command refuses before any mutation; it never targets the replacement.
+Ordinary refusals
 (e.g. full stock, empty slot, busy/occupied installation) leave state intact and
 appear in persistent `telemetry.internals.commands` results. Invalid identifiers,
 quantities and profiles fail on entry. Unexpected disagreement with a validated
@@ -607,7 +616,7 @@ health, staffing or cargo-link recovery rules. A failed module can remember an
 on request without becoming operational. Physical installation identity is part
 of each mount/internal target: stale controls cannot switch a replacement in the
 same slot. Their owners enforce the optional expected-installation precondition;
-queued internal switch commands also revalidate identity at execution.
+all installation-specific queued internal commands also revalidate identity at execution.
 
 Flight Foundry adds a selected-module switch/status panel, current warning list
 and production overview above the detailed module matrix. Existing lab switches
