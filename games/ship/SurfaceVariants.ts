@@ -92,7 +92,17 @@ export function surfaceMesh(mesh: Mesh3D, variant: SurfaceVariant): Mesh3D {
 export function surfaceVariantSwitcher(root: Node3D) {
   const original: { node: Node3D; mesh: Mesh3D }[] = [];
   root.traverse((node) => {
-    if (node.mesh) original.push({ node, mesh: node.mesh });
+    if (
+      node.mesh &&
+      !node.mesh.materials.every(
+        (m) =>
+          m.unlit &&
+          !m.normalTexture &&
+          !m.metallicRoughnessTexture &&
+          !m.occlusionTexture,
+      )
+    )
+      original.push({ node, mesh: node.mesh });
   });
   const cache = new Map<SurfaceVariant, Map<Mesh3D, Mesh3D>>();
   return (variant: SurfaceVariant) => {

@@ -3,7 +3,7 @@ import type { Matrix4, Mesh3D, TextureImage } from '../../src/3d/index.js';
 import type { WebGLMeshRenderer3D } from '../../src/webgl/index.js';
 import { hi3dCockpitDisplays } from '../../examples/webgl/Hi3dCockpitDisplays.js';
 import { hi3dCockpitLamps } from '../../examples/webgl/Hi3dCockpitLamps.js';
-import { cockpitReticle } from '../../examples/webgl/CockpitReticle.js';
+import { WindshieldHud } from './WindshieldHud.js';
 import { cockpitScreenPoint } from '../../examples/webgl/CockpitScreenPoint.js';
 import { originalAsteroidField } from '../../examples/space/OriginalAsteroidField.js';
 import { distantSun } from '../../examples/space/DistantSun.js';
@@ -107,12 +107,12 @@ export function createCockpitScene(
   lamps.setSize(4, 0.686);
   lamps.setSize(5, 0.686);
   fit.add(lamps.root);
-  const reticle = cockpitReticle('hi3d');
-  reticle.transform = {
-    ...reticle.transform,
+  const hud = new WindshieldHud();
+  hud.root.transform = {
+    ...hud.root.transform,
     position: { x: 0, y: 1.48, z: 0.63 },
   };
-  rig.add(reticle);
+  rig.add(hud.root);
   const camera = new PerspectiveCamera();
   camera.near = 0.05;
   camera.far = 100000;
@@ -132,6 +132,7 @@ export function createCockpitScene(
   return {
     root,
     instruments,
+    hud,
     draw(
       renderer: WebGLMeshRenderer3D,
       width: number,
@@ -182,6 +183,7 @@ export function createCockpitScene(
         5,
         ship.computer.telemetry.alerts.some((a) => a.severity === 'critical'),
       );
+      hud.update(instruments.status);
       return renderer.render(root, camera, width, height, {
         clearColor: [0, 0, 0],
         background: { image: sky, yaw: Math.PI / 2 },

@@ -785,16 +785,23 @@ is muted and explicitly labelled SHIELDS OFF. Overhead displays use only the
 label/percentage row and bar; temperature and power draw stay separate from hull
 integrity. Existing computer alerts own alarm state.
 
-A sparse, non-interactive HTML HUD inside the actual cockpit viewport shows speed,
-damper mode, destination/distance, selected-group mount availability, hottest module
-and the computer's first prioritized alert. It hides in menus/settings. The existing
-reticle and cockpit geometry remain unchanged. HUD text refreshes only when the
-15 Hz instrument snapshot changes. Mounts ready means idle/operating device state,
-not implemented projectiles, ammunition, target tracking or guaranteed firepower.
-Detailed module state and switches remain on the right systems display.
+A sparse windshield HUD shows speed, damper mode, destination/distance,
+selected-group mount availability, hottest module and the computer's first
+prioritized alert. Text and reticle are now ordinary unlit 3D meshes beneath one
+`WindshieldHud.root`, attached to the pilot rig. They share projection tilt and
+opacity through `setAppearance`; the reticle's core/glow intensity ratios remain
+preserved. Calibration is in `windshieldProjection`, currently 55% opacity and
+-25° tilt as an initial fit to the windshield framing rather than the exaggerated
+45° comparison. Exact glass-plane fit remains visual asset calibration.
 
-The HUD readouts retain their current content and share one `#flight-hud` parent.
-Its `--hud-opacity` applies to all text, warning colors and glow together (default
-0.55), and `--hud-tilt` controls the shared perspective tilt (currently -45deg for an exaggerated visual comparison;
-set 0deg for a flat comparison). Child colors carry no separate opacity override.
-The existing depth-occluded 3D reticle remains independent of this HTML readout layer.
+Text is rasterized offscreen and covered horizontal pixel runs become geometry.
+There is no HTML HUD, texture rectangle, or opaque text background. Changed text
+alone rebuilds its mesh, using the existing 15 Hz instrument snapshots. Material
+quality switching leaves live unlit HUD meshes alone. Context-owned renderer
+caches retire replaced meshes, and opaque cockpit depth occludes both text and
+reticle. Individual reticle children can still move for later targeting under the
+shared projection. The cross/dot centre stays at the pilot's forward ray.
+
+Menus/settings and touch controls remain HTML. Mounts ready means idle/operating
+device state, not implemented projectiles, ammunition, target tracking or guaranteed
+firepower. Detailed module state and switches remain on the right systems display.
