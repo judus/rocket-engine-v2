@@ -99,10 +99,51 @@ export async function createCockpitView(
       ...displays.transform,
       position: { x: 0, y: -1.5, z: 0 },
     };
+    // Final hand-fitted calibration from the rendering testbed, in source units.
+    // These are asset placement values, independent of camera/viewport size.
+    const displayOffsets = [
+      [-0.01, 0.011], // navigation
+      [-0.079, 0.011], // systems
+      [0, -0.03], // attitude
+      [0, -0.03], // speed
+      [-0.007, -0.03], // position
+    ] as const;
+    displayOffsets.forEach(([x, y], index) => {
+      const node = displays.children[index]!;
+      node.transform = {
+        ...node.transform,
+        position: {
+          x: node.transform.position.x + x,
+          y: node.transform.position.y + y,
+          z: node.transform.position.z,
+        },
+      };
+    });
     fit.add(displays);
     const lamps = hi3dCockpitLamps();
     lamps.root.transform = displays.transform;
     lamps.setCockpitScale(0.8, 0.93);
+    const lampOffsets = [
+      [0.008, -0.015], // overhead left
+      [-0.014, -0.012], // overhead right
+      [0.003, 0.01], // centre console
+      [-0.021, 0.035], // right console
+      [0.009, -0.058], // amber alert
+      [-0.038, -0.058], // red alert
+    ] as const;
+    lampOffsets.forEach(([x, y], index) => {
+      const node = lamps.root.children[index]!;
+      node.transform = {
+        ...node.transform,
+        position: {
+          x: node.transform.position.x + x,
+          y: node.transform.position.y + y,
+          z: node.transform.position.z,
+        },
+      };
+    });
+    lamps.setSize(4, 0.686);
+    lamps.setSize(5, 0.686);
     fit.add(lamps.root);
     const reticle = cockpitReticle('hi3d');
     reticle.transform = {
