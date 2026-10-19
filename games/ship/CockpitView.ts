@@ -7,8 +7,9 @@ import type { Rocket } from '../../src/index.js';
 import type { Stage2D, SceneNavigator } from '../../src/experimental/index.js';
 import { loadAsteroidFamily } from '../../examples/space/AsteroidFamily.js';
 import { createCockpitScene } from './CockpitScene.js';
+import { surfaceVariants, surfaceVariantSwitcher } from './SurfaceVariants.js';
 import { videoSurfaceScale } from './VideoSettings.js';
-import type { VideoSettings } from './VideoSettings.js';
+import type { VideoSettings, SurfaceDetail } from './VideoSettings.js';
 import type { Ship } from './Ship.js';
 
 /** Game presentation: reads the ship, owns GPU/asset lifetime, never advances physics. */
@@ -55,16 +56,42 @@ export async function createCockpitView(
       model.value.instantiate().root,
       family.variants,
     );
-    const gpu = surface.manage(() => {
-      const renderer = new WebGLMeshRenderer3D(surface.gl, {
-        lighting: true,
-        textures: true,
-        materialResponse: true,
-        materialMaps: true,
-        normalMapping: true,
-      });
+    const selectMaterials = surfaceVariantSwitcher(cockpit.root);
+    // One managed resource across all quality switches, including context restoration.
+    const gpu = surface.manage((gl) => {
+      let detail = video().surfaceDetail;
+      const createRenderer = (selected: SurfaceDetail) =>
+        new WebGLMeshRenderer3D(gl, {
+          lighting: true,
+          textures: true,
+          ...surfaceVariants[selected],
+        });
+      let renderer = createRenderer(detail);
+      try {
+        selectMaterials(detail);
+      } catch (error) {
+        renderer.dispose();
+        throw error;
+      }
       return {
-        value: renderer,
+        value: {
+          select(selected: SurfaceDetail) {
+            if (selected !== detail) {
+              const next = createRenderer(selected);
+              try {
+                selectMaterials(selected);
+              } catch (error) {
+                next.dispose();
+                throw error;
+              }
+              const previous = renderer;
+              renderer = next;
+              detail = selected;
+              previous.dispose();
+            }
+            return renderer;
+          },
+        },
         dispose(): undefined {
           renderer.dispose();
         },
@@ -74,8 +101,9 @@ export async function createCockpitView(
       scene: navigator,
       render() {
         if (navigator.scene !== scene) return;
-        const renderer = gpu.current;
-        if (!renderer) return;
+        const resource = gpu.current;
+        if (!resource) return;
+        const renderer = resource.select(video().surfaceDetail);
         surface.resize(
           videoSurfaceScale(video(), window.devicePixelRatio || 1),
           host.clientWidth / Math.max(1, host.clientHeight),

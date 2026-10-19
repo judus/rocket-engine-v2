@@ -78,4 +78,7 @@ include two warmed, interleaved RTX 5080 runs at 1920×1080. Proper no-normal an
 map-averaged scalar-PBR variants reduced both GPU time and retained GPU allocations;
 plain diffuse was slower than scalar PBR in both runs. This supersedes the short
 runtime-toggle reconnaissance as evidence for these explicit variants. Full remains
-the game's renderer, and no surface-detail settings have been added.
+the default. Video settings now expose Full, No normal maps and Scalar PBR;
+diffuse remains comparison-only. Switching rebuilds the renderer on resume and
+releases the previous GPU resources without recreating the ship. Preferences
+persist, with an explicit one-time migration of resolution-only records to Full.

@@ -1,18 +1,30 @@
+import type { SurfaceVariant } from './SurfaceVariants.js';
+
+export type SurfaceDetail = Exclude<SurfaceVariant, 'diffuse'>;
+export const surfaceDetails: readonly SurfaceDetail[] = [
+  'full',
+  'no-normal',
+  'scalar-pbr',
+];
+
 /** Player presentation preferences; no changes to simulation or CSS/input coordinates. */
 export interface VideoSettings {
+  surfaceDetail: SurfaceDetail;
   renderScale: number;
   pixelDensityLimit: number | null;
 }
 export const videoSettingsKey = 'rocket.first-flight.video';
 export function defaultVideo(): VideoSettings {
-  return { renderScale: 1, pixelDensityLimit: 2 };
+  return { surfaceDetail: 'full', renderScale: 1, pixelDensityLimit: 2 };
 }
 export function validateVideo(value: unknown): VideoSettings {
   if (!value || typeof value !== 'object' || Array.isArray(value))
     throw new Error('Video settings must be an object');
   const v = value as Record<string, unknown>;
   if (
-    Object.keys(v).sort().join() !== 'pixelDensityLimit,renderScale' ||
+    Object.keys(v).sort().join() !==
+      'pixelDensityLimit,renderScale,surfaceDetail' ||
+    !surfaceDetails.includes(v.surfaceDetail as SurfaceDetail) ||
     typeof v.renderScale !== 'number' ||
     !Number.isFinite(v.renderScale) ||
     v.renderScale < 0.5 ||
@@ -25,9 +37,30 @@ export function validateVideo(value: unknown): VideoSettings {
   )
     throw new Error('Invalid video settings');
   return {
+    surfaceDetail: v.surfaceDetail as SurfaceDetail,
     renderScale: v.renderScale,
     pixelDensityLimit: v.pixelDensityLimit as number | null,
   };
+}
+/** Explicit one-time data migration. The active reader accepts only the current schema. */
+export function migrateVideoStorage(
+  storage: Pick<Storage, 'getItem' | 'setItem'>,
+): boolean {
+  const saved = storage.getItem(videoSettingsKey);
+  if (saved === null) return false;
+  const value: unknown = JSON.parse(saved);
+  if (
+    value &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    Object.keys(value).sort().join() === 'pixelDensityLimit,renderScale'
+  ) {
+    const migrated = validateVideo({ ...value, surfaceDetail: 'full' });
+    storage.setItem(videoSettingsKey, JSON.stringify(migrated));
+    return true;
+  }
+  validateVideo(value);
+  return false;
 }
 export function readVideo(storage: Pick<Storage, 'getItem'>): VideoSettings {
   const saved = storage.getItem(videoSettingsKey);
@@ -45,7 +78,7 @@ export function saveVideo(
 }
 /** Surface.resize already multiplies by device DPR, so pass the relative multiplier. */
 export function videoSurfaceScale(
-  settings: VideoSettings,
+  settings: Pick<VideoSettings, 'renderScale' | 'pixelDensityLimit'>,
   devicePixelRatio: number,
 ): number {
   if (!Number.isFinite(devicePixelRatio) || devicePixelRatio <= 0)
@@ -60,7 +93,7 @@ export function videoSurfaceScale(
   );
 }
 export function videoResolution(
-  settings: VideoSettings,
+  settings: Pick<VideoSettings, 'renderScale' | 'pixelDensityLimit'>,
   width: number,
   height: number,
   devicePixelRatio: number,

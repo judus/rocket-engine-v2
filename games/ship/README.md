@@ -460,7 +460,19 @@ by the cap. Defaults are 100% and 2×. Only the WebGL drawing resolution changes
 HTML, logical input coordinates and simulation remain unchanged. Settings persist
 separately in `rocket.first-flight.video` and apply on the next flight frame.
 See [VIDEO-EVALUATION.md](./VIDEO-EVALUATION.md) for implementation boundaries and
-the surface-detail investigation. Surface-detail presets are not exposed yet.
+the surface-detail investigation.
+
+Material quality offers Full (default), No normal maps and Scalar PBR. No normal
+maps removes surface relief; Scalar PBR also replaces roughness, metalness and
+occlusion maps with representative material values. Diffuse remains available
+only in the comparison tool. Applying a different mode rebuilds the renderer on
+the next flight frame and releases its previous GPU resources; ship state and
+input stay intact. Rebuilding may briefly pause rendering. GPU texture use falls,
+but decoded source images remain available in CPU memory for switching back.
+
+Startup explicitly migrates the previous resolution-only preference record once,
+preserving scale/density and selecting Full. The current preference reader remains
+strict and rejects invalid records.
 
 ### Replaceable internal installations
 
@@ -718,7 +730,8 @@ Flight Foundry's [surface comparison](../../apps/flight-foundry/surface-benchmar
 uses the game's extracted `CockpitScene.ts` with real renderer/material variants,
 fixed dimensions and warmed GPU queries. See its
 [methodology](../../apps/flight-foundry/SURFACE-BENCHMARK.md). The playable game
-continues to use full detail; no experimental presets are exposed in Settings.
+defaults to Full and exposes the approved No normal maps and Scalar PBR variants
+in Video settings. Diffuse remains restricted to the comparison tool.
 
 The launch screen uses Julien's supplied **FARWAKE: WASTEBOUND** title artwork,
 copied unchanged into `assets/farwake-wastebound-v3-uppercase.png`. The original

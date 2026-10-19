@@ -11,7 +11,11 @@ import {
   bindingLabel,
 } from './ControlSettings.js';
 import { VideoPanel } from './VideoPanel.js';
-import { defaultVideo, readVideo } from './VideoSettings.js';
+import {
+  defaultVideo,
+  readVideo,
+  migrateVideoStorage,
+} from './VideoSettings.js';
 import { SettingsPanel } from './SettingsPanel.js';
 import { normalizeInputBinding } from '../../src/Input.js';
 
@@ -67,6 +71,7 @@ async function start(): Promise<void> {
   }
   let videoPreferences = defaultVideo();
   try {
+    migrateVideoStorage(localStorage);
     videoPreferences = readVideo(localStorage);
   } catch (error) {
     videoPreferenceError = `Saved video settings could not be loaded: ${error instanceof Error ? error.message : String(error)}. Apply valid Video settings to replace them.`;

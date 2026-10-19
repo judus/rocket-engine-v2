@@ -77,9 +77,10 @@ classification rather than turning rocks into polished metal. Diffuse substantia
 brightens/flattens metal shading. Displays, reticle, lenses and alpha coverage
 remain present in all variants.
 
-**Decision:** keep Full in the game. No-normal and scalar PBR are credible lower-detail
-candidates; no settings are added by this experiment. Diffuse is not the default
-low-detail choice on this evidence. Next acceptance needs actual mobile hardware,
+**Decision:** Full remains the default. Following this comparison, Video settings
+now offer Full, No normal maps and Scalar PBR. Diffuse remains comparison-only;
+it is not the preferred low-detail choice on this evidence. Further evaluation
+needs actual mobile hardware,
 a repeatable moving view and normal live instrument traffic. The large sky texture
 is an obvious later memory investigation; it was deliberately held constant here.
 

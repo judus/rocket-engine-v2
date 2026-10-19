@@ -1,9 +1,10 @@
 import { defaultVideo, saveVideo, videoResolution } from './VideoSettings.js';
-import type { VideoSettings } from './VideoSettings.js';
+import type { VideoSettings, SurfaceDetail } from './VideoSettings.js';
 
 export class VideoPanel {
   #scale: HTMLInputElement;
   #density: HTMLSelectElement;
+  #detail: HTMLSelectElement;
   #output: HTMLElement;
   #resolution: HTMLElement;
   constructor(
@@ -25,6 +26,7 @@ export class VideoPanel {
     };
     this.#scale = node('#render-scale');
     this.#density = node('#pixel-density');
+    this.#detail = node('#surface-detail');
     this.#output = node('#render-scale-value');
     this.#resolution = node('#render-resolution');
     this.#scale.addEventListener('input', () => this.preview(), { signal });
@@ -60,12 +62,14 @@ export class VideoPanel {
   }
   private draft(): VideoSettings {
     return {
+      surfaceDetail: this.#detail.value as SurfaceDetail,
       renderScale: Number(this.#scale.value) / 100,
       pixelDensityLimit:
         this.#density.value === 'native' ? null : Number(this.#density.value),
     };
   }
   private render(settings: VideoSettings): void {
+    this.#detail.value = settings.surfaceDetail;
     this.#scale.value = String(settings.renderScale * 100);
     this.#density.value =
       settings.pixelDensityLimit === null

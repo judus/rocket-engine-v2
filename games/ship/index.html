@@ -170,6 +170,26 @@
                 high-density screens from rendering unnecessary pixels.
               </p>
               <p id="render-resolution" aria-live="polite"></p>
+              <h2>Surface detail</h2>
+              <div class="preferences">
+                <label for="surface-detail"
+                  >Material quality
+                  <select id="surface-detail">
+                    <option value="full">Full</option>
+                    <option value="no-normal">No normal maps</option>
+                    <option value="scalar-pbr">Scalar PBR</option>
+                  </select>
+                </label>
+              </div>
+              <p class="muted">
+                Full preserves all surface detail. No normal maps removes fine
+                surface relief. Scalar PBR also replaces material maps with
+                representative values to reduce GPU memory use.
+              </p>
+              <p class="muted">
+                Applies when you resume flight. Switching may cause a brief
+                pause while graphics resources rebuild.
+              </p>
               <p class="muted">
                 Flight behaviour, field of view and controls stay the same.
                 Hardware limits may further reduce the requested resolution.

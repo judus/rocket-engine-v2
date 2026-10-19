@@ -1,7 +1,7 @@
 import { Mesh3D, TextureImage } from '../../src/3d/index.js';
 import type { Node3D } from '../../src/3d/index.js';
 
-/** Experimental renderer/material pairs, deliberately absent from player settings. */
+/** Renderer/material pairs. Diffuse remains restricted to the comparison tool. */
 export const surfaceVariants = {
   full: {
     label: 'Full PBR + maps + normals',
