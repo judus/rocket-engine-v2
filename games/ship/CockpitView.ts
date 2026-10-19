@@ -15,6 +15,8 @@ import { loadAsteroidFamily } from '../../examples/space/AsteroidFamily.js';
 import { originalAsteroidField } from '../../examples/space/OriginalAsteroidField.js';
 import { distantSun } from '../../examples/space/DistantSun.js';
 import { CockpitInstruments } from './CockpitInstruments.js';
+import { videoSurfaceScale } from './VideoSettings.js';
+import type { VideoSettings } from './VideoSettings.js';
 import type { Ship } from './Ship.js';
 import type { NavigationContact } from './ShipNavigation.js';
 
@@ -26,6 +28,7 @@ export async function createCockpitView(
   ship: Ship,
   host: HTMLElement,
   signal: AbortSignal,
+  video: () => VideoSettings,
   onError: (error: unknown) => void,
 ) {
   signal.throwIfAborted();
@@ -189,7 +192,10 @@ export async function createCockpitView(
         if (navigator.scene !== scene) return;
         const renderer = gpu.current;
         if (!renderer) return;
-        surface.resize(1, host.clientWidth / Math.max(1, host.clientHeight));
+        surface.resize(
+          videoSurfaceScale(video(), window.devicePixelRatio || 1),
+          host.clientWidth / Math.max(1, host.clientHeight),
+        );
         const b = ship.telemetry.body,
           p = b.positionM;
         const r = ship.body.localToWorld({ x: 1, y: 0, z: 0 }),

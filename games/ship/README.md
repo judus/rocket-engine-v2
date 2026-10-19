@@ -452,6 +452,16 @@ trigger and live device telemetry. Editing controls persist across ordinary
 telemetry refreshes. Projectiles, aiming, hit routing, ammunition, recoil and real
 utility effects remain outside this power/heat/health proof.
 
+### Video preferences
+
+Settings → Video adds 50–100% render scale and a 1× / 1.5× / 2× / Native pixel-density
+limit. The cap applies before scale; lower-density devices are never supersampled
+by the cap. Defaults are 100% and 2×. Only the WebGL drawing resolution changes;
+HTML, logical input coordinates and simulation remain unchanged. Settings persist
+separately in `rocket.first-flight.video` and apply on the next flight frame.
+See [VIDEO-EVALUATION.md](./VIDEO-EVALUATION.md) for implementation boundaries and
+the surface-detail investigation. Surface-detail presets are not exposed yet.
+
 ### Replaceable internal installations
 
 `ship.internals` is a typed attached capability with configurable internal slots,

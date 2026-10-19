@@ -10,6 +10,8 @@ import {
   readControls,
   bindingLabel,
 } from './ControlSettings.js';
+import { VideoPanel } from './VideoPanel.js';
+import { defaultVideo, readVideo } from './VideoSettings.js';
 import { SettingsPanel } from './SettingsPanel.js';
 import { normalizeInputBinding } from '../../src/Input.js';
 
@@ -54,11 +56,20 @@ async function start(): Promise<void> {
   let mouseYaw = 0,
     mousePitch = 0;
   let preferences = defaultControls();
-  let preferenceError = '';
+  let controlPreferenceError = '';
+  let videoPreferenceError = '';
+  const preferenceError = () =>
+    [controlPreferenceError, videoPreferenceError].filter(Boolean).join(' ');
   try {
     preferences = readControls(localStorage);
   } catch (error) {
-    preferenceError = `Saved controls could not be loaded: ${error instanceof Error ? error.message : String(error)}. Restore defaults in Settings to replace them.`;
+    controlPreferenceError = `Saved controls could not be loaded: ${error instanceof Error ? error.message : String(error)}. Restore defaults in Settings to replace them.`;
+  }
+  let videoPreferences = defaultVideo();
+  try {
+    videoPreferences = readVideo(localStorage);
+  } catch (error) {
+    videoPreferenceError = `Saved video settings could not be loaded: ${error instanceof Error ? error.message : String(error)}. Apply valid Video settings to replace them.`;
   }
   let launched = false;
   const stage = new Stage2D({
@@ -129,6 +140,8 @@ async function start(): Promise<void> {
             ship.mounts.requestFiring(false);
             if (navigator.current === 'settings') {
               panel.open();
+              videoPanel.open();
+              selectSettingsPage('controls');
               element<HTMLButtonElement>('#settings-back').focus();
             } else fly.focus();
           }
@@ -146,6 +159,7 @@ async function start(): Promise<void> {
     ship,
     element('#viewport'),
     lifetime.signal,
+    () => videoPreferences,
     fail,
   );
   const setSystems = (active: boolean) => {
@@ -248,11 +262,67 @@ async function start(): Promise<void> {
     (settings) => {
       preferences = settings;
       configure();
-      preferenceError = '';
-      loading.textContent = launched ? 'Flight paused.' : 'Your ship is ready.';
+      controlPreferenceError = '';
+      loading.textContent =
+        preferenceError() ||
+        (launched ? 'Flight paused.' : 'Your ship is ready.');
     },
     lifetime.signal,
   );
+  const videoPanel = new VideoPanel(
+    settingsRoot,
+    () => videoPreferences,
+    (settings) => {
+      videoPreferences = settings;
+      videoPreferenceError = '';
+      loading.textContent =
+        preferenceError() ||
+        (launched ? 'Flight paused.' : 'Your ship is ready.');
+    },
+    element('#settings-status'),
+    () => ({
+      width: element('#viewport').clientWidth,
+      height: element('#viewport').clientHeight,
+      devicePixelRatio: window.devicePixelRatio || 1,
+    }),
+    lifetime.signal,
+  );
+  const selectSettingsPage = (page: 'controls' | 'video') => {
+    panel.cancel();
+    for (const name of ['controls', 'video'] as const) {
+      const active = page === name;
+      element(`#${name}-page`).hidden = !active;
+      element(`#${name}-buttons`).hidden = !active;
+      const tab = element<HTMLButtonElement>(`#${name}-tab`);
+      tab.setAttribute('aria-selected', String(active));
+      tab.tabIndex = active ? 0 : -1;
+    }
+  };
+  for (const page of ['controls', 'video'] as const) {
+    const tab = element(`#${page}-tab`);
+    tab.addEventListener('click', () => selectSettingsPage(page), {
+      signal: lifetime.signal,
+    });
+    tab.addEventListener(
+      'keydown',
+      (event) => {
+        if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.code)) {
+          event.preventDefault();
+          const next =
+            event.code === 'Home'
+              ? 'controls'
+              : event.code === 'End'
+                ? 'video'
+                : page === 'controls'
+                  ? 'video'
+                  : 'controls';
+          selectSettingsPage(next);
+          element(`#${next}-tab`).focus();
+        }
+      },
+      { signal: lifetime.signal },
+    );
+  }
   configure();
   systems.addEventListener('click', () => setSystems(!usingSystems), {
     signal: lifetime.signal,
@@ -307,13 +377,13 @@ async function start(): Promise<void> {
   settingsButton.disabled = false;
   systems.disabled = false;
   menuButton.disabled = false;
-  loading.textContent = preferenceError || 'Your ship is ready.';
+  loading.textContent = preferenceError() || 'Your ship is ready.';
   fly.addEventListener(
     'click',
     () => {
       launched = true;
       fly.textContent = 'Resume flight';
-      loading.textContent = preferenceError || 'Flight paused.';
+      loading.textContent = preferenceError() || 'Flight paused.';
       element('#menu-note').textContent =
         'Your ship is held here while the menu is open.';
       usingSystems = false;

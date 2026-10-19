@@ -50,63 +50,147 @@
           <header>
             <div>
               <p class="eyebrow">FIRST FLIGHT / SETTINGS</p>
-              <h1 id="settings-title">Controls</h1>
+              <h1 id="settings-title">Settings</h1>
             </div>
             <button id="settings-back" type="button">Back to menu</button>
           </header>
+          <div
+            class="settings-tabs"
+            role="tablist"
+            aria-label="Settings category"
+          >
+            <button
+              id="controls-tab"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              aria-controls="controls-page"
+            >
+              Controls
+            </button>
+            <button
+              id="video-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="video-page"
+              tabindex="-1"
+            >
+              Video
+            </button>
+          </div>
           <div class="settings-content">
-            <p class="muted">
-              Flight is paused. Changes take effect when you apply them.
-            </p>
-            <div class="preferences">
-              <label
-                >Steering
-                <select id="steering">
-                  <option value="mouse">Mouse + keyboard</option>
-                  <option value="keyboard">Keyboard</option>
-                </select></label
-              >
-              <label
-                >Mouse sensitivity
-                <span class="range-line"
-                  ><input
-                    id="sensitivity"
-                    type="range"
-                    min="0.1"
-                    max="3"
-                    step="0.1"
-                    value="1"
-                  /><output for="sensitivity">1.0×</output></span
-                ></label
-              >
-              <label class="check"
-                ><input id="invert-pitch" type="checkbox" /> Invert mouse
-                pitch</label
-              >
-              <label
-                >Virtual controllers
-                <select id="virtual-controls">
-                  <option value="off">Off</option>
-                  <option value="analog">Analog sticks</option>
-                  <option value="digital">Digital pads</option>
-                </select></label
-              >
-            </div>
-            <h2>Bindings</h2>
-            <p class="muted">
-              Select a binding to replace it, or + to add an alternative. Escape
-              opens the menu.
-            </p>
-            <div id="bindings"></div>
+            <section
+              id="controls-page"
+              role="tabpanel"
+              aria-labelledby="controls-tab"
+            >
+              <p class="muted">
+                Flight is paused. Changes take effect when you apply them.
+              </p>
+              <div class="preferences">
+                <label
+                  >Steering
+                  <select id="steering">
+                    <option value="mouse">Mouse + keyboard</option>
+                    <option value="keyboard">Keyboard</option>
+                  </select></label
+                >
+                <label
+                  >Mouse sensitivity
+                  <span class="range-line"
+                    ><input
+                      id="sensitivity"
+                      type="range"
+                      min="0.1"
+                      max="3"
+                      step="0.1"
+                      value="1"
+                    /><output for="sensitivity">1.0×</output></span
+                  ></label
+                >
+                <label class="check"
+                  ><input id="invert-pitch" type="checkbox" /> Invert mouse
+                  pitch</label
+                >
+                <label
+                  >Virtual controllers
+                  <select id="virtual-controls">
+                    <option value="off">Off</option>
+                    <option value="analog">Analog sticks</option>
+                    <option value="digital">Digital pads</option>
+                  </select></label
+                >
+              </div>
+              <h2>Bindings</h2>
+              <p class="muted">
+                Select a binding to replace it, or + to add an alternative.
+                Escape opens the menu.
+              </p>
+              <div id="bindings"></div>
+            </section>
+            <section
+              id="video-page"
+              role="tabpanel"
+              aria-labelledby="video-tab"
+              hidden
+            >
+              <h2>Rendering resolution</h2>
+              <p class="muted">
+                Lower resolution reduces GPU work. Menus stay sharp at every
+                setting.
+              </p>
+              <div class="preferences">
+                <label for="render-scale"
+                  >Render scale
+                  <span class="range-line"
+                    ><input
+                      id="render-scale"
+                      type="range"
+                      min="50"
+                      max="100"
+                      step="5"
+                      value="100"
+                    /><output id="render-scale-value" for="render-scale"
+                      >100%</output
+                    ></span
+                  >
+                </label>
+                <label for="pixel-density"
+                  >Pixel-density limit
+                  <select id="pixel-density">
+                    <option value="1">1×</option>
+                    <option value="1.5">1.5×</option>
+                    <option value="2" selected>2×</option>
+                    <option value="native">Native (no limit)</option>
+                  </select>
+                </label>
+              </div>
+              <p class="muted">
+                Render scale applies after the density limit. The limit prevents
+                high-density screens from rendering unnecessary pixels.
+              </p>
+              <p id="render-resolution" aria-live="polite"></p>
+              <p class="muted">
+                Flight behaviour, field of view and controls stay the same.
+                Hardware limits may further reduce the requested resolution.
+              </p>
+            </section>
           </div>
           <footer>
-            <p role="status" aria-live="polite"></p>
-            <div>
+            <p id="settings-status" role="status" aria-live="polite"></p>
+            <div id="controls-buttons">
               <button id="reset-controls" type="button">
                 Restore defaults
               </button>
               <button id="apply-controls" class="primary" type="button">
                 Apply controls
+              </button>
+            </div>
+            <div id="video-buttons" hidden>
+              <button id="reset-video" type="button">Restore defaults</button
+              ><button id="apply-video" type="button" class="primary">
+                Apply video
               </button>
             </div>
           </footer>
