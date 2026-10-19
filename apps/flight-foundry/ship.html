@@ -275,6 +275,14 @@
         <div id="ship-readings" class="readings"></div>
         <p id="simulation-state" class="muted"></p>
         <pre id="vectors" class="architecture"></pre>
+        <h2>Ship navigation</h2>
+        <p class="muted">
+          Known lab beacons in a fixed world frame, measured in metres. Select a
+          destination, then Run or Single step. The heading-up scope covers 10
+          km; distant destinations remain selectable. Guidance only: sensor
+          detection, navigation power/health and autopilot are not modeled yet.
+        </p>
+        <div id="navigation-panel"></div>
         <h2>Modules</h2>
         <div class="table-wrap module-matrix">
           <table aria-label="Module telemetry">
@@ -478,6 +486,7 @@
 ship
 ├─ body       owns position, velocity and yaw
 ├─ control    accepts intent from any controller
+├─ navigation post-motion position fix and destination guidance
 ├─ power      owns reserve and allocation
 ├─ engine     requests power, delivers thrust/torque
 ├─ dampers    powered assistance, capture and crew protection

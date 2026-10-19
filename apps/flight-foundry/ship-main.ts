@@ -1,3 +1,5 @@
+import { NavigationPanel } from './navigation-panel.js';
+import { navigationContacts } from './navigation-contacts.js';
 import { InternalsPanel } from './internals-panel.js';
 import { MountsPanel } from './mounts-panel.js';
 import type { HealthReading } from '../../games/ship/ModuleHealth.js';
@@ -24,6 +26,11 @@ const mountsPanel = new MountsPanel(
 );
 const internalsPanel = new InternalsPanel(
   find('#internals-editor'),
+  () => ship,
+  find('#message'),
+);
+const navigationPanel = new NavigationPanel(
+  find('#navigation-panel'),
   () => ship,
   find('#message'),
 );
@@ -104,18 +111,22 @@ function reset(): void {
   });
   ship = stage.entity(
     () =>
-      new Ship(setup.profile, {
-        ...setup.initialState,
-        reactorTemperatureK: Number(reactorTemperature.value) + 273.15,
-        shieldTemperatureK: Number(shieldTemperature.value) + 273.15,
-        energyJ: (setup.profile.power.capacityJ * Number(charge.value)) / 100,
-        engineTemperatureK: Number(temperature.value) + 273.15,
-        damperTemperatureK: Number(damperTemperature.value) + 273.15,
-        velocityMps: {
-          ...setup.initialState.velocityMps,
-          z: Number(find<HTMLInputElement>('#entry-speed').value),
+      new Ship(
+        setup.profile,
+        {
+          ...setup.initialState,
+          reactorTemperatureK: Number(reactorTemperature.value) + 273.15,
+          shieldTemperatureK: Number(shieldTemperature.value) + 273.15,
+          energyJ: (setup.profile.power.capacityJ * Number(charge.value)) / 100,
+          engineTemperatureK: Number(temperature.value) + 273.15,
+          damperTemperatureK: Number(damperTemperature.value) + 273.15,
+          velocityMps: {
+            ...setup.initialState.velocityMps,
+            z: Number(find<HTMLInputElement>('#entry-speed').value),
+          },
         },
-      }),
+        navigationContacts,
+      ),
     {
       id: setup.profile.id,
       tags: ['ship'],
@@ -126,6 +137,7 @@ function reset(): void {
     onError: fail,
   });
   runtime.scene(stage, { keepAlive: true });
+  navigationPanel.paint(ship.telemetry.navigation, true);
   mountsPanel.paint(ship.telemetry.mounts, true);
   internalsPanel.paint(ship.telemetry.internals, true);
   rows = [];
@@ -166,6 +178,7 @@ const vector = (v: {
   readonly z: number;
 }) => `X ${fmt(v.x)} / Y ${fmt(v.y)} / Z ${fmt(v.z)}`;
 function paint(): void {
+  navigationPanel.paint(ship.telemetry.navigation);
   mountsPanel.paint(ship.telemetry.mounts);
   internalsPanel.paint(ship.telemetry.internals);
   const t = ship.telemetry;

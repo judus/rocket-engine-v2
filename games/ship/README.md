@@ -539,3 +539,36 @@ construction-time workforce pool. No residence/population is created in every
 local buffer, and no crew is duplicated as an inventory resource. Assignment is
 a lab assertion of presence; character travel, attendance and fatigue are future
 crew integration. All assignment commands commit at the existing ship boundary.
+
+### Ship navigation · first Flight Foundry slice
+
+`ship.navigation` is a typed attached capability that depends on `ShipBody`.
+`ShipMovement` commits its fix **after** the sole body integration and stores it
+in the same immutable `ship.telemetry.navigation` frame. It never changes intent,
+forces or velocity, and adds no timer. The existing UI cadence draws the lab scope.
+
+The host supplies known landmarks as the optional third `Ship` constructor
+argument, or replaces them with `ship.navigation.setContacts(contacts)`.
+Each has a stable `id`, `label`, fixed-world `positionM` and `arrivalRadiusM`.
+Contact updates are validated/copied atomically; removing the selected contact
+clears the destination at the next committed fix. Selection also commits at the
+next ship step: `ship.navigation.selectDestination(id)` or `null` to clear.
+No source object is retained as mutable navigation state.
+
+Readings contain position, velocity, heading, speed and contact fixes: 3D range,
+absolute and ship-relative bearing, elevation, local offsets, closing speed,
+arrival status and a nullable range/closing-rate time. Positive closing speed
+means approaching; stationary or receding contacts have no time estimate.
+The estimate assumes constant closing rate to the arrival-radius boundary; it
+is not a trajectory intercept, stopping distance, docking or autopilot solution.
+The model follows the existing ship convention: +Z forward, +X right, +Y up,
+positive yaw turns +Z toward +X; bearings are degrees clockwise from world +Z.
+
+Flight Foundry supplies four illustrative beacons from
+`apps/flight-foundry/navigation-contacts.ts`. Its 10 km heading-up scope projects
+horizontal offsets; elevation is reported separately. The full destination list
+includes contacts outside scope range. These are known world landmarks, not
+sensor detections. The current spatial index is 2D, so this four-contact 3D view
+uses direct distance calculations rather than inventing a second spatial system.
+No navigation power/thermal/health profile, collision or sensor occlusion is
+claimed by this first guidance slice. The cockpit renderer is unchanged.

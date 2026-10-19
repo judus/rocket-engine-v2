@@ -4,6 +4,8 @@ import { ShipMounts } from './ShipMounts.js';
 import { CargoLink } from './CargoLink.js';
 import { ShipCargo } from './ShipCargo.js';
 import { Node2D } from '../../src/index.js';
+import { ShipNavigation } from './ShipNavigation.js';
+import type { NavigationContact } from './ShipNavigation.js';
 import { ShipBody } from './ShipBody.js';
 import { ShipControl } from './ShipControl.js';
 import { ShipPowerPlant } from './ShipPowerPlant.js';
@@ -31,6 +33,7 @@ export class Ship extends Node2D {
   readonly cargoLink: CargoLink;
   readonly cargo: ShipCargo;
   readonly body: ShipBody;
+  readonly navigation: ShipNavigation;
   readonly control: ShipControl;
   readonly power: ShipPowerPlant;
   readonly engine: ShipEngine;
@@ -42,6 +45,7 @@ export class Ship extends Node2D {
   constructor(
     profile: Readonly<ShipProfile>,
     initialState: Readonly<ShipInitialState>,
+    contacts: readonly NavigationContact[] = [],
   ) {
     super();
     this.definitionId = profileId(profile.id, 'Ship id');
@@ -98,6 +102,7 @@ export class Ship extends Node2D {
     this.cargoLink = new CargoLink(initial.cargoPocketId);
     try {
       this.body = this.attach(new ShipBody(profile.body, initial.velocityMps));
+      this.navigation = this.attach(new ShipNavigation(this.body, contacts));
       this.control = this.attach(new ShipControl());
       this.power = this.attach(
         new ShipPowerPlant(
@@ -172,6 +177,7 @@ export class Ship extends Node2D {
           this.cargo,
           this.mounts,
           this.internals,
+          this.navigation,
         ),
       );
     } catch (error) {

@@ -1,3 +1,5 @@
+import { ShipNavigation } from './ShipNavigation.js';
+import type { NavigationReading } from './ShipNavigation.js';
 import { ShipInternals } from './ShipInternals.js';
 import type { InternalsReading } from './ShipInternals.js';
 import { ShipMounts } from './ShipMounts.js';
@@ -24,6 +26,7 @@ import { numberIn } from './ShipProfiles.js';
 import type { PowerReading } from './ShipPowerPlant.js';
 
 export interface ShipTelemetry {
+  readonly navigation: Readonly<NavigationReading>;
   readonly internals: Readonly<InternalsReading>;
   readonly mounts: Readonly<MountsReading>;
   readonly cargo: Readonly<CargoReading>;
@@ -58,6 +61,7 @@ export class ShipMovement implements Behavior {
     private readonly cargo: ShipCargo,
     private readonly mounts: ShipMounts,
     private readonly internals: ShipInternals,
+    private readonly navigation: ShipNavigation,
   ) {
     this.requires = [
       control,
@@ -71,8 +75,10 @@ export class ShipMovement implements Behavior {
       cargo,
       mounts,
       internals,
+      navigation,
     ];
     this.#telemetry = Object.freeze({
+      navigation: navigation.telemetry,
       tick: 0,
       timeSeconds: 0,
       body: body.telemetry,
@@ -140,7 +146,9 @@ export class ShipMovement implements Behavior {
       Math.hypot(worldForceN.x, worldForceN.y, worldForceN.z) /
       this.body.massKg /
       9.80665;
+    this.navigation.commit();
     this.#telemetry = Object.freeze({
+      navigation: this.navigation.telemetry,
       tick: this.#telemetry.tick + 1,
       timeSeconds: this.#telemetry.timeSeconds + dt,
       body: this.body.telemetry,
