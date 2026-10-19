@@ -24,6 +24,21 @@
       "id": "meal",
       "label": "Prepared meal",
       "kind": "material"
+    },
+    {
+      "id": "science",
+      "label": "Science points",
+      "kind": "currency"
+    },
+    {
+      "id": "medical-supplies",
+      "label": "Medical supplies",
+      "kind": "material"
+    },
+    {
+      "id": "health-pack",
+      "label": "Health pack",
+      "kind": "material"
     }
   ],
   "recipes": [
@@ -59,6 +74,28 @@
       "outputs": {
         "meal": 1
       }
+    },
+    {
+      "id": "conduct-research",
+      "label": "Conduct research",
+      "durationSeconds": 6,
+      "inputs": {
+        "part": 1
+      },
+      "outputs": {
+        "science": 1
+      }
+    },
+    {
+      "id": "prepare-health-pack",
+      "label": "Prepare health pack",
+      "durationSeconds": 4,
+      "inputs": {
+        "medical-supplies": 2
+      },
+      "outputs": {
+        "health-pack": 1
+      }
     }
   ],
   "facilities": [
@@ -83,6 +120,22 @@
       "label": "Onboard galley",
       "category": "cooking",
       "recipes": ["prepare-meal"],
+      "constructionCost": {},
+      "operatingConditions": ["powered", "temperature-safe", "healthy"]
+    },
+    {
+      "id": "onboard-science-lab",
+      "label": "Science lab",
+      "category": "research",
+      "recipes": ["conduct-research"],
+      "constructionCost": {},
+      "operatingConditions": ["powered", "temperature-safe", "healthy"]
+    },
+    {
+      "id": "onboard-infirmary",
+      "label": "Infirmary",
+      "category": "medical",
+      "recipes": ["prepare-health-pack"],
       "constructionCost": {},
       "operatingConditions": ["powered", "temperature-safe", "healthy"]
     }

@@ -418,7 +418,8 @@ utility effects remain outside this power/heat/health proof.
 
 `ship.internals` is a typed attached capability with configurable internal slots,
 independent installation identities and a catalogue loaded from JSON. The starter
-has six slots, with a fabricator, refinery, galley and fridge installed. An internal definition owns its power/thermal/
+has seven slots, with a fabricator, refinery, galley, fridge, science lab,
+infirmary and quarters installed. An internal definition owns its power/thermal/
 health profile and may bind a Workshop facility and/or local inventory; both are
 nullable, allowing a powered room with neither. Occupancy and room scenes are not
 implemented. External fire groups remain specific to `ShipMounts`.
@@ -437,6 +438,18 @@ the galley converts **2 ingredients → 1 meal in 3 seconds** (20-unit buffer).
 The fabricator has a 20-unit buffer. The fridge is inventory-only, with 60 units
 of food storage and the same power, heat, health and cooling lifecycle. It has
 no production job or food spoilage model. Outages retain its stock.
+
+The science lab consumes **1 machine part → 1 science point in 6 powered
+seconds**. Science points are Workshop currency in its 30-unit local buffer,
+not a technology-unlock system. The part represents consumed research equipment
+in this provisional recipe. The infirmary consumes **2 medical supplies →
+1 health pack in 4 powered seconds**, with a 30-unit buffer. It produces supplies;
+crew treatment and health-pack consumption are not implemented. Both share the
+existing power/thermal/health gates, interruption recovery and stock transfers.
+Quarters use the same powered installation lifecycle without a facility or
+inventory; occupancy and fatigue reduction wait for the crew model. No stockpiled
+fatigue-reduction resource is created. These costs and timings are demonstration
+values in JSON.
 
 JSON `inventoryAccepts` rules restrict each buffer to its inputs/outputs; the
 fridge accepts ingredients and meals. Workshop enforces admission atomically.
@@ -457,7 +470,8 @@ ship.internals.requestEnabled('internal-1', false);
 ship.internals.remove('internal-1'); // refuses active work or remaining goods
 ship.internals.transfer('internal-2', 'internal-1', 'alloy', 2);
 ship.internals.transfer('internal-3', 'internal-4', 'meal', 1);
-ship.internals.install('internal-5', 'fabricator-starter', 'fabricator-second');
+// After draining, evacuating and removing an installation, reuse its slot:
+ship.internals.install('internal-2', 'fabricator-starter', 'fabricator-second');
 ```
 
 Inventory/installation commands are queued to the ship boundary. Ordinary refusals
@@ -498,4 +512,4 @@ Workshop facility snapshots and inventory summaries, plus ship power/health/heat
 there is no assumed package inspection widget hook. Read models are detached and
 frozen. The inspector refreshes at the existing UI cadence, not through nested
 observer commands. Save/restore, real cargo transfers, physical occupancy,
-infirmary/research semantics and food spoilage remain later slices.
+crew treatment, research unlocks, fatigue recovery and food spoilage remain later slices.

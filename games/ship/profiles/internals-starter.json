@@ -6,7 +6,8 @@
     "internal-3",
     "internal-4",
     "internal-5",
-    "internal-6"
+    "internal-6",
+    "internal-7"
   ],
   "definitions": [
     {
@@ -104,6 +105,78 @@
       "facilityDefinitionId": null,
       "inventoryCapacity": 60,
       "inventoryAccepts": ["ingredients", "meal"]
+    },
+    {
+      "id": "science-lab-starter",
+      "label": "Science lab",
+      "health": {
+        "maxPoints": 100,
+        "outputExponent": 1
+      },
+      "thermal": {
+        "heatCapacityJPerK": 10000000,
+        "wasteHeatFraction": 0.1,
+        "tripTemperatureK": 390,
+        "restartTemperatureK": 330,
+        "manualStartSeconds": 0.25,
+        "rebootSeconds": 6
+      },
+      "initialTemperatureK": 290,
+      "baselineW": 2000000,
+      "operatingW": 8000000,
+      "outputEfficiency": 0.5,
+      "restartEnergyJ": 0,
+      "facilityDefinitionId": "onboard-science-lab",
+      "inventoryCapacity": 30,
+      "inventoryAccepts": ["part", "science"]
+    },
+    {
+      "id": "infirmary-starter",
+      "label": "Infirmary",
+      "health": {
+        "maxPoints": 100,
+        "outputExponent": 1
+      },
+      "thermal": {
+        "heatCapacityJPerK": 10000000,
+        "wasteHeatFraction": 0.1,
+        "tripTemperatureK": 390,
+        "restartTemperatureK": 330,
+        "manualStartSeconds": 0.25,
+        "rebootSeconds": 6
+      },
+      "initialTemperatureK": 290,
+      "baselineW": 1000000,
+      "operatingW": 5000000,
+      "outputEfficiency": 0.5,
+      "restartEnergyJ": 0,
+      "facilityDefinitionId": "onboard-infirmary",
+      "inventoryCapacity": 30,
+      "inventoryAccepts": ["medical-supplies", "health-pack"]
+    },
+    {
+      "id": "quarters-starter",
+      "label": "Quarters",
+      "health": {
+        "maxPoints": 100,
+        "outputExponent": 1
+      },
+      "thermal": {
+        "heatCapacityJPerK": 10000000,
+        "wasteHeatFraction": 0.1,
+        "tripTemperatureK": 390,
+        "restartTemperatureK": 330,
+        "manualStartSeconds": 0.25,
+        "rebootSeconds": 6
+      },
+      "initialTemperatureK": 290,
+      "baselineW": 500000,
+      "operatingW": 1000000,
+      "outputEfficiency": 0.5,
+      "restartEnergyJ": 0,
+      "facilityDefinitionId": null,
+      "inventoryCapacity": null,
+      "inventoryAccepts": null
     }
   ],
   "loadout": [
@@ -126,6 +199,21 @@
       "slotId": "internal-4",
       "definitionId": "fridge-starter",
       "installationId": "fridge-main"
+    },
+    {
+      "slotId": "internal-5",
+      "definitionId": "science-lab-starter",
+      "installationId": "science-lab-main"
+    },
+    {
+      "slotId": "internal-6",
+      "definitionId": "infirmary-starter",
+      "installationId": "infirmary-main"
+    },
+    {
+      "slotId": "internal-7",
+      "definitionId": "quarters-starter",
+      "installationId": "quarters-main"
     }
   ]
 }

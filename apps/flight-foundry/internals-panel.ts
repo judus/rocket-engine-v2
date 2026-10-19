@@ -189,6 +189,18 @@ export class InternalsPanel {
         facts.push(
           'Food storage retains stock during power loss. Food spoilage is not modeled.',
         );
+      if (selected.definitionId === 'quarters-starter')
+        facts.push(
+          'Powered quarters. Crew occupancy and fatigue recovery are not connected yet.',
+        );
+      if (selected.definitionId === 'science-lab-starter')
+        facts.push(
+          'Research consumes one machine part per science point. Science is local research credit; no unlocks are modeled yet.',
+        );
+      if (selected.definitionId === 'infirmary-starter')
+        facts.push(
+          'Produces health packs. Crew treatment and pack consumption are not connected yet.',
+        );
       if (selected.facility) {
         facts.push(
           `Facility ${selected.facility.id} · draining ${selected.facility.draining ? 'on' : 'off'} · conditions ${JSON.stringify(selected.facility.conditions)}.`,

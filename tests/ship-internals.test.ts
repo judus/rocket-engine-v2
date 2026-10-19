@@ -85,7 +85,7 @@ const close = (a: number, b: number) =>
 void test('One attached fabricator uses actual Workshop stock/jobs and the shared power ledger with immutable inspection', () => {
   const ship = make(),
     before = ship.telemetry;
-  assert.equal(before.internals.slots.length, 6);
+  assert.equal(before.internals.slots.length, 7);
   assert.equal(before.internals.installations.length, 1);
   ship.internals.supply('internal-1', 'alloy', 2);
   ship.internals.requestEnabled('internal-1', true);
@@ -382,8 +382,8 @@ void test('Refinery output transfers to the fabricator and becomes a part throug
   step(ship, 4);
   assert.equal(at(ship, 'internal-2').inventory?.quantities.alloy, 0);
   assert.equal(at(ship, 'internal-1').inventory?.quantities.part, 1);
-  assert.equal(ship.production.summary().inventoryCount, 4);
-  assert.equal(ship.production.summary().facilityCount, 3);
+  assert.equal(ship.production.summary().inventoryCount, 6);
+  assert.equal(ship.production.summary().facilityCount, 5);
   ship.dispose();
 });
 void test('Galley meals enter the fridge; storage retains goods across powered operation, outage and disposal', () => {
@@ -447,5 +447,69 @@ void test('Internal transfers enforce food admission and capacity atomically wit
   assert.throws(() =>
     ship.internals.transfer('internal-3', 'internal-4', 'unknown', 1),
   );
+  ship.dispose();
+});
+
+void test('Science lab converts real equipment into research currency; outage retains progress and never consumes twice', () => {
+  const ship = outfitted();
+  ship.internals.supply('internal-5', 'part', 1);
+  ship.internals.requestEnabled('internal-5', true);
+  step(ship, 2);
+  const progress = at(ship, 'internal-5').facility!.jobs[0]!.progress;
+  assert.ok(progress > 0);
+  assert.equal(at(ship, 'internal-5').inventory?.quantities.part, 0);
+  ship.internals.requestEnabled('internal-5', false);
+  step(ship, 3);
+  close(at(ship, 'internal-5').facility!.jobs[0]!.progress, progress);
+  ship.internals.requestEnabled('internal-5', true);
+  step(ship, 5);
+  assert.equal(at(ship, 'internal-5').inventory?.quantities.science, 1);
+  assert.equal(at(ship, 'internal-5').facility!.jobs[0]!.batchesCompleted, 1);
+  assert.equal(ship.production.registry.resource('science').kind, 'currency');
+  ship.dispose();
+});
+void test('Infirmary produces health packs and refuses unrelated food stock; health failure pauses its batch', () => {
+  const ship = outfitted();
+  ship.internals.supply('internal-6', 'ingredients', 2);
+  step(ship);
+  assert.equal(ship.telemetry.internals.commands.at(-1)?.ok, false);
+  ship.internals.supply('internal-6', 'medical-supplies', 2);
+  ship.internals.requestEnabled('internal-6', true);
+  step(ship);
+  ship.internals.damage('internal-6', 100);
+  step(ship);
+  const progress = at(ship, 'internal-6').facility!.jobs[0]!.progress;
+  assert.equal(at(ship, 'internal-6').operation.state, 'failed');
+  step(ship, 3);
+  close(at(ship, 'internal-6').facility!.jobs[0]!.progress, progress);
+  ship.internals.repair('internal-6', 100);
+  step(ship, 4);
+  assert.equal(at(ship, 'internal-6').inventory?.quantities['health-pack'], 1);
+  assert.equal(
+    at(ship, 'internal-6').inventory?.quantities['medical-supplies'],
+    0,
+  );
+  ship.dispose();
+});
+void test('Quarters have powered health/heat lifecycle without an invented Workshop job or fatigue inventory', () => {
+  const ship = outfitted();
+  ship.internals.requestEnabled('internal-7', true);
+  step(ship);
+  const quarters = at(ship, 'internal-7');
+  assert.equal(quarters.label, 'Quarters');
+  assert.equal(quarters.inventory, null);
+  assert.equal(quarters.facility, null);
+  assert.equal(quarters.operation.suppliedW, 22);
+  assert.ok(quarters.operation.thermal.generatedHeatW > 0);
+  ship.internals.damage('internal-7', 100);
+  step(ship);
+  assert.equal(at(ship, 'internal-7').operation.state, 'failed');
+  assert.equal(at(ship, 'internal-7').operation.demandW, 0);
+  assert.equal(at(ship, 'internal-7').operation.requested, true);
+  ship.internals.requestEnabled('internal-7', false);
+  ship.internals.remove('internal-7');
+  step(ship);
+  assert.equal(ship.telemetry.internals.commands.at(-1)?.ok, true);
+  assert.equal(ship.telemetry.internals.installations.length, 6);
   ship.dispose();
 });
