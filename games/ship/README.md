@@ -748,8 +748,12 @@ existing saved choices are preserved. Select Automatic in Controls to opt back i
 Touch detection occurs at startup. The game supplies larger sticks and 56px action
 buttons on touch layouts, safe-area padding, and a compact portrait arrangement.
 
-The cockpit viewport fits a centered 16:9 frame with letterboxing/pillarboxing
-instead of exposing the asset's open sides on ultrawide screens. Menus and touch
+The cockpit viewport fills screens from 4:3 through 16:9 (including 16:10),
+with centered bars outside that range. Vertical FOV stays fixed: narrower views
+render less at the sides, without stretching or rendering a hidden 16:9 image.
+The maximum avoids exposing the asset's open sides on ultrawide screens; the
+initial 4:3 minimum avoids going as close to square as originally proposed.
+Controller/display overlap still needs real tablet validation. Menus and touch
 controls use the whole device screen; input and display hit testing continue to
 use the actual canvas bounds. Portrait play remains available, though landscape
 provides the intended cockpit view. Real phone usability still needs device tests.

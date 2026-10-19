@@ -20,11 +20,11 @@ body {
   position: fixed;
   inset: 0;
 }
-/* The cockpit asset is authored for this view; do not reveal its open sides. */
+/* Fit 4:3–16:9: retain tablet height without revealing the cockpit's open sides. */
 #viewport {
   position: absolute;
   width: min(100vw, 177.777778dvh);
-  height: min(100dvh, 56.25vw);
+  height: min(100dvh, 75vw);
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);

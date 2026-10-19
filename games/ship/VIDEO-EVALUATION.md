@@ -116,7 +116,8 @@ frame intervals/spikes, CPU update and render-submission time, then compare a
 stationary view with simulation paused while rendering continues. Separate CPU,
 GPU and browser/device effects before choosing optimizations.
 
-Current aspect-ratio agreement: permit 1:1 through 16:9, constrain wider/taller
-views with bars. The implementation is still fixed at 16:9; applying the agreed
-range remains pending. Keep vertical FOV fixed and render at actual viewport
-proportions, verifying dashboard/display usability toward 1:1.
+Updated aspect-ratio decision: Julien flagged controller overlap near 1:1.
+The implemented initial range is now 4:3 through 16:9, with centered bars
+outside it. A 16:10 tablet uses the full available viewport. Vertical FOV stays
+fixed; the renderer uses actual viewport proportions. The 4:3 lower limit is
+a starting choice and still needs real-device controller/display usability checks.
