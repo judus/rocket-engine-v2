@@ -92,3 +92,31 @@ smaller CPU image and upload. This is automatic hardware compatibility, independ
 of material quality and render scale. The original artwork stays unchanged.
 Source decoding still obeys the explicit pixel budget and briefly holds the source
 bitmap; this does not reduce download size or guarantee mobile memory availability.
+
+## Deferred tablet performance investigation — 2026-10-19
+
+Julien reported these approximate readings on his A11+ tablet over the LAN build:
+
+- 75% render scale, 1× density cap, Scalar PBR: typically 30–40 FPS, nearer 30,
+  with lag and jitter. This is not the minimum available render scale (50%).
+- 100% render scale, 1.5× density cap, Full: approximately 21–45 FPS depending on
+  the view. The effective density was not recorded.
+- Subsequent observations included 38–45 FPS without visible asteroids,
+  40–47 FPS stationary, and 38–51 FPS without input and without visible asteroids.
+- Graphics changes mainly helped when comparing the extremes. Asteroid visibility
+  alone does not explain the reported baseline or stationary variation.
+
+These are user observations, not controlled benchmark captures. A CPU bottleneck
+is a hypothesis, not an established cause. Device power/thermal throttling, browser
+scheduling and other sources of frame-time variation have not been measured.
+
+**Deferred explicitly by Julien:** no deeper performance investigation or
+optimization in the current slice; focus on aspect ratio and UX. Later, record
+frame intervals/spikes, CPU update and render-submission time, then compare a
+stationary view with simulation paused while rendering continues. Separate CPU,
+GPU and browser/device effects before choosing optimizations.
+
+Current aspect-ratio agreement: permit 1:1 through 16:9, constrain wider/taller
+views with bars. The implementation is still fixed at 16:9; applying the agreed
+range remains pending. Keep vertical FOV fixed and render at actual viewport
+proportions, verifying dashboard/display usability toward 1:1.
