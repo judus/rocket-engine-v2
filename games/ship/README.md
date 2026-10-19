@@ -459,7 +459,7 @@ leave both inventories intact. Transfers and physical buffer access do not
 require powered machinery. These buffers are independent of `ShipCargo`'s pocket link.
 The lab's supply/collect commands create or remove test stock for free rather
 than claim a trading/cargo integration. Initial installation also costs nothing;
-this slice requires autonomous definitions without construction/population costs.
+this slice uses explicit operator slots without construction/population costs.
 
 ```ts
 ship.internals.supply('internal-1', 'alloy', 4); // lab stock, next fixed tick
@@ -513,3 +513,29 @@ there is no assumed package inspection widget hook. Read models are detached and
 frozen. The inspector refreshes at the existing UI cadence, not through nested
 observer commands. Save/restore, real cargo transfers, physical occupancy,
 crew treatment, research unlocks, fatigue recovery and food spoilage remain later slices.
+
+### Factory operators
+
+Every onboard factory declares one Workshop `workerSlots` entry and a mandatory
+`staffed` condition. Initial slots are empty. The host reports an already-present
+operator with `ship.internals.assignWorker(slotId, workerId)`; `null` unassigns.
+No ingredients are consumed and no work or publication advances without an
+operator, even with full power and a specialist bonus. Unassignment preserves
+active batch inputs and progress. Power/health failure retains the assignment;
+it does not secretly move the person to another station.
+
+`internals-starter.json` owns the small lab roster and per-definition staffing
+profile. Any roster member operates at baseline efficiency. Matching engineer
+(refinery/fabricator), scientist (science lab), physician (infirmary), or navigator
+(galley) gets `specialistMultiplier` (initially 1.25). Workshop's worker efficiency
+combines with the existing independent health modifier. The host validates crew
+membership and refuses duplicate assignments; Workshop also enforces identity
+exclusivity across its worker slots. Unassign before moving to another station.
+Removal retires the old factory slot, freeing its worker. Fridge and quarters have
+no operator slots. They retain their existing power/health/heat behavior.
+
+This deliberately uses Workshop's documented explicit-slot model, not its
+construction-time workforce pool. No residence/population is created in every
+local buffer, and no crew is duplicated as an inventory resource. Assignment is
+a lab assertion of presence; character travel, attendance and fatigue are future
+crew integration. All assignment commands commit at the existing ship boundary.

@@ -105,7 +105,13 @@
       "category": "fabrication",
       "recipes": ["fabricate-part"],
       "constructionCost": {},
-      "operatingConditions": ["powered", "temperature-safe", "healthy"]
+      "operatingConditions": [
+        "powered",
+        "temperature-safe",
+        "healthy",
+        "staffed"
+      ],
+      "workerSlots": 1
     },
     {
       "id": "onboard-refinery",
@@ -113,7 +119,13 @@
       "category": "refining",
       "recipes": ["refine-alloy"],
       "constructionCost": {},
-      "operatingConditions": ["powered", "temperature-safe", "healthy"]
+      "operatingConditions": [
+        "powered",
+        "temperature-safe",
+        "healthy",
+        "staffed"
+      ],
+      "workerSlots": 1
     },
     {
       "id": "onboard-galley",
@@ -121,7 +133,13 @@
       "category": "cooking",
       "recipes": ["prepare-meal"],
       "constructionCost": {},
-      "operatingConditions": ["powered", "temperature-safe", "healthy"]
+      "operatingConditions": [
+        "powered",
+        "temperature-safe",
+        "healthy",
+        "staffed"
+      ],
+      "workerSlots": 1
     },
     {
       "id": "onboard-science-lab",
@@ -129,7 +147,13 @@
       "category": "research",
       "recipes": ["conduct-research"],
       "constructionCost": {},
-      "operatingConditions": ["powered", "temperature-safe", "healthy"]
+      "operatingConditions": [
+        "powered",
+        "temperature-safe",
+        "healthy",
+        "staffed"
+      ],
+      "workerSlots": 1
     },
     {
       "id": "onboard-infirmary",
@@ -137,7 +161,13 @@
       "category": "medical",
       "recipes": ["prepare-health-pack"],
       "constructionCost": {},
-      "operatingConditions": ["powered", "temperature-safe", "healthy"]
+      "operatingConditions": [
+        "powered",
+        "temperature-safe",
+        "healthy",
+        "staffed"
+      ],
+      "workerSlots": 1
     }
   ],
   "tickMilliseconds": 50,

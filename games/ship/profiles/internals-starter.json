@@ -32,7 +32,11 @@
       "restartEnergyJ": 0,
       "facilityDefinitionId": "onboard-fabricator",
       "inventoryCapacity": 20,
-      "inventoryAccepts": ["alloy", "part"]
+      "inventoryAccepts": ["alloy", "part"],
+      "staffing": {
+        "specialty": "engineer",
+        "specialistMultiplier": 1.25
+      }
     },
     {
       "id": "refinery-starter",
@@ -56,7 +60,11 @@
       "restartEnergyJ": 0,
       "facilityDefinitionId": "onboard-refinery",
       "inventoryCapacity": 40,
-      "inventoryAccepts": ["ore", "alloy"]
+      "inventoryAccepts": ["ore", "alloy"],
+      "staffing": {
+        "specialty": "engineer",
+        "specialistMultiplier": 1.25
+      }
     },
     {
       "id": "galley-starter",
@@ -80,7 +88,11 @@
       "restartEnergyJ": 0,
       "facilityDefinitionId": "onboard-galley",
       "inventoryCapacity": 20,
-      "inventoryAccepts": ["ingredients", "meal"]
+      "inventoryAccepts": ["ingredients", "meal"],
+      "staffing": {
+        "specialty": "navigator",
+        "specialistMultiplier": 1.25
+      }
     },
     {
       "id": "fridge-starter",
@@ -104,7 +116,8 @@
       "restartEnergyJ": 0,
       "facilityDefinitionId": null,
       "inventoryCapacity": 60,
-      "inventoryAccepts": ["ingredients", "meal"]
+      "inventoryAccepts": ["ingredients", "meal"],
+      "staffing": null
     },
     {
       "id": "science-lab-starter",
@@ -128,7 +141,11 @@
       "restartEnergyJ": 0,
       "facilityDefinitionId": "onboard-science-lab",
       "inventoryCapacity": 30,
-      "inventoryAccepts": ["part", "science"]
+      "inventoryAccepts": ["part", "science"],
+      "staffing": {
+        "specialty": "scientist",
+        "specialistMultiplier": 1.25
+      }
     },
     {
       "id": "infirmary-starter",
@@ -152,7 +169,11 @@
       "restartEnergyJ": 0,
       "facilityDefinitionId": "onboard-infirmary",
       "inventoryCapacity": 30,
-      "inventoryAccepts": ["medical-supplies", "health-pack"]
+      "inventoryAccepts": ["medical-supplies", "health-pack"],
+      "staffing": {
+        "specialty": "physician",
+        "specialistMultiplier": 1.25
+      }
     },
     {
       "id": "quarters-starter",
@@ -176,7 +197,8 @@
       "restartEnergyJ": 0,
       "facilityDefinitionId": null,
       "inventoryCapacity": null,
-      "inventoryAccepts": null
+      "inventoryAccepts": null,
+      "staffing": null
     }
   ],
   "loadout": [
@@ -214,6 +236,38 @@
       "slotId": "internal-7",
       "definitionId": "quarters-starter",
       "installationId": "quarters-main"
+    }
+  ],
+  "workers": [
+    {
+      "id": "engineer-a",
+      "label": "Engineer A",
+      "specialty": "engineer"
+    },
+    {
+      "id": "engineer-b",
+      "label": "Engineer B",
+      "specialty": "engineer"
+    },
+    {
+      "id": "scientist",
+      "label": "Scientist",
+      "specialty": "scientist"
+    },
+    {
+      "id": "physician",
+      "label": "Physician",
+      "specialty": "physician"
+    },
+    {
+      "id": "navigator",
+      "label": "Navigator",
+      "specialty": "navigator"
+    },
+    {
+      "id": "generalist",
+      "label": "Generalist",
+      "specialty": null
     }
   ]
 }

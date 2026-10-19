@@ -150,12 +150,30 @@ export class InternalsPanel {
         destination,
         transfer,
       );
+      const worker = node('select');
+      worker.setAttribute('aria-label', 'Internal worker');
+      worker.add(new Option('Unassigned', ''));
+      for (const w of internals.profile.workers)
+        worker.add(
+          new Option(`${w.label} · ${w.specialty ?? 'generalist'}`, w.id),
+        );
+      const assign = node('button', 'Assign internal worker');
+      assign.type = 'button';
+      assign.addEventListener('click', () =>
+        this.command(() =>
+          internals.assignWorker(slot(), worker.value || null),
+        ),
+      );
+      const staffing = node('div');
+      staffing.className = 'toolbar';
+      staffing.append(worker, assign);
       this.#inspection = node('div');
       this.root.replaceChildren(
         toolbar,
         buttons,
         stock,
         transfers,
+        staffing,
         this.#inspection,
       );
     }
@@ -202,6 +220,13 @@ export class InternalsPanel {
           'Produces health packs. Crew treatment and pack consumption are not connected yet.',
         );
       if (selected.facility) {
+        const assignment = selected.facility.workerSlots[0];
+        const staffing = this.ship().internals.profile.definitions.find(
+          (d) => d.id === selected.definitionId,
+        )!.staffing!;
+        facts.push(
+          `Operator: ${assignment ? this.ship().internals.profile.workers.find((w) => w.id === assignment.id)!.label : 'REQUIRED · unassigned'}. Preferred specialist: ${staffing.specialty} (+${((staffing.specialistMultiplier - 1) * 100).toFixed(0)}%). Worker efficiency: ${((assignment?.efficiency ?? 0) * 100).toFixed(0)}%.`,
+        );
         facts.push(
           `Facility ${selected.facility.id} · draining ${selected.facility.draining ? 'on' : 'off'} · conditions ${JSON.stringify(selected.facility.conditions)}.`,
         );

@@ -24,7 +24,16 @@ function freezeView<T>(value: T): Readonly<T> {
     for (const child of Object.values(value)) freezeView(child);
   return Object.freeze(value);
 }
+export interface InternalWorker {
+  readonly id: string;
+  readonly label: string;
+  readonly specialty: string | null;
+}
 export interface InternalDefinition extends PoweredModuleProfile {
+  readonly staffing: Readonly<{
+    specialty: string;
+    specialistMultiplier: number;
+  }> | null;
   readonly id: string;
   readonly label: string;
   readonly facilityDefinitionId: string | null;
@@ -37,6 +46,7 @@ export interface InternalInstallation {
   readonly installationId: string;
 }
 export interface InternalsProfile {
+  readonly workers: readonly InternalWorker[];
   readonly id: string;
   readonly slots: readonly string[];
   readonly definitions: readonly InternalDefinition[];
@@ -55,7 +65,7 @@ export function validateInternalsProfile(
 ): Readonly<InternalsProfile> {
   const p = recordWithKeys(
     value,
-    ['id', 'slots', 'definitions', 'loadout'],
+    ['id', 'slots', 'definitions', 'loadout', 'workers'],
     'Internals profile',
   );
   const slots = array(p.slots, 'Internal slots').map((v) =>
@@ -72,6 +82,7 @@ export function validateInternalsProfile(
         'facilityDefinitionId',
         'inventoryCapacity',
         'inventoryAccepts',
+        'staffing',
         'health',
         'thermal',
         'initialTemperatureK',
@@ -110,7 +121,29 @@ export function validateInternalsProfile(
         : profileId(d.facilityDefinitionId, 'Internal facility');
     if (facilityDefinitionId && inventoryCapacity === null)
       throw new Error('Factory requires an inventory');
+    let staffing: InternalDefinition['staffing'] = null;
+    if (d.staffing !== null) {
+      const staff = recordWithKeys(
+        d.staffing,
+        ['specialty', 'specialistMultiplier'],
+        'Internal staffing',
+      );
+      staffing = Object.freeze({
+        specialty: profileId(staff.specialty, 'Worker specialty'),
+        specialistMultiplier: numberIn(
+          'Specialist multiplier',
+          staff.specialistMultiplier as number,
+          1,
+          100,
+        ),
+      });
+    }
+    if (Boolean(facilityDefinitionId) !== Boolean(staffing))
+      throw new Error(
+        'Each factory requires staffing; non-factories cannot assign workers',
+      );
     return Object.freeze({
+      staffing,
       id: profileId(d.id, 'Internal definition id'),
       label: d.label,
       facilityDefinitionId,
@@ -178,7 +211,29 @@ export function validateInternalsProfile(
       !definitions.some((d) => d.id === i.definitionId)
     )
       throw new Error('Unknown internal slot or definition');
+  const workers = array(p.workers, 'Internal workers').map((value) => {
+    const w = recordWithKeys(
+      value,
+      ['id', 'label', 'specialty'],
+      'Internal worker',
+    );
+    if (typeof w.label !== 'string' || !w.label.trim() || w.label.length > 120)
+      throw new Error('Invalid worker label');
+    return Object.freeze({
+      id: profileId(w.id, 'Worker id'),
+      label: w.label,
+      specialty:
+        w.specialty === null
+          ? null
+          : profileId(w.specialty, 'Worker specialty'),
+    });
+  });
+  unique(
+    workers.map((w) => w.id),
+    'worker identities',
+  );
   return Object.freeze({
+    workers: Object.freeze(workers),
     id: profileId(p.id, 'Internals profile id'),
     slots: Object.freeze(slots),
     definitions: Object.freeze(definitions),
@@ -239,6 +294,7 @@ export class ShipInternals implements Behavior {
   #commands: Command[] = [];
   #results: readonly Readonly<{ ok: boolean; message: string }>[] = [];
   #blocked = new Set<string>();
+  #unstaffed = new Set<string>();
   #disposed = false;
   constructor(
     profile: InternalsProfile,
@@ -265,9 +321,18 @@ export class ShipInternals implements Behavior {
           (f.capacityProvided ?? 0) > 0
         )
           throw new Error(
-            'Initial onboard factories must be autonomous and free to install',
+            'Onboard factories must not claim population, storage capacity or construction costs',
           );
-        for (const gate of ['powered', 'temperature-safe', 'healthy'])
+        if (f.workerSlots !== 1)
+          throw new Error(
+            'Onboard factories require exactly one operator slot',
+          );
+        for (const gate of [
+          'powered',
+          'temperature-safe',
+          'healthy',
+          'staffed',
+        ])
           if (!f.operatingConditions?.includes(gate))
             throw new Error(`Internal factory missing ${gate} gate`);
       }
@@ -396,6 +461,7 @@ export class ShipInternals implements Behavior {
       b.device.dispose();
       this.#bindings.delete(slotId);
       this.#blocked.delete(slotId);
+      this.#unstaffed.delete(slotId);
       return { ok: true, message: `Removed ${b.installationId}` };
     });
   }
@@ -408,6 +474,60 @@ export class ShipInternals implements Behavior {
       if (!b) return { ok: false, message: 'Internal slot is empty' };
       b.device.requestEnabled(value);
       return { ok: true, message: 'Internal switch applied' };
+    });
+  }
+  assignWorker(slotId: string, workerId: string | null): void {
+    this.binding(slotId);
+    const worker =
+      workerId === null
+        ? null
+        : this.profile.workers.find((w) => w.id === workerId);
+    if (workerId !== null && !worker)
+      throw new Error('Unknown internal worker');
+    this.#commands.push(() => {
+      const b = this.#bindings.get(slotId);
+      if (!b?.facilityId)
+        return { ok: false, message: 'Installation has no operator slot' };
+      if (
+        worker &&
+        [...this.#bindings.values()].some(
+          (other) =>
+            other.facilityId &&
+            other.facilityId !== b.facilityId &&
+            this.production
+              .facilitySnapshot(other.facilityId)
+              .workerSlots.some((w) => w?.id === worker.id),
+        )
+      )
+        return {
+          ok: false,
+          message: 'Worker is already operating another installation',
+        };
+      const staffing = this.definition(b.definitionId).staffing!;
+      this.production.setWorkerSlot(
+        b.facilityId,
+        0,
+        worker
+          ? {
+              id: worker.id,
+              efficiency:
+                worker.specialty === staffing.specialty
+                  ? staffing.specialistMultiplier
+                  : 1,
+            }
+          : null,
+      );
+      this.production.setFacilityCondition(
+        b.facilityId,
+        'staffed',
+        Boolean(worker),
+      );
+      return {
+        ok: true,
+        message: worker
+          ? `Assigned ${worker.label}`
+          : 'Operator unassigned; production paused',
+      };
     });
   }
   damage(slotId: string, points: number): void {
@@ -527,17 +647,22 @@ export class ShipInternals implements Behavior {
       b.device.finishStep(dt);
       if (!b.facilityId) continue;
       const o = b.device.telemetry;
+      const facility = this.production.facilitySnapshot(b.facilityId);
       const healthy = !o.health.failed,
         cool = !o.thermal.tripped;
       const powered = o.state === 'operating' || o.state === 'limited';
       if (!healthy || !cool || !powered || o.suppliedW < o.demandW)
         this.#blocked.add(b.slotId);
       const allowed = !this.#blocked.has(b.slotId);
-      const facility = this.production.facilitySnapshot(b.facilityId);
+      if (!facility.workerSlots[0]) this.#unstaffed.add(b.slotId);
       for (const [key, value] of [
         ['powered', allowed],
         ['temperature-safe', cool],
         ['healthy', healthy],
+        [
+          'staffed',
+          Boolean(facility.workerSlots[0]) && !this.#unstaffed.has(b.slotId),
+        ],
       ] as const)
         if (facility.conditions[key] !== value)
           this.production.setFacilityCondition(b.facilityId, key, value);
@@ -551,7 +676,10 @@ export class ShipInternals implements Behavior {
     }
     // Conservative at Workshop's fractional-tick boundary: no recovered tick can
     // run if any contributing ship interval lacked service. No second clock.
-    if (this.production.advance(dt) > 0) this.#blocked.clear();
+    if (this.production.advance(dt) > 0) {
+      this.#blocked.clear();
+      this.#unstaffed.clear();
+    }
   }
   get temperatureK(): number {
     return Math.max(

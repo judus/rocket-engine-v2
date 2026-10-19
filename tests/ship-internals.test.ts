@@ -36,6 +36,7 @@ const profile = {
     ),
     definitions: starterSetup.profile.internals.definitions.map((d) => ({
       ...d,
+      staffing: d.staffing && { ...d.staffing, specialistMultiplier: 1 },
       baselineW: 2,
       operatingW: 20,
       thermal: {
@@ -60,6 +61,15 @@ function make(p = profile, energyJ = 10000) {
     cargoTemperatureK: 290,
   });
   ship.engine.requestEnabled(false);
+  let worker = 0;
+  for (const i of p.internals.loadout) {
+    if (
+      p.internals.definitions.find((d) => d.id === i.definitionId)!
+        .facilityDefinitionId
+    )
+      ship.internals.assignWorker(i.slotId, p.internals.workers[worker++]!.id);
+  }
+  ship.internals.commit();
   return ship;
 }
 function step(ship: Ship, count = 1, dt = 1) {
@@ -226,6 +236,7 @@ void test('Drain, evacuation and safe removal preserve stock; a different instal
           ...d,
           id: 'recreation-room',
           label: 'Recreation room',
+          staffing: null,
           facilityDefinitionId: null,
           inventoryCapacity: null,
           inventoryAccepts: null,
@@ -309,6 +320,7 @@ void test('Multiple installed factories share one Workshop advance per ship inte
   const ship = make();
   ship.internals.install('internal-2', 'fabricator-starter', 'fabricator-two');
   step(ship);
+  ship.internals.assignWorker('internal-2', 'engineer-b');
   const before = ship.production.summary().tick;
   for (const slot of ['internal-1', 'internal-2']) {
     ship.internals.supply(slot, 'alloy', 2);
@@ -511,5 +523,107 @@ void test('Quarters have powered health/heat lifecycle without an invented Works
   step(ship);
   assert.equal(ship.telemetry.internals.commands.at(-1)?.ok, true);
   assert.equal(ship.telemetry.internals.installations.length, 6);
+  ship.dispose();
+});
+
+void test('All onboard factories require a worker; supplies and full power alone cannot consume ingredients', () => {
+  const ship = outfitted();
+  const inputs: Record<string, [string, number]> = {
+    'internal-1': ['alloy', 2],
+    'internal-2': ['ore', 2],
+    'internal-3': ['ingredients', 2],
+    'internal-5': ['part', 1],
+    'internal-6': ['medical-supplies', 2],
+  };
+  for (const [slot, [resource, quantity]] of Object.entries(inputs)) {
+    ship.internals.assignWorker(slot, null);
+    ship.internals.supply(slot, resource, quantity);
+    ship.internals.requestEnabled(slot, true);
+  }
+  step(ship, 8);
+  for (const [slot, [resource, quantity]] of Object.entries(inputs)) {
+    const i = at(ship, slot);
+    assert.equal(i.inventory?.quantities[resource], quantity);
+    assert.equal(i.facility?.conditions.staffed, false);
+    assert.equal(i.facility?.conditions.powered, true);
+    assert.equal(i.facility?.jobs[0]?.batchesCompleted, 0);
+    assert.equal(i.facility?.jobs[0]?.progress, 0);
+  }
+  ship.dispose();
+});
+void test('Specialists accelerate active work, other professions run at baseline, and unassigning preserves the batch', () => {
+  const tuned = {
+    ...profile,
+    internals: {
+      ...profile.internals,
+      definitions: profile.internals.definitions.map((d) => ({
+        ...d,
+        staffing: d.staffing && { ...d.staffing, specialistMultiplier: 1.5 },
+      })),
+    },
+  };
+  const ship = make(tuned);
+  ship.internals.assignWorker('internal-1', 'generalist');
+  ship.internals.supply('internal-1', 'alloy', 2);
+  ship.internals.requestEnabled('internal-1', true);
+  step(ship);
+  assert.equal(reading(ship).facility!.workerSlots[0]!.efficiency, 1);
+  const first = job(ship).progress;
+  ship.internals.assignWorker('internal-1', 'engineer-a');
+  step(ship, 1, 0.5);
+  const specialistDelta = job(ship).progress - first;
+  close(specialistDelta, 0.25);
+  assert.equal(reading(ship).facility!.workerSlots[0]!.efficiency, 1.5);
+  ship.internals.assignWorker('internal-1', null);
+  step(ship, 2);
+  close(job(ship).progress, first + specialistDelta);
+  ship.internals.assignWorker('internal-1', 'scientist');
+  step(ship, 1, 0.5);
+  close(job(ship).progress - first - specialistDelta, 1 / 6);
+  assert.equal(reading(ship).inventory?.quantities.alloy, 0);
+  ship.dispose();
+});
+void test('Assignments cannot duplicate crew, cannot staff storage, and remain explicit through equipment failure', () => {
+  const ship = outfitted();
+  step(ship);
+  const before = at(ship, 'internal-2').facility!.workerSlots[0]!.id;
+  ship.internals.assignWorker('internal-2', 'engineer-a');
+  step(ship);
+  assert.equal(ship.telemetry.internals.commands.at(-1)?.ok, false);
+  assert.equal(at(ship, 'internal-2').facility!.workerSlots[0]!.id, before);
+  assert.throws(
+    () => ship.internals.assignWorker('internal-2', 'missing'),
+    /Unknown internal worker/,
+  );
+  ship.internals.assignWorker('internal-4', 'generalist');
+  step(ship);
+  assert.equal(ship.telemetry.internals.commands.at(-1)?.ok, false);
+  ship.internals.damage('internal-1', 100);
+  step(ship);
+  assert.equal(
+    at(ship, 'internal-1').facility!.workerSlots[0]!.id,
+    'engineer-a',
+  );
+  ship.internals.assignWorker('internal-1', null);
+  ship.internals.assignWorker('internal-2', 'engineer-a');
+  step(ship);
+  assert.equal(ship.telemetry.internals.commands.at(-1)?.ok, true);
+  assert.equal(at(ship, 'internal-1').facility!.workerSlots[0], null);
+  ship.dispose();
+});
+
+void test('Assigning halfway through a Workshop tick cannot backdate work over an unstaffed interval', () => {
+  const ship = make();
+  ship.internals.assignWorker('internal-1', null);
+  ship.internals.supply('internal-1', 'alloy', 2);
+  ship.internals.requestEnabled('internal-1', true);
+  step(ship, 1, 0.025);
+  ship.internals.assignWorker('internal-1', 'generalist');
+  step(ship, 1, 0.025);
+  assert.equal(reading(ship).inventory?.quantities.alloy, 2);
+  assert.equal(reading(ship).facility?.conditions.powered, true);
+  close(job(ship).progress, 0);
+  step(ship, 2, 0.05);
+  assert.ok(job(ship).progress > 0);
   ship.dispose();
 });
