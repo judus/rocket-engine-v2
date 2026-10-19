@@ -711,3 +711,17 @@ world-horizontal, while relative bearing/elevation refer to the ship frame.
 Crew G-load still measures translational acceleration only: rotational loads at
 specific seats and crew injury remain unmodeled. Cockpit rendering/input wiring
 is unchanged by this Flight Foundry slice.
+
+### Renderer experiment and intro artwork
+
+Flight Foundry's [surface comparison](../../apps/flight-foundry/surface-benchmark.html)
+uses the game's extracted `CockpitScene.ts` with real renderer/material variants,
+fixed dimensions and warmed GPU queries. See its
+[methodology](../../apps/flight-foundry/SURFACE-BENCHMARK.md). The playable game
+continues to use full detail; no experimental presets are exposed in Settings.
+
+The launch screen uses Julien's supplied **FARWAKE: WASTEBOUND** title artwork,
+copied unchanged into `assets/farwake-wastebound-v3-uppercase.png`. The original
+outside the repository is retained. Launch/Resume and Settings remain HTML controls;
+portrait screens fit the complete artwork above the controls instead of cropping
+the title off-screen.
