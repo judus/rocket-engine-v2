@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { Simulation } from 'production-workshop';
+import type { InventoryOptions } from 'production-workshop';
 import { Ship } from '../games/ship/Ship.js';
 import {
+  ShipInternals,
   validateInternalsProfile,
   validateProductionConfiguration,
 } from '../games/ship/ShipInternals.js';
@@ -824,5 +827,83 @@ void test('Committed withdrawal and transfer faults never replay inventory chang
     )!.inventory!.quantities.meal,
     2,
   );
+  ship.dispose();
+});
+
+for (const matching of [false, true]) {
+  void test(`Pre-existing inventory is never adopted even with ${matching ? 'matching' : 'foreign'} installation settings`, () => {
+    const ship = make();
+    ship.production.createInventory({
+      id: 'internal-collision',
+      capacity: { kind: 'units', limit: matching ? 20 : 999 },
+      attachment: {
+        objectId: matching ? 'collision' : 'unrelated-owner',
+        slot: matching ? 'buffer' : 'storage',
+      },
+      ...(matching ? { rules: { accepts: ['alloy', 'part'] } } : {}),
+    });
+    if (!matching) ship.production.deposit('internal-collision', { alloy: 7 });
+    const before = ship.production.snapshot();
+    ship.internals.install('internal-2', 'fabricator-starter', 'collision');
+    ship.internals.supply('internal-1', 'alloy', 2);
+    assert.throws(() => ship.internals.commit(), /inventory already exists/);
+    assert.deepEqual(ship.production.snapshot(), before);
+    assert.equal(ship.internals.telemetry.installations.length, 1);
+    assert.equal(ship.internals.telemetry.commands[0]?.ok, false);
+    assert.doesNotMatch(
+      ship.internals.telemetry.commands[0]!.message,
+      /committed|reporting failed/,
+    );
+    ship.internals.commit();
+    assert.equal(
+      ship.internals.telemetry.installations[0]?.inventory?.quantities.alloy,
+      2,
+    );
+    assert.equal(
+      ship.production.inventory('internal-collision').quantity('alloy'),
+      matching ? 0 : 7,
+    );
+    assert.deepEqual(
+      ship.production.inventoryAttachment('internal-collision'),
+      before.inventoryAttachments!.find(
+        (a) => a.inventoryId === 'internal-collision',
+      ),
+    );
+    ship.dispose();
+  });
+}
+void test('A newly committed owned inventory remains reconcilable after a reporting throw', () => {
+  // The pinned package emits no event for an empty creation. Inject its documented
+  // after-commit failure boundary using the real owner mutation, not a fake ledger.
+  class ReportingSimulation extends Simulation {
+    override createInventory(options: InventoryOptions) {
+      const view = super.createInventory(options);
+      if (options.id === 'internal-created')
+        throw new Error('creation reporting failed');
+      return view;
+    }
+  }
+  const ship = make();
+  const production = new ReportingSimulation(profile.production);
+  const internals = new ShipInternals(
+    { ...profile.internals, loadout: [] },
+    ship.power,
+    production,
+  );
+  internals.install('internal-2', 'fabricator-starter', 'created');
+  assert.throws(() => internals.commit(), /command committed.*observer/i);
+  const installed = internals.telemetry.installations[0]!;
+  assert.equal(installed.installationId, 'created');
+  assert.equal(installed.inventory?.capacity?.limit, 20);
+  assert.equal(installed.inventory?.quantities.alloy, 0);
+  assert.deepEqual(production.inventoryAttachment('internal-created'), {
+    inventoryId: 'internal-created',
+    objectId: 'created',
+    slot: 'buffer',
+  });
+  assert.equal(internals.telemetry.commands[0]?.ok, true);
+  assert.doesNotThrow(() => internals.commit());
+  assert.equal(production.summary().inventoryCount, 1);
+  internals.dispose();
   ship.dispose();
 });

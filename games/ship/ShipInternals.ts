@@ -387,6 +387,11 @@ export class ShipInternals implements Behavior {
     const d = this.definition(i.definitionId);
     const inventoryId =
       d.inventoryCapacity === null ? null : `internal-${i.installationId}`;
+    // Existence after a throw proves this invocation committed only when the
+    // ID was absent before entry. Never adopt an existing inventory, even if
+    // its configuration happens to match the requested installation.
+    if (inventoryId && this.production.inventoryIds().includes(inventoryId))
+      throw new Error(`Internal inventory already exists: ${inventoryId}`);
     if (inventoryId)
       this.mutation(
         () => {
@@ -401,10 +406,31 @@ export class ShipInternals implements Behavior {
           });
           return true;
         },
-        () =>
-          this.production.inventoryIds().includes(inventoryId)
+        () => {
+          if (!this.production.inventoryIds().includes(inventoryId))
+            return undefined;
+          const attachment = this.production.inventoryAttachment(inventoryId);
+          const inventory = this.production.inventory(inventoryId).summary();
+          const accepts = inventory.rules?.accepts;
+          const acceptsMatch =
+            d.inventoryAccepts === null
+              ? accepts === undefined
+              : accepts !== undefined &&
+                accepts.length === d.inventoryAccepts.length &&
+                d.inventoryAccepts.every((id) => accepts.includes(id));
+          return attachment?.objectId === i.installationId &&
+            attachment.slot === 'buffer' &&
+            inventory.capacity?.kind === 'units' &&
+            inventory.capacity.limit === d.inventoryCapacity &&
+            inventory.capacity.used === 0 &&
+            inventory.itemCount === 0 &&
+            Object.values(inventory.quantities).every((q) => q === 0) &&
+            inventory.rules?.maxWeight === undefined &&
+            inventory.rules?.maxVolume === undefined &&
+            acceptsMatch
             ? true
-            : undefined,
+            : undefined;
+        },
       );
     let facilityId: string | null = null;
     if (d.facilityDefinitionId) {
