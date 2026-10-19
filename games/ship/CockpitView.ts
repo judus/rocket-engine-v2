@@ -6,7 +6,7 @@ import {
   WebGLMeshRenderer3D,
 } from '../../src/webgl/index.js';
 import type { Rocket } from '../../src/index.js';
-import type { Stage2D } from '../../src/experimental/index.js';
+import type { Stage2D, SceneNavigator } from '../../src/experimental/index.js';
 import { hi3dCockpitDisplays } from '../../examples/webgl/Hi3dCockpitDisplays.js';
 import { hi3dCockpitLamps } from '../../examples/webgl/Hi3dCockpitLamps.js';
 import { cockpitReticle } from '../../examples/webgl/CockpitReticle.js';
@@ -21,6 +21,7 @@ import type { NavigationContact } from './ShipNavigation.js';
 /** Game presentation: reads the ship, owns GPU/asset lifetime, never advances physics. */
 export async function createCockpitView(
   runtime: Rocket,
+  navigator: SceneNavigator,
   scene: Stage2D,
   ship: Ship,
   host: HTMLElement,
@@ -35,7 +36,7 @@ export async function createCockpitView(
     target: host,
     scene,
     label:
-      'Spaceship cockpit. Click to fly; I for systems; Escape releases controls.',
+      'Spaceship cockpit. Click to fly; use Systems for displays or Menu for settings.',
     onError,
   });
   const base = new URL('../../../', import.meta.url);
@@ -183,8 +184,9 @@ export async function createCockpitView(
       };
     });
     const presentation = runtime.presentation({
-      scene,
+      scene: navigator,
       render() {
+        if (navigator.scene !== scene) return;
         const renderer = gpu.current;
         if (!renderer) return;
         surface.resize(1, host.clientWidth / Math.max(1, host.clientHeight));

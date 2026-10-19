@@ -13,6 +13,9 @@ body {
   margin: 0;
   overflow: hidden;
 }
+[hidden] {
+  display: none !important;
+}
 #game,
 #viewport {
   position: fixed;
@@ -21,26 +24,35 @@ body {
 #viewport canvas {
   outline: none;
 }
-button {
+button,
+select {
   font: inherit;
   color: inherit;
-  cursor: pointer;
   border: 1px solid #86ead640;
   border-radius: 5px;
-  background: #061116d9;
+  background: #08181e;
   padding: 0.65rem 1rem;
 }
+button {
+  cursor: pointer;
+}
 button:hover,
-button:focus-visible {
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
   border-color: #86ead6;
-  background: #12312f;
-  outline: none;
+  outline: 2px solid #86ead680;
+  outline-offset: 2px;
 }
 button:disabled {
   opacity: 0.45;
   cursor: wait;
 }
-nav {
+.primary {
+  border-color: #86ead6;
+  background: #16443e;
+}
+#game > nav {
   position: absolute;
   top: 1rem;
   right: 1rem;
@@ -59,7 +71,6 @@ kbd {
   transform: translateX(-50%);
   padding: 0.6rem 1rem;
   font-size: 0.85rem;
-  color: #bfeee4;
   background: #061116c9;
   border-radius: 5px;
   pointer-events: none;
@@ -67,73 +78,138 @@ kbd {
 #flight-feedback:empty {
   display: none;
 }
-#entry {
+.scene-panel {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
-  background: #02080bbb;
-  backdrop-filter: blur(5px);
-}
-#entry[hidden] {
-  display: none;
+  background: #02080be8;
+  backdrop-filter: blur(8px);
+  overflow: auto;
+  padding: clamp(1rem, 4vw, 3rem);
 }
 .entry-card {
   text-align: center;
-  max-width: 30rem;
+  width: min(30rem, 100%);
   padding: 2rem;
 }
+.entry-card button {
+  display: block;
+  width: 100%;
+  margin-top: 0.8rem;
+}
 .eyebrow {
-  letter-spacing: 0.5em;
+  letter-spacing: 0.3em;
   color: #86ead6;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 }
 h1 {
   font-weight: 400;
   font-size: clamp(2rem, 6vw, 3.5rem);
   margin: 0.5rem 0 1rem;
 }
+h2 {
+  font-size: 1.2rem;
+  font-weight: 400;
+  margin-top: 2rem;
+}
+.muted,
 #loading {
   color: #92aaa8;
   line-height: 1.6;
-}
-#fly {
-  margin-top: 1rem;
-  min-width: 13rem;
-  border-color: #86ead680;
-}
-dialog {
-  color: inherit;
-  background: #071218f5;
-  border: 1px solid #86ead650;
-  border-radius: 10px;
-  width: min(36rem, 95vw);
-  padding: 1.5rem;
-}
-dialog::backdrop {
-  background: #0009;
-}
-h2 {
-  margin-top: 0;
-  font-size: 1.4rem;
-  font-weight: 400;
-}
-dl {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: 0.8rem 1rem;
   font-size: 0.9rem;
-  line-height: 1.5;
 }
-dd {
-  margin: 0;
-  color: #92aaa8;
+.settings-card {
+  width: min(56rem, 100%);
+  margin: auto;
 }
-form {
-  text-align: right;
+.settings-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
-@media (max-width: 600px) {
-  nav {
+.preferences {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem 2rem;
+  padding: 1.5rem 0;
+  border-block: 1px solid #86ead626;
+}
+.preferences label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.preferences .check {
+  flex-direction: row;
+  align-items: center;
+}
+input {
+  accent-color: #86ead6;
+}
+.range-line {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+.range-line input {
+  width: 100%;
+}
+output {
+  min-width: 3rem;
+}
+#bindings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 2rem;
+}
+.binding-row {
+  display: grid;
+  grid-template-columns: 1fr minmax(6rem, 1fr) 2rem;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #86ead61c;
+  font-size: 0.85rem;
+}
+.binding-row button {
+  padding: 0.5rem 0.3rem;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.settings-card footer {
+  position: sticky;
+  bottom: -1rem;
+  padding: 1rem 0;
+  background: #030d12fa;
+  border-top: 1px solid #86ead640;
+}
+.settings-card footer [role='status'] {
+  min-height: 1.5rem;
+  font-size: 0.9rem;
+  color: #86ead6;
+}
+.settings-card footer > div {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+}
+#touch-controls {
+  position: fixed;
+  inset: auto 0 0;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+#touch-controls > * {
+  pointer-events: auto;
+}
+.rocket-input-activation {
+  display: none;
+}
+@media (max-width: 650px) {
+  #game > nav {
     top: 0.5rem;
     right: 0.5rem;
   }
@@ -143,19 +219,57 @@ form {
     width: max-content;
     max-width: 94vw;
   }
+  #bindings,
+  .preferences {
+    grid-template-columns: 1fr;
+  }
+  .settings-card header {
+    align-items: start;
+  }
+  .settings-card header button {
+    font-size: 0.8rem;
+  }
+  #touch-controls {
+    --virtual-button-size: 36px;
+  }
 }
-/* The game supplies its own capture feedback above the viewport. */
-.rocket-input-activation {
-  display: none;
+/* Keep the first controls visible on laptop-height viewports. */
+.settings-card h1 {
+  font-size: 2.5rem;
+  margin: 0.35rem 0 0.5rem;
 }
-#keyboard-fly {
-  display: block;
-  margin: 0.75rem auto 0;
-  background: transparent;
-  border-color: transparent;
-  color: #92aaa8;
+.settings-card h2 {
+  margin-top: 1rem;
 }
-.steering {
+.settings-card .preferences {
+  gap: 1rem 2rem;
+  padding: 1rem 0;
+}
+.settings-card footer {
+  padding: 0.65rem 0;
+}
+.settings-card footer [role='status'] {
+  margin: 0.25rem 0 0.5rem;
+  min-height: 1.25rem;
+}
+
+#settings-scene .settings-card {
+  height: 100%;
+  min-height: 0;
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+}
+.settings-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 0.5rem 0.8rem 0;
+  scrollbar-gutter: stable;
+}
+.settings-card header,
+.settings-card footer {
+  flex-shrink: 0;
+}
+.settings-card footer {
+  position: static;
 }

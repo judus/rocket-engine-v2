@@ -5,26 +5,33 @@ Open <http://localhost:8092/apps/flight-foundry/ship.html> after the usual `npm 
 ## First flight game
 
 Open <http://localhost:8092/games/ship/> for the clean cockpit app. `index.html`
-owns the launch screen and help; `main.ts` assembles Rocket, a fixed Stage2D and
-one typed Ship entity. `CockpitView.ts` owns presentation/assets/context resources;
-`CockpitInstruments.ts` paints committed navigation/computer state at 15 Hz using
-the existing engine frame. There is no second flight model or animation loop.
+owns the start menu and HTML Settings scene; `main.ts` assembles Rocket, a retained
+SceneNavigator and one fixed Stage2D with a typed Ship entity. `CockpitView.ts`
+owns presentation/assets/context resources; `CockpitInstruments.ts` paints committed
+navigation/computer state at 15 Hz on the existing engine frame. There is no second
+flight model or animation loop.
 
-Choose mouse or keyboard flight at launch (or change steering under `?`). Mouse
-flight requests browser pointer lock; keyboard flight explicitly uses focus
-capture. WASD translates, Left Alt/Ctrl moves vertically, arrows rotate, Q/E
-rolls, X requests dampers, and 1–6 selects a fire group. Weapon triggers reach the
-mount system; projectiles/hits and combat remain future work. I releases flight
-input to use the physical cockpit screens while simulation continues. Click the
-left screen to cycle known asteroid contacts; the right screen routes switches
-through ShipComputer and paginates the module list. Esc releases flight input.
+Launch resumes the same ship. Menu and Settings pause the complete flight scene
+(including power, heat and Workshop work); cockpit display mode continues flight.
+Escape opens the menu, or releases browser pointer lock first where the browser
+reserves it. The visible Menu button always opens the menu. Returning requires
+Launch/Resume flight, with normal browser capture feedback on refusal.
 
-The asteroid meshes, textures, sky, cockpit model and reticle reuse existing
-presentation assets/helpers. Asset URLs resolve from their owning module so
-nested entry points work. The rendering testbed and Flight Foundry remain
-separate. The game still uses the starter JSON balance; it has no collision,
-crew injury, campaign/objective loop or persistence yet. Navigation contacts mark
-actual field asteroid centres; they do not imply settlements or sensor detection.
+Settings / Controls supports mouse or keyboard steering, sensitivity, inverted
+mouse pitch, keyboard/mouse bindings and chords, alternatives, and analog/digital
+virtual-controller corners. Change replaces a binding; + adds an alternative.
+Escape cancels recording and remains reserved for the menu. Duplicate exact
+bindings are refused on Apply; different chords follow the engine's existing
+modifier precedence. Restore defaults edits the draft; Back discards unsaved edits.
+Only actual wired flight actions are exposed. There is no boost effect yet.
+
+`ControlSettings.ts` validates the game's persisted preferences at the storage
+boundary and builds a preset for the existing ActionContext; `SettingsPanel.ts`
+owns the HTML draft/capture UI. Preferences are saved in this browser's localStorage
+under `rocket.first-flight.controls`. Invalid stored data is reported on the menu
+and left untouched; defaults are used explicitly until the player applies a valid
+replacement. Storage failures are shown and do not apply the draft. These are
+player preferences, not a ship save or Flight Foundry balancing profile.
 
 ## The assembly is the example
 
