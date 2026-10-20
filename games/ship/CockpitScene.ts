@@ -69,7 +69,7 @@ export function createCockpitScene(
   fit.add(displays);
   const lamps = hi3dCockpitLamps();
   lamps.root.transform = displays.transform;
-  lamps.setCockpitScale(0.8, 0.93);
+  lamps.setCockpitScale(1, 0.93);
   const lampOffsets = [
     [0.008, -0.015], // overhead left
     [-0.014, -0.012], // overhead right
