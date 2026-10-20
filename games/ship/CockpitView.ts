@@ -163,6 +163,7 @@ export async function createCockpitView(
         cockpit.windshield.setMode(active ? 'display' : 'clear');
       },
       update(dt: number) {
+        cockpit.update(dt);
         cockpit.instruments.update(dt);
         cockpit.windshield.update(dt);
       },

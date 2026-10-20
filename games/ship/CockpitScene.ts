@@ -9,6 +9,7 @@ import type { WebGLMeshRenderer3D } from '../../src/webgl/index.js';
 import { hi3dCockpitDisplays } from '../../examples/webgl/Hi3dCockpitDisplays.js';
 import { hi3dCockpitLamps } from '../../examples/webgl/Hi3dCockpitLamps.js';
 import { mountCockpitModel } from './CockpitModel.js';
+import { CockpitResponse } from './CockpitResponse.js';
 import { WindshieldSurface } from './WindshieldSurface.js';
 import { WindshieldHud } from './WindshieldHud.js';
 import { originalAsteroidField } from '../../examples/space/OriginalAsteroidField.js';
@@ -25,10 +26,12 @@ export function createCockpitScene(
 ) {
   const root = new Node3D('flight world'),
     rig = new Node3D('ship cockpit');
+  const response = new CockpitResponse(ship);
   const { assembly, fit } = mountCockpitModel(modelRoot);
   const field = originalAsteroidField(2126, 72, variants, true);
   root.add(field).add(rig);
-  rig.add(assembly);
+  rig.add(response.root);
+  response.root.add(assembly);
   const instruments = new CockpitInstruments(ship);
   const displays = hi3dCockpitDisplays(
     { image: instruments.navigation.image },
@@ -113,6 +116,9 @@ export function createCockpitScene(
     instruments,
     hud,
     windshield,
+    update(dt: number) {
+      response.update(dt);
+    },
     draw(
       renderer: WebGLMeshRenderer3D,
       width: number,

@@ -896,3 +896,13 @@ same flight scene. Leaving-cockpit simulation policy and animated scene transiti
 remain for the next discussion. No character overlays, hotspots, production
 controls or invented telemetry have been added. Current warm artwork is used
 unchanged while Julien and Bart work on color correction.
+
+### Cockpit movement response
+
+The game reads committed ship acceleration in ship-local coordinates and angular
+rates to drive the existing bounded, damped cosmetic spring. One presentation
+parent moves the frame, authored glass, projected HUD, lamps and instruments
+together; world objects and the pilot camera keep the authoritative ship pose.
+The response advances in the existing scene update, pauses with that scene, and
+never changes physics or the imported GLB hierarchy. Engine thrust/mass provides
+the visual acceleration reference, with a 1 m/s² minimum for zero-thrust profiles.
