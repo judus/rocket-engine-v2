@@ -235,3 +235,49 @@ void test('registry validation is explicit and contexts cancel on scene changes,
     controls.dispose();
     await app.dispose();
   }));
+
+void test('focus-bound cursor mode keeps keyboard actions and excludes mouse firing', () =>
+  withHost(async (host) => {
+    const app = new Rocket();
+    const scene = app.scene(new Scene2D());
+    const controls = app.use(Input).actions(scene).use(firstPersonInput);
+    const view = app.view({ target: host.target, scene });
+    const binding = controls.bind(view, {
+      capture: 'focus',
+      mouseButtons: false,
+    });
+    controls
+      .register('displays', 'press', () => {
+        display = !display;
+        return undefined;
+      })
+      .map('displays', 'KeyI');
+    controls.map('fire', ['Space', 'Mouse0']);
+    let display = false;
+    controls.activate();
+    await app.start();
+    assert.equal(binding.capture, undefined);
+    view.canvas.dispatchEvent(new Key('keydown', 'KeyW'));
+    view.canvas.dispatchEvent(new Key('keydown', 'KeyI'));
+    host.frame(0);
+    assert.equal(display, true);
+    assert.equal(controls.enabled, true);
+    assert.equal(controls.value('forward'), 1);
+    view.canvas.dispatchEvent(new Key('keyup', 'KeyI'));
+    host.frame(16);
+    view.canvas.dispatchEvent(new Key('keydown', 'KeyI'));
+    view.canvas.dispatchEvent(
+      Object.assign(new Event('mousedown'), { button: 0 }),
+    );
+    host.frame(32);
+    assert.equal(display, false);
+    assert.equal(controls.value('forward'), 1);
+    assert.equal(controls.value('fire'), 0);
+    view.canvas.dispatchEvent(new Key('keydown', 'Space'));
+    host.frame(48);
+    assert.equal(controls.value('fire'), 1);
+    controls.setEnabled(false);
+    assert.equal(controls.value('forward'), 0);
+    assert.equal(controls.value('fire'), 0);
+    await app.dispose();
+  }));

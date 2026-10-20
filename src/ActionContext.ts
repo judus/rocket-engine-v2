@@ -147,14 +147,17 @@ export class ActionContext {
   }
   bind<T extends InputTarget>(
     view: T,
-    options: { readonly capture?: 'focus' | 'pointer-lock' } = {},
+    options: {
+      readonly capture?: 'focus' | 'pointer-lock';
+      readonly mouseButtons?: boolean;
+    } = {},
   ): ViewInput<T> {
     this.#live();
     if (this.scope.views.length)
       throw new Error('One viewport per action context');
     const binding = this.scope.bind(view, {
       pointerLock: (options.capture ?? this.#capture) === 'pointer-lock',
-      mouseButtons: true,
+      mouseButtons: options.mouseButtons ?? true,
     });
     const feedback = view.own(
       new InputActivation(

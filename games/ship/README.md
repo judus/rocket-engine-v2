@@ -13,14 +13,19 @@ flight model or animation loop.
 
 Launch resumes the same ship. Menu and Settings pause the complete flight scene
 (including power, heat and Workshop work); cockpit display mode continues flight.
-Escape opens the menu, or releases browser pointer lock first where the browser
-reserves it. The visible Menu button always opens the menu. Returning requires
+Escape backs out one level: cancel a waiting binding, leave Settings or a
+compartment, close the windshield display, then open the menu from a clear cockpit.
+Native pointer-lock release follows the same cockpit back action. C or right mouse toggles mouse steering/cursor mode while keyboard flight stays active.
+Cursor clicks interact with cockpit panels without firing; keyboard fire remains
+available. I toggles the windshield display independently of mouse capture.
+Returning from the menu preserves the selected display and cursor modes. The visible Menu button always opens the menu. Returning requires
 Launch/Resume flight, with normal browser capture feedback on refusal.
 
 Settings / Controls supports mouse or keyboard steering, sensitivity, inverted
 mouse pitch, keyboard/mouse bindings and chords, alternatives, and analog/digital
 virtual-controller corners. Change replaces a binding; + adds an alternative.
-Escape cancels recording and remains reserved for the menu. Duplicate exact
+Escape cancels recording first; otherwise it returns from Settings to the menu.
+Escape, C and right mouse are reserved for menu and cursor control. Duplicate exact
 bindings are refused on Apply; different chords follow the engine's existing
 modifier precedence. Restore defaults edits the draft; Back discards unsaved edits.
 Only actual wired flight actions are exposed. There is no boost effect yet.

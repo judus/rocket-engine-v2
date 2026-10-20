@@ -75,6 +75,7 @@ export class SettingsPanel {
         event.stopPropagation();
         if (event.code === 'Escape') {
           this.cancel();
+          this.#status.textContent = 'Binding cancelled.';
           return;
         }
         if (

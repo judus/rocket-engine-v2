@@ -20,7 +20,6 @@ import {
   migrateVideoStorage,
 } from './VideoSettings.js';
 import { SettingsPanel } from './SettingsPanel.js';
-import { normalizeInputBinding } from '../../src/Input.js';
 
 function element<T extends HTMLElement>(id: string): T {
   const node = document.querySelector<T>(id);
@@ -104,12 +103,13 @@ async function start(): Promise<void> {
     },
     update(dt): undefined {
       view?.update(dt);
-      if (!usingSystems)
-        feedback.textContent = (
-          binding.capture
-            ? binding.capture.active
-            : document.activeElement === view?.surface.canvas
-        )
+      feedback.textContent = mouseReleased
+        ? 'Mouse free · keyboard flight active · C / right mouse resumes steering · I toggles displays'
+        : (
+              binding.capture
+                ? binding.capture.active
+                : document.activeElement === view?.surface.canvas
+            )
           ? ''
           : binding.capture?.state === 'error'
             ? 'Mouse capture refused · choose Keyboard in Menu → Settings'
@@ -129,6 +129,7 @@ async function start(): Promise<void> {
   ship.cargo.requestEnabled(true);
   const input = engine.use(Input);
   let usingSystems = false;
+  let mouseReleased = false;
   const navigator = engine
     .scene(
       new SceneNavigator({
@@ -137,12 +138,11 @@ async function start(): Promise<void> {
           engine.refreshScenes();
           const inFlight = navigator.current === 'flight';
           const inRoom = interiors?.show(navigator.current) ?? false;
-          actions.setEnabled(inFlight && !usingSystems);
+          actions.setEnabled(inFlight);
           element('#viewport').inert = !inFlight;
           entry.hidden = navigator.current !== 'menu';
           settingsRoot.hidden = navigator.current !== 'settings';
-          touch.hidden =
-            !inFlight || activeVirtualMode() === 'off' || usingSystems;
+          touch.hidden = !inFlight || activeVirtualMode() === 'off';
           element<HTMLElement>('#cockpit-controls').hidden = !inFlight;
           feedback.hidden = !inFlight;
           element('#rotate-hint').hidden = !inFlight;
@@ -181,18 +181,11 @@ async function start(): Promise<void> {
   const setSystems = (active: boolean) => {
     usingSystems = active;
     view!.setWindshieldDisplay(active);
-    touch.hidden = active || activeVirtualMode() === 'off';
-    actions.setEnabled(!active);
     systems.textContent = active
-      ? 'Return to flight'
+      ? `Clear glass · ${bindingLabel(preferences.bindings.systems!)}`
       : `Systems · ${bindingLabel(preferences.bindings.systems!)}`;
     systems.setAttribute('aria-pressed', String(active));
-    if (active) {
-      binding.capture?.release();
-      view!.surface.canvas.focus();
-      feedback.textContent =
-        'Windshield display · Return to flight clears the glass and restores steering';
-    } else actions.activate();
+    if (!binding.capture?.active) view!.surface.canvas.focus();
   };
   const configure = () => {
     actions?.dispose();
@@ -230,7 +223,7 @@ async function start(): Promise<void> {
         .map(`group${i}`, preferences.bindings[`group${i}`]!);
     actions
       .register('systems', 'press', () => {
-        setSystems(true);
+        setSystems(!usingSystems);
         return undefined;
       })
       .map('systems', preferences.bindings.systems!);
@@ -238,7 +231,12 @@ async function start(): Promise<void> {
       navigate('menu');
       return undefined;
     });
-    binding = actions.bind(view!.surface);
+    binding = actions.bind(view!.surface, {
+      capture: mouseReleased
+        ? 'focus'
+        : controlPreset(preferences, touchFirst).capture,
+      mouseButtons: !mouseReleased,
+    });
     const mode = activeVirtualMode();
     if (mode !== 'off') {
       const corners = createVirtualCornerPreset(
@@ -267,7 +265,7 @@ async function start(): Promise<void> {
           theme: { color: '#fff', opacity: 0.5 },
         });
     }
-    actions.setEnabled(false);
+    actions.setEnabled(navigator.current === 'flight');
   };
   const navigate = (route: string) => {
     actions.setEnabled(false);
@@ -275,7 +273,7 @@ async function start(): Promise<void> {
     void navigator
       .run(route)
       .then(() => {
-        if (route === 'flight' && !usingSystems) actions.activate();
+        if (route === 'flight') actions.activate();
       })
       .catch(fail);
   };
@@ -363,6 +361,39 @@ async function start(): Promise<void> {
   systems.addEventListener('click', () => setSystems(!usingSystems), {
     signal: lifetime.signal,
   });
+  const toggleMouse = () => {
+    mouseReleased = !mouseReleased;
+    configure();
+    ship.control.clear();
+    ship.mounts.requestFiring(false);
+    actions.activate();
+  };
+  document.addEventListener(
+    'mousedown',
+    (event) => {
+      if (
+        event.button !== 2 ||
+        navigator.current !== 'flight' ||
+        (event.target !== view!.surface.canvas && !binding.capture?.active)
+      )
+        return;
+      event.preventDefault();
+      toggleMouse();
+    },
+    { signal: lifetime.signal },
+  );
+  view.surface.canvas.addEventListener(
+    'contextmenu',
+    (event) => event.preventDefault(),
+    {
+      signal: lifetime.signal,
+    },
+  );
+  let handledCaptureEscape = false;
+  const leaveCockpitPanel = () => {
+    if (usingSystems) setSystems(false);
+    else navigate('menu');
+  };
   document.addEventListener(
     'keydown',
     (event) => {
@@ -374,43 +405,53 @@ async function start(): Promise<void> {
         return;
       if (event.code === 'Escape') {
         event.preventDefault();
-        navigate('menu');
-      } else if (
-        usingSystems &&
-        normalizeInputBinding(preferences.bindings.systems!).some(
-          (button) =>
-            button.code === event.code &&
-            button.modifiers.every(
-              (modifier) =>
-                ({
-                  Control: event.ctrlKey,
-                  Shift: event.shiftKey,
-                  Alt: event.altKey,
-                  Meta: event.metaKey,
-                })[modifier],
-            ),
-        )
-      ) {
+        handledCaptureEscape = hadMouseCapture;
+        leaveCockpitPanel();
+      } else if (event.code === 'KeyC') {
         event.preventDefault();
-        setSystems(false);
+        toggleMouse();
       }
     },
     { signal: lifetime.signal },
   );
-  settingsRoot.addEventListener(
+  document.addEventListener(
     'keydown',
     (event) => {
-      if (event.code === 'Escape' && !event.defaultPrevented) {
+      if (
+        navigator.current === 'settings' &&
+        event.code === 'Escape' &&
+        !event.defaultPrevented
+      ) {
+        panel.cancel();
         event.preventDefault();
         navigate('menu');
       }
+    },
+    { signal: lifetime.signal },
+  );
+  let hadMouseCapture = false;
+  document.addEventListener(
+    'pointerlockchange',
+    () => {
+      const captured = document.pointerLockElement === view!.surface.canvas;
+      const released = hadMouseCapture && !captured;
+      hadMouseCapture = captured;
+      if (
+        released &&
+        !mouseReleased &&
+        actions.enabled &&
+        navigator.current === 'flight'
+      ) {
+        if (!handledCaptureEscape) leaveCockpitPanel();
+      }
+      if (released) handledCaptureEscape = false;
     },
     { signal: lifetime.signal },
   );
   view.surface.canvas.addEventListener(
     'click',
     (event) => {
-      if (usingSystems) view!.click(event);
+      if (!binding.capture?.active) view!.click(event);
     },
     { signal: lifetime.signal },
   );
@@ -441,10 +482,6 @@ async function start(): Promise<void> {
       loading.textContent = preferenceError() || 'Flight paused.';
       element('#menu-note').textContent =
         'Your ship is held here while the menu is open.';
-      usingSystems = false;
-      view!.setWindshieldDisplay(false);
-      systems.textContent = `Systems · ${bindingLabel(preferences.bindings.systems!)}`;
-      systems.setAttribute('aria-pressed', 'false');
       void navigator
         .run('flight')
         .then(() => actions.activate())

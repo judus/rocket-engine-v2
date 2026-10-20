@@ -149,3 +149,18 @@ void test('Ship automatic controls use touch sticks without pointer lock and pre
     'device policy leaves the saved steering choice intact',
   );
 });
+
+void test('C stays reserved independently of configurable cockpit display bindings', () => {
+  const settings = defaultControls();
+  assert.equal(settings.bindings.systems, 'KeyI');
+  settings.bindings.systems = 'KeyC';
+  assert.throws(
+    () => validateControls(settings),
+    /right mouse toggle mouse steering/,
+  );
+  settings.bindings.systems = 'Mouse2';
+  assert.throws(
+    () => validateControls(settings),
+    /right mouse toggle mouse steering/,
+  );
+});
