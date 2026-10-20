@@ -14,7 +14,7 @@ export function mountCockpitModel(modelRoot: Node3D) {
   fit.transform = {
     position: { x: 0, y: 1.53, z: 0.44 },
     rotation: { x: 0, y: 0, z: 0 },
-    scale: { x: 1, y: 0.93, z: 1 },
+    scale: { x: 0.9, y: 0.93, z: 1 },
   };
   placement.transform = {
     position: { x: 0, y: -0.8191118254985987 - 1.5, z: 0 },
