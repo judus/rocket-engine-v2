@@ -67,8 +67,8 @@ await runtime.start(); // no canvas required
 
 - **ShipControl** owns requested translation and pitch/yaw/roll intent. It validates and normalizes translation so diagonal input cannot gain extra thrust. HTML controls, a future input adapter, AI or scripts can issue the same commands. The current page is a command instrument, not a pointer-capture/input-preset demo. Multiple controllers are not arbitrated yet.
 - **ShipPowerPlant** owns reserve, reactor request and power ports. It wraps the actual existing `examples/ship/ShipPower.ts` J/W ledger rather than copying another allocator. Typed ports submit demand and receive allocated supply. World/ECS details remain private. Port registration/removal is tied to each consuming capability’s attachment/disposal.
-- **ShipEngine** owns requested enable state and the installed engine profile. Each tick it declares baseline + activity demand, then converts actual allocation into thrust and pitch/yaw/roll torque. It never subtracts reserve itself. Partial allocation first funds the baseline; remaining supply scales translation and all rotational axes together. Below baseline, no operation is delivered. Energy spent during that incomplete baseline is still accounted for.
-- **ShipDampers** owns requested enable state, a separate JSON profile, assistance and capture planning. It registers its own power port. Propulsion assistance scales with actual engine delivery; powered damping can arrest drift even with the engine disabled. It contributes world force and pitch/yaw/roll torque, never body/reserve mutations. Translation and rotational damping effort plus drive assistance determine demand; opposing efforts still consume power even when their net force is small.
+- **ShipEngine** owns requested enable state and the installed engine profile. Each tick it declares baseline + activity demand, then converts actual allocation into thrust and pitch/yaw/roll torque. It never subtracts reserve itself. Partial allocation first funds the baseline; remaining supply funds the rotation channel before the translation channel. Each uses its own delivered fraction. Below baseline, no operation is delivered. Energy spent during that incomplete baseline is still accounted for.
+- **ShipDampers** owns requested enable state, a separate JSON profile, assistance and capture planning. It registers its own power port. Translation and rotational assistance scale with their matching engine delivery channels; powered damping can arrest drift even with the engine disabled. It contributes world force and pitch/yaw/roll torque, never body/reserve mutations. Translation and rotational damping effort plus drive assistance determine demand; opposing efforts still consume power even when their net force is small.
 - **ShipCooling** owns its switch, power port and shared reactor/engine/damper/shield cooling circuit. Its pump uses the shared allocation; actual supply determines heat removal. Each module owns its temperature and overheat/restart state through a private `ModuleThermal` calculation. No module temperature is stored twice.
 - **ShipShields** owns stored shield energy, recharge and powered protection; its own nonessential power port participates in the same allocation.
 - **ShipHull** owns structural integrity and queued impacts. Shield overflow becomes hull damage; a breach is a game-rule signal.
@@ -115,9 +115,9 @@ Dampers start requested off. Enable their switch and request forward motion: the
 
 Engaging above the assisted envelope selects one immutable `CapturePlan` from entry speed/direction. Capture first removes the excess along that trajectory; translation commands take over after capture. Pitch, yaw and roll remain assisted. The reference **excess** of 12 km/s, four-second duration, curve power, duration-growth exponent and steepness growth are exposed in the damper JSON. They are illustration values. Higher excess speeds increase both capture duration and braking concentration, not Newtonian speed limits. At full supply, tenfold reference excess takes twice as long but produces substantially higher crew G.
 
-The engine declares requested output before allocation. Dampers plan braking and supplementary engine assistance; assistance depends on the engine’s actual operating fraction. Both submit demand to the existing shared power ledger. The damper baseline is funded first; funded activity scales forces, torque and protection. Unpowered dampers contribute zero force/protection. Motion and requested switches survive power loss. Recovery re-evaluates capture from actual speed instead of continuing a stale trajectory.
+The engine declares requested output before allocation. Dampers plan braking and supplementary engine assistance; translation and rotational assistance depend on their matching engine operating fractions. Both submit demand to the existing shared power ledger. The damper baseline is funded first; funded activity scales forces, torque and protection. Unpowered dampers contribute zero force/protection. Motion and requested switches survive power loss. Recovery re-evaluates capture from actual speed instead of continuing a stale trajectory.
 
-The nominal curve clock advances by delivered activity; nominal duration is not a guaranteed arrival time under partial service. After that clock reaches the endpoint, the same powered servo continues correcting the remaining velocity error in capture mode. Capture finishes only after integrated velocity reaches the entry-trajectory target within a numerical tolerance of 0.000001 m/s, with no velocity snap.
+The nominal curve clock advances by delivered translation activity; nominal duration is not a guaranteed arrival time under partial service. After that clock reaches the endpoint, the same powered servo continues correcting the remaining velocity error in capture mode. Capture finishes only after integrated velocity reaches the entry-trajectory target within a numerical tolerance of 0.000001 m/s, with no velocity snap.
 
 Translation is gated before engine demand declaration for the whole capture interval, including the final interval; held intent becomes available on the next step. Pitch/yaw/roll remain available. Zero damper delivery coasts and releases the current plan; the next operating interval attempts capture again from actual speed. Manually disabling dampers releases translation immediately. Applied translational G comes from actual combined force divided by mass and standard gravity. Crew G applies the delivered suppression fraction; it is never clamped to a comfort/survival target. Seat orientation, rotational crew loads and injury rules are not modeled.
 
@@ -215,7 +215,7 @@ ship.engine.repair(25); // same boundary; no resource/repair-time policy yet
 const condition = ship.telemetry.engine.health;
 ```
 
-Engine JSON requires `health: { maxPoints, outputExponent }`. The ship's separate initialization requires `engineHealthPoints`, validated against the installed engine maximum. Starter values are 100 HP, full initial health, exponent 1: output capacity is `(points / maxPoints) ** outputExponent`. Damage reduces both thrust and yaw authority. Actual output is that condition factor times the existing power-funded fraction; telemetry separates `powerFraction` from delivered `activityFraction`. Nominal power demand stays unchanged for a damaged working engine: damage does not confer an efficiency discount. Existing supplied-power thermal losses are unchanged; no extra damage-induced heat coefficient is invented here. These remain explicit prototype service/power coefficients.
+Engine JSON requires `health: { maxPoints, outputExponent }`. The ship's separate initialization requires `engineHealthPoints`, validated against the installed engine maximum. Starter values are 100 HP, full initial health, exponent 1: output capacity is `(points / maxPoints) ** outputExponent`. Damage reduces both thrust and yaw authority. Each output uses that condition factor times its own channel’s power-funded fraction. Telemetry exposes per-channel fractions; aggregate `powerFraction` and `activityFraction` are display summaries. Nominal power demand stays unchanged for a damaged working engine: damage does not confer an efficiency discount. Existing supplied-power thermal losses are unchanged; no extra damage-induced heat coefficient is invented here. These remain explicit prototype service/power coefficients.
 
 At zero health the engine reports `failed`, requests no power and produces no thrust/torque; existing body momentum and all other module state survive. Its requested-on switch is retained and toggling cannot repair it. Repairing a failed engine goes through its ordinary powered manual startup when requested on. Repair does not reset temperature or erase a thermal trip/reboot. Partial repairs restore partial authority. An engine repaired while switched off remains off. Initial damaged/failed configurations are supported by the strict initialization contract.
 
@@ -906,3 +906,27 @@ together; world objects and the pilot camera keep the authoritative ship pose.
 The response advances in the existing scene update, pauses with that scene, and
 never changes physics or the imported GLB hierarchy. Engine thrust/mass provides
 the visual acceleration reference, with a 1 m/s² minimum for zero-thrust profiles.
+
+### Independent thrust and torque delivery
+
+Engine and damper propulsion each have separate translation and rotation demand,
+supplied-power and activity readings. Each module pays its baseline once from its
+existing allocated power budget, then funds rotation before translation. This
+preserves steering authority when translation demand exceeds that budget, as in
+the original demo's torque-before-thrust input order. It is a local propulsion
+allocation policy, not a second reserve or a new ship-wide priority scheduler.
+
+Forces use `translationActivityFraction`; all three torques use
+`rotationActivityFraction`. Damper translation follows the engine translation
+channel, and rotational drive follows the engine rotation channel. Aggregate
+`powerFraction` / `activityFraction` remain weighted display summaries and never
+scale physical outputs. A capture with funded steering but no translation power
+keeps its plan paused: its clock and braking require actual translation delivery.
+Crew translational protection also follows that channel.
+
+Heat is generated once from the module's total supplied watts. Module health,
+thermal shutdown and the engine switch still affect both outputs because they
+remain one physical module. Shared reserve scarcity can still limit either
+channel; there is no free steering power. Flight Foundry shows both delivered
+fractions. Torque strengths, assisted turn-rate limits, mouse scaling and the
+existing damper On/Off behavior are unchanged by this separation.

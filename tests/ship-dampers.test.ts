@@ -391,6 +391,10 @@ void test('Capture retains rotation controls and raw translation intent; disabli
   ship.control.roll(1);
   step(ship);
   assert.equal(ship.telemetry.dampers.mode, 'capture');
+  assert.ok(ship.telemetry.dampers.rotationActivityFraction > 0);
+  close(ship.telemetry.dampers.translationActivityFraction, 0);
+  close(ship.telemetry.dampers.captureElapsedSeconds, 0);
+  close(ship.telemetry.body.velocityMps.z, 12300);
   assert.ok(ship.telemetry.body.yawRateRadps > 0);
   assert.ok(ship.telemetry.body.pitchRateRadps > 0);
   assert.ok(ship.telemetry.body.rollRateRadps > 0);
@@ -405,6 +409,14 @@ void test('Capture retains rotation controls and raw translation intent; disabli
   ship.dampers.requestEnabled(false);
   step(ship);
   assert.equal(ship.telemetry.dampers.mode, 'coast');
+  assert.ok(ship.telemetry.engine.translationDemandW > 0);
+  // Translation is admitted, but the held high-cost rotation commands own
+  // the available engine budget first. Releasing them makes thrust available.
+  close(ship.telemetry.engine.thrustN.x, 0);
+  ship.control.turn(0);
+  ship.control.pitch(0);
+  ship.control.roll(0);
+  step(ship);
   assert.ok(ship.telemetry.engine.thrustN.x > 0);
   ship.dispose();
 });

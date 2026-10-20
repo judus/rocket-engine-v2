@@ -180,15 +180,17 @@ void test('Body heading redirects new ship-local thrust without rotating existin
   assert.deepEqual(ship.telemetry.body.velocityMps, velocity);
   ship.dispose();
 });
-void test('Diagonal translation is normalized and shares one engine activity allocation with yaw', () => {
+void test('Diagonal thrust stays normalized while rotation is funded independently before translation', () => {
   const ship = new Ship(small, initial);
   ship.control.thrust({ x: 1, y: 1, z: 1 });
   ship.control.turn(1);
   step(ship, 1);
   close(ship.telemetry.engine.demandW, 130);
   close(ship.telemetry.engine.activityFraction, 0.75);
-  close(Math.hypot(...Object.values(ship.telemetry.worldForceN)), 15);
-  close(ship.telemetry.engine.yawTorqueNm, 3);
+  close(Math.hypot(...Object.values(ship.telemetry.worldForceN)), 14);
+  close(ship.telemetry.engine.yawTorqueNm, 4);
+  close(ship.telemetry.engine.translationActivityFraction, 0.7);
+  close(ship.telemetry.engine.rotationActivityFraction, 1);
   ship.dispose();
 });
 void test('Scene facade owns independent ship lifetimes; telemetry is a coherent immutable committed tick', () => {
@@ -271,5 +273,57 @@ void test('Starter ship supports five minutes of ordinary assisted flight withou
     assert.equal(t.dampers.thermal.tripped, false);
   }
   assert.ok(minimumReserveJ > ship.power.profile.capacityJ * 0.8);
+  ship.dispose();
+});
+
+void test('Translation cannot dilute funded yaw/pitch/roll; each output reports its actual channel power', () => {
+  const rotationOnly = new Ship(small, initial);
+  const combined = new Ship(small, initial);
+  for (const ship of [rotationOnly, combined]) {
+    ship.control.turn(1);
+    ship.control.pitch(1);
+    ship.control.roll(1);
+  }
+  combined.control.thrust({ x: 0, y: 0, z: 1 });
+  step(rotationOnly, 1);
+  step(combined, 1);
+  const a = rotationOnly.telemetry.engine;
+  const b = combined.telemetry.engine;
+  for (const key of ['yawTorqueNm', 'pitchTorqueNm', 'rollTorqueNm'] as const) {
+    close(a[key], 4);
+    close(b[key], a[key]);
+  }
+  close(b.translationActivityFraction, 0.3);
+  close(b.rotationActivityFraction, 1);
+  close(b.thrustN.z, 6);
+  close(
+    b.baselineSuppliedW + b.translationSuppliedW + b.rotationSuppliedW,
+    b.suppliedW,
+  );
+  close(combined.telemetry.power.energyJ, 0);
+  assert.equal(b.state, 'limited');
+  assert.equal(a.translationDemandW, 0);
+  assert.equal(a.translationSuppliedW, 0);
+  rotationOnly.dispose();
+  combined.dispose();
+});
+
+void test('A rotation shortage produces partial torque without funding thrust, and never supplies free motion', () => {
+  const ship = new Ship(small, { ...initial, energyJ: 20 });
+  ship.control.thrust({ x: 0, y: 0, z: 1 });
+  ship.control.turn(1);
+  step(ship, 1);
+  const e = ship.telemetry.engine;
+  close(e.rotationPowerFraction, 0.5);
+  close(e.rotationActivityFraction, 0.5);
+  close(e.translationActivityFraction, 0);
+  close(e.yawTorqueNm, 2);
+  close(e.thrustN.z, 0);
+  close(e.suppliedW, 20);
+  const velocity = ship.telemetry.body.yawRateRadps;
+  step(ship, 1);
+  close(ship.telemetry.engine.rotationActivityFraction, 0);
+  close(ship.telemetry.engine.yawTorqueNm, 0);
+  close(ship.telemetry.body.yawRateRadps, velocity);
   ship.dispose();
 });

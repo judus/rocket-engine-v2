@@ -118,7 +118,7 @@ export class ShipMovement implements Behavior {
     this.internals.deliver(dt);
     this.hull.resolve();
     const delivered = this.engine.deliver();
-    const damperReading = this.dampers.deliver(delivered.activityFraction);
+    const damperReading = this.dampers.deliver(delivered);
     this.power.generateHeat(dt);
     this.engine.generateHeat(dt);
     this.dampers.generateHeat(dt);

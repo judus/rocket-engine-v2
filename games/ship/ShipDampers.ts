@@ -1,3 +1,5 @@
+import { propulsionDelivery } from './PropulsionDelivery.js';
+import type { PropulsionDelivery } from './PropulsionDelivery.js';
 import { ModuleHealth } from './ModuleHealth.js';
 import type { HealthReading } from './ModuleHealth.js';
 import { ModuleThermal } from './ModuleThermal.js';
@@ -13,7 +15,7 @@ import type { PowerPort } from './ShipPowerPlant.js';
 import { validateDamperProfile } from './ShipProfiles.js';
 import type { DamperProfile } from './ShipProfiles.js';
 
-export interface DamperReading {
+export interface DamperReading extends PropulsionDelivery {
   readonly requested: boolean;
   readonly state:
     | 'failed'
@@ -57,7 +59,8 @@ export class ShipDampers implements Behavior {
   #rollTorque = 0;
   #pitchDriveTorque = 0;
   #rollDriveTorque = 0;
-  #activityW = 0;
+  #translationW = 0;
+  #rotationW = 0;
   #dt = 0;
   #health: ModuleHealth;
   #thermal: ModuleThermal;
@@ -79,6 +82,7 @@ export class ShipDampers implements Behavior {
       initialTemperatureK,
     );
     this.#reading = Object.freeze({
+      ...propulsionDelivery(0, this.profile.baselineW, 0, 0, false, 0),
       requested: false,
       state: this.#health.telemetry.failed ? 'failed' : 'off',
       health: this.#health.telemetry,
@@ -246,43 +250,55 @@ export class ShipDampers implements Behavior {
         angularGain) /
         dt -
       engine.yawTorqueNm;
-    this.#activityW = this.#operating
+    this.#translationW = this.#operating
       ? (Math.hypot(this.#force.x, this.#force.y, this.#force.z) +
           Math.hypot(this.#drive.x, this.#drive.y, this.#drive.z)) *
-          this.profile.wattsPerNewton +
-        (Math.abs(this.#torque) +
+        this.profile.wattsPerNewton
+      : 0;
+    this.#rotationW = this.#operating
+      ? (Math.abs(this.#torque) +
           Math.abs(this.#driveTorque) +
           Math.abs(this.#pitchTorque) +
           Math.abs(this.#rollTorque) +
           Math.abs(this.#pitchDriveTorque) +
           Math.abs(this.#rollDriveTorque)) *
-          this.profile.wattsPerNewtonMeter
+        this.profile.wattsPerNewtonMeter
       : 0;
     this.port().request(
       this.#powerRequested,
-      this.profile.baselineW + this.#activityW,
+      this.profile.baselineW + this.#translationW + this.#rotationW,
     );
   }
-  deliver(engineFraction: number): Readonly<DamperReading> {
+  deliver(
+    engine: Pick<
+      EngineReading,
+      'translationActivityFraction' | 'rotationActivityFraction'
+    >,
+  ): Readonly<DamperReading> {
     const allocation = this.port().delivery();
-    const powerFraction =
-      this.#operating && allocation.suppliedW >= this.profile.baselineW
-        ? this.#activityW > 0
-          ? Math.min(
-              1,
-              (allocation.suppliedW - this.profile.baselineW) / this.#activityW,
-            )
-          : 1
-        : 0;
     const health = this.#health.telemetry;
-    const fraction = powerFraction * health.outputFraction;
+    const channels = propulsionDelivery(
+      allocation.suppliedW,
+      this.profile.baselineW,
+      this.#translationW,
+      this.#rotationW,
+      this.#operating,
+      health.outputFraction,
+    );
+    const {
+      powerFraction,
+      activityFraction: fraction,
+      translationActivityFraction: translationFraction,
+      rotationActivityFraction: rotationFraction,
+    } = channels;
     const capturing = this.#capture !== undefined;
-    if (this.#capture && fraction > 0)
+    if (this.#capture && translationFraction > 0)
       this.#captureElapsed = Math.min(
         this.#capture.durationSeconds,
-        this.#captureElapsed + this.#dt * fraction,
+        this.#captureElapsed + this.#dt * translationFraction,
       );
     this.#reading = Object.freeze({
+      ...channels,
       requested: this.#requested,
       state: health.failed
         ? 'failed'
@@ -299,29 +315,40 @@ export class ShipDampers implements Behavior {
       thermal: this.#thermal.telemetry,
       mode: fraction === 0 ? 'coast' : capturing ? 'capture' : 'assisted',
       demandW: this.#powerRequested
-        ? this.profile.baselineW + this.#activityW
+        ? this.profile.baselineW + this.#translationW + this.#rotationW
         : 0,
       suppliedW: allocation.suppliedW,
       activityFraction: fraction,
       worldForceN: Object.freeze({
-        x: (this.#force.x + this.#drive.x * engineFraction) * fraction,
-        y: (this.#force.y + this.#drive.y * engineFraction) * fraction,
-        z: (this.#force.z + this.#drive.z * engineFraction) * fraction,
+        x:
+          (this.#force.x + this.#drive.x * engine.translationActivityFraction) *
+          translationFraction,
+        y:
+          (this.#force.y + this.#drive.y * engine.translationActivityFraction) *
+          translationFraction,
+        z:
+          (this.#force.z + this.#drive.z * engine.translationActivityFraction) *
+          translationFraction,
       }),
       yawTorqueNm:
-        (this.#torque + this.#driveTorque * engineFraction) * fraction,
+        (this.#torque + this.#driveTorque * engine.rotationActivityFraction) *
+        rotationFraction,
       pitchTorqueNm:
-        (this.#pitchTorque + this.#pitchDriveTorque * engineFraction) *
-        fraction,
+        (this.#pitchTorque +
+          this.#pitchDriveTorque * engine.rotationActivityFraction) *
+        rotationFraction,
       rollTorqueNm:
-        (this.#rollTorque + this.#rollDriveTorque * engineFraction) * fraction,
+        (this.#rollTorque +
+          this.#rollDriveTorque * engine.rotationActivityFraction) *
+        rotationFraction,
       captureDurationSeconds: this.#capture?.durationSeconds ?? 0,
       captureElapsedSeconds: Math.min(
         this.#captureElapsed,
         this.#capture?.durationSeconds ?? 0,
       ),
       transmittedFraction:
-        1 - fraction * (1 - this.profile.capture.transmittedFraction),
+        1 -
+        translationFraction * (1 - this.profile.capture.transmittedFraction),
     });
     if (fraction === 0) {
       this.#engagement = true;

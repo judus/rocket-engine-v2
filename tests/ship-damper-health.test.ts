@@ -101,13 +101,29 @@ void test('Damper damage and limited supply multiply once, including yaw assista
   const t = ship.telemetry;
   assert.ok(t.dampers.powerFraction > 0 && t.dampers.powerFraction < 1);
   close(t.dampers.activityFraction, t.dampers.powerFraction * 0.5);
+  assert.ok(
+    t.dampers.rotationPowerFraction > t.dampers.translationPowerFraction,
+  );
+  close(
+    t.dampers.rotationActivityFraction,
+    t.dampers.rotationPowerFraction * 0.5,
+  );
+  close(
+    t.engine.rotationActivityFraction,
+    t.engine.rotationPowerFraction * t.engine.health.outputFraction,
+  );
   const gain = -Math.expm1(-3 / profile.dampers.responseSeconds);
   const nominalTorque = 2 * profile.dampers.maxYawRateRadps * gain - 4;
   close(
     t.dampers.yawTorqueNm,
-    nominalTorque * t.engine.activityFraction * t.dampers.activityFraction,
+    nominalTorque *
+      t.engine.rotationActivityFraction *
+      t.dampers.rotationActivityFraction,
   );
-  close(t.dampers.transmittedFraction, 1 - 0.99 * t.dampers.activityFraction);
+  close(
+    t.dampers.transmittedFraction,
+    1 - 0.99 * t.dampers.translationActivityFraction,
+  );
   assert.equal(t.dampers.state, 'limited');
   ship.dispose();
 });

@@ -276,7 +276,7 @@ function paint(): void {
     [
       'Engine',
       `<strong>${t.engine.state}</strong><small>${requested(t.engine.requested)} · restart ${fmt(t.engine.thermal.restartRemainingSeconds)} s</small>`,
-      electrical(t.engine.suppliedW, t.engine.demandW),
+      `${electrical(t.engine.suppliedW, t.engine.demandW)}<small>Thrust ${fmt(t.engine.translationActivityFraction * 100)}% · rotation ${fmt(t.engine.rotationActivityFraction * 100)}%</small>`,
       thermal(
         t.engine.thermal.temperatureK,
         t.engine.thermal.generatedHeatW,
@@ -287,7 +287,7 @@ function paint(): void {
     [
       'Inertia dampers',
       `<strong>${t.dampers.state}</strong><small>${requested(t.dampers.requested)} · ${t.dampers.mode}<br>restart ${fmt(t.dampers.thermal.restartRemainingSeconds)} s</small>`,
-      electrical(t.dampers.suppliedW, t.dampers.demandW),
+      `${electrical(t.dampers.suppliedW, t.dampers.demandW)}<small>Translation ${fmt(t.dampers.translationActivityFraction * 100)}% · rotation ${fmt(t.dampers.rotationActivityFraction * 100)}%</small>`,
       thermal(
         t.dampers.thermal.temperatureK,
         t.dampers.thermal.generatedHeatW,

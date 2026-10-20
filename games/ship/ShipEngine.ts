@@ -1,3 +1,5 @@
+import { propulsionDelivery } from './PropulsionDelivery.js';
+import type { PropulsionDelivery } from './PropulsionDelivery.js';
 import { ModuleHealth } from './ModuleHealth.js';
 import type { HealthReading } from './ModuleHealth.js';
 import { ModuleThermal } from './ModuleThermal.js';
@@ -11,7 +13,7 @@ import { validateEngineProfile } from './ShipProfiles.js';
 import type { EngineProfile } from './ShipProfiles.js';
 import type { PowerPort } from './ShipPowerPlant.js';
 
-export interface EngineReading {
+export interface EngineReading extends PropulsionDelivery {
   readonly requested: boolean;
   readonly state:
     | 'failed'
@@ -45,7 +47,8 @@ export class ShipEngine implements Behavior {
     pitch: 0,
     roll: 0,
   };
-  #activityDemandW = 0;
+  #translationDemandW = 0;
+  #rotationDemandW = 0;
   #health: ModuleHealth;
   #thermal: ModuleThermal;
   #operating = false;
@@ -66,6 +69,7 @@ export class ShipEngine implements Behavior {
       initialTemperatureK,
     );
     this.#reading = Object.freeze({
+      ...propulsionDelivery(0, this.profile.baselineW, 0, 0, false, 0),
       requested: true,
       state: this.#health.telemetry.failed
         ? 'failed'
@@ -132,15 +136,17 @@ export class ShipEngine implements Behavior {
       intent.thrust.y,
       intent.thrust.z,
     );
-    this.#activityDemandW = this.#operating
-      ? this.profile.fullThrustW * throttle +
-        this.profile.fullYawW * Math.abs(intent.yaw) +
+    this.#translationDemandW = this.#operating
+      ? this.profile.fullThrustW * throttle
+      : 0;
+    this.#rotationDemandW = this.#operating
+      ? this.profile.fullYawW * Math.abs(intent.yaw) +
         this.profile.fullPitchW * Math.abs(intent.pitch) +
         this.profile.fullRollW * Math.abs(intent.roll)
       : 0;
     this.port().request(
       this.#powerRequested,
-      this.profile.baselineW + this.#activityDemandW,
+      this.profile.baselineW + this.#translationDemandW + this.#rotationDemandW,
     );
     // Nominal preview: dampers apply the final funded/condition fraction once.
     return {
@@ -160,21 +166,32 @@ export class ShipEngine implements Behavior {
   }
   deliver(): Readonly<EngineReading> {
     const allocation = this.port().delivery();
-    const activeW = Math.max(0, allocation.suppliedW - this.profile.baselineW);
-    const powerFraction =
-      this.#operating && allocation.suppliedW >= this.profile.baselineW
-        ? this.#activityDemandW > 0
-          ? Math.min(1, activeW / this.#activityDemandW)
-          : 1
-        : 0;
     const health = this.#health.telemetry;
-    const fraction = powerFraction * health.outputFraction;
+    const channels = propulsionDelivery(
+      allocation.suppliedW,
+      this.profile.baselineW,
+      this.#translationDemandW,
+      this.#rotationDemandW,
+      this.#operating,
+      health.outputFraction,
+    );
+    const powerFraction = channels.powerFraction;
     const thrustN = Object.freeze({
-      x: this.#intent.thrust.x * this.profile.maxThrustN * fraction,
-      y: this.#intent.thrust.y * this.profile.maxThrustN * fraction,
-      z: this.#intent.thrust.z * this.profile.maxThrustN * fraction,
+      x:
+        this.#intent.thrust.x *
+        this.profile.maxThrustN *
+        channels.translationActivityFraction,
+      y:
+        this.#intent.thrust.y *
+        this.profile.maxThrustN *
+        channels.translationActivityFraction,
+      z:
+        this.#intent.thrust.z *
+        this.profile.maxThrustN *
+        channels.translationActivityFraction,
     });
     this.#reading = Object.freeze({
+      ...channels,
       requested: this.#requested,
       state: health.failed
         ? 'failed'
@@ -190,15 +207,24 @@ export class ShipEngine implements Behavior {
       powerFraction,
       thermal: this.#thermal.telemetry,
       demandW: this.#powerRequested
-        ? this.profile.baselineW + this.#activityDemandW
+        ? this.profile.baselineW +
+          this.#translationDemandW +
+          this.#rotationDemandW
         : 0,
       suppliedW: allocation.suppliedW,
-      activityFraction: fraction,
       thrustN,
-      yawTorqueNm: this.#intent.yaw * this.profile.maxYawTorqueNm * fraction,
+      yawTorqueNm:
+        this.#intent.yaw *
+        this.profile.maxYawTorqueNm *
+        channels.rotationActivityFraction,
       pitchTorqueNm:
-        this.#intent.pitch * this.profile.maxPitchTorqueNm * fraction,
-      rollTorqueNm: this.#intent.roll * this.profile.maxRollTorqueNm * fraction,
+        this.#intent.pitch *
+        this.profile.maxPitchTorqueNm *
+        channels.rotationActivityFraction,
+      rollTorqueNm:
+        this.#intent.roll *
+        this.profile.maxRollTorqueNm *
+        channels.rotationActivityFraction,
     });
     return this.#reading;
   }
