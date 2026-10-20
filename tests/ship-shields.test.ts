@@ -175,12 +175,13 @@ void test('Shield recharge cannot consume emergency recovery output, and request
     reactorHealthPoints: 100,
     engineHealthPoints: 100,
     shieldTemperatureK: 293.15,
-    reactorTemperatureK: 455,
+    reactorTemperatureK:
+      starterSetup.profile.power.thermal.tripTemperatureK + 5,
   });
   ship.shields.requestEnabled(true);
   ship.engine.requestEnabled(false);
   let sawRecovery = false;
-  for (let i = 0; i < 4500; i++) {
+  for (let i = 0; i < 12000; i++) {
     step(ship, 1, 1 / 60);
     if (ship.telemetry.power.emergency) {
       sawRecovery = true;

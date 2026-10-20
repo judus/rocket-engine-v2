@@ -82,7 +82,13 @@ void test('Assembled ship advances from commands through power/engine to one New
   close(s.body.velocityMps.z, 10);
   close(s.body.positionM.z, 5);
   close(s.worldForceN.z, 1e6);
-  close(s.power.energyJ, 100e9 + 5e9 - 20.01e9, 0.001);
+  close(
+    s.power.energyJ,
+    starterSetup.initialState.energyJ +
+      starterSetup.profile.power.reactorOutputW -
+      20.01e9,
+    starterSetup.initialState.energyJ * 1e-14,
+  );
   close(s.engine.suppliedW, 20.01e9);
   close(s.engine.activityFraction, 1);
   assert.equal(s.tick, 60);
@@ -244,5 +250,26 @@ void test('Invalid commands/profiles fail before simulation side effects', () =>
   assert.throws(() => step(ship, 2));
   assert.equal(ship.telemetry, before);
   close(ship.power.telemetry.energyJ, 100);
+  ship.dispose();
+});
+
+void test('Starter ship supports five minutes of ordinary assisted flight without thermal or energy shutdown', () => {
+  const ship = new Ship(starterSetup.profile, starterSetup.initialState);
+  ship.dampers.requestEnabled(true);
+  ship.cooling.requestEnabled(true);
+  ship.cargo.requestEnabled(true);
+  let minimumReserveJ = ship.telemetry.power.energyJ;
+  for (let i = 0; i < 300 * 60; i++) {
+    const phase = (i / 60) % 30;
+    ship.control.thrust({ x: 0, y: 0, z: phase < 20 ? 1 : 0 });
+    ship.control.turn(phase < 10 ? 0.5 : 0);
+    step(ship);
+    const t = ship.telemetry;
+    minimumReserveJ = Math.min(minimumReserveJ, t.power.energyJ);
+    assert.equal(t.power.thermal.tripped, false);
+    assert.equal(t.engine.thermal.tripped, false);
+    assert.equal(t.dampers.thermal.tripped, false);
+  }
+  assert.ok(minimumReserveJ > ship.power.profile.capacityJ * 0.8);
   ship.dispose();
 });

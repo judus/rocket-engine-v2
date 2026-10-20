@@ -7,10 +7,10 @@
   "fullYawW": 1000000000,
   "restartEnergyJ": 20000000000,
   "thermal": {
-    "heatCapacityJPerK": 20000000,
+    "heatCapacityJPerK": 400000000,
     "wasteHeatFraction": 0.04,
-    "tripTemperatureK": 420,
-    "restartTemperatureK": 350,
+    "tripTemperatureK": 520,
+    "restartTemperatureK": 400,
     "manualStartSeconds": 1,
     "rebootSeconds": 8
   },

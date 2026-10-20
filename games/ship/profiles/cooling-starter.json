@@ -1,7 +1,7 @@
 {
   "id": "cooling-starter",
   "sinkTemperatureK": 293.15,
-  "maxCoolingW": 40000000,
+  "maxCoolingW": 800000000,
   "baselineW": 1000000,
   "fullPowerW": 5000000,
   "restartEnergyJ": 1000000000,

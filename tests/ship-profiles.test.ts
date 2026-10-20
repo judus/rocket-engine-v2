@@ -116,7 +116,7 @@ void test('Actual JSON loadout produces the typed installed equipment and separa
   assert.equal(starterSetup.profile.power.id, 'reactor-starter');
   assert.equal(starterSetup.profile.body.id, 'hull-starter');
   assert.equal(starterSetup.profile.engine.maxThrustN, 1e6);
-  assert.equal(starterSetup.initialState.energyJ, 100e9);
+  assert.equal(starterSetup.initialState.energyJ, 20e12);
   assert.ok(!('initialEnergyJ' in starterSetup.profile.power));
   assert.ok(Object.isFrozen(starterSetup.profile.engine));
   assert.ok(Object.isFrozen(starterSetup.initialState.velocityMps));
@@ -161,7 +161,7 @@ void test('One immutable equipment definition can initialize independently charg
   assert.equal(first.telemetry.power.energyJ, 1e9);
   assert.equal(second.telemetry.power.energyJ, 70e9);
   assert.equal(first.engine.profile.id, second.engine.profile.id);
-  assert.equal(starterSetup.initialState.energyJ, 100e9);
+  assert.equal(starterSetup.initialState.energyJ, 20e12);
   first.dispose();
   second.dispose();
 });
@@ -242,10 +242,22 @@ void test('Loadout boundary rejects missing/unknown properties and numeric strin
     ],
     ['profiles/shields-starter.json', { diversionEfficiency: 0 }],
     ['profiles/shields-starter.json', { diversionEfficiency: 1.01 }],
-    ['profiles/shields-starter.json', { restartEnergyJ: 201e9 }],
+    [
+      'profiles/shields-starter.json',
+      { restartEnergyJ: starterSetup.profile.power.capacityJ + 1 },
+    ],
     ['profiles/structure-starter.json', { damageCapacityJ: 0 }],
-    ['profiles/cooling-starter.json', { restartEnergyJ: 201e9 }],
-    ['profiles/cooling-starter.json', { sinkTemperatureK: 350 }],
+    [
+      'profiles/cooling-starter.json',
+      { restartEnergyJ: starterSetup.profile.power.capacityJ + 1 },
+    ],
+    [
+      'profiles/cooling-starter.json',
+      {
+        sinkTemperatureK:
+          starterSetup.profile.engine.thermal.tripTemperatureK + 1,
+      },
+    ],
     ['profiles/cooling-starter.json', { fullPowerW: '5' }],
     [
       'profiles/cooling-starter.json',
@@ -279,7 +291,8 @@ void test('Loadout boundary rejects missing/unknown properties and numeric strin
       {
         thermal: {
           ...starterSetup.profile.dampers.thermal,
-          restartTemperatureK: 400,
+          restartTemperatureK:
+            starterSetup.profile.dampers.thermal.tripTemperatureK,
         },
       },
     ],
@@ -292,7 +305,10 @@ void test('Loadout boundary rejects missing/unknown properties and numeric strin
         },
       },
     ],
-    ['profiles/dampers-starter.json', { restartEnergyJ: 201e9 }],
+    [
+      'profiles/dampers-starter.json',
+      { restartEnergyJ: starterSetup.profile.power.capacityJ + 1 },
+    ],
     [
       'profiles/dampers-starter.json',
       { capture: { transmittedFraction: 0.01 } },
@@ -332,7 +348,7 @@ void test('Equipment references cannot escape the profile directory or silently 
 void test('Loadout rejects incompatible restart energy and invalid initial state before creating a ship', async () => {
   const incompatible = fixtures();
   changed(incompatible, 'profiles/engine-starter.json', {
-    restartEnergyJ: 201e9,
+    restartEnergyJ: starterSetup.profile.power.capacityJ + 1,
   });
   await assert.rejects(
     loadShipSetup(manifestUrl, transport(incompatible)),
@@ -352,7 +368,7 @@ void test('Loadout rejects incompatible restart energy and invalid initial state
       reactorTemperatureK: 290,
       damperTemperatureK: 293.15,
       engineTemperatureK: 293.15,
-      energyJ: 201e9,
+      energyJ: starterSetup.profile.power.capacityJ + 1,
       velocityMps: { x: 0, y: 0, z: 0 },
     },
     {

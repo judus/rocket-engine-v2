@@ -17,10 +17,10 @@
     "transmittedFraction": 0.01
   },
   "thermal": {
-    "heatCapacityJPerK": 10000000,
+    "heatCapacityJPerK": 200000000,
     "wasteHeatFraction": 0.08,
-    "tripTemperatureK": 370,
-    "restartTemperatureK": 330,
+    "tripTemperatureK": 470,
+    "restartTemperatureK": 380,
     "manualStartSeconds": 0.25,
     "rebootSeconds": 6
   },

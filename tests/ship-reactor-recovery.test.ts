@@ -274,7 +274,8 @@ void test('Actual JSON ship recovers from hot and empty while held propulsion re
     reactorHealthPoints: 100,
     engineHealthPoints: 100,
     shieldTemperatureK: 293.15,
-    reactorTemperatureK: 455,
+    reactorTemperatureK:
+      starterSetup.profile.power.thermal.tripTemperatureK + 5,
     velocityMps: { x: 0, y: 0, z: 1000 },
   });
   ship.control.thrust({ x: 0, y: 0, z: 1 });
@@ -302,13 +303,35 @@ void test('Actual JSON ship recovers from hot and empty while held propulsion re
     );
     if (t.power.generationW > 0) {
       if (!firstGeneration) firstGeneration = t.timeSeconds;
-      close(t.power.generationW, 1e9);
+      close(
+        t.power.generationW,
+        starterSetup.profile.power.reactorOutputW *
+          starterSetup.profile.power.recovery.emergencyOutputFraction,
+      );
     }
-    if (++steps > 75 * 60) assert.fail('Default loadout did not recover');
+    if (++steps > 180 * 60) assert.fail('Default loadout did not recover');
   }
-  assert.ok(firstGeneration >= 49 && firstGeneration < 49.1);
-  assert.ok(ship.telemetry.timeSeconds > 69 && ship.telemetry.timeSeconds < 71);
-  assert.ok(ship.telemetry.power.energyJ >= 20e9);
+  const profile = starterSetup.profile.power;
+  const passiveSeconds =
+    ((profile.thermal.tripTemperatureK +
+      5 -
+      profile.thermal.restartTemperatureK) *
+      profile.thermal.heatCapacityJPerK) /
+    profile.recovery.passiveCoolingW;
+  const earliestGeneration =
+    passiveSeconds + profile.recovery.emergencyStartSeconds;
+  assert.ok(
+    firstGeneration >= earliestGeneration &&
+      firstGeneration < earliestGeneration + 0.1,
+  );
+  assert.ok(
+    ship.telemetry.timeSeconds > firstGeneration &&
+      ship.telemetry.timeSeconds < 180,
+  );
+  assert.ok(
+    ship.telemetry.power.energyJ >=
+      profile.capacityJ * profile.recovery.restoreReserveFraction,
+  );
   assert.equal(ship.telemetry.engine.requested, true);
   assert.equal(ship.telemetry.dampers.requested, true);
   ship.dispose();

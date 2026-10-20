@@ -18,10 +18,10 @@
         "outputExponent": 1
       },
       "thermal": {
-        "heatCapacityJPerK": 10000000,
+        "heatCapacityJPerK": 200000000,
         "wasteHeatFraction": 0.1,
-        "tripTemperatureK": 390,
-        "restartTemperatureK": 330,
+        "tripTemperatureK": 490,
+        "restartTemperatureK": 380,
         "manualStartSeconds": 0.25,
         "rebootSeconds": 6
       },
@@ -46,10 +46,10 @@
         "outputExponent": 1
       },
       "thermal": {
-        "heatCapacityJPerK": 10000000,
+        "heatCapacityJPerK": 200000000,
         "wasteHeatFraction": 0.1,
-        "tripTemperatureK": 390,
-        "restartTemperatureK": 330,
+        "tripTemperatureK": 490,
+        "restartTemperatureK": 380,
         "manualStartSeconds": 0.25,
         "rebootSeconds": 6
       },
@@ -74,10 +74,10 @@
         "outputExponent": 1
       },
       "thermal": {
-        "heatCapacityJPerK": 10000000,
+        "heatCapacityJPerK": 200000000,
         "wasteHeatFraction": 0.1,
-        "tripTemperatureK": 390,
-        "restartTemperatureK": 330,
+        "tripTemperatureK": 490,
+        "restartTemperatureK": 380,
         "manualStartSeconds": 0.25,
         "rebootSeconds": 6
       },
@@ -102,10 +102,10 @@
         "outputExponent": 1
       },
       "thermal": {
-        "heatCapacityJPerK": 10000000,
+        "heatCapacityJPerK": 200000000,
         "wasteHeatFraction": 0.1,
-        "tripTemperatureK": 390,
-        "restartTemperatureK": 330,
+        "tripTemperatureK": 490,
+        "restartTemperatureK": 380,
         "manualStartSeconds": 0.25,
         "rebootSeconds": 6
       },
@@ -127,10 +127,10 @@
         "outputExponent": 1
       },
       "thermal": {
-        "heatCapacityJPerK": 10000000,
+        "heatCapacityJPerK": 200000000,
         "wasteHeatFraction": 0.1,
-        "tripTemperatureK": 390,
-        "restartTemperatureK": 330,
+        "tripTemperatureK": 490,
+        "restartTemperatureK": 380,
         "manualStartSeconds": 0.25,
         "rebootSeconds": 6
       },
@@ -155,10 +155,10 @@
         "outputExponent": 1
       },
       "thermal": {
-        "heatCapacityJPerK": 10000000,
+        "heatCapacityJPerK": 200000000,
         "wasteHeatFraction": 0.1,
-        "tripTemperatureK": 390,
-        "restartTemperatureK": 330,
+        "tripTemperatureK": 490,
+        "restartTemperatureK": 380,
         "manualStartSeconds": 0.25,
         "rebootSeconds": 6
       },
@@ -183,10 +183,10 @@
         "outputExponent": 1
       },
       "thermal": {
-        "heatCapacityJPerK": 10000000,
+        "heatCapacityJPerK": 200000000,
         "wasteHeatFraction": 0.1,
-        "tripTemperatureK": 390,
-        "restartTemperatureK": 330,
+        "tripTemperatureK": 490,
+        "restartTemperatureK": 380,
         "manualStartSeconds": 0.25,
         "rebootSeconds": 6
       },
