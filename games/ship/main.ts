@@ -195,7 +195,7 @@ async function start(): Promise<void> {
       mouseYaw = event.cancelled
         ? 0
         : (event.value / Math.max(event.dt, 1e-6)) *
-          0.1 *
+          0.3 *
           preferences.sensitivity;
       return undefined;
     });
@@ -203,7 +203,7 @@ async function start(): Promise<void> {
       mousePitch = event.cancelled
         ? 0
         : (-event.value / Math.max(event.dt, 1e-6)) *
-          0.1 *
+          0.3 *
           preferences.sensitivity *
           (preferences.invertPitch ? -1 : 1);
       return undefined;
