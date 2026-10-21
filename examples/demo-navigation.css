@@ -3,6 +3,7 @@
   grid-template-columns: 232px minmax(0, 1fr);
 }
 .demo-layout > main {
+  box-sizing: border-box;
   width: 100%;
   min-width: 0;
   margin: 0 auto;

@@ -64,3 +64,29 @@ await writeFile(
   new URL('../examples/workers/terrain.worker.js', import.meta.url),
   "import { serveTasks } from '../../vendor/rocket-workers-0.4.1/worker.js';\nimport { terrainTask } from './task.js';\nserveTasks({terrain:terrainTask});\n",
 );
+
+// The physics page needs one browser bundle, not a published node_modules tree.
+const matter: unknown = JSON.parse(
+  await readFile(
+    new URL('../../node_modules/matter-js/package.json', import.meta.url),
+    'utf8',
+  ),
+);
+if (
+  !matter ||
+  typeof matter !== 'object' ||
+  !('version' in matter) ||
+  matter.version !== '0.20.0'
+)
+  throw new Error('Expected pinned matter-js 0.20.0');
+await mkdir(new URL('../vendor/matter-js-0.20.0/', import.meta.url), {
+  recursive: true,
+});
+await cp(
+  new URL('../../node_modules/matter-js/build/matter.min.js', import.meta.url),
+  new URL('../vendor/matter-js-0.20.0/matter.min.js', import.meta.url),
+);
+await cp(
+  new URL('../../node_modules/matter-js/LICENSE', import.meta.url),
+  new URL('../vendor/matter-js-0.20.0/LICENSE', import.meta.url),
+);

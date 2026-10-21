@@ -112,7 +112,9 @@ void test('Damper damage and limited supply multiply once, including yaw assista
     t.engine.rotationActivityFraction,
     t.engine.rotationPowerFraction * t.engine.health.outputFraction,
   );
-  const nominalTorque = 2 * profile.dampers.maxYawAccelerationRadps2 - 4;
+  // Over this one-second interval the 6 rad/s target, not the 18 rad/s²
+  // acceleration ceiling, sets the requested angular momentum change.
+  const nominalTorque = 2 * profile.dampers.maxYawRateRadps - 4;
   close(
     t.dampers.yawTorqueNm,
     nominalTorque *

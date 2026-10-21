@@ -143,13 +143,20 @@ void test('Assisted flight controls and brakes pitch, yaw and roll; disabling as
   ship.control.roll(-1);
   step(ship, 180);
   const a = ship.telemetry.body;
-  close(a.yawRateRadps, 0.3 * 3);
+  close(a.yawRateRadps, 0.6 * 3);
   close(a.pitchRateRadps, 0.4 * 3);
   close(a.rollRateRadps, -0.8 * 3);
+  // A held command reaches its rate target; it does not accelerate forever.
+  step(ship, 900);
+  const bounded = ship.telemetry.body;
+  close(bounded.yawRateRadps, profile.dampers.maxYawRateRadps * 0.5);
+  close(bounded.pitchRateRadps, profile.dampers.maxPitchRateRadps);
+  close(bounded.rollRateRadps, -profile.dampers.maxRollRateRadps);
   ship.control.clear();
   step(ship, 180);
-  close(ship.telemetry.body.pitchRateRadps, a.pitchRateRadps * Math.exp(-3));
-  close(ship.telemetry.body.rollRateRadps, a.rollRateRadps * Math.exp(-3));
+  const braking = Math.exp(-9 / profile.dampers.rotationBrakingSeconds);
+  close(ship.telemetry.body.pitchRateRadps, bounded.pitchRateRadps * braking);
+  close(ship.telemetry.body.rollRateRadps, bounded.rollRateRadps * braking);
   ship.dampers.requestEnabled(false);
   ship.engine.requestEnabled(false);
   const before = ship.telemetry.body.angularVelocityRadps;
@@ -220,8 +227,13 @@ void test('New axis commands and required profile parameters reject invalid inpu
   assert.throws(() =>
     validateDamperProfile({
       ...profile.dampers,
-      maxRollAccelerationRadps2: 11,
+      maxRollAccelerationRadps2: -1,
     }),
+  );
+  assert.equal(
+    validateDamperProfile({ ...profile.dampers, maxRollAccelerationRadps2: 11 })
+      .maxRollAccelerationRadps2,
+    11,
   );
   ship.control.pitch(0.5);
   ship.control.roll(-0.5);
