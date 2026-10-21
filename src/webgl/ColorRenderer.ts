@@ -1,3 +1,4 @@
+import { VideoTextureImage } from '../3d/VideoTextureImage.js';
 import { validateScreenDoor } from '../3d/Mesh3D.js';
 import type { ScreenDoor3D } from '../3d/Mesh3D.js';
 import { WebGLSkyBackgroundPass } from './SkyBackgroundPass.js';
@@ -58,6 +59,7 @@ void main(){
   pixel=vec4(srgb,1.0);
 }`;
 export interface ColorDraw {
+  readonly saturation?: number;
   /** Straight alpha. Caller orders translucent draws back-to-front. */
   readonly opacity?: number;
   readonly unlit?: boolean;
@@ -85,6 +87,8 @@ export class WebGLColorRenderer {
   #transform: WebGLUniformLocation;
   #opacity: WebGLUniformLocation;
   #screenDoor?: WebGLUniformLocation;
+  #screenDoorOffset?: WebGLUniformLocation;
+  #saturation!: WebGLUniformLocation;
   #meshes = new Map<ColorMesh, Allocation>();
   #disposed = false;
   #skyPass: WebGLSkyBackgroundPass | undefined;
@@ -175,20 +179,21 @@ export class WebGLColorRenderer {
         if (kind === gl.FRAGMENT_SHADER) {
           code =
             code.replace('void main()', 'void surfaceMain()') +
-            '\nuniform float drawOpacity;\n' +
+            '\nuniform float drawOpacity;\nuniform float drawSaturation;\nvoid desaturate(){pixel.rgb=mix(vec3(dot(pixel.rgb,vec3(0.2126,0.7152,0.0722))),pixel.rgb,drawSaturation); }\n' +
             (this.#textures
               ? `
 uniform vec3 screenDoor;
+uniform vec2 screenDoorOffset;
 float wireCoverage(){
-  vec2 cell=uv*screenDoor.xy;
+  vec2 cell=uv*screenDoor.xy+screenDoorOffset;
   vec2 footprint=max(fwidth(cell),vec2(0.0001));
   float aperture=sqrt(1.0-screenDoor.z)*0.5;
   vec2 hole=1.0-smoothstep(vec2(aperture)-footprint*0.5,vec2(aperture)+footprint*0.5,abs(fract(cell)-0.5));
   float resolved=1.0-smoothstep(0.3,1.0,max(footprint.x,footprint.y));
   return mix(screenDoor.z,1.0-hole.x*hole.y,resolved);
 }
-void main(){surfaceMain();pixel.a*=drawOpacity*(screenDoor.z>0.0 ? wireCoverage() : 1.0);}`
-              : 'void main(){surfaceMain();pixel.a*=drawOpacity;}');
+void main(){surfaceMain();desaturate();pixel.a*=drawOpacity*(screenDoor.z>0.0 ? wireCoverage() : 1.0);}`
+              : 'void main(){surfaceMain();desaturate();pixel.a*=drawOpacity;}');
         }
         gl.shaderSource(shader, code);
         gl.compileShader(shader);
@@ -208,10 +213,17 @@ void main(){surfaceMain();pixel.a*=drawOpacity*(screenDoor.z>0.0 ? wireCoverage(
       const opacity = gl.getUniformLocation(program, 'drawOpacity');
       if (opacity === null) throw new Error('Missing opacity uniform');
       this.#opacity = opacity;
+      const saturation = gl.getUniformLocation(program, 'drawSaturation');
+      if (saturation === null) throw new Error('Missing saturation uniform');
+      this.#saturation = saturation;
       if (this.#textures) {
         const coverage = gl.getUniformLocation(program, 'screenDoor');
         if (coverage === null) throw new Error('Missing screen-door uniform');
         this.#screenDoor = coverage;
+        const offset = gl.getUniformLocation(program, 'screenDoorOffset');
+        if (offset === null)
+          throw new Error('Missing screen-door offset uniform');
+        this.#screenDoorOffset = offset;
       }
       const transform = gl.getUniformLocation(program, 'transform');
       if (transform === null) throw new Error('Missing transform uniform');
@@ -559,6 +571,12 @@ void main(){surfaceMain();pixel.a*=drawOpacity*(screenDoor.z>0.0 ? wireCoverage(
       throw new Error('Invalid environment light or disabled pipeline');
     // Validate before sorting or touching GL state. Preserve caller order within each pass.
     for (const draw of draws) {
+      if (
+        !Number.isFinite(draw.saturation ?? 1) ||
+        (draw.saturation ?? 1) < 0 ||
+        (draw.saturation ?? 1) > 1
+      )
+        throw new Error('Draw saturation must be finite in 0..1');
       const opacity = draw.opacity ?? 1;
       if (draw.screenDoor) {
         if (!this.#textures)
@@ -771,12 +789,16 @@ void main(){surfaceMain();pixel.a*=drawOpacity*(screenDoor.z>0.0 ? wireCoverage(
           occlusionStrength,
           normalTexture,
           normalScale,
+          saturation = 1,
           receivesShadow,
           unlit,
           opacity = 1,
           screenDoor,
         },
       ] of draws.entries()) {
+        // A seek/loop can temporarily withdraw decoded data; never upload an unavailable frame.
+        if (texture?.image instanceof VideoTextureImage && !texture.image.ready)
+          continue;
         if (opacity < 1 || screenDoor) {
           gl.enable(gl.BLEND);
           gl.blendEquation(gl.FUNC_ADD);
@@ -789,6 +811,9 @@ void main(){surfaceMain();pixel.a*=drawOpacity*(screenDoor.z>0.0 ? wireCoverage(
           gl.depthMask(false);
         }
         gl.uniform1f(this.#opacity, opacity);
+        gl.uniform1f(this.#saturation, saturation);
+        if (this.#screenDoorOffset)
+          gl.uniform2fv(this.#screenDoorOffset, screenDoor?.offset ?? [0, 0]);
         if (this.#screenDoor)
           gl.uniform3fv(
             this.#screenDoor,

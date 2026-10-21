@@ -64,9 +64,9 @@ const profile = {
   },
   dampers: {
     ...starterSetup.profile.dampers,
-    maxYawRateRadps: 0.6,
-    maxPitchRateRadps: 0.4,
-    maxRollRateRadps: 0.8,
+    maxYawAccelerationRadps2: 0.6,
+    maxPitchAccelerationRadps2: 0.4,
+    maxRollAccelerationRadps2: 0.8,
     baselineW: 1,
     wattsPerNewton: 0.1,
     wattsPerNewtonMeter: 0.1,
@@ -143,9 +143,9 @@ void test('Assisted flight controls and brakes pitch, yaw and roll; disabling as
   ship.control.roll(-1);
   step(ship, 180);
   const a = ship.telemetry.body;
-  close(a.yawRateRadps, 0.3 * (1 - Math.exp(-3)));
-  close(a.pitchRateRadps, 0.4 * (1 - Math.exp(-3)));
-  close(a.rollRateRadps, -0.8 * (1 - Math.exp(-3)));
+  close(a.yawRateRadps, 0.3 * 3);
+  close(a.pitchRateRadps, 0.4 * 3);
+  close(a.rollRateRadps, -0.8 * 3);
   ship.control.clear();
   step(ship, 180);
   close(ship.telemetry.body.pitchRateRadps, a.pitchRateRadps * Math.exp(-3));
@@ -218,7 +218,10 @@ void test('New axis commands and required profile parameters reject invalid inpu
     validateEngineProfile({ ...profile.engine, maxPitchTorqueNm: -1 }),
   );
   assert.throws(() =>
-    validateDamperProfile({ ...profile.dampers, maxRollRateRadps: 11 }),
+    validateDamperProfile({
+      ...profile.dampers,
+      maxRollAccelerationRadps2: 11,
+    }),
   );
   ship.control.pitch(0.5);
   ship.control.roll(-0.5);

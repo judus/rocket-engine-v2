@@ -85,6 +85,7 @@ async function start(): Promise<void> {
     ship,
     model.value.instantiate().root,
     family.variants,
+    null,
   );
   ship.fixedUpdate(1 / 60, { dt: 1 / 60, tick: 1, time: 1 / 60 });
   cockpit.instruments.update(1 / 15);

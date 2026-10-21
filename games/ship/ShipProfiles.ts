@@ -69,9 +69,13 @@ export interface DamperProfile {
   id: string;
   thermal: Readonly<ThermalProfile>;
   responseSeconds: number;
+  rotationBrakingSeconds: number;
   maxYawRateRadps: number;
-  maxRollRateRadps: number;
   maxPitchRateRadps: number;
+  maxRollRateRadps: number;
+  maxYawAccelerationRadps2: number;
+  maxRollAccelerationRadps2: number;
+  maxPitchAccelerationRadps2: number;
   baselineW: number;
   wattsPerNewton: number;
   wattsPerNewtonMeter: number;
@@ -348,9 +352,13 @@ export function validateDamperProfile(value: unknown): Readonly<DamperProfile> {
       'id',
       'thermal',
       'responseSeconds',
+      'rotationBrakingSeconds',
       'maxYawRateRadps',
-      'maxRollRateRadps',
       'maxPitchRateRadps',
+      'maxRollRateRadps',
+      'maxYawAccelerationRadps2',
+      'maxRollAccelerationRadps2',
+      'maxPitchAccelerationRadps2',
       'baselineW',
       'wattsPerNewton',
       'wattsPerNewtonMeter',
@@ -364,9 +372,13 @@ export function validateDamperProfile(value: unknown): Readonly<DamperProfile> {
     id: profileId(p.id, 'Damper id'),
     thermal: validateThermalProfile(p.thermal),
     responseSeconds: readNumber(p, 'responseSeconds', 0.01, 120),
-    maxYawRateRadps: readNumber(p, 'maxYawRateRadps', 0, 10),
-    maxRollRateRadps: readNumber(p, 'maxRollRateRadps', 0, 10),
-    maxPitchRateRadps: readNumber(p, 'maxPitchRateRadps', 0, 10),
+    rotationBrakingSeconds: readNumber(p, 'rotationBrakingSeconds', 0.01, 120),
+    maxYawRateRadps: readNumber(p, 'maxYawRateRadps', 0),
+    maxPitchRateRadps: readNumber(p, 'maxPitchRateRadps', 0),
+    maxRollRateRadps: readNumber(p, 'maxRollRateRadps', 0),
+    maxYawAccelerationRadps2: readNumber(p, 'maxYawAccelerationRadps2', 0),
+    maxRollAccelerationRadps2: readNumber(p, 'maxRollAccelerationRadps2', 0),
+    maxPitchAccelerationRadps2: readNumber(p, 'maxPitchAccelerationRadps2', 0),
     baselineW: readNumber(p, 'baselineW', Number.MIN_VALUE),
     wattsPerNewton: readNumber(p, 'wattsPerNewton', Number.MIN_VALUE),
     wattsPerNewtonMeter: readNumber(p, 'wattsPerNewtonMeter', Number.MIN_VALUE),

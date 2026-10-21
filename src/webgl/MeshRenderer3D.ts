@@ -214,6 +214,7 @@ export class WebGLMeshRenderer3D {
     const depths = new Map<ColorDraw, number>();
     const used = new Set<Mesh3D>(),
       draws: ColorDraw[] = [];
+    const orders = new Map<ColorDraw, number>();
     root.traverse((node, world) => {
       if (!node.mesh || !node.mesh.geometry.faces.length) return;
       const material =
@@ -254,6 +255,10 @@ export class WebGLMeshRenderer3D {
           node.mesh.geometry.faces.some((face) => {
             const pattern = node.mesh!.materials[face.material]!.screenDoor;
             return (
+              (node.mesh!.materials[face.material]!.saturation ?? 1) !==
+                (material.saturation ?? 1) ||
+              pattern?.offset?.[0] !== material.screenDoor?.offset?.[0] ||
+              pattern?.offset?.[1] !== material.screenDoor?.offset?.[1] ||
               pattern?.fill !== material.screenDoor?.fill ||
               pattern?.repeat[0] !== material.screenDoor?.repeat[0] ||
               pattern?.repeat[1] !== material.screenDoor?.repeat[1]
@@ -348,6 +353,7 @@ export class WebGLMeshRenderer3D {
         mesh,
         opacity,
         unlit: material.unlit ?? false,
+        saturation: material.saturation ?? 1,
         ...(material.screenDoor ? { screenDoor: material.screenDoor } : {}),
         castsShadow: node.castsShadow,
         receivesShadow: node.receivesShadow,
@@ -365,6 +371,7 @@ export class WebGLMeshRenderer3D {
           : {}),
       };
       draws.push(draw);
+      orders.set(draw, node.renderOrder);
       if (opacity < 1 || material.screenDoor) {
         let center = this.#centers.get(node.mesh);
         if (!center) {
@@ -400,7 +407,10 @@ export class WebGLMeshRenderer3D {
     const opaque = draws.filter((d) => d.opacity === 1 && !d.screenDoor);
     const translucent = draws.filter((d) => d.opacity! < 1 || d.screenDoor);
     // Primitive bounds-centre sorting; intersecting surfaces need content splitting.
-    translucent.sort((a, b) => depths.get(b)! - depths.get(a)!);
+    translucent.sort(
+      (a, b) =>
+        orders.get(a)! - orders.get(b)! || depths.get(b)! - depths.get(a)!,
+    );
     draws.splice(0, draws.length, ...opaque, ...translucent);
     const triangles = this.#renderer.drawFrame(
       draws,

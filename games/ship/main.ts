@@ -217,10 +217,17 @@ async function start(): Promise<void> {
     for (let i = 1; i <= 6; i++)
       actions
         .register(`group${i}`, 'press', () => {
-          ship.mounts.selectGroup(`group-${i}`);
+          if (!usingSystems) ship.mounts.selectGroup(`group-${i}`);
           return undefined;
         })
         .map(`group${i}`, preferences.bindings[`group${i}`]!);
+    for (let i = 1; i <= 4; i++)
+      actions
+        .register(`display-page-${i}`, 'press', () => {
+          if (usingSystems) view!.selectWindshieldPage(i - 1);
+          return undefined;
+        })
+        .map(`display-page-${i}`, `Digit${i}`);
     actions
       .register('systems', 'press', () => {
         setSystems(!usingSystems);
@@ -391,8 +398,9 @@ async function start(): Promise<void> {
   );
   let handledCaptureEscape = false;
   const leaveCockpitPanel = () => {
-    if (usingSystems) setSystems(false);
-    else navigate('menu');
+    if (usingSystems) {
+      if (!view!.backWindshield()) setSystems(false);
+    } else navigate('menu');
   };
   document.addEventListener(
     'keydown',

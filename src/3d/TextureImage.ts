@@ -1,3 +1,4 @@
+import { VideoTextureImage } from './VideoTextureImage.js';
 /** Shared storage limits; validation precedes any revision or pixel mutation. */
 function validatePixels(
   width: number,
@@ -87,7 +88,8 @@ export class DynamicTextureImage {
     return new Uint8Array(this.#pixels);
   }
 }
-export type TextureSource3D = TextureImage | DynamicTextureImage;
+export type TextureSource3D =
+  TextureImage | DynamicTextureImage | VideoTextureImage;
 
 export type TextureWrap = 'repeat' | 'clamp' | 'mirror';
 export type TextureFilter = 'nearest' | 'linear' | 'trilinear';
@@ -108,11 +110,14 @@ export function textureBinding(
   } = binding;
   if (
     (!(image instanceof TextureImage) &&
-      !(image instanceof DynamicTextureImage)) ||
+      !(image instanceof DynamicTextureImage) &&
+      !(image instanceof VideoTextureImage)) ||
     !['repeat', 'clamp', 'mirror'].includes(wrapS) ||
     !['repeat', 'clamp', 'mirror'].includes(wrapT) ||
     !['nearest', 'linear', 'trilinear'].includes(filter)
   )
     throw new Error('Invalid texture binding');
+  if (image instanceof VideoTextureImage && filter === 'trilinear')
+    throw new Error('Video textures require nearest or linear filtering');
   return Object.freeze({ image, wrapS, wrapT, filter });
 }

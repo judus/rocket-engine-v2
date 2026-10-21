@@ -80,7 +80,10 @@ void test('Powered assistance approaches a bounded speed, stops drift/yaw, and d
   close(ship.telemetry.body.velocityMps.z, v * Math.exp(-3));
   ship.control.turn(1);
   for (let i = 0; i < 180; i++) step(ship);
-  close(ship.telemetry.body.yawRateRadps, 0.6 * (1 - Math.exp(-3)));
+  close(
+    ship.telemetry.body.yawRateRadps,
+    funded.dampers.maxYawAccelerationRadps2 * 3,
+  );
   ship.control.clear();
   const omega = ship.telemetry.body.yawRateRadps;
   for (let i = 0; i < 180; i++) step(ship);

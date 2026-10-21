@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { Node3D } from '../src/3d/index.js';
 import assert from 'node:assert/strict';
 import {
   WindshieldHud,
@@ -81,4 +82,45 @@ void test('Reticle and changing text share one 3D tilt and opacity without mater
   } finally {
     ship.dispose();
   }
+});
+
+void test('Inner aiming marks retain windshield position and tilt without inheriting cockpit sway', () => {
+  const rig = new Node3D('pilot rig');
+  const sway = new Node3D('cockpit sway');
+  const pane = new Node3D('glass');
+  pane.transform = {
+    ...pane.transform,
+    position: { x: 0, y: 1.5, z: 2 },
+    rotation: { x: -0.239, y: 0, z: 0 },
+  };
+  const hud = new WindshieldHud(() =>
+    hudGlyphGeometry(1, 1, new Uint8ClampedArray(4)),
+  );
+  rig.add(sway);
+  sway.add(pane);
+  pane.add(hud.root);
+  const inner = hud.reticle.children.find(
+    (n) => n.name === 'fixed cross and dot',
+  )!;
+  const outer = hud.reticle.children.find(
+    (n) => n.name === 'outer reference ring',
+  )!;
+  const initial = inner.worldMatrix();
+  hud.stabilizeInnerReticle(rig);
+  assert.deepEqual(inner.worldMatrix(), initial);
+  assert.deepEqual(outer.worldMatrix(), initial);
+  sway.transform = {
+    ...sway.transform,
+    position: { x: 0.1, y: -0.1, z: 0.05 },
+  };
+  assert.deepEqual(inner.worldMatrix(), initial);
+  assert.notDeepEqual(outer.worldMatrix(), initial);
+  hud.setProjectionFade(0.4);
+  assert.equal(hud.root.opacity, 0.4);
+  assert.equal(hud.stableReticle.opacity, 0.4);
+  hud.setDisplayMode(true);
+  assert.equal(hud.reticle.visible, false);
+  assert.equal(hud.stableReticle.visible, false);
+  hud.setDisplayMode(false);
+  assert.equal(hud.stableReticle.visible, true);
 });

@@ -1,5 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { TextureImage } from '../src/3d/index.js';
+import type { TextureSource3D } from '../src/3d/index.js';
+function pixelsOf(image: TextureSource3D) {
+  assert.ok(image instanceof TextureImage);
+  return image.copyPixels();
+}
 import { hi3dCockpitLamps } from '../examples/webgl/Hi3dCockpitLamps.js';
 
 void test('six opaque lamp lenses switch independently without removing coverage or reallocating geometry', () => {
@@ -15,7 +21,7 @@ void test('six opaque lamp lenses switch independently without removing coverage
     assert.equal(node.visible, true);
     assert.equal(node.castsShadow, false);
     assert.equal(node.receivesShadow, false);
-    const pixels = dark.materials[0]!.baseColorTexture!.image.copyPixels();
+    const pixels = pixelsOf(dark.materials[0]!.baseColorTexture!.image);
     for (let p = 3; p < pixels.length; p += 4) assert.equal(pixels[p], 255);
     for (let j = i + 1; j < 6; j++)
       assert.equal(lamps.root.children[j]!.mesh, originals[j]);
@@ -138,8 +144,7 @@ void test('round alert rim glow and spill track individual power, color and fitt
   assert.equal(initial.length, 2);
   assert.notDeepEqual(initial[0]!.color, initial[1]!.color);
   for (const node of lamps.root.children.slice(4)) {
-    const pixels =
-      node.mesh!.materials[0]!.baseColorTexture!.image.copyPixels();
+    const pixels = pixelsOf(node.mesh!.materials[0]!.baseColorTexture!.image);
     const value = (x: number, y: number) => pixels[(y * 64 + x) * 4]!;
     assert.ok(
       value(60, 32) > value(48, 32),
@@ -158,16 +163,15 @@ void test('round alert rim glow and spill track individual power, color and fitt
   assert.deepEqual(lamps.alertLights()[1], initial[1]);
   const off = lamps.root.children[4]!.mesh;
   const standbyPixel =
-    off!.materials[0]!.baseColorTexture!.image.copyPixels()[
-      (32 * 64 + 60) * 4
-    ]! / 255;
+    pixelsOf(off!.materials[0]!.baseColorTexture!.image)[(32 * 64 + 60) * 4]! /
+    255;
   const decode = (v: number) =>
     v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
   lamps.setPowered(4, true);
   const activePixel =
-    lamps.root.children[4]!.mesh!.materials[0]!.baseColorTexture!.image.copyPixels()[
-      (32 * 64 + 60) * 4
-    ]! / 255;
+    pixelsOf(
+      lamps.root.children[4]!.mesh!.materials[0]!.baseColorTexture!.image,
+    )[(32 * 64 + 60) * 4]! / 255;
   assert.ok(
     Math.abs(decode(standbyPixel) / decode(activePixel) - 0.02) < 0.002,
   );

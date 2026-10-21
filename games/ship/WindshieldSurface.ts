@@ -1,6 +1,14 @@
-import { Mesh3D, Node3D } from '../../src/3d/index.js';
-import type { Vec3, Matrix4 } from '../../src/3d/index.js';
+import {
+  Mesh3D,
+  MeshGeometry,
+  Node3D,
+  multiplyMatrices,
+  transformMatrix,
+} from '../../src/3d/index.js';
+import type { Vec3, Matrix4, DynamicTextureImage } from '../../src/3d/index.js';
 import { normalMatrix } from '../../src/3d/NormalMatrix.js';
+import type { VideoTextureImage } from '../../src/3d/index.js';
+import { callFrame } from './WindshieldApp.js';
 import type { WindshieldHud } from './WindshieldHud.js';
 
 export const cockpitPaneNames = [
@@ -13,12 +21,16 @@ export const cockpitPaneNames = [
 export type WindshieldMode = 'clear' | 'display';
 export const windshieldMesh = { repeat: [480, 340] as const, fill: 0.8 };
 const transitionSeconds = 0.55;
+export const frontWindshieldExtraTiltDegrees = 1.5;
 
-/** Game presentation on authored GLB panes. No replacement glass geometry or guessed tilt. */
+/** Game presentation on authored GLB panes, with a small explicit front-pane tilt adjustment. */
 export class WindshieldSurface {
   readonly panes: readonly Node3D[];
   readonly pane: Node3D;
   readonly screen = new Node3D('windshield mesh screen');
+  readonly callScreen = new Node3D('windshield call video');
+  #callImage: VideoTextureImage | null = null;
+  readonly screens: readonly Node3D[];
   #mode: WindshieldMode = 'clear';
   #progress = 0;
   constructor(
@@ -49,6 +61,24 @@ export class WindshieldSurface {
       }),
     );
     this.pane = this.panes[0]!;
+    const authored = this.pane.worldMatrix();
+    const targetTilt =
+      Math.atan2(-authored[6], authored[5]) +
+      (frontWindshieldExtraTiltDegrees * Math.PI) / 180;
+    // Convert the requested game-space tilt through the GLB's nonuniform scale.
+    const slope = Math.tan(targetTilt);
+    const localTilt = Math.atan(
+      -(authored[6] + slope * authored[5]) /
+        (authored[10] + slope * authored[9]),
+    );
+    this.pane.matrix = multiplyMatrices(
+      this.pane.matrix ?? transformMatrix(this.pane.transform),
+      transformMatrix({
+        position: { x: 0, y: 0, z: 0 },
+        rotation: { x: localTilt, y: 0, z: 0 },
+        scale: { x: 1, y: 1, z: 1 },
+      }),
+    );
     const world = this.pane.worldMatrix();
     // Place the fixed aiming mark at the pilot's forward sightline on this actual plane.
     // The local +Z offset moves projection toward the pilot, away from the glass.
@@ -80,20 +110,27 @@ export class WindshieldSurface {
       pane.mesh = new Mesh3D(pane.mesh!.geometry, [
         { color: '#86b9bd', opacity: 0.025, unlit: true },
       ]);
-    this.screen.mesh = new Mesh3D(this.pane.mesh!.geometry, [
-      {
-        color: '#080b0e',
-        opacity: 0.96,
-        unlit: true,
-        screenDoor: windshieldMesh,
-      },
-    ]);
-    this.screen.transform = {
-      ...this.screen.transform,
-      position: { x: 0, y: 0, z: 0.001 },
-    };
-    this.screen.castsShadow = this.screen.receivesShadow = false;
-    this.pane.add(this.screen);
+    this.screens = Object.freeze(
+      this.panes.map((pane, index) => {
+        const screen =
+          index === 0 ? this.screen : new Node3D(`${pane.name} mesh screen`);
+        screen.mesh = new Mesh3D(pane.mesh!.geometry, [
+          {
+            color: '#080b0e',
+            opacity: 0.96,
+            unlit: true,
+            screenDoor: windshieldMesh,
+          },
+        ]);
+        screen.transform = {
+          ...screen.transform,
+          position: { x: 0, y: 0, z: 0.001 },
+        };
+        screen.castsShadow = screen.receivesShadow = false;
+        pane.add(screen);
+        return screen;
+      }),
+    );
     const vertices = this.pane.mesh!.geometry.vertices;
     hud.configureScreenDoor(windshieldMesh, {
       minX: Math.min(...vertices.map((v) => v.x)),
@@ -101,7 +138,91 @@ export class WindshieldSurface {
       minY: Math.min(...vertices.map((v) => v.y)),
       maxY: Math.max(...vertices.map((v) => v.y)),
     });
+    this.callScreen.castsShadow = this.callScreen.receivesShadow = false;
+    this.callScreen.transform = {
+      ...this.callScreen.transform,
+      position: { x: 0, y: 0, z: 0.001 },
+    };
+    this.callScreen.visible = false;
+    this.callScreen.renderOrder = 1;
+    this.screen.add(this.callScreen);
     this.apply();
+  }
+  setCallVideo(image: VideoTextureImage | null): void {
+    this.callScreen.visible = image !== null;
+    if (image === this.#callImage) return;
+    this.#callImage = image;
+    if (!image) {
+      this.callScreen.mesh = null;
+      return;
+    }
+    const points = this.pane.mesh!.geometry.vertices;
+    const minX = Math.min(...points.map((v) => v.x)),
+      maxX = Math.max(...points.map((v) => v.x));
+    const minY = Math.min(...points.map((v) => v.y)),
+      maxY = Math.max(...points.map((v) => v.y));
+    const x = callFrame.x / 2048,
+      y = callFrame.y / 1408;
+    const w = callFrame.size / 2048,
+      h = callFrame.size / 1408;
+    const point = (u: number, v: number) => ({
+      x: minX + u * (maxX - minX),
+      y: minY + v * (maxY - minY),
+      z: 0,
+    });
+    const geometry = new MeshGeometry(
+      [
+        point(x, 1 - y - h),
+        point(x + w, 1 - y - h),
+        point(x + w, 1 - y),
+        point(x, 1 - y),
+      ],
+      [{ id: 'call', indices: [0, 1, 2, 3], material: 0 }],
+      [],
+      {
+        texCoords: [
+          [0, 1],
+          [1, 1],
+          [1, 0],
+          [0, 0],
+        ],
+      },
+    );
+    this.callScreen.mesh = new Mesh3D(geometry, [
+      {
+        color: '#ffffff',
+        opacity: 0.96,
+        unlit: true,
+        saturation: 0.25,
+        baseColorTexture: {
+          image,
+          filter: 'linear',
+          wrapS: 'clamp',
+          wrapT: 'clamp',
+        },
+        screenDoor: {
+          fill: windshieldMesh.fill,
+          repeat: [windshieldMesh.repeat[0] * w, windshieldMesh.repeat[1] * h],
+          offset: [windshieldMesh.repeat[0] * x, windshieldMesh.repeat[1] * y],
+        },
+      },
+    ]);
+  }
+  setDisplayImage(image: DynamicTextureImage): void {
+    this.screen.mesh = new Mesh3D(this.screen.mesh!.geometry, [
+      {
+        color: '#ffffff',
+        baseColorTexture: {
+          image,
+          filter: 'linear',
+          wrapS: 'clamp',
+          wrapT: 'clamp',
+        },
+        opacity: 0.96,
+        unlit: true,
+        screenDoor: windshieldMesh,
+      },
+    ]);
   }
   get mode(): WindshieldMode {
     return this.#mode;
@@ -132,11 +253,11 @@ export class WindshieldSurface {
   }
   private apply(): void {
     const p = this.#progress;
-    this.screen.opacity = p * p * (3 - 2 * p);
+    for (const screen of this.screens) screen.opacity = p * p * (3 - 2 * p);
     const display = p >= 0.35;
     this.hud.setDisplayMode(display);
     const alpha = display ? Math.min(1, (p - 0.35) / 0.5) : 1 - p / 0.35;
-    this.hud.root.opacity = alpha * alpha * (3 - 2 * alpha);
+    this.hud.setProjectionFade(alpha * alpha * (3 - 2 * alpha));
   }
 }
 

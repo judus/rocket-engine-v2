@@ -484,6 +484,11 @@
       "coveredLinePercent": 100,
       "coveredBranchPercent": 100,
       "coveredFunctionPercent": 100
+    },
+    "3d/VideoTextureImage.js": {
+      "coveredLinePercent": 100,
+      "coveredBranchPercent": 90,
+      "coveredFunctionPercent": 100
     }
   }
 }

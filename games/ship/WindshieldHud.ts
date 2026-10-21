@@ -86,6 +86,7 @@ function browserRasterizer(): HudRasterizer {
 export class WindshieldHud {
   readonly root = new Node3D('windshield HUD projection');
   readonly reticle = cockpitReticle('hi3d');
+  readonly stableReticle = new Node3D('stabilized inner aiming marks');
   #opacity = windshieldProjection.opacity as number;
   #displayMode = false;
   #screenDoor: {
@@ -122,6 +123,30 @@ export class WindshieldHud {
       this.#lines.set(key, { node, text: '', color: '', alignment });
     }
     this.setOpacity(windshieldProjection.opacity);
+  }
+  /** Preserve calibrated placement while excluding the cockpit sway hierarchy. */
+  stabilizeInnerReticle(pilotRig: Node3D): void {
+    let placement =
+      this.reticle.matrix ?? transformMatrix(this.reticle.transform);
+    let ancestor = this.reticle.parent;
+    while (ancestor && ancestor !== pilotRig) {
+      placement = multiplyMatrices(
+        ancestor.matrix ?? transformMatrix(ancestor.transform),
+        placement,
+      );
+      ancestor = ancestor.parent;
+    }
+    if (!ancestor) throw new Error('HUD must belong to the pilot rig');
+    this.stableReticle.matrix = placement;
+    for (const part of [...this.reticle.children])
+      if (part.name !== 'outer reference ring') this.stableReticle.add(part);
+    pilotRig.add(this.stableReticle);
+    this.stableReticle.visible = this.reticle.visible;
+    this.stableReticle.opacity = this.root.opacity;
+  }
+  setProjectionFade(alpha: number): void {
+    this.root.opacity = alpha;
+    this.stableReticle.opacity = alpha;
   }
   setOpacity(opacity: number): void {
     if (!Number.isFinite(opacity) || opacity < 0 || opacity > 1)
@@ -195,6 +220,7 @@ export class WindshieldHud {
     if (active === this.#displayMode) return;
     this.#displayMode = active;
     this.reticle.visible = !active;
+    this.stableReticle.visible = !active;
     for (const [key, line] of this.#lines) {
       const upper = ['speed', 'target', 'heat'].includes(key);
       line.node.transform = {
@@ -207,7 +233,7 @@ export class WindshieldHud {
               : (upper ? 1.5 : 1.35) - (active ? 0.28 : 0),
         },
       };
-      if (key === 'heading') line.node.visible = active;
+      line.node.visible = !active && key !== 'heading' && line.text.length > 0;
       if (line.node.mesh)
         line.node.mesh = this.mesh(
           line.node.mesh.geometry,
@@ -235,7 +261,8 @@ export class WindshieldHud {
             ? '#dde3e7'
             : '#86ead6';
       if (text === line.text && color === line.color) continue;
-      line.node.visible = text.length > 0;
+      line.node.visible =
+        !this.#displayMode && key !== 'heading' && text.length > 0;
       if (text)
         line.node.mesh = this.mesh(
           text === line.text && line.node.mesh

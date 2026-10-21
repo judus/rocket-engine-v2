@@ -112,8 +112,7 @@ void test('Damper damage and limited supply multiply once, including yaw assista
     t.engine.rotationActivityFraction,
     t.engine.rotationPowerFraction * t.engine.health.outputFraction,
   );
-  const gain = -Math.expm1(-3 / profile.dampers.responseSeconds);
-  const nominalTorque = 2 * profile.dampers.maxYawRateRadps * gain - 4;
+  const nominalTorque = 2 * profile.dampers.maxYawAccelerationRadps2 - 4;
   close(
     t.dampers.yawTorqueNm,
     nominalTorque *

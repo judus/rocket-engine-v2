@@ -826,18 +826,23 @@ display switches remain available in systems mode.
 ## Authored cockpit / smart glass
 
 The game loads `examples/3d/assets/cockpit-hi3d-v3-smartglass.glb`, copied unchanged
-from Bart's stable snapshot `c820d3e0067ff28ac7aab613519a1684d4c6deed`.
-SHA256: `a724137d9a8de03c347bfa99965c7d39da92e0178aeffff9195be4c7f55db2ae`.
+from Bart's stable snapshot `21eaa6a`.
+SHA256: `75f921095fc89b359bb263b20180e891a271cd3e734b73c7194c5b5339db9c52`.
 The original rendering-testbed model remains separate. This snapshot adds five
-named planar panes (44 triangles) and pulls the side rails into alignment.
+named planar panes (40 triangles). The original undeformed frame is restored;
+side and upper-corner glass is fitted independently to it. The authored front
+pane is unchanged. A game-owned 1.5-degree front tilt adjustment brings the
+current display tilt to approximately 15.2 degrees.
 
 `CockpitModel.ts` owns game placement, axis reflection and pilot fitting.
 `WindshieldSurface.ts` binds the five authored node names and preserves their
-complete inherited matrices, irregular boundaries and UVs. Each pane receives
-its own runtime material. Clear mode uses faint tint; Systems fades a mesh overlay onto the front pane only. The HUD and reticle are children of `WindshieldSurface`,
-with one opacity setting and the mesh's actual tilt. The reticle anchor is the
+complete inherited placement, irregular boundaries and UVs; the front pane then
+receives the explicit tilt adjustment noted above. Each pane receives
+its own runtime material. Clear mode uses faint tint; Systems fades a mesh overlay onto the front pane only. The HUD and outer reticle ring follow `WindshieldSurface`; inner aiming marks
+retain the same resting placement and tilt on the stable pilot rig. They share
+opacity and clear/display visibility. The reticle anchor is the
 pilot's forward sightline intersecting the plane, with a small local offset toward
-the pilot to avoid coplanarity. No guessed tilt or replacement trapezoid remains.
+the pilot to avoid coplanarity. No replacement trapezoid is used.
 The dashboard and overhead instruments retain their existing content/calibration.
 
 Engine responsibilities are GLB uniform-alpha import and `pickMesh3D` triangle/UV

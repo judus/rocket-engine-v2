@@ -13,6 +13,7 @@ export interface ScreenDoor3D {
   readonly repeat: readonly [number, number];
   /** Fraction covered by wires, strictly between 0 and 1. */
   readonly fill: number;
+  readonly offset?: readonly [number, number];
 }
 /** Shared validation at public material and low-level draw boundaries. */
 export function validateScreenDoor(pattern: ScreenDoor3D): void {
@@ -21,12 +22,16 @@ export function validateScreenDoor(pattern: ScreenDoor3D): void {
     !pattern.repeat.every((v) => Number.isFinite(v) && v > 0 && v <= 1e5) ||
     !Number.isFinite(pattern.fill) ||
     pattern.fill <= 0 ||
-    pattern.fill >= 1
+    pattern.fill >= 1 ||
+    (pattern.offset !== undefined &&
+      (pattern.offset.length !== 2 || !pattern.offset.every(Number.isFinite)))
   )
     throw new Error('Invalid screen-door coverage');
 }
 export interface Material3D {
   readonly color: string;
+  /** Post-shading display saturation, 0..1; 1 preserves colour. GPU only. */
+  readonly saturation?: number;
   /** WebGL straight-alpha coverage, 0..1; opaque by default. */
   readonly opacity?: number;
   /** GPU surface bypasses illumination; depth and perspective remain active. */
@@ -188,6 +193,13 @@ export class Mesh3D {
           throw new Error('Material opacity must be finite in 0..1');
         if (m.unlit !== undefined && typeof m.unlit !== 'boolean')
           throw new Error('Invalid unlit material flag');
+        if (
+          m.saturation !== undefined &&
+          (!Number.isFinite(m.saturation) ||
+            m.saturation < 0 ||
+            m.saturation > 1)
+        )
+          throw new Error('Material saturation must be finite in 0..1');
         if (m.screenDoor) validateScreenDoor(m.screenDoor);
         return Object.freeze({
           ...m,
@@ -199,6 +211,13 @@ export class Mesh3D {
                     number,
                   ],
                   fill: m.screenDoor.fill,
+                  ...(m.screenDoor.offset
+                    ? {
+                        offset: Object.freeze([
+                          ...m.screenDoor.offset,
+                        ]) as readonly [number, number],
+                      }
+                    : {}),
                 }),
               }
             : {}),

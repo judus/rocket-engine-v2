@@ -11,6 +11,7 @@ import {
 import {
   WindshieldSurface,
   cockpitPaneNames,
+  frontWindshieldExtraTiltDegrees,
 } from '../games/ship/WindshieldSurface.js';
 import {
   WindshieldHud,
@@ -44,11 +45,28 @@ void test('Authored five-pane glass keeps full hierarchy and separate runtime ma
     glass.panes.map((p) => p.name),
     cockpitPaneNames,
   );
+  assert.equal(glass.screens.length, cockpitPaneNames.length);
+  for (const [index, screen] of glass.screens.entries()) {
+    assert.equal(screen.parent, glass.panes[index]);
+    assert.equal(screen.mesh!.geometry, glass.panes[index]!.mesh!.geometry);
+    assert.equal(screen.mesh!.materials[0]!.screenDoor?.fill, 0.8);
+    assert.equal(screen.opacity, 0);
+  }
   assert.equal(hud.root.parent, glass.pane);
   assert.equal(hud.root.transform.rotation.x, 0);
   assert.equal(hud.reticle.visible, true);
   for (const pane of glass.panes) {
-    assert.deepEqual(pane.worldMatrix(), originals.get(pane.name)!.world);
+    const original = originals.get(pane.name)!.world;
+    if (pane === glass.pane) {
+      const adjusted = pane.worldMatrix();
+      const delta =
+        Math.atan2(-adjusted[6], adjusted[5]) -
+        Math.atan2(-original[6], original[5]);
+      assert.ok(
+        Math.abs(delta - (frontWindshieldExtraTiltDegrees * Math.PI) / 180) <
+          1e-10,
+      );
+    } else assert.deepEqual(pane.worldMatrix(), original);
     assert.equal(pane.mesh!.geometry, originals.get(pane.name)!.geometry);
     assert.equal(pane.mesh!.materials[0]!.opacity, 0.025);
     assert.equal(pane.castsShadow, false);
@@ -58,7 +76,7 @@ void test('Authored five-pane glass keeps full hierarchy and separate runtime ma
   glass.setMode('display');
   assert.equal(glass.transition, 0);
   glass.update(0.55);
-  assert.equal(glass.screen.opacity, 1);
+  for (const screen of glass.screens) assert.equal(screen.opacity, 1);
   const meshes = glass.panes.map((p) => p.mesh);
   assert.equal(hud.reticle.visible, false);
   for (const pane of glass.panes)
@@ -78,7 +96,7 @@ void test('Authored five-pane glass keeps full hierarchy and separate runtime ma
   assert.throws(() => glass.setMode('invalid' as 'clear'), /mode/);
   glass.setMode('clear');
   glass.update(0.55);
-  assert.equal(glass.screen.opacity, 0);
+  for (const screen of glass.screens) assert.equal(screen.opacity, 0);
   assert.equal(hud.reticle.visible, true);
   assert.throws(
     () => new WindshieldSurface(new Node3D(), hud, eye),
@@ -270,4 +288,42 @@ void test('Mesh fade reverses continuously and keeps glyph holes registered to t
   assert.equal(glass.screen.mesh, mesh, 'fade does not rebuild GPU geometry');
   assert.throws(() => glass.update(-1), /delta/);
   assert.throws(() => glass.update(NaN), /delta/);
+});
+
+void test('separate video projection inherits fade and geometry fit, while keeping its own registered mesh and texture revision', async () => {
+  const { VideoTextureImage } = await import('../src/3d/index.js');
+  const { modelRoot } = await cockpitModel();
+  const glass = new WindshieldSurface(
+    modelRoot,
+    new WindshieldHud(rasterize),
+    eye,
+  );
+  const image = new VideoTextureImage({
+    videoWidth: 512,
+    videoHeight: 512,
+    readyState: 2,
+  } as HTMLVideoElement);
+  glass.setCallVideo(image);
+  assert.equal(glass.callScreen.parent, glass.screen);
+  assert.equal(glass.callScreen.renderOrder, 1);
+  assert.equal(glass.callScreen.worldOpacity(), 0);
+  glass.setMode('display');
+  glass.update(0.55);
+  assert.equal(glass.callScreen.worldOpacity(), 1);
+  const mesh = glass.callScreen.mesh!;
+  assert.equal(mesh.materials[0]!.baseColorTexture!.image, image);
+  assert.equal(mesh.materials[0]!.saturation, 0.25);
+  const pattern = mesh.materials[0]!.screenDoor!;
+  assert.deepEqual(pattern.repeat, [(480 * 690) / 2048, (340 * 690) / 1408]);
+  assert.deepEqual(pattern.offset, [(480 * 319) / 2048, (340 * 390) / 1408]);
+  image.update();
+  glass.setCallVideo(image);
+  assert.equal(
+    glass.callScreen.mesh,
+    mesh,
+    'a decoded frame never rebuilds geometry or UI',
+  );
+  glass.setCallVideo(null);
+  assert.equal(glass.callScreen.visible, false);
+  assert.equal(glass.callScreen.mesh, null);
 });

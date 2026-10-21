@@ -1,0 +1,98 @@
+{
+  "id": "ren",
+  "displayName": "Ren Talbot",
+  "fullName": "Dr Ren Elias Talbot",
+  "role": "Research lead",
+  "biographySections": [
+    {
+      "id": "source-notes",
+      "title": "Source notes",
+      "level": 0,
+      "markdown": "> Working draft collected by Luna on 2026-10-19. Character author: Gadget. Mailbox topic 868; sources: #1006, #1009, #1010, #1015, #1018; Ivy #1017; Gadget #1028; Ivy #1029. Julien's assigned role is retained; names, history, perks and quirks remain proposals. Later author revisions below are incorporated. Ship name: **Bucket** (Julien, #1023)."
+    },
+    {
+      "id": "dr-ren-elias-talbot",
+      "title": "Dr. Ren Elias Talbot",
+      "level": 2,
+      "markdown": "**Profession:** Experimental physicist and materials chemist; the ship’s research lead. The working name and biography remain proposals.\n\n**One sentence:** A small, overcaffeinated genius with enormous glasses, Ren can explain how to cross a universe while searching for the pen tucked behind his ear.\n\n\n[All crew profiles](README.md) · [Shared matrices and scene examples](crew-dynamics.md)"
+    },
+    {
+      "id": "relationship-matrix",
+      "title": "Relationship matrix",
+      "level": 2,
+      "markdown": "| Pair | Shared trait | Primary clash | Situation / exchange |\n|---|---|---|---|\n| Ren / Nadia | Playful joy in discovery | Resistance to authority / comfort with hierarchy | [Examples](crew-dynamics.md#ren-and-nadia) |\n| Ren / Sera | Quick wit and intellectual confidence | Autonomy / unsolicited management | [Examples](crew-dynamics.md#ren-and-sera) |\n| Ren / Bram | Delight in ingenious workmanship | Chaotic starter / orderly finisher | [Examples](crew-dynamics.md#ren-and-bram) |\n\nTraits describe everyday chemistry; the later story scenes are conditional illustrations."
+    },
+    {
+      "id": "what-the-crew-already-knows",
+      "title": "What the crew already knows",
+      "level": 3,
+      "markdown": "**Trait core (Julien #1033; Gadget #1034):** irreverent, spontaneous, untidy, playful, intellectually proud and resistant to authority. He respects expertise; rank alone impresses him very little. Even a sensible instruction irritates him when justified with “because I'm in charge.” He is genuinely difficult to command: humour makes his defiance enjoyable until somebody needs him to stop. Accurate hazard labels and sound experiments do not make him naturally obedient or guarantee neat compliance after theatrical complaining.\n\n**Nadia match:** youthful joy, humour and discovery. **Nadia clash:** her natural respect for hierarchy versus his need to question authority. They can love exploring together and disagree about who gets to decide the next step.\n\nShe can see his arguing as undermining the captain; he can misread her ready obedience as surrendering her judgement. These are their perceptions, not objective verdicts about each other.\n\n**Sera match:** quick wit, intellectual confidence and pleasure in puncturing pomposity. **Sera clash:** autonomy versus managing people. She naturally takes charge and organises care; he experiences unsolicited management as being treated like a child. Her instinct is to prescribe, his to resist.\n\n**Bram match:** inventiveness, fascination with how things work and pride in making something excellent. **Bram clash:** chaotic starter versus orderly finisher. Ren spreads three unfinished experiments over a bench; Bram wants tools returned, clear space and a finished job. Ren sees rigidity; Bram sees avoidable disorder. Oscar accepts this reciprocal pairing in #1038.\n\nThe later scenes illustrate these enduring traits; the traits do not depend on those scenes occurring.\n\nRen is 39, slight, permanently rumpled, and usually wearing a lab coat over whatever he forgot to change out of. His oversized prescription glasses are repeatedly repaired, meticulously calibrated, and apparently never clean. He talks quickly, follows three ideas at once, and gives ominous experimental apparatus reassuring names: “the little stabiliser” occupies half the laboratory.\n\nHe has worked with this crew for several years on short-lived dimensional storage, material recovery and the makeshift ship’s experimental equipment. He is brilliant at connecting measurements across disciplines; practical construction and flight decisions belong to his colleagues. His laboratory notes are much tidier than his desk. He labels hazards accurately even when he calls the sample “probably quite friendly.”\n\nHe argues with Bram about impossible tolerances, loses caffeine negotiations with the medic, and can discuss an astrophysical puzzle with the navigator until everyone’s dinner is cold. He makes excellent coffee and regularly forgets to drink it. When somebody is hurt, the jokes stop immediately. His clowning comes from distraction, timing and immense enthusiasm—not incompetence or casually endangering friends.\n\nThe accident was a shared research disaster, **not** a gag where Ren pressed the wrong button. He wants to understand it, make transit controllable and get the crew home. Whether home deserves the resulting connection is something he has not yet learned to ask."
+    },
+    {
+      "id": "background-revealed-in-pieces",
+      "title": "Background, revealed in pieces",
+      "level": 3,
+      "markdown": "1. **The respectable beginning.** Ren once worked in an institution supporting dimensional disposal. He genuinely believed the destination was unoccupied. His first published success helped make the process respectable; copies of that paper still embarrass him because of its extravagant confidence.\n2. **The colleague who left.** Dr. Leila Sayegh challenged their assumptions after anomalous returns and left after the methodological dispute. Ren remained and accepted the promotion. She left the programme; no disappearance or compulsory rescue plot is established. Whether they ever meet again is open.\n3. **The omission.** Ren had signed a report treating those anomalies as unresolved instrument contamination. He had insufficient evidence for either conclusion, but wanted his programme protected. He did not knowingly approve dumping people into an inhabited universe; he did help uncertainty become institutional reassurance.\n4. **The reason for Bucket.** The independent ship project was partly his attempt to obtain reproducible recovery evidence outside that institution. He told the crew the research objective; he never fully explained his earlier signature. A close relationship can earn a voluntary confession. External records can expose it first. His later willingness to publish, withhold or sacrifice research should grow from the actual journey—not force a predetermined betrayal.\n\nThese clues establish personal/institutional involvement, **not** a ready-made address or working route to Earth."
+    },
+    {
+      "id": "possible-perks-choose-12",
+      "title": "Possible perks — choose 1–2",
+      "level": 3,
+      "markdown": "- **Cross-disciplinary insight:** can propose a new research approach when the crew combines genuinely relevant measurements from different fields; still needs experiments to prove it.\n- **Dirty-sample specialist:** extracts useful hazard/material information from mixed salvage with fewer consumed laboratory reagents.\n- **Elegant calibration:** improves the efficiency or stability of a captain-approved research procedure after a calibration task; no passive miracle repairs.\n- **Improvised chemistry:** unlocks a small set of substitute consumable recipes from available materials, with explicit costs and limitations."
+    },
+    {
+      "id": "possible-quirks-choose-12",
+      "title": "Possible quirks — choose 1–2",
+      "level": 3,
+      "markdown": "- **One more sample:** strongly wants to revisit unresolved anomalies. Refusing can disappoint him; he does not secretly steer the ship there.\n- **Caffeine negotiations:** hoards good coffee, overcommits while excited, and needs help keeping a sane rest routine. Coffee is a preference, not a compulsory addiction mechanic.\n- **Catastrophic reassurance:** says “excellent, we have isolated the dangerous part” at precisely the moment everyone wishes he would stop talking. Funny, particularly unhelpful with suspicious strangers.\n- **Nothing is ‘just rubbish’:** gets attached to discarded prototypes and damaged instruments. Selling his carefully labelled “possibly useful” collection can become a negotiated crew conflict.\n\n**Voice:** “Good news: the readings are reproducible. Bad news: they’re reproducing over there.”\n\nThe core underneath the comedy: **a man who once mistook being clever for being right, learning that admitting uncertainty is part of looking after people.**"
+    },
+    {
+      "id": "ensemble-revisions",
+      "title": "Ensemble revisions",
+      "level": 2,
+      "markdown": "> Gadget's consolidated author revision #1028. Nadia reciprocal accepted by Luna; Sera reciprocal accepted and extended by Ivy in #1029. Oscar accepts Bram's reciprocal pairing, calibration-assembly conflict and shared engineering rituals in #1038. All scenes remain story proposals."
+    },
+    {
+      "id": "ren-and-nadia-you-re-enjoying-our-disaster",
+      "title": "Ren and Nadia: “You're enjoying our disaster.”",
+      "level": 3,
+      "markdown": "**Incompatibility:** Ren increasingly treats getting home as proof he can undo his failure. Nadia wants a reliable return route but also a life worth living here. After she asks to spend observation time on her atlas, he snaps: **“Some of us aren't on holiday.”** She closes the chart. That is an actual wound; she does not owe him an immediate cheerful explanation.\n\n**Compatibility:** her patient observations repeatedly rescue his theories from elegant nonsense; his leaps make her charts more than a record of where they have already been. Neither can produce useful dimensional navigation alone.\n\n**Habit/repair:** Ren usually covers unused chart margins with hypotheses. After that argument, he asks before touching her work. His apology is also concrete: he volunteers his allocated observation time to a survey she considers worthwhile, knowing the captain still decides. She can accept the apology without agreeing to leave this universe. Nadia remains free to challenge how I have represented her response."
+    },
+    {
+      "id": "ren-and-sera-being-right-doesn-t-make-it-yours",
+      "title": "Ren and Sera: “Being right doesn't make it yours.”",
+      "level": 3,
+      "markdown": "**Incompatibility:** once his past emerges, Ren wants to release a reproducible dataset that corrects his report. It includes sensitive human-linked records. Sera insists that scientific vindication does not give him the right to expose those people. Redaction or obtaining consent can make the research slower or less persuasive; they cannot solve the disagreement by both saying 'evidence matters'. The authoring must track what is actually present and who has agreed to disclosure.\n\n**Compatibility:** he is the colleague who will test her uncomfortable suspicion instead of dismissing it; she is the person who will defend a sound result even while furious with its author. When someone attacks Ren as a fraud, her answer can be: **“That report was wrong. This measurement isn't. Learn the difference.”** Forgiveness is still unfinished.\n\n**Habit/repair:** keep their coffee ritual and mutual exhaustion tells, and Ren's boundary against being publicly treated as a specimen. Add a private question before consequential disclosure: **“Whose information is this?”** It begins as her rebuke and can become something he asks himself."
+    },
+    {
+      "id": "mutual-care-the-calibration-excuse",
+      "title": "Mutual care — the calibration excuse",
+      "level": 3,
+      "markdown": "Agreed detail from #1017–1018, explicitly retained in #1028 and restored after the final-pass findings #1047–1048: Ren notices Sera rereading the same inventory line instead of taking in new information. He offers an absurdly elaborate calibration excuse so she can sit and rest without publicly admitting exhaustion. She recognises the excuse and accepts it. With greater trust he can simply say, “Sera. Sit with us.” Their coffee argument remains a ritual of mutual care, not a doctor parenting an incompetent adult. Sera's reciprocal change is asking whether he wants the doctor or his friend, rather than publicly analysing him as a specimen."
+    },
+    {
+      "id": "bram-ivo-mercer-pairing-not-everything-irreplaceable-ba529eec",
+      "title": "Bram Ivo Mercer pairing: “Not everything irreplaceable keeps us alive.”",
+      "level": 3,
+      "markdown": "Shared traits, signed-repair ritual and calibration-assembly conflict are mutually accepted by Oscar #1038 and Gadget #1039. The captain still decides the real resource tradeoff.\n\n**Mutually accepted retort (#1039; Oscar #1042):** Ren weaponises Bram's doorframe keepsake: “Your scrap gets to be a memory; mine has to justify its mass?” This does not establish equivalent costs. It also makes Ren recognise that his assembly is partly an emotional object: he has disguised grief as a purely scientific requirement. The retort does not make every keepsake a commodity. Bram initially answers with an excessively detailed weight comparison; later he inventories his own doorframe. Neither object is exempt from the captain's resource decision. His eventual answer: “Then tell me you want to keep it, Ren. Don't make the instruments say it for you.”\n\n**Mutually accepted everyday accommodation (#1039, #1042):** an agreed active-work area which Bram does not tidy mid-experiment. Ren labels live work and clears it when finished; Bram asks before moving it. Ren sometimes starts a second project inside the same boundary and argues that vertical space was never mentioned. Finding it suspended over the first produces a magnificent silence from Bram. Neither becomes comfortable with the other's habits.\n**Incompatibility:** Ren has preserved an obsolete calibration assembly because it holds the only untouched reference for his old experiments. Keeping it means space, maintenance and parts Bram needs elsewhere. Ren calls it evidence; Bram understands that an untouched reference matters but resents Ren expecting everyone else to house it. Oscar accepts the conflict in #1038. Bram's own sentimental doorframe makes “it's only scrap” a vulnerable argument.\n\n**Compatibility:** keep the sketch → loads/tolerances/failure-condition ritual and their silent tool-sharing. Bram makes Ren's impossible ideas survive vibration; Ren can sometimes prove a condemned part still has a safe, specific use.\n\n**Habit/scene:** Ren has a cabinet labelled **NOT SCRAP**. Bram has added **THEN PUT IT IN THE INVENTORY**. Ren laughs until a real repair requires deciding what can go. He never steals back a part or modifies installed machinery behind Bram's back, but he can argue bitterly and grieve a necessary sacrifice. Their signed tape repair remains the tiny object neither sells."
+    },
+    {
+      "id": "ren-and-the-captain-an-unfinished-answer",
+      "title": "Ren and the captain — an unfinished answer",
+      "level": 3,
+      "markdown": "Restored from Gadget #1015 after final-pass finding #1048: the captain is the person Ren can learn to trust with an unfinished answer. At first he performs certainty to remain useful. Growing trust lets him say “I don't know yet” without immediately filling the silence. The captain can refuse an experiment without destroying that bond; repeated humiliation or knowingly concealing risk is different. Trust in this particular captain does not erase Ren's resistance to authority or make him naturally obedient (#1034)."
+    },
+    {
+      "id": "proposed-selections",
+      "title": "Proposed selections",
+      "level": 3,
+      "markdown": "Perks: **Cross-disciplinary insight + Improvised chemistry**. Quirks: **Catastrophic reassurance + Nothing is ‘just rubbish’**. Other candidates remain available to Julien. Coffee remains character texture regardless of gameplay selections.\n\nRen's common fault is equating usefulness with entitlement to another person's time, information or scarce space. Learning to accept refusal is part of his arc."
+    },
+    {
+      "id": "sera-s-reciprocal-limit-1029",
+      "title": "Sera's reciprocal limit (#1029)",
+      "level": 3,
+      "markdown": "Gadget #1030 accepts the warning/causal-certainty conflict as well. These are two possible pressure points, conditional on what the crew actually discovers and chooses, rather than mandatory consecutive scenes. Preserve both personal repairs: Sera stops putting Ren on public trial; Ren volunteers an inconvenient truth before being cornered, then asks whose information he proposes to release. Neither is a permanent voice of truth.\n\nKeep two distinct scenes: an urgent, qualified hazard warning while causal certainty is still incomplete; later, a disclosure decision belonging to the affected people. Sera may push anonymity even after a survivor understands the risks and wants their name and testimony published. Ren asks her own question back: “Whose information is this, Sera?” The survivor speaks and decides; neither doctor's objective replaces their choice. Sera can defend his current evidence: “That report was wrong. This measurement isn't. Learn the difference.”"
+    }
+  ]
+}

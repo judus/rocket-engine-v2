@@ -211,44 +211,72 @@ export class ShipDampers implements Behavior {
       y: (this.body.massKg * driveChange.y) / dt - engineForce.y,
       z: (this.body.massKg * driveChange.z) / dt - engineForce.z,
     };
-    const angularGain = -Math.expm1((-3 * dt) / this.profile.responseSeconds);
+    const angularGain = -Math.expm1(
+      (-3 * dt) / this.profile.rotationBrakingSeconds,
+    );
     const gyro = this.body.gyroscopicTorqueNm();
+    // Held commands target a bounded angular rate using the configured torque.
+    // Neutral axes retain their independent fast braking.
+    const accelerationToRate = (
+      command: number,
+      rate: number,
+      maxRate: number,
+      maxAcceleration: number,
+    ): number => {
+      if (command === 0) return 0;
+      const acceleration = (command * maxRate - rate) / dt;
+      return Math.max(
+        -maxAcceleration,
+        Math.min(maxAcceleration, acceleration),
+      );
+    };
     this.#torque =
-      (-this.body.yawInertiaKgM2 * body.yawRateRadps * angularGain) / dt +
-      gyro.y;
+      (intent.yaw === 0
+        ? (-this.body.yawInertiaKgM2 * body.yawRateRadps * angularGain) / dt
+        : 0) + gyro.y;
     this.#pitchTorque =
-      (-this.body.profile.pitchInertiaKgM2 *
-        body.pitchRateRadps *
-        angularGain) /
-        dt -
-      gyro.x;
+      (intent.pitch === 0
+        ? (-this.body.profile.pitchInertiaKgM2 *
+            body.pitchRateRadps *
+            angularGain) /
+          dt
+        : 0) - gyro.x;
     this.#rollTorque =
-      (-this.body.profile.rollInertiaKgM2 * body.rollRateRadps * angularGain) /
-        dt -
-      gyro.z;
+      (intent.roll === 0
+        ? (-this.body.profile.rollInertiaKgM2 *
+            body.rollRateRadps *
+            angularGain) /
+          dt
+        : 0) - gyro.z;
     this.#pitchDriveTorque =
-      (this.body.profile.pitchInertiaKgM2 *
+      this.body.profile.pitchInertiaKgM2 *
         Number(engine.requested) *
-        intent.pitch *
-        this.profile.maxPitchRateRadps *
-        angularGain) /
-        dt -
+        accelerationToRate(
+          intent.pitch,
+          body.pitchRateRadps,
+          this.profile.maxPitchRateRadps,
+          this.profile.maxPitchAccelerationRadps2,
+        ) -
       engine.pitchTorqueNm;
     this.#rollDriveTorque =
-      (this.body.profile.rollInertiaKgM2 *
+      this.body.profile.rollInertiaKgM2 *
         Number(engine.requested) *
-        intent.roll *
-        this.profile.maxRollRateRadps *
-        angularGain) /
-        dt -
+        accelerationToRate(
+          intent.roll,
+          body.rollRateRadps,
+          this.profile.maxRollRateRadps,
+          this.profile.maxRollAccelerationRadps2,
+        ) -
       engine.rollTorqueNm;
     this.#driveTorque =
-      (this.body.yawInertiaKgM2 *
+      this.body.yawInertiaKgM2 *
         Number(engine.requested) *
-        intent.yaw *
-        this.profile.maxYawRateRadps *
-        angularGain) /
-        dt -
+        accelerationToRate(
+          intent.yaw,
+          body.yawRateRadps,
+          this.profile.maxYawRateRadps,
+          this.profile.maxYawAccelerationRadps2,
+        ) -
       engine.yawTorqueNm;
     this.#translationW = this.#operating
       ? (Math.hypot(this.#force.x, this.#force.y, this.#force.z) +

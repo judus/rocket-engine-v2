@@ -525,3 +525,115 @@ void test('failed dynamic upload retries the unseen revision without reallocatin
   store.dispose();
   assert.equal(f.textures.size, 0);
 });
+
+void test('video frames upload directly, coalesce per source, avoid mipmaps and restore per context', async () => {
+  const { VideoTextureImage } = await import('../src/3d/index.js');
+  const source = {
+    videoWidth: 512,
+    videoHeight: 512,
+    readyState: 2,
+  } as HTMLVideoElement;
+  const video = new VideoTextureImage(source);
+  const binding = { image: video, filter: 'linear' as const };
+  assert.throws(() => textureBinding({ image: video }), /filtering/);
+  const a = fixture(),
+    b = fixture();
+  const first = new WebGLTextureStore(a.gl),
+    second = new WebGLTextureStore(b.gl);
+  first.begin();
+  first.bind(binding);
+  first.bind(binding, 1);
+  first.end();
+  assert.equal(first.uploadStats.allocations, 1);
+  assert.equal(first.uploadStats.mipmapBuilds, 0);
+  assert.equal(first.stats.textureBytes, 512 * 512 * 4);
+  assert.equal(
+    a.calls.find((c) => c.name === 'texImage2D')!.args.at(-1),
+    source,
+  );
+  video.update();
+  video.update();
+  first.begin();
+  first.bind(binding);
+  first.bind(binding, 1);
+  first.end();
+  assert.equal(first.uploadStats.updates, 1);
+  assert.equal(
+    a.calls.find((c) => c.name === 'texSubImage2D')!.args.at(-1),
+    source,
+  );
+  first.begin();
+  first.bind(binding);
+  first.end();
+  assert.equal(first.uploadStats.updates, 1);
+  second.begin();
+  second.bind(binding);
+  second.end();
+  assert.equal(second.uploadStats.allocations, 1);
+  const retry = fixture('update'),
+    retryStore = new WebGLTextureStore(retry.gl);
+  retryStore.begin();
+  retryStore.bind(binding);
+  retryStore.end();
+  video.update();
+  retryStore.begin();
+  assert.throws(() => retryStore.bind(binding), /update failed/);
+  retryStore.bind(binding);
+  retryStore.end();
+  assert.equal(retryStore.uploadStats.updates, 1);
+  for (const store of [first, second, retryStore]) {
+    store.begin();
+    store.end();
+    assert.equal(store.stats.textures, 0);
+    store.dispose();
+  }
+  const mutable = source as unknown as {
+    videoWidth: number;
+    videoHeight: number;
+    readyState: number;
+  };
+  mutable.readyState = 1;
+  assert.throws(() => new VideoTextureImage(source), /decoded frame/);
+  assert.throws(() => video.update(), /decoded frame/);
+  mutable.readyState = 2;
+  mutable.videoWidth = 0;
+  assert.throws(() => new VideoTextureImage(source), /dimensions/);
+  mutable.videoWidth = 1024;
+  assert.throws(() => video.validate(), /dimensions/);
+});
+
+void test('display saturation and screen-door offsets validate and freeze at material boundaries', () => {
+  const geometry = new MeshGeometry(
+    [
+      { x: 0, y: 0, z: 0 },
+      { x: 1, y: 0, z: 0 },
+      { x: 0, y: 1, z: 0 },
+    ],
+    [{ id: 'panel', indices: [0, 1, 2], material: 0 }],
+  );
+  const offset: [number, number] = [3, 4];
+  const mesh = new Mesh3D(geometry, [
+    {
+      color: '#ffffff',
+      saturation: 0.25,
+      screenDoor: { repeat: [10, 10], fill: 0.8, offset },
+    },
+  ]);
+  offset[0] = 9;
+  assert.deepEqual(mesh.materials[0]!.screenDoor!.offset, [3, 4]);
+  for (const saturation of [NaN, -1, 2])
+    assert.throws(
+      () => new Mesh3D(geometry, [{ color: '#ffffff', saturation }]),
+      /saturation/,
+    );
+  assert.throws(
+    () =>
+      new Mesh3D(geometry, [
+        {
+          color: '#ffffff',
+          screenDoor: { repeat: [10, 10], fill: 0.8, offset: [NaN, 0] },
+        },
+      ]),
+    /coverage/,
+  );
+});

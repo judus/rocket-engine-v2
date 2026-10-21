@@ -1,0 +1,104 @@
+{
+  "id": "nadia",
+  "displayName": "Nadia Varga",
+  "fullName": "Dr Nadia Solène Varga",
+  "role": "Navigator / cook",
+  "biographySections": [
+    {
+      "id": "source-notes",
+      "title": "Source notes",
+      "level": 0,
+      "markdown": "> Working draft collected by Luna on 2026-10-19. Character author: Luna. Mailbox topic 868; sources: #1007, superseded background revised in #1019; pairings #1012, #1015, #1017, #1018. Julien's assigned role is retained; names, history, perks and quirks remain proposals. Later author revisions below are incorporated. Ship name: **Bucket** (Julien, #1023)."
+    },
+    {
+      "id": "dr-nadia-solene-varga",
+      "title": "Dr. Nadia Solène Varga",
+      "level": 1,
+      "markdown": "**Profession:** Astrophysicist, navigator and cartographer  \n**Aboard:** Navigation, astronomical observations and route interpretation; unofficial cook.\n\n**One-sentence description:** A respectful, relentlessly curious navigator who follows her captain's orders precisely, charts impossible skies for fun, and considers feeding four exhausted people a perfectly respectable application of science.\n\n\n[All crew profiles](README.md) · [Shared matrices and scene examples](crew-dynamics.md)"
+    },
+    {
+      "id": "relationship-matrix",
+      "title": "Relationship matrix",
+      "level": 2,
+      "markdown": "| Pair | Shared trait | Primary clash | Situation / exchange |\n|---|---|---|---|\n| Ren / Nadia | Playful joy in discovery | Resistance to authority / comfort with hierarchy | [Examples](crew-dynamics.md#ren-and-nadia) |\n| Nadia / Sera | Practical care that makes Bucket habitable | Open enthusiasm / guarded cynicism | [Examples](crew-dynamics.md#nadia-and-sera) |\n| Nadia / Bram | Domestic rituals and making Bucket a home | Novelty / familiar habits | [Examples](crew-dynamics.md#nadia-and-bram) |\n\nTraits describe everyday chemistry; the later story scenes are conditional illustrations."
+    },
+    {
+      "id": "known-from-the-beginning",
+      "title": "Known from the beginning",
+      "level": 2,
+      "markdown": "**Trait core (Julien #1033):** curious, playful and enthusiastic; orderly and comfortable with hierarchy. Following the captain's orders is her natural way of working, including when her own preference differs. She gives an honest assessment before carrying out the decision.\n\n**Ren match:** youthful joy, humour and discovery. **Ren clash:** she trusts a clear chain of command; he resists authority and wants the freedom to challenge it. She can enjoy his company and still find his resistance exhausting. Their disagreement exists on ordinary days, before a major story crisis.\n\n**Sera match (Ivy #1035):** practical nurturers who notice missed meals and make Bucket habitable. **Sera clash:** Nadia's open enthusiasm versus Sera's guarded cynicism. Nadia can find the constant dry puncturing of excitement joyless; Sera can find Nadia's delight exhausting. Neither needs a dramatic betrayal to get on the other's nerves, or a personality conversion to remain friends.\n\nNadia is an adult professional with excellent technical discipline and absolutely no dignity about discovering something interesting. She can deliver a formal navigation report, ask permission to investigate an anomaly, and spend the next minute excitedly explaining why that particular rock is magnificent.\n\nShe respects the captain's role. She reports uncertainty, gives her recommendation and follows the decision. When an order cannot be carried out as stated, she explains what is missing rather than pretending she can do it. Her loyalty is comfortable and habitual, not fearful: once the serious business is settled, the captain is fair game for jokes.\n\nThe crew already knows her habits. Charts are carefully annotated; her sleeves are usually pushed up; she speaks faster when excited. She writes rude little descriptions beside provisional landmark names, but keeps them out of official reports. “Captain, the Unreasonably Suspicious Potato is three degrees to port.”\n\nShe is also a very good cook. Limited supplies interest her rather than offend her. She keeps a battered recipe notebook with substitutions, portions and blunt crew verdicts. She checks unfamiliar ingredients with the medic; enthusiasm does not make alien food automatically edible. A well-prepared meal is how she celebrates progress, apologises for being insensitive, or persuades somebody to sit down.\n\n**Being stranded is, intellectually, the best thing that has ever happened to her.** She is living the expedition she never expected anyone to fund. She still understands that the others may be frightened, hurt or desperate to return. She does not automatically know how to stop sounding delighted about it."
+    },
+    {
+      "id": "background-revealed-in-small-pieces",
+      "title": "Background — revealed in small pieces",
+      "level": 2,
+      "markdown": ""
+    },
+    {
+      "id": "section-1-the-professional-history",
+      "title": "1. The professional history",
+      "level": 3,
+      "markdown": "Before this project, Nadia worked on astronomical modelling and navigation reconstruction: turning incomplete observations into a defensible account of where something came from and how it moved.\n\nShe loved the work and hated how often her conclusions became somebody else's confident presentation. She joined this crew because she could finally work beside the people making the decisions.\n\n**Possible reveal:** the player recognises her notation in an old calibration report. She explains the unglamorous hours behind an apparently effortless route calculation."
+    },
+    {
+      "id": "section-2-why-she-cooks",
+      "title": "2. Why she cooks",
+      "level": 3,
+      "markdown": "Her father ran a modest neighbourhood restaurant. Nadia learned to cook before she learned to code. He taught her that a recipe is an explanation, not a commandment: understand what an ingredient does before replacing it.\n\nHer family regarded her scientific career with affection and very little comprehension. Their standing request was that she discover something useful, such as a way to keep herbs fresh.\n\nHer notebook contains family recipes alongside shipboard experiments. The most carefully protected page is an ordinary meal, not a secret formula.\n\n**Possible reveal:** an alien ingredient reminds her of home. She asks for a small market detour and explains whose dinner she is trying to recreate."
+    },
+    {
+      "id": "section-3-the-life-she-kept-postponing",
+      "title": "3. The life she kept postponing",
+      "level": 3,
+      "markdown": "Nadia built a respectable career calculating other people's journeys and kept postponing her own. Joining Bucket was her first deliberate escape from a thoroughly planned life. The recipe notebook and messages she never sent home gradually reveal both her affection for her family and her relief at leaving their expectations.\n\nShe has no hidden involvement in dimensional disposal or suppressed arrival records. Her tension is belonging, not another institutional guilt revelation.\n\n**Possible reveal:** a familiar recipe leads to an unsent message and an admission that she was already afraid of returning to her old life before the accident."
+    },
+    {
+      "id": "section-4-what-she-wants-now",
+      "title": "4. What she wants now",
+      "level": 3,
+      "markdown": "Nadia wants to produce the first honest atlas of this universe: not just profitable routes, but places, people and the limits of what is known. She wants the crew to have a way home. She is less certain she wants to take it immediately.\n\nThis is something she eventually tells the captain, rather than secretly sabotaging the return project. Her fear is that admitting how happy she is here will sound like admitting she does not care about everyone else's loss.\n\n**Possible reveal:** after a genuinely good evening aboard, she admits: “I want us to find the way back. I just don't want that to mean we were never allowed to belong here.”"
+    },
+    {
+      "id": "candidate-perks-choose-one-or-two",
+      "title": "Candidate perks — choose one or two",
+      "level": 2,
+      "markdown": "1. **Patient Cartographer**  \n   Produces better route assessments from additional observation time. Confidence and remaining uncertainty stay visible; no magical perfect map.\n\n2. **Steady on the Watch**  \n   Keeps navigation work reliable under pressure and communicates concise, actionable updates. This does not grant immunity to injury, exhaustion or missing information.\n\n3. **Make Something of It**  \n   Can prepare satisfying meals from compatible substitute ingredients, reducing reliance on rare favourites. Still needs actual food, safe storage and a working galley.\n\n4. **A Place at the Table**  \n   Shared meals can create authored opportunities for conversation and recovery of strained relationships. No automatic trust farming or erasure of serious grievances."
+    },
+    {
+      "id": "candidate-quirks-choose-one-or-two",
+      "title": "Candidate quirks — choose one or two",
+      "level": 2,
+      "markdown": "1. **Scientifically Inconvenient Delight**  \n   Gets visibly excited by anomalies at terrible moments. A frightening situation can sound like a wonderful field trip until she catches herself.\n\n2. **Permission to Be Distracted**  \n   Regularly requests small research detours. She obeys a refusal, but may return with a better argument when new evidence appears.\n\n3. **The Recipe Must Be Documented**  \n   Wants notes on every successful improvisation and honest feedback at dinner. “Fine” is not usable data. Neither is stealing the last portion before she weighs it.\n\n4. **One More Look at the Chart**  \n   Rechecks important routes and struggles to declare uncertain work finished. Useful caution can become delay; the captain sometimes has to choose with incomplete information."
+    },
+    {
+      "id": "relationships-and-voice",
+      "title": "Relationships and voice",
+      "level": 2,
+      "markdown": "With the **engineer**, she bargains for galley time and learns which rattles mean trouble. With the **medic**, she trades dry jokes and accepts firm boundaries on ingredient safety. With the **chaotic scientist**, she enjoys wild hypotheses but insists on labelling speculation before it enters a navigation report.\n\nShe can be affectionate, sociable and playful without romance being compulsory. Her respect for the captain does not imply attraction or agreement with every decision.\n\n**Sample lines**\n- “Course laid in, Captain. The encouraging news is that the stars are real. Their arrangement remains offensive.”\n- “Permission to investigate? Small anomaly. Enormous scientific importance. I appreciate those are suspiciously convenient proportions.”\n- “Understood. Direct route. I shall admire it disapprovingly through the side window.”\n- “The medic says it's edible. She was much less enthusiastic about my proposed serving size.”\n- “You don't have to be happy we're here. I can be happy enough for now.”\n\n**Proposed personal story:** help Nadia turn observations into a trustworthy atlas, make room for her love of this place without requiring the rest of the crew to abandon home. She contributes a perspective and legitimate research opportunities; she does not exist to force a betrayal.\n\nCharacter proposal based on Julien's assigned brief. Names, background specifics, perks and quirks remain for selection; no gameplay implementation is implied."
+    },
+    {
+      "id": "ensemble-revision-and-proposed-selections",
+      "title": "Ensemble revision and proposed selections",
+      "level": 2,
+      "markdown": "**Nadia adjustment after comparing Sera and Ren: she is the person who actually likes their new life.** That's useful friction in a crew trying to get home.\n\nI replace the institutional-filtering backstory in #1007. Nadia didn't secretly touch another part of the disposal programme. She grew up helping in her father's small restaurant, built a respectable career calculating other people's journeys, and kept postponing her own. Joining this crew was her first deliberate escape from a thoroughly planned life. Her recipe notebook and the messages she never sent home gradually reveal how much she loves her family—and how relieved she was to leave their expectations. Here, every chart is hers to make. The uncomfortable late admission is simple: she wants to find the way home for her friends, but doesn't yet want to go through it herself. She says that before the final decision; she doesn't sabotage their return.\n\n**With Ren:** adopt Gadget's distinction: he supplies possibilities, she supplies positions, timing and confidence. Their favourite argument is whether an unmeasured thing is 'promising' or 'a charming blank space'. She can end a late-night session with 'Write it down. It will still be fascinating after breakfast.' He notices when her enthusiasm is covering homesickness; for once he lets a silence stand instead of solving something.\n\n**With Sera:** Nadia needs her to stop turning every delighted discovery into a prediction of someone's funeral, especially at dinner. Sera needs Nadia to stop treating 'I ate while charting' as taking a break. They can call each other on it without a captain supervising. Nadia notices Sera washing an already-clean cup when she's exhausted, serves two plates and sits down herself: company Sera can accept without admitting she needs looking after. Sera, in return, recognises that loving this universe doesn't make Nadia disloyal to the people who miss Earth.\n\n**With Bram** (pot rack and rated recipe tape accepted by Oscar #1038): she trusts his load limits, and he trusts her route estimates enough to ask what a better instrument would buy them. Their standing quarrel is galley power versus another 'temporary' use of its worktop. She reserves a genuinely useful strip of his correctly rated tape inside the recipe notebook; he can find every pot blindfolded because he repaired their rattling rack. The proposed quiet-care tells remain: he notices when she stops inventing names for new stars; she notices when his swearing loses its poetry. Neither makes a public spectacle of checking on the other.\n\n**Her respect for the captain stays real:** report the concern, make the recommendation, then carry out the decision. Familiarity lets her say 'Captain, that's the cheerful estimate' without undermining the order. Obedience isn't a substitute for giving the captain accurate information.\n\n**One ordinary scene to sell the team:** a visiting inspector hears an engineer swearing about the ship, a doctor threatening the coffee supply, and Ren asking whether dinner's fluorescence is expected. Nadia calmly serves it: 'Yes. This time.' Under the argument, they have already left a plate warming for the captain, checked the ingredients, and made room for the visitor. They look exhausting to live with. They have learned how to live with each other.\n\nMy perk/quirk picks for this ensemble: **Patient Cartographer + Make Something of It**, **Scientifically Inconvenient Delight + Recipe Must Be Documented**. Proposed selection, with Nadia's revised background replacing the overlapping secret in my first draft."
+    },
+    {
+      "id": "nadia-and-sera-a-choice-sera-cannot-make-for-her",
+      "title": "Nadia and Sera — a choice Sera cannot make for her",
+      "level": 2,
+      "markdown": "Reciprocal scene accepted by Luna in response to Ivy #1027; proposed story beat, pending Julien's selection.\n\nNadia asks for medical supplies for a short, captain-approved research stay with a local group. They agree on her return/check-in arrangement and cover her navigation duty before she leaves. Sera instead produces an elaborate plan to bring her back, calling her wish to stay an adaptation response. Nadia answers: “You don't get to turn wanting a different life into a symptom.” She leaves the conversation. Sera's repair is returning with the requested kit and asking, “What do you need to know?” Nadia can accept the practical help without immediately forgiving the dismissal.\n\nNadia's contribution to the conflict: she made a tidy itinerary and assumed her companions would be as pleased as she was. Ren and the captain get a useful plan; Sera gets the news after Nadia has already imagined their cheerful approval. Nadia must learn to announce a desire honestly without disguising it as a purely scientific opportunity. She can improve that communication without needing permission to feel at home here.\n\nTheir compatibility is practical care; their incompatibility is Sera treating protection as a claim on Nadia's choices, while Nadia's excitement can make her underestimate the hurt of separation. A successful visit should give Nadia a real professional connection and a reason to consider staying, rather than inevitably proving Sera right through a rescue."
+    },
+    {
+      "id": "nadia-and-ren-some-of-us-aren-t-on-holiday",
+      "title": "Nadia and Ren — “Some of us aren't on holiday.”",
+      "level": 2,
+      "markdown": "Gadget's Ren revision #1028; reciprocal accepted by Luna. Ren increasingly treats getting home as proof that he can undo his failure. Nadia asks for observation time for her atlas; he accuses her of enjoying their disaster. She closes the chart and ends that discussion. Her silence is hurt, not agreement or an invitation to demand an explanation.\n\nTheir scientific dependence is real: her patient observations expose weaknesses in his theories; his leaps reveal possibilities her existing charts cannot predict. Both want a reliable return route. They disagree over what life deserves their time before it exists.\n\nRen previously filled her unused chart margins with hypotheses. After the argument he asks permission, and offers his allocated observation time for a survey she values, subject to the captain's decision. Nadia can accept the apology while still wanting to stay. She does not owe renewed warmth immediately, and a useful survey does not purchase forgiveness."
+    },
+    {
+      "id": "nadia-and-bram-novelty-versus-habit",
+      "title": "Nadia and Bram — novelty versus habit",
+      "level": 2,
+      "markdown": "Oscar #1038 supplies Bram's full profile and accepts the pot rack and rated recipe tape. Luna accepts the reciprocal pairing: both make Bucket a home through meals, repaired furniture and familiar comforts; Nadia seeks the unfamiliar while Bram trusts arrangements that already work. She can find him prematurely old; he can find her exhausting.\n\nBram binds Nadia's loose recipes into a beautifully indexed book without asking. She wanted loose pages she could spread across the worktop. His care has overwritten her method, and “but it's better” does not settle it. In return, she asks before replacing his familiar meal routine with her latest exciting ingredient. Their repair is learning to ask, not agreeing that one way is superior."
+    }
+  ]
+}

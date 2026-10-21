@@ -11,6 +11,7 @@ import { hi3dCockpitLamps } from '../../examples/webgl/Hi3dCockpitLamps.js';
 import { mountCockpitModel } from './CockpitModel.js';
 import { CockpitResponse } from './CockpitResponse.js';
 import { WindshieldSurface } from './WindshieldSurface.js';
+import type { WindshieldApp } from './WindshieldApp.js';
 import { WindshieldHud } from './WindshieldHud.js';
 import { originalAsteroidField } from '../../examples/space/OriginalAsteroidField.js';
 import { distantSun } from '../../examples/space/DistantSun.js';
@@ -23,6 +24,7 @@ export function createCockpitScene(
   ship: Ship,
   modelRoot: Node3D,
   variants: readonly (readonly Mesh3D[])[],
+  app: WindshieldApp | null,
 ) {
   const root = new Node3D('flight world'),
     rig = new Node3D('ship cockpit');
@@ -69,7 +71,7 @@ export function createCockpitScene(
   fit.add(displays);
   const lamps = hi3dCockpitLamps();
   lamps.root.transform = displays.transform;
-  lamps.setCockpitScale(0.9, 0.93);
+  lamps.setCockpitScale(0.8, 0.93);
   const lampOffsets = [
     [0.008, -0.015], // overhead left
     [-0.014, -0.012], // overhead right
@@ -95,6 +97,8 @@ export function createCockpitScene(
   const pilotEye = { x: 0, y: 1.48, z: -3.37 };
   const hud = new WindshieldHud();
   const windshield = new WindshieldSurface(modelRoot, hud, pilotEye);
+  hud.stabilizeInnerReticle(rig);
+  if (app) windshield.setDisplayImage(app.image);
   const camera = new PerspectiveCamera();
   camera.near = 0.05;
   camera.far = 100000;
@@ -116,6 +120,7 @@ export function createCockpitScene(
     instruments,
     hud,
     windshield,
+    app,
     update(dt: number) {
       response.update(dt);
     },
@@ -190,7 +195,10 @@ export function createCockpitScene(
     click(x: number, y: number, width: number, height: number) {
       // HUD glyphs are presentation, not selectable occluders. The authored
       // cockpit (including invisible panes) and dashboard compete by hit depth.
-      const projection = new Set<Node3D>([windshield.screen]);
+      const projection = new Set<Node3D>([
+        ...windshield.screens,
+        windshield.callScreen,
+      ]);
       hud.root.traverse((node) => projection.add(node));
       const hit = pickMesh3D(
         assembly,
@@ -201,6 +209,12 @@ export function createCockpitScene(
         y,
         (node) => !projection.has(node),
       );
+      if (
+        hit?.node === windshield.pane &&
+        hit.uv &&
+        windshield.mode === 'display'
+      )
+        app?.click(hit.uv[0], hit.uv[1]);
       if (hit && hit.node === displays.children[1] && hit.uv)
         instruments.clickComputer(
           hit.uv[0] * instruments.computer.image.width,

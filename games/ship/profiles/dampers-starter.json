@@ -1,7 +1,7 @@
 {
   "id": "dampers-starter",
   "responseSeconds": 3,
-  "maxYawRateRadps": 0.6,
+  "maxYawAccelerationRadps2": 18,
   "baselineW": 100000000,
   "wattsPerNewton": 100,
   "wattsPerNewtonMeter": 10,
@@ -28,6 +28,10 @@
     "maxPoints": 100,
     "outputExponent": 1
   },
-  "maxPitchRateRadps": 0.6,
-  "maxRollRateRadps": 0.8
+  "maxPitchAccelerationRadps2": 18,
+  "maxRollAccelerationRadps2": 24,
+  "rotationBrakingSeconds": 0.15,
+  "maxYawRateRadps": 6,
+  "maxPitchRateRadps": 6,
+  "maxRollRateRadps": 8
 }

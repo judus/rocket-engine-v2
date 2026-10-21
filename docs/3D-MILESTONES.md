@@ -952,3 +952,39 @@ this bug to chromium.` The refusal/retry state and continued simulation were
 verified there; successful native capture, document keyboard routing and release
 are covered by deterministic host tests, but still need Julien's normal Chrome
 run. No fallback silently claims to be captured.
+
+## Direct browser video textures
+
+`VideoTextureImage` is a fixed-size, opaque sRGB browser frame source. Create it
+only after a video has decoded data, then call `update()` when the host observes
+a new frame. Like `DynamicTextureImage`, it owns no clock, player, callbacks,
+loader or GPU context. The caller retains the video and controls playback,
+visibility, errors and disposal. Do not share playback state between unrelated
+consumers merely to cache an asset URL.
+
+The WebGL renderer uploads the HTMLVideoElement directly, one upload per seen
+revision per context, without JS canvas readback or pixel-buffer copies. Video
+bindings explicitly require nearest/linear filtering; no mipmaps are generated.
+A temporary lack of decoded data while seeking/looping omits that draw until it
+becomes ready again. A changed resolution is a contract error: create a new
+source. Context recreation uploads the currently available frame. Upload byte
+counters are nominal base RGBA bytes, not driver bandwidth or proof of zero-copy.
+
+GPU materials also support `saturation` (0–1, default 1) and screen-door UV
+`offset`, allowing separate video planes to match an existing projected UI mesh.
+Node3D.renderOrder explicitly orders translucent primitives before centre-depth
+sorting (larger values draw later, not inherited), while opaque frame depth tests
+remain active. This avoids a large UI plane darkening a smaller coplanar video.
+Canvas renderers retain their existing colour-only material contract.
+
+The [video comparison demo](../webgl-video-textures.html), linked from the canvas
+dynamic-texture demo, compares a full 2048×1408 canvas snapshot with an independent
+512×512 video surface. CPU preparation, publication count, upload bytes and
+mipmap counts are exposed. Decode/upload driver time is not included in the CPU
+preparation timer. It uses the provisional Sera clip from the ship demo; it does
+not introduce a general audio/video asset loader.
+
+Rocket already provides AssetPool, Assets image leases and WebGLAssets pools.
+A future audio/video loading extension should build on those lifecycle contracts
+and distinguish shared source bytes from per-consumer mutable playback. It is
+not required for direct video rendering.

@@ -83,8 +83,8 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
     }
   };
   if (style === 'hi3d') {
-    // Around 2 CSS pixels at the default 60-degree FOV / 750px canvas height.
-    const half = 0.00685;
+    // Around 1.5 CSS pixels at the default 60-degree FOV / 750px canvas height.
+    const half = 0.00514;
     const shapes: [string, (width: number) => void][] = [
       [
         'outer reference ring',

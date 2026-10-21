@@ -35,6 +35,19 @@ export class Node3D {
   mesh: Mesh3D | null = null;
   visible = true;
   #opacity = 1;
+  #renderOrder = 0;
+  /** Translucent primitive order before depth sorting; larger values draw later.
+   * Explicit per node, not inherited. Depth testing remains enabled.
+   */
+  get renderOrder(): number {
+    return this.#renderOrder;
+  }
+  set renderOrder(value: number) {
+    if (!Number.isSafeInteger(value))
+      throw new Error('Render order must be a safe integer');
+    this.#renderOrder = value;
+  }
+
   /** WebGL coverage multiplier inherited by descendants, independent of mesh uploads. */
   get opacity(): number {
     return this.#opacity;

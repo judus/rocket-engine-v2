@@ -1,8 +1,13 @@
+import { CrewCallVideo } from './CrewCallVideo.js';
 import {
   WebGLSurface,
   WebGLAssets,
   WebGLMeshRenderer3D,
 } from '../../src/webgl/index.js';
+import { Assets } from '../../src/index.js';
+import type { ImageLease } from '../../src/Assets.js';
+import { WindshieldApp } from './WindshieldApp.js';
+import { loadCrewProfiles } from './CrewProfiles.js';
 import type { Rocket } from '../../src/index.js';
 import type { Stage2D, SceneNavigator } from '../../src/experimental/index.js';
 import { loadAsteroidFamily } from '../../examples/space/AsteroidFamily.js';
@@ -58,7 +63,34 @@ export async function createCockpitView(
     signal: assetSignal,
   });
   const base = new URL('../../../', import.meta.url);
+  const imageLeases: ImageLease[] = [];
+  const callVideo = new CrewCallVideo(
+    new URL('games/ship/assets/comms/', base),
+    onError,
+  );
   try {
+    const images = runtime.use(Assets);
+    const crewProfiles = await loadCrewProfiles(
+      new URL('games/ship/characters/', base),
+      (url) => fetch(url, { cache: 'no-cache', signal: assetSignal }),
+    );
+    const portraitResults = await Promise.allSettled(
+      crewProfiles.map(async (profile) => {
+        const lease = await images.acquireImage(
+          new URL(
+            `games/ship/assets/crew/${profile.id}-reference-v1.png`,
+            base,
+          ),
+          { signal: assetSignal },
+        );
+        imageLeases.push(lease);
+        return { profile, image: lease.image };
+      }),
+    );
+    const portraits = portraitResults.map((result) => {
+      if (result.status === 'rejected') throw result.reason;
+      return result.value;
+    });
     const [model, sky, family] = await Promise.all([
       assets.acquireModel(
         new URL('examples/3d/assets/cockpit-hi3d-v3-smartglass.glb', base).href,
@@ -74,10 +106,23 @@ export async function createCockpitView(
       loadAsteroidFamily(assetSignal),
     ]);
     assetSignal.throwIfAborted();
+    const app = new WindshieldApp(portraits, callVideo);
     const cockpit = createCockpitScene(
       ship,
       model.value.instantiate().root,
       family.variants,
+      app,
+    );
+    document.addEventListener(
+      'visibilitychange',
+      () => {
+        app.setVisible(
+          document.visibilityState !== 'hidden' &&
+            navigator.scene === scene &&
+            cockpit.windshield.mode === 'display',
+        );
+      },
+      { signal: assetSignal },
     );
     const selectMaterials = surfaceVariantSwitcher(cockpit.root);
     // One managed resource across all quality switches, including context restoration.
@@ -129,6 +174,11 @@ export async function createCockpitView(
           counter.hidden = !showFps;
           resetFps();
         }
+        app.setVisible(
+          navigator.scene === scene &&
+            cockpit.windshield.mode === 'display' &&
+            document.visibilityState !== 'hidden',
+        );
         if (navigator.scene !== scene) return;
         const resource = gpu.current;
         if (!resource) return;
@@ -149,8 +199,10 @@ export async function createCockpitView(
         }
       },
       dispose(): undefined {
+        callVideo.dispose();
         loading.abort();
         surface.dispose();
+        imageLeases.forEach((lease) => lease.dispose());
         model.dispose();
         sky.dispose();
         assets.dispose();
@@ -159,10 +211,23 @@ export async function createCockpitView(
     return {
       surface,
       instruments: cockpit.instruments,
+      backWindshield() {
+        return app.back();
+      },
+      selectWindshieldPage(index: number) {
+        app.select(index);
+      },
       setWindshieldDisplay(active: boolean) {
         cockpit.windshield.setMode(active ? 'display' : 'clear');
+        app.setVisible(
+          active &&
+            navigator.scene === scene &&
+            document.visibilityState !== 'hidden',
+        );
       },
       update(dt: number) {
+        app.update();
+        cockpit.windshield.setCallVideo(app.callProjection);
         cockpit.update(dt);
         cockpit.instruments.update(dt);
         cockpit.windshield.update(dt);
@@ -181,9 +246,11 @@ export async function createCockpitView(
       },
     };
   } catch (error) {
+    callVideo.dispose();
     loading.abort();
     surface.dispose();
     assets.dispose();
+    imageLeases.forEach((lease) => lease.dispose());
     throw error;
   }
 }

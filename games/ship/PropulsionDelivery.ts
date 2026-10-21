@@ -15,11 +15,17 @@ export function propulsionDelivery(
     operating && baselineSuppliedW >= baselineW
       ? Math.max(0, suppliedW - baselineW)
       : 0;
-  const rotationSuppliedW = Math.min(rotationDemandW, availableW);
-  const translationSuppliedW = Math.min(
-    translationDemandW,
-    availableW - rotationSuppliedW,
-  );
+  // Preserve exact channel funding when the declared module request was met.
+  // Subtracting a large baseline can erase tiny braking demands or round a
+  // fully funded channel down, falsely disabling assistance at rest.
+  const fullySupplied =
+    operating && suppliedW >= baselineW + translationDemandW + rotationDemandW;
+  const rotationSuppliedW = fullySupplied
+    ? rotationDemandW
+    : Math.min(rotationDemandW, availableW);
+  const translationSuppliedW = fullySupplied
+    ? translationDemandW
+    : Math.min(translationDemandW, availableW - rotationSuppliedW);
   const funded = operating && baselineSuppliedW >= baselineW;
   const fraction = (supply: number, demand: number) =>
     funded ? (demand > 0 ? Math.min(1, supply / demand) : 1) : 0;

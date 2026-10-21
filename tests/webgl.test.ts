@@ -12,6 +12,7 @@ import {
   Mesh3D,
   PerspectiveCamera,
   TextureImage,
+  VideoTextureImage,
 } from '../src/3d/index.js';
 import { meshColorVertices } from '../src/webgl/MeshRenderer3D.js';
 import test from 'node:test';
@@ -117,7 +118,7 @@ function fixture(failure = '') {
     deleteProgram: (v) => programs.delete(v),
     getProgramParameter: () => failure !== 'link',
     getProgramInfoLog: () => 'link diagnostic',
-    getUniformLocation: () => ({}),
+    getUniformLocation: (_program, name) => ({ name }),
     createBuffer: () => {
       if (failure === 'buffer') return null;
       const v = {};
@@ -1402,7 +1403,13 @@ void test('opacity validates early, opaque draws precede alpha draws, and blend/
   ]);
   assert.equal(f.draws, 2);
   assert.deepEqual(
-    f.calls.filter((c) => c.name === 'uniform1f').map((c) => c.args[1]),
+    f.calls
+      .filter(
+        (c) =>
+          c.name === 'uniform1f' &&
+          (c.args[0] as { name: string }).name === 'drawOpacity',
+      )
+      .map((c) => c.args[1]),
     [1, 0.4],
   );
   assert.deepEqual(
@@ -1457,7 +1464,13 @@ void test('transparent primitives sort by transformed bounds depth, share upload
   const first = renderer.render(root, camera, 640, 360, { reverseOrder: true });
   assert.equal(first.drawCalls, 3);
   assert.deepEqual(
-    f.calls.filter((c) => c.name === 'uniform1f').map((c) => c.args[1]),
+    f.calls
+      .filter(
+        (c) =>
+          c.name === 'uniform1f' &&
+          (c.args[0] as { name: string }).name === 'drawOpacity',
+      )
+      .map((c) => c.args[1]),
     [1, 0.25, 0.5],
   );
   const allocations = f.calls.filter((c) => c.name === 'createBuffer').length;
@@ -1468,7 +1481,11 @@ void test('transparent primitives sort by transformed bounds depth, share upload
   assert.deepEqual(
     f.calls
       .slice(start)
-      .filter((c) => c.name === 'uniform1f')
+      .filter(
+        (c) =>
+          c.name === 'uniform1f' &&
+          (c.args[0] as { name: string }).name === 'drawOpacity',
+      )
       .map((c) => c.args[1]),
     [1, 0.5, 0.25],
   );
@@ -1513,7 +1530,13 @@ void test('Inherited node opacity animates coverage without replacing shared geo
   group.opacity = 0.25;
   renderer.render(group, camera, 800, 600);
   assert.deepEqual(
-    f.calls.filter((c) => c.name === 'uniform1f').map((c) => c.args[1]),
+    f.calls
+      .filter(
+        (c) =>
+          c.name === 'uniform1f' &&
+          (c.args[0] as { name: string }).name === 'drawOpacity',
+      )
+      .map((c) => c.args[1]),
     [0.1, 0.05],
   );
   assert.equal(f.calls.filter((c) => c.name === 'bufferData').length, 1);
@@ -1663,5 +1686,146 @@ void test('Mesh screen-door materials require valid UVs, one pattern per primiti
     () => renderer.render(root, new PerspectiveCamera(), 800, 600),
     /UV/,
   );
+  renderer.dispose();
+});
+
+void test('video draws skip temporarily unavailable loop frames, recover, and apply GPU saturation', () => {
+  const f = fixture(),
+    renderer = new WebGLColorRenderer(f.gl, { lighting: true, textures: true });
+  const mesh = renderer.upload(
+    vertices.map((v) => ({
+      ...v,
+      normal: { x: 0, y: 0, z: -1 },
+      uv: [0, 0] as const,
+    })),
+  );
+  const source = { videoWidth: 2, videoHeight: 2, readyState: 2 };
+  const image = new VideoTextureImage(source as HTMLVideoElement);
+  const draw = {
+    mesh,
+    transform: identityMatrix,
+    world: identityMatrix,
+    saturation: 0.25,
+    texture: { image, filter: 'linear' as const },
+  };
+  renderer.drawFrame([draw]);
+  assert.equal(f.draws, 1);
+  assert.ok(
+    f.calls.some(
+      (c) =>
+        c.name === 'uniform1f' &&
+        (c.args[0] as { name: string }).name === 'drawSaturation' &&
+        c.args[1] === 0.25,
+    ),
+  );
+  source.readyState = 1;
+  renderer.drawFrame([draw]);
+  assert.equal(f.draws, 1);
+  source.readyState = 2;
+  image.update();
+  renderer.drawFrame([draw]);
+  assert.equal(f.draws, 2);
+  assert.throws(
+    () => renderer.drawFrame([{ ...draw, saturation: NaN }]),
+    /saturation/,
+  );
+  renderer.dispose();
+});
+
+void test('separate projected media keeps its saturation and mesh phase; incompatible primitive materials fail before drawing', () => {
+  const f = fixture(),
+    renderer = new WebGLMeshRenderer3D(f.gl, {
+      lighting: true,
+      textures: true,
+    });
+  const root = new Node3D(),
+    camera = new PerspectiveCamera();
+  camera.z = -3;
+  const geometry = new MeshGeometry(
+    vertices.map((v) => v.position),
+    [
+      { id: 'a', indices: [0, 1, 2], material: 0 },
+      { id: 'b', indices: [0, 1, 2], material: 1 },
+    ],
+    [],
+    {
+      normals: vertices.map(() => ({ x: 0, y: 0, z: -1 })),
+      texCoords: [
+        [0, 0],
+        [1, 0],
+        [0, 1],
+      ],
+    },
+  );
+  const base = {
+    color: '#ffffff',
+    saturation: 0.25,
+    screenDoor: {
+      repeat: [100, 100] as const,
+      fill: 0.8,
+      offset: [3, 4] as const,
+    },
+  };
+  root.mesh = new Mesh3D(geometry, [base, base]);
+  renderer.render(root, camera, 800, 600);
+  assert.ok(
+    f.calls.some(
+      (c) => c.name === 'uniform2fv' && JSON.stringify(c.args[1]) === '[3,4]',
+    ),
+  );
+  for (const second of [
+    { ...base, saturation: 0.5 },
+    { ...base, screenDoor: { ...base.screenDoor, offset: [5, 4] as const } },
+    { ...base, screenDoor: { ...base.screenDoor, offset: [3, 5] as const } },
+  ]) {
+    root.mesh = new Mesh3D(geometry, [base, second]);
+    assert.throws(
+      () => renderer.render(root, camera, 800, 600),
+      /Split different coverage/,
+    );
+  }
+  renderer.dispose();
+});
+
+void test('explicit translucent render order overrides centre sorting without disabling depth tests', () => {
+  const f = fixture(),
+    renderer = new WebGLMeshRenderer3D(f.gl),
+    root = new Node3D(),
+    camera = new PerspectiveCamera();
+  camera.z = -4;
+  const geometry = new MeshGeometry(
+    vertices.map((v) => v.position),
+    [{ id: 'tri', indices: [0, 1, 2], material: 0 }],
+  );
+  const front = new Node3D(),
+    overlay = new Node3D();
+  root.add(front);
+  root.add(overlay);
+  front.mesh = new Mesh3D(geometry, [{ color: '#ffffff', opacity: 0.3 }]);
+  overlay.mesh = new Mesh3D(geometry, [{ color: '#ffffff', opacity: 0.7 }]);
+  overlay.transform = { ...overlay.transform, position: { x: 0, y: 0, z: 1 } };
+  overlay.renderOrder = 1;
+  renderer.render(root, camera, 800, 600);
+  assert.deepEqual(
+    f.calls
+      .filter(
+        (c) =>
+          c.name === 'uniform1f' &&
+          (c.args[0] as { name: string }).name === 'drawOpacity',
+      )
+      .map((c) => c.args[1]),
+    [0.3, 0.7],
+  );
+  assert.ok(
+    f.calls.some((c) => c.name === 'enable' && c.args[0] === f.gl.DEPTH_TEST),
+  );
+  assert.throws(() => {
+    overlay.renderOrder = NaN;
+  }, /safe integer/);
+  assert.throws(() => {
+    overlay.renderOrder = 0.1;
+  }, /safe integer/);
+  overlay.renderOrder = -1;
+  assert.equal(overlay.renderOrder, -1);
   renderer.dispose();
 });

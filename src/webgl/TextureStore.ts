@@ -1,3 +1,4 @@
+import { VideoTextureImage } from '../3d/VideoTextureImage.js';
 import {
   TextureImage,
   DynamicTextureImage,
@@ -56,9 +57,13 @@ export class WebGLTextureStore {
       throw new Error('Texture transfer function does not match its use');
     if (image.width > this.#maximum || image.height > this.#maximum)
       throw new Error('Texture exceeds MAX_TEXTURE_SIZE');
+    if (image instanceof VideoTextureImage) image.validate();
     this.#units.add(unit);
     gl.activeTexture(gl.TEXTURE0 + unit);
-    const revision = image instanceof DynamicTextureImage ? image.revision : 0;
+    const revision =
+      image instanceof DynamicTextureImage || image instanceof VideoTextureImage
+        ? image.revision
+        : 0;
     let entry = this.#images.get(image);
     if (!entry) {
       const texture = gl.createTexture();
@@ -69,30 +74,41 @@ export class WebGLTextureStore {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
         gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
-        gl.texImage2D(
-          gl.TEXTURE_2D,
-          0,
-          image.colorSpace === 'srgb' ? gl.SRGB8_ALPHA8 : gl.RGBA8,
-          image.width,
-          image.height,
-          0,
-          gl.RGBA,
-          gl.UNSIGNED_BYTE,
-          image.copyPixels(),
-        );
-        gl.generateMipmap(gl.TEXTURE_2D);
+        if (image instanceof VideoTextureImage)
+          gl.texImage2D(
+            gl.TEXTURE_2D,
+            0,
+            gl.SRGB8_ALPHA8,
+            gl.RGBA,
+            gl.UNSIGNED_BYTE,
+            image.source,
+          );
+        else {
+          gl.texImage2D(
+            gl.TEXTURE_2D,
+            0,
+            image.colorSpace === 'srgb' ? gl.SRGB8_ALPHA8 : gl.RGBA8,
+            image.width,
+            image.height,
+            0,
+            gl.RGBA,
+            gl.UNSIGNED_BYTE,
+            image.copyPixels(),
+          );
+          gl.generateMipmap(gl.TEXTURE_2D);
+          this.#mipmapBuilds++;
+        }
         let bytes = 0,
           w = image.width,
           h = image.height;
         for (;;) {
           bytes += w * h * 4;
-          if (w === 1 && h === 1) break;
+          if (image instanceof VideoTextureImage || (w === 1 && h === 1)) break;
           w = Math.max(1, w >> 1);
           h = Math.max(1, h >> 1);
         }
         this.#allocations++;
         this.#sourceBytes += image.width * image.height * 4;
-        this.#mipmapBuilds++;
         entry = { texture, bytes, revision };
         this.#images.set(image, entry);
       } catch (error) {
@@ -108,22 +124,34 @@ export class WebGLTextureStore {
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
       gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
       gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
-      gl.texSubImage2D(
-        gl.TEXTURE_2D,
-        0,
-        0,
-        0,
-        image.width,
-        image.height,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        image.copyPixels(),
-      );
-      gl.generateMipmap(gl.TEXTURE_2D);
+      if (image instanceof VideoTextureImage)
+        gl.texSubImage2D(
+          gl.TEXTURE_2D,
+          0,
+          0,
+          0,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          image.source,
+        );
+      else {
+        gl.texSubImage2D(
+          gl.TEXTURE_2D,
+          0,
+          0,
+          0,
+          image.width,
+          image.height,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          image.copyPixels(),
+        );
+        gl.generateMipmap(gl.TEXTURE_2D);
+        this.#mipmapBuilds++;
+      }
       entry.revision = revision;
       this.#updates++;
       this.#sourceBytes += image.width * image.height * 4;
-      this.#mipmapBuilds++;
     }
     const key = `${binding.wrapS}/${binding.wrapT}/${binding.filter}`;
     let sampler = this.#samplers.get(key);
