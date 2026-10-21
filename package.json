@@ -75,7 +75,8 @@
     "start": "npm run build && python3 -m http.server 8092 --bind 127.0.0.1",
     "dev": "tsc -p tsconfig.build.json --watch",
     "proof:journal": "npm run build && node dist/examples/journal/proof.js",
-    "coverage": "npm run build && node --experimental-test-coverage --test-coverage-include=\"dist/src/**/*.js\" --test --test-isolation=none --test-reporter=./dist/scripts/coverage-gate.js dist/tests/*.test.js"
+    "coverage": "npm run build && node --experimental-test-coverage --test-coverage-include=\"dist/src/**/*.js\" --test --test-isolation=none --test-reporter=./dist/scripts/coverage-gate.js dist/tests/*.test.js",
+    "package:preview": "npm run build && node dist/scripts/package-preview.js"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "1.32.1",
