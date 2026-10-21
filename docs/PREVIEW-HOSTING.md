@@ -44,6 +44,8 @@ do not deploy. Main should require a PR and the **Quality gate** check.
 modules, then copies an explicit browser-file allowlist to `build/preview/site/`.
 The archive is `rocket-preview-<full commit SHA>.tar.gz`, with the publish tree
 at its root and a root `release.json` containing revision and file checksums.
+Archive ordering, timestamps, ownership and permissions are normalized so retries
+of the same revision produce the same archive checksum.
 It excludes repository metadata, node_modules, TypeScript and source maps.
 Concrete local HTML references are checked before packaging. Runtime-created
 asset URLs still need browser verification. Matter.js is copied into the
