@@ -1,5 +1,11 @@
 # 3D, one small demo at a time
 
+The original textured cockpit, instrument, screen-spill, bloom and asteroid-field
+pages described below are historical integration milestones. Their HTML entry
+points have been retired; current neutral demos are `webgl-textures.html`,
+`webgl-material-maps.html`, `webgl-normals.html`, `webgl-dynamic-textures.html`,
+`webgl-lighting.html`, `webgl-bloom.html` and `webgl-asteroids.html`.
+
 Rocket remains a multipurpose canvas renderer. These experiments use existing scene ownership, frame timing, input and Canvas 2D views. No third-party 3D renderer or separate animation loop.
 
 ## 01 — Grid and camera (implemented)

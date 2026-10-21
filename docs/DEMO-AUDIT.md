@@ -110,13 +110,8 @@ superseded; injection after settlement produced the failure/recovery evidence.
 | webgl-dynamic-textures.html                 | Ready, recreate, context loss/restore and pixel diagnostic        |
 | webgl-bloom.html                            | Ready, recreate, context loss/restore and pixel diagnostic        |
 | webgl-asteroids.html                        | Ready, recreate, context loss/restore                             |
-| webgl-cockpit.html                          | Ready, recreate, context loss/restore and pixel diagnostic        |
 | webgl-cockpit-environment.html              | Ready, recreate, context loss/restore and pixel diagnostic        |
 | webgl-cockpit-shadows.html                  | Ready, recreate, context loss/restore and pixel diagnostic        |
-| webgl-cockpit-displays.html                 | Ready, recreate, context loss/restore and pixel diagnostic        |
-| webgl-cockpit-bloom.html                    | Ready, recreate, context loss/restore and pixel diagnostic        |
-| webgl-cockpit-spill.html                    | Ready, recreate, context loss/restore and pixel diagnostic        |
-| webgl-cockpit-asteroids.html                | Ready, recreate, context loss/restore and pixel diagnostic        |
 | journal.html                                | Episode A blue → Episode B red; two reports, both beacons lit     |
 | examples/inventory/inventory.html           | Transfer, capacity change, checkpoint restore; repaired back-link |
 | examples/inventory/operations.html          | Trade, gather, fill, eat, refused transfer, checkpoint restore    |

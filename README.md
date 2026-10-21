@@ -138,18 +138,13 @@ The reusable foundation is available through the optional `rocket-engine-v2/3d` 
 - [15 · Metallic & roughness](http://127.0.0.1:8092/webgl-materials.html): view-dependent direct-light GGX highlights, scalar material controls, optional base-color maps and a Lambert comparison.
 - [16 · Packed material maps](http://127.0.0.1:8092/webgl-material-maps.html): source cockpit ORM maps, linear data sampling, channel inspection, material multipliers and ambient-only occlusion.
 - [17 · Normal mapping](http://127.0.0.1:8092/webgl-normals.html): tangent-space surface detail, source cockpit normal maps, normal inspection and affine/mirror readback checks.
-- [18 · Textured cockpit](http://127.0.0.1:8092/webgl-cockpit.html): the original v4 GLB with embedded base-color, packed material and normal maps, pilot/exterior poses and the same reusable GPU backend.
 - [19 · Environment reflections](http://127.0.0.1:8092/webgl-environment.html): procedural environment lighting, GGX roughness filtering, diffuse irradiance, split-sum lookup and independent direct-light comparison.
 - [20 · Cockpit environment](http://127.0.0.1:8092/webgl-cockpit-environment.html): the shared cockpit model with adjustable studio reflections, independent direct lighting, source previews and existing navigation controls.
 - [21 · Directional shadows](http://127.0.0.1:8092/webgl-shadows.html): retained depth pass, independent casting/receiving, resolution/coverage/bias controls, hard vs PCF and visibility inspection.
 - [22 · Cockpit shadows](http://127.0.0.1:8092/webgl-cockpit-shadows.html): shadowed directional lighting through the original cockpit, a model-fitted moving shadow volume, independent environment fill and existing navigation.
 - [23 · Dynamic textures](http://127.0.0.1:8092/webgl-dynamic-textures.html): revisioned canvas-to-texture updates shared across 3D surfaces, independent update cadence, pause/single-step controls and upload counters.
-- [24 · Cockpit instruments](http://127.0.0.1:8092/webgl-cockpit-displays.html): radar on the left display, telemetry on the right, independent dynamic textures and update cadence, with lit cabin materials and directional shadows.
 - [25 · Bloom](http://127.0.0.1:8092/webgl-bloom.html): reusable offscreen targets, half-resolution bright extraction and separable blur, linear-color compositing, stage inspection and GPU pixel checks.
-- [26 · Cockpit bloom](http://127.0.0.1:8092/webgl-cockpit-bloom.html): the v5 cockpit with five live displays, directional shadows and subtle bloom; stage inspection, resolution scaling and independent diagnostic views.
-- [27 · Screen light spill](http://127.0.0.1:8092/webgl-cockpit-spill.html): five model-attached point lights approximate display illumination; independent bloom, light isolation, strength and coupled display power controls.
 - [28 · Asteroid field](http://127.0.0.1:8092/webgl-asteroids.html): a finite seeded field of shared faceted rock meshes, free camera, native resolution and CPU/GPU metrics.
-- [29 · Cockpit asteroid field](http://127.0.0.1:8092/webgl-cockpit-asteroids.html): the v5 cockpit flies through the seeded world, retaining live displays, cabin shadows, bloom and performance metrics.
 
 ## Experimental API branch
 
