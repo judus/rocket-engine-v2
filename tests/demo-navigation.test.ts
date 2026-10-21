@@ -29,7 +29,6 @@ void test('all navigation destinations exist; pages awaiting review have their o
   }
   for (const hidden of [
     'webgl-cockpit-hi3d.html',
-    'webgl-asteroid-family.html',
     'quest-consumer.html',
     'apps/flight-foundry/',
   ]) {
@@ -39,6 +38,18 @@ void test('all navigation destinations exist; pages awaiting review have their o
       hidden,
     );
   }
+  for (const removed of [
+    './games/',
+    './apps/',
+    './apps/flight-foundry/surface-benchmark.html',
+    './webgl-asteroid-family.html',
+    './webgl-cockpit.html',
+    './webgl-cockpit-displays.html',
+    './webgl-cockpit-spill.html',
+    './webgl-cockpit-bloom.html',
+    './webgl-cockpit-asteroids.html',
+  ])
+    assert.ok(!urls.includes(removed), removed);
   assert.ok(urls.includes('./webgl-video-textures.html'));
   for (const page of ['journal.html', 'webgl-video-textures.html']) {
     const html = readFileSync(new URL(page, root), 'utf8');

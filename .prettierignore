@@ -1,5 +1,6 @@
 node_modules/
 dist/
+build/
 package-lock.json
 # Imported asteroid source assets retained byte-for-byte.
 examples/assets/asteroid-family-v1/

@@ -4,8 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Object inventories · Production Workshop</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../demo-navigation.css?v=2" />
+    <script type="module" src="../../dist/examples/demo-navigation.js"></script>
     <style>
+      :root {
+        --line: #2b3a4d;
+        --green: #80dbbd;
+        --orange: #f6bc72;
+      }
       main {
         max-width: 1100px;
         margin: auto;
@@ -21,7 +28,7 @@
         border: 1px solid var(--line);
         border-radius: 12px;
         padding: 24px;
-        background: #fffef9;
+        background: #101b2b;
       }
       .inventory-card h2 {
         font-size: 22px;
@@ -52,14 +59,15 @@
       }
     </style>
   </head>
-  <body>
-    <p>
-      <a href="../../index.html">← Rocket demos</a> ·
-      <a href="inventory.html">Object inventories</a> ·
-      <a href="operations.html">Atomic operations</a> ·
-      <a href="context.html">Context and equipment</a>
-    </p>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
     <main>
+      <p>
+        <a href="../../index.html">← Rocket demos</a> ·
+        <a href="inventory.html">Object inventories</a> ·
+        <a href="operations.html">Atomic operations</a> ·
+        <a href="context.html">Context and equipment</a>
+      </p>
       <a href="../../workshop.html">← Production Workshop</a> ·
       <a href="operations.html">Trade, rules and item use →</a>
       <p class="eyebrow">ONE INVENTORY AUTHORITY</p>

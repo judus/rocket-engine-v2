@@ -1,7 +1,7 @@
 :root {
   font-family: ui-sans-serif, system-ui, sans-serif;
-  color: #eee9dc;
-  background: #172222;
+  color: #e5edf6;
+  background: #0c1320;
   color-scheme: dark;
 }
 * {
@@ -18,7 +18,7 @@ main {
 .eyebrow {
   font-size: 12px;
   letter-spacing: 0.2em;
-  color: #b7ca91;
+  color: #80dbbd;
 }
 h1 {
   font-weight: 550;
@@ -29,14 +29,14 @@ h1 {
 }
 .intro {
   max-width: 520px;
-  color: #bcc5bd;
+  color: #9caec2;
   font-size: 18px;
   line-height: 1.6;
 }
 .stage {
   margin: 32px 0;
-  border: 1px solid #43534b;
-  background: #21332f;
+  border: 1px solid #2b3a4d;
+  background: #101b2b;
   border-radius: 16px;
   overflow: hidden;
 }
@@ -48,7 +48,7 @@ h1 {
 }
 .stage p {
   text-align: center;
-  color: #aebfb2;
+  color: #9caec2;
   font-size: 13px;
   margin: 0;
   padding: 16px;
@@ -61,21 +61,21 @@ h1 {
 }
 button,
 select {
-  border: 1px solid #677566;
+  border: 1px solid #33465d;
   border-radius: 7px;
-  background: #2b3e36;
-  color: #f1eddf;
+  background: #1b2a3d;
+  color: #e5edf6;
   padding: 10px 14px;
   font: inherit;
   cursor: pointer;
 }
 button:hover {
-  background: #405745;
+  background: #2a4058;
 }
 button:focus-visible,
 select:focus-visible,
 input:focus-visible {
-  outline: 2px solid #e4d279;
+  outline: 2px solid #80dbbd;
   outline-offset: 4px;
 }
 label {
@@ -86,19 +86,19 @@ label {
 }
 pre {
   white-space: pre-wrap;
-  color: #b7ca91;
+  color: #80dbbd;
   line-height: 1.8;
   font-size: 13px;
 }
 .note {
-  color: #aebfb2;
+  color: #9caec2;
   font-size: 14px;
   line-height: 1.6;
   max-width: 700px;
 }
 details {
   margin-top: 32px;
-  border-top: 1px solid #43534b;
+  border-top: 1px solid #2b3a4d;
   padding-top: 20px;
 }
 details button {

@@ -85,7 +85,7 @@ function render(): void {
       ctx.translate(view === 0 ? 235 : 565, 245);
       ctx.scale(5, 5);
       ctx.imageSmoothingEnabled = false;
-      ctx.fillStyle = '#152721';
+      ctx.fillStyle = '#0c1320';
       ctx.beginPath();
       ctx.ellipse(0, 1, 19, 3, 0, 0, Math.PI * 2);
       ctx.fill();

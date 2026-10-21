@@ -10,7 +10,6 @@ export const demoGroups: readonly {
   {
     title: '01 · Runtime & scenes',
     pages: [
-      { title: 'Game examples · Attached capabilities', href: './games/' },
       { title: 'Input · 3D first-person', href: './input-first-person.html' },
       { title: 'Input · 2D top-down', href: './input-top-down.html' },
       { title: 'Input · 2D platformer', href: './input-platformer.html' },
@@ -301,7 +300,6 @@ export const demoGroups: readonly {
         title: 'Hi3D cockpit · model fitting & lamps',
         href: './webgl-cockpit-hi3d.html',
       },
-      { title: 'Helper applications', href: './apps/' },
       {
         title: 'Flight Foundry · motion bench',
         href: './apps/flight-foundry/',
@@ -315,20 +313,8 @@ export const demoGroups: readonly {
         href: './apps/flight-foundry/ship.html',
       },
       {
-        title: 'Flight Foundry · surface benchmark',
-        href: './apps/flight-foundry/surface-benchmark.html',
-      },
-      {
-        title: 'Original asteroid family · asset inspection',
-        href: './webgl-asteroid-family.html',
-      },
-      {
         title: 'Quest authoring · requires local API',
         href: './quest-consumer.html',
-      },
-      {
-        title: 'Textured cockpit',
-        href: './webgl-cockpit.html',
       },
       {
         title: 'Environment reflections',
@@ -337,22 +323,6 @@ export const demoGroups: readonly {
       {
         title: 'Directional shadows',
         href: './webgl-cockpit-shadows.html',
-      },
-      {
-        title: 'Live instruments & HUD',
-        href: './webgl-cockpit-displays.html',
-      },
-      {
-        title: 'Instrument bloom',
-        href: './webgl-cockpit-bloom.html',
-      },
-      {
-        title: 'Screen light spill',
-        href: './webgl-cockpit-spill.html',
-      },
-      {
-        title: 'Cockpit & asteroid field',
-        href: './webgl-cockpit-asteroids.html',
       },
     ],
   },
