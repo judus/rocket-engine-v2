@@ -18,11 +18,11 @@ tests and coverage. Local verification passes all 835 tests. Four stale rotation
 assertions were updated to match the already accepted handling; no flight tuning
 was changed. HTTP listener tests require a host that permits local listeners.
 
-The temporary **Review · prototypes & tools** menu section groups cockpit
-integration/fitting pages, Flight Foundry, surface benchmarks, asteroid asset
-inspection and the local quest-authoring consumer. Julien will inspect them
-before deciding what should disappear from navigation. Unlisting does not remove
-files or provide access control.
+The **Review · prototypes & tools** menu groups remaining cockpit fitting,
+Flight Foundry and local quest-authoring pages. The surface benchmark and asteroid
+asset inspection remain accessible by URL; redundant cockpit integration HTML
+pages were retired in favor of neutral renderer demos. Unlisting provides no
+access control.
 
 Farwake and ordinary engine demos need no backend API, secrets, database or
 server-side persistent storage. Browser settings/save examples use client-side
@@ -51,10 +51,13 @@ Concrete local HTML references are checked before packaging. Runtime-created
 asset URLs still need browser verification. Matter.js is copied into the
 versioned dist/vendor tree during build, alongside the other browser packages.
 
-The checked merged revision and archive SHA-256 pass between CI jobs. Deployment
-is serialized without cancelling an active activation; superseded revisions are
-skipped. The deployment client verifies the downloaded archive checksum, uses a
-pinned SSH host key, streams the archive, then requests activation.
+One runner job checks the exact merged revision, packages it and conditionally
+activates it. The archive stays on that runner and is streamed directly to the
+server, which retains releases; GitHub artifact storage is not required.
+Merged-release jobs are serialized without cancelling active work; superseded
+revisions are skipped. PR and dev checks use independent concurrency groups.
+The deployment client verifies the local archive checksum, uses a pinned SSH
+host key, streams the archive, then requests activation.
 
 Required repository secrets, provisioned with Netzy:
 
@@ -72,5 +75,5 @@ live under `/srv/maduser/projects/rocket-previews/releases/<revision>/`, with
 uploads under `/srv/maduser/incoming/rocket-previews/`.
 
 Local CI/client tests and workflow validation do not prove a live deployment.
-GitHub publication, branch rules and server secret provisioning must be verified
-when the repository destination is selected.
+The repository, main branch protections and server provisioning are installed.
+Verify the Actions result and public release revision for each deployment.
