@@ -1,4 +1,3 @@
-import { flightInput } from '../../src/InputPresets.js';
 import { normalizeInputBinding } from '../../src/Input.js';
 import type { InputBinding, InputButton } from '../../src/Input.js';
 import type { InputPreset } from '../../src/ActionContext.js';
@@ -80,13 +79,14 @@ export function validateControls(value: unknown): ControlSettings {
     for (const button of normalizeInputBinding(bindings[id]!)) {
       if (
         button.code === 'KeyC' ||
+        (button.code === 'KeyT' && button.modifiers.length === 0) ||
         button.code === 'Mouse2' ||
         !/^(Key[A-Z]|Digit[0-9]|Arrow(Up|Down|Left|Right)|Space|Tab|Enter|Backspace|Delete|Insert|Home|End|PageUp|PageDown|CapsLock|Shift(Left|Right)|Control(Left|Right)|Alt(Left|Right)|Intl(Backslash|Ro|Yen)|F([1-9]|1[0-9]|2[0-4])|Numpad\w+|Bracket(Left|Right)|Semicolon|Quote|Comma|Period|Slash|Backslash|Minus|Equal|Backquote|Mouse[0-4])$/.test(
           button.code,
         )
       )
         throw new Error(
-          `${label}: unsupported key. Escape is reserved for the menu; C and right mouse toggle mouse steering.`,
+          `${label}: unsupported key. Escape is reserved for the menu; C and right mouse toggle mouse steering; T cycles targets.`,
         );
       const key = `${button.code}:${[...button.modifiers].sort().join('+')}`;
       const previous = assigned.get(key);
@@ -148,8 +148,8 @@ export function controlPreset(
       yaw: axis('yawLeft', 'yawRight'),
       pitch: axis('pitchDown', 'pitchUp'),
       roll: axis('rollLeft', 'rollRight'),
-      lookX: flightInput.actions.lookX!,
-      lookY: flightInput.actions.lookY!,
+      lookX: { kind: 'axis', mapping: { pointer: 'x', scale: 1 } },
+      lookY: { kind: 'axis', mapping: { pointer: 'y', scale: 1 } },
       fire: { kind: 'hold', mapping: b.fire! },
     },
   };

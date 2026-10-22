@@ -27,6 +27,9 @@ export function cockpitReadings(
       selected.has(m.installationId) &&
       ['idle', 'operating'].includes(m.operation.state),
   ).length;
+  const firing = t.mounts.installations.some(
+    (m) => selected.has(m.installationId) && m.operation.outputJ > 0,
+  );
   const target = t.navigation.destination;
   return {
     overhead: [
@@ -56,7 +59,7 @@ export function cockpitReadings(
     target: target
       ? `${target.label} · ${(target.distanceM / 1000).toFixed(2)} km`
       : 'NO DESTINATION',
-    weapons: `${t.mounts.selectedGroupId.toUpperCase()} · ${ready}/${selected.size} MOUNTS READY`,
+    weapons: `${t.mounts.selectedGroupId.toUpperCase()} · ${ready}/${selected.size} ${firing ? 'FIRING' : 'MOUNTS READY'}`,
     heat,
     alert: c.alerts[0]?.message ?? '',
     critical: c.alerts[0]?.severity === 'critical',

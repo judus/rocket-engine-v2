@@ -5,8 +5,8 @@ import {
   multiplyMatrices,
   transformMatrix,
 } from '../../src/3d/index.js';
-import type { Vec3, Matrix4, DynamicTextureImage } from '../../src/3d/index.js';
-import { normalMatrix } from '../../src/3d/NormalMatrix.js';
+import type { Vec3, DynamicTextureImage } from '../../src/3d/index.js';
+import { localPoint } from './AimProjection.js';
 import type { VideoTextureImage } from '../../src/3d/index.js';
 import { callFrame } from './WindshieldApp.js';
 import type { WindshieldHud } from './WindshieldHud.js';
@@ -259,18 +259,4 @@ export class WindshieldSurface {
     const alpha = display ? Math.min(1, (p - 0.35) / 0.5) : 1 - p / 0.35;
     this.hud.setProjectionFade(alpha * alpha * (3 - 2 * alpha));
   }
-}
-
-function localPoint(world: Matrix4, point: Vec3): Vec3 {
-  const inverseTranspose = normalMatrix(world);
-  const p = {
-    x: point.x - world[12],
-    y: point.y - world[13],
-    z: point.z - world[14],
-  };
-  const dot = (i: number) =>
-    inverseTranspose[i]! * p.x +
-    inverseTranspose[i + 1]! * p.y +
-    inverseTranspose[i + 2]! * p.z;
-  return { x: dot(0), y: dot(3), z: dot(6) };
 }

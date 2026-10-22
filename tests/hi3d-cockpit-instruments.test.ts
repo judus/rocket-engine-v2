@@ -1,4 +1,4 @@
-import { cockpitScreenLights } from '../examples/webgl/CockpitScreenLights.js';
+import { cockpitScreenLights } from '../games/farwake/visuals/CockpitScreenLights.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { TextureImage, Node3D, matrixPoint } from '../src/3d/index.js';

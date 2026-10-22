@@ -1,11 +1,16 @@
+import { acquisitionRadius } from '../AimProjection.js';
+import { instrumentPalette } from '../InstrumentPalette.js';
 import { Mesh3D, MeshGeometry, Node3D } from '../../../src/3d/index.js';
 import type { GeometryFace, Vec3 } from '../../../src/3d/index.js';
+
+/** Shared core stroke for the Hi3D rings and steering line. */
+export const cockpitReticleHalfStroke = 0.00514;
 
 /** Cockpit-forward reference mark, built from ordinary unlit geometry.
  * Default placement uses source glTF axes (+Y up, forward -Z). The Hi3D host
  * places its sketch variant on the rigid pilot rig, outside model stretch/sway.
  * Independent camera inspection reveals placement rather than following the eye.
- * No targeting, lock-on, weapons or flight simulation.
+ * Targeting state is applied by the game HUD, independently of geometry.
  */
 export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
   const vertices: Vec3[] = [],
@@ -38,7 +43,7 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
     const part = new Node3D(name);
     part.mesh = new Mesh3D(new MeshGeometry(vertices, faces), [
       {
-        color: '#86ead6',
+        color: instrumentPalette.primary,
         unlit: true,
         opacity,
         metallicFactor: 0,
@@ -84,11 +89,11 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
   };
   if (style === 'hi3d') {
     // Around 1.5 CSS pixels at the default 60-degree FOV / 750px canvas height.
-    const half = 0.00514;
+    const half = cockpitReticleHalfStroke;
     const shapes: [string, (width: number) => void][] = [
       [
         'outer reference ring',
-        (width) => arc(1.15, 0, Math.PI * 2, 192, width),
+        (width) => arc(acquisitionRadius, 0, Math.PI * 2, 192, width),
       ],
       [
         'projectile direction ring',
@@ -99,6 +104,7 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
           }
         },
       ],
+      ['closed target ring', (width) => arc(0.36, 0, Math.PI * 2, 96, width)],
       ['context range ring', (width) => arc(0.07, 0, Math.PI * 2, 48, width)],
       [
         'fixed cross and dot',
@@ -135,6 +141,7 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
     for (const [name, draw] of shapes) {
       draw(half);
       const core = takePart(name);
+      if (name === 'closed target ring') core.visible = false;
       // Broad low-alpha fringes keep the glow visible even below bloom's
       // luminance threshold, without increasing spill from the instruments.
       for (const [spread, opacity] of [
@@ -182,7 +189,7 @@ export function cockpitReticle(style: 'classic' | 'hi3d' = 'classic'): Node3D {
   } else
     node.mesh = new Mesh3D(new MeshGeometry(vertices, faces), [
       {
-        color: '#68bda9',
+        color: instrumentPalette.classicReticle,
         unlit: true,
         metallicFactor: 0,
         roughnessFactor: 1,

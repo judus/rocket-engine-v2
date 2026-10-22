@@ -1160,12 +1160,70 @@ void test('bloom retains scratch targets, skips work at zero strength, validates
   );
   bloom.render(scene, { strength: 0 });
   assert.equal(bloom.stats.drawCalls, 1);
+  bloom.render(scene, { strength: 0, midtoneLift: 0.2 });
+  assert.equal(
+    bloom.stats.drawCalls,
+    1,
+    'midtone lift alone needs no blur passes',
+  );
+  assert.equal(
+    f.calls.filter((c) => c.name === 'createTexture').length,
+    allocations,
+    'midtone lift does not allocate extra targets',
+  );
+  bloom.render(scene, {
+    strength: 0,
+    colorGrade: {
+      strength: 0.25,
+      shadows: [0.7, 0.8, 1],
+      midtones: [1, 0.8, 0.6],
+      highlights: [1, 1, 0.8],
+    },
+  });
+  assert.equal(
+    bloom.stats.drawCalls,
+    1,
+    'color grading alone needs no blur passes',
+  );
+  assert.equal(
+    f.calls.filter((c) => c.name === 'createTexture').length,
+    allocations,
+  );
+  const grade = {
+    strength: 0.2,
+    shadows: [1, 1, 1],
+    midtones: [1, 1, 1],
+    highlights: [1, 1, 1],
+  } as const;
+  const drawsBeforeInvalidGrade = f.calls.filter(
+    (c) => c.name === 'drawArrays',
+  ).length;
+  for (const colorGrade of [
+    { ...grade, strength: NaN },
+    { ...grade, strength: 1.1 },
+    { ...grade, strength: -1 },
+    { ...grade, shadows: [0, 0, 0] as const },
+    { ...grade, midtones: [NaN, 1, 1] as const },
+    { ...grade, highlights: [1, -1, 1] as const },
+  ])
+    assert.throws(() => bloom.render(scene, { colorGrade }), /color grade/);
+  assert.equal(
+    f.calls.filter((c) => c.name === 'drawArrays').length,
+    drawsBeforeInvalidGrade,
+  );
   bloom.render(scene, { view: 'bright' });
   assert.equal(bloom.stats.drawCalls, 2);
   bloom.render(scene, { view: 'scene' });
   assert.equal(bloom.stats.drawCalls, 1);
   const before = f.calls.filter((c) => c.name === 'drawArrays').length;
-  for (const options of [{ radius: NaN }, { threshold: 2 }, { strength: -1 }])
+  for (const options of [
+    { radius: NaN },
+    { threshold: 2 },
+    { strength: -1 },
+    { midtoneLift: NaN },
+    { midtoneLift: -0.1 },
+    { midtoneLift: 1.1 },
+  ])
     assert.throws(() => bloom.render(scene, options), /parameter/);
   assert.equal(f.calls.filter((c) => c.name === 'drawArrays').length, before);
   const foreign = new WebGLRenderTarget(fixture().gl, 32, 32);

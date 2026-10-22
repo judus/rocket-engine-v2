@@ -1,11 +1,24 @@
 import { WebGLRenderTarget } from './RenderTarget.js';
 
+/** Display-referred tint multipliers, normalized to retain neutral luminance.
+ * Each RGB tuple is in 0..1 and must have a nonzero channel. */
+export interface ColorGrade {
+  readonly shadows: readonly [number, number, number];
+  readonly midtones: readonly [number, number, number];
+  readonly highlights: readonly [number, number, number];
+  readonly strength: number;
+}
 export interface BloomOptions {
   /** Linear RGB peak-channel threshold, 0..1, with a fixed 0.08 soft transition. */
   readonly threshold?: number;
   readonly strength?: number;
   /** Gaussian sample spacing in half-resolution texels, 0..8. */
   readonly radius?: number;
+  /** Optional display-referred curve, 0..1. Lifts midtones, preserves black/white.
+   * Composite output only; zero is identity. No HDR recovery or extra render pass. */
+  readonly midtoneLift?: number;
+  /** Optional three-way tint, strength 0..1; composite only, after midtone lift. */
+  readonly colorGrade?: ColorGrade;
   readonly view?: 'composite' | 'scene' | 'bright' | 'bloom';
 }
 const vertex = `#version 300 es
@@ -21,6 +34,11 @@ uniform int view;
 uniform vec2 direction;
 uniform float threshold;
 uniform float strength;
+uniform float midtoneLift;
+uniform float gradeStrength;
+uniform vec3 shadowTint;
+uniform vec3 midtoneTint;
+uniform vec3 highlightTint;
 out vec4 pixel;
 vec3 decode(vec3 c){return mix(pow((c+0.055)/1.055,vec3(2.4)),c/12.92,lessThanEqual(c,vec3(0.04045)));}
 vec3 encode(vec3 c){c=clamp(c,0.0,1.0);return mix(1.055*pow(c,vec3(1.0/2.4))-0.055,12.92*c,lessThanEqual(c,vec3(0.0031308)));}
@@ -42,14 +60,26 @@ void main(){
     pixel=vec4(c,1.0);return;
   }
   vec3 scene=texture(sceneMap,uv).rgb;
-  if(view==1 || (view==0 && strength==0.0)){pixel=vec4(scene,1.0);return;}
+  if(view==1 || (view==0 && strength==0.0 && midtoneLift==0.0 && gradeStrength==0.0)){pixel=vec4(scene,1.0);return;}
   vec3 glow=texture(sourceMap,uv).rgb;
-  pixel=vec4(encode(view>=2 ? glow : decode(scene)+glow*strength),1.0);
+  vec3 c=encode(view>=2 ? glow : decode(scene)+glow*strength);
+  // A bounded display-referred curve; exact endpoints keep black space black.
+  if(view==0){
+    c+=midtoneLift*c*(vec3(1.0)-c);
+    if(gradeStrength>0.0){
+      float luma=dot(c,vec3(0.2126,0.7152,0.0722));
+      float shadow=1.0-smoothstep(0.1,0.45,luma);
+      float highlight=smoothstep(0.55,0.95,luma);
+      vec3 tint=shadowTint*shadow+midtoneTint*(1.0-shadow-highlight)+highlightTint*highlight;
+      c=clamp(c*mix(vec3(1.0),tint,gradeStrength),0.0,1.0);
+    }
+  }
+  pixel=vec4(c,1.0);
 }`;
 
 /** Optional LDR bloom over an sRGB-encoded RGBA8 scene target.
  * Half-resolution linear bright pass, two horizontal/vertical Gaussian pairs,
- * then linear addition and sRGB output. No HDR/exposure, scene, lights or clock.
+ * then linear addition and sRGB output. Optional display-referred midtone lift; no HDR/exposure, scene, lights or clock.
  * Owns only its program/VAO/two scratch targets; caller owns the scene target.
  * Like other backends, owns GL state during the pass and presents to the default framebuffer.
  */
@@ -93,6 +123,11 @@ export class WebGLBloomPass {
         'direction',
         'threshold',
         'strength',
+        'midtoneLift',
+        'gradeStrength',
+        'shadowTint',
+        'midtoneTint',
+        'highlightTint',
       ]) {
         const location = gl.getUniformLocation(this.#program, name);
         if (location === null)
@@ -117,14 +152,34 @@ export class WebGLBloomPass {
     scene.assertContext(gl);
     const threshold = options.threshold ?? 0.6,
       strength = options.strength ?? 0.6,
-      radius = options.radius ?? 2;
+      radius = options.radius ?? 2,
+      midtoneLift = options.midtoneLift ?? 0;
     for (const [value, max] of [
       [threshold, 1],
       [strength, 4],
       [radius, 8],
+      [midtoneLift, 1],
     ])
       if (!Number.isFinite(value) || value! < 0 || value! > max!)
         throw new RangeError('Invalid bloom parameter');
+    const grade = options.colorGrade;
+    if (grade) {
+      if (
+        !Number.isFinite(grade.strength) ||
+        grade.strength < 0 ||
+        grade.strength > 1
+      )
+        throw new RangeError('Invalid color grade strength');
+      for (const tint of [grade.shadows, grade.midtones, grade.highlights]) {
+        if (
+          !Array.isArray(tint) ||
+          tint.length !== 3 ||
+          !tint.every((v) => Number.isFinite(v) && v >= 0 && v <= 1) ||
+          !tint.some((v) => v > 0)
+        )
+          throw new RangeError('Invalid color grade tint');
+      }
+    }
     const view = ['composite', 'scene', 'bright', 'bloom'].indexOf(
       options.view ?? 'composite',
     );
@@ -166,6 +221,25 @@ export class WebGLBloomPass {
     gl.uniform1i(this.#uniforms.view!, view);
     gl.uniform1f(this.#uniforms.threshold!, threshold);
     gl.uniform1f(this.#uniforms.strength!, strength);
+    gl.uniform1f(this.#uniforms.midtoneLift!, midtoneLift);
+    gl.uniform1f(this.#uniforms.gradeStrength!, grade?.strength ?? 0);
+    for (const [name, tint] of [
+      ['shadowTint', grade?.shadows ?? [1, 1, 1]],
+      ['midtoneTint', grade?.midtones ?? [1, 1, 1]],
+      ['highlightTint', grade?.highlights ?? [1, 1, 1]],
+    ] as const) {
+      const scale = Math.max(...tint);
+      const r = tint[0] / scale,
+        g = tint[1] / scale,
+        b = tint[2] / scale;
+      const luminance = r * 0.2126 + g * 0.7152 + b * 0.0722;
+      gl.uniform3f(
+        this.#uniforms[name]!,
+        r / luminance,
+        g / luminance,
+        b / luminance,
+      );
+    }
     const bind = (unit: number, texture: WebGLTexture) => {
       gl.activeTexture(gl.TEXTURE0 + unit);
       gl.bindSampler(unit, null);

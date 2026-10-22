@@ -145,6 +145,39 @@
             value="2" /><output id="radius-value"></output
         ></label>
         <label
+          >Midtone lift
+          <input
+            id="midtone-lift"
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value="0"
+          />
+          <output id="midtone-lift-value"></output>
+        </label>
+        <label
+          >Shadows <input id="shadow-tint" type="color" value="#abc9ff"
+        /></label>
+        <label
+          >Midtones <input id="midtone-tint" type="color" value="#ffe0b8"
+        /></label>
+        <label
+          >Highlights <input id="highlight-tint" type="color" value="#fffae0"
+        /></label>
+        <label
+          >Grade strength
+          <input
+            id="grade-strength"
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value="0"
+          />
+          <output id="grade-strength-value"></output>
+        </label>
+        <label
           >Render scale
           <input
             id="render-scale"
@@ -160,7 +193,13 @@
         should stay below the default threshold. The center uses the existing
         instrument art. An opaque foreground strip blocks part of the display
         before bloom is extracted. Bloom spreads across image edges; it does not
-        light the surrounding geometry.
+        light the surrounding geometry. Midtone lift applies a bounded
+        brightness curve after bloom composition: black and white stay fixed,
+        with no extra render pass. Scene, extraction and glow diagnostic views
+        bypass the curve. The optional three-way tint blends shadow, midtone and
+        highlight hues, normalized to preserve neutral luminance before output
+        clipping. Black stays black. This is display-referred grading of an LDR
+        image, not HDR exposure.
       </p>
       <p id="pass-stats"></p>
       <div class="toolbar">

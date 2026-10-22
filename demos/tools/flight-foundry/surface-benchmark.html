@@ -82,8 +82,9 @@
     <p class="muted">FLIGHT FOUNDRY / EXPERIMENT</p>
     <h1>Surface renderer comparison</h1>
     <p>
-      The game's unchanged cockpit and 72 asteroids. Fixed 1920×1080 buffer,
-      antialiasing on, frozen pilot-seat pose and instruments. Each pass
+      The game's cockpit and 72 asteroids, including current light spill and sun
+      shadows; bloom is excluded to isolate surface rendering. Fixed 1920×1080
+      buffer, antialiasing on, frozen pilot-seat pose and instruments. Each pass
       rebuilds one renderer, warms 60 frames, then measures 32 frames. Three
       interleaved rounds. No simulation, asset loading or shader compilation is
       timed.

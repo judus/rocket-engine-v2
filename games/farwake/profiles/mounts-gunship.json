@@ -1,0 +1,173 @@
+{
+  "id": "mounts-gunship",
+  "slots": [
+    {
+      "id": "mount-1",
+      "accepts": ["weapon", "utility"]
+    },
+    {
+      "id": "mount-2",
+      "accepts": ["weapon", "utility"]
+    },
+    {
+      "id": "mount-3",
+      "accepts": ["weapon", "utility"]
+    },
+    {
+      "id": "mount-4",
+      "accepts": ["weapon", "utility"]
+    },
+    {
+      "id": "mount-5",
+      "accepts": ["weapon", "utility"]
+    },
+    {
+      "id": "mount-6",
+      "accepts": ["weapon", "utility"]
+    },
+    {
+      "id": "mount-7",
+      "accepts": ["weapon", "utility"]
+    }
+  ],
+  "equipment": [
+    {
+      "id": "pulse-cannon",
+      "label": "Pulse cannon",
+      "kind": "weapon",
+      "health": {
+        "maxPoints": 100,
+        "outputExponent": 1
+      },
+      "thermal": {
+        "heatCapacityJPerK": 200000000,
+        "wasteHeatFraction": 0.1,
+        "tripTemperatureK": 490,
+        "restartTemperatureK": 380,
+        "manualStartSeconds": 0.25,
+        "rebootSeconds": 6
+      },
+      "initialTemperatureK": 290,
+      "baselineW": 5000000,
+      "operatingW": 100000000,
+      "outputEfficiency": 0.5,
+      "restartEnergyJ": 0
+    },
+    {
+      "id": "mining-laser",
+      "label": "Mining laser",
+      "kind": "weapon",
+      "health": {
+        "maxPoints": 100,
+        "outputExponent": 1
+      },
+      "thermal": {
+        "heatCapacityJPerK": 200000000,
+        "wasteHeatFraction": 0.1,
+        "tripTemperatureK": 490,
+        "restartTemperatureK": 380,
+        "manualStartSeconds": 0.25,
+        "rebootSeconds": 6
+      },
+      "initialTemperatureK": 290,
+      "baselineW": 5000000,
+      "operatingW": 100000000,
+      "outputEfficiency": 0.5,
+      "restartEnergyJ": 0
+    },
+    {
+      "id": "survey-scanner",
+      "label": "Survey scanner",
+      "kind": "utility",
+      "health": {
+        "maxPoints": 100,
+        "outputExponent": 1
+      },
+      "thermal": {
+        "heatCapacityJPerK": 200000000,
+        "wasteHeatFraction": 0.1,
+        "tripTemperatureK": 490,
+        "restartTemperatureK": 380,
+        "manualStartSeconds": 0.25,
+        "rebootSeconds": 6
+      },
+      "initialTemperatureK": 290,
+      "baselineW": 5000000,
+      "operatingW": 20000000,
+      "outputEfficiency": 0.5,
+      "restartEnergyJ": 0
+    }
+  ],
+  "loadout": [
+    {
+      "slotId": "mount-1",
+      "equipmentId": "pulse-cannon",
+      "installationId": "gun-1"
+    },
+    {
+      "slotId": "mount-2",
+      "equipmentId": "pulse-cannon",
+      "installationId": "gun-2"
+    },
+    {
+      "slotId": "mount-3",
+      "equipmentId": "pulse-cannon",
+      "installationId": "gun-3"
+    },
+    {
+      "slotId": "mount-4",
+      "equipmentId": "pulse-cannon",
+      "installationId": "gun-4"
+    },
+    {
+      "slotId": "mount-5",
+      "equipmentId": "pulse-cannon",
+      "installationId": "gun-5"
+    },
+    {
+      "slotId": "mount-6",
+      "equipmentId": "pulse-cannon",
+      "installationId": "gun-6"
+    },
+    {
+      "slotId": "mount-7",
+      "equipmentId": "pulse-cannon",
+      "installationId": "gun-7"
+    }
+  ],
+  "groups": [
+    {
+      "id": "group-1",
+      "mountIds": [
+        "mount-1",
+        "mount-2",
+        "mount-3",
+        "mount-4",
+        "mount-5",
+        "mount-6",
+        "mount-7"
+      ]
+    },
+    {
+      "id": "group-2",
+      "mountIds": ["mount-1", "mount-3", "mount-5"]
+    },
+    {
+      "id": "group-3",
+      "mountIds": ["mount-2", "mount-4", "mount-6"]
+    },
+    {
+      "id": "group-4",
+      "mountIds": ["mount-7"]
+    },
+    {
+      "id": "group-5",
+      "mountIds": ["mount-5", "mount-6"]
+    },
+    {
+      "id": "group-6",
+      "mountIds": ["mount-1", "mount-2"]
+    }
+  ],
+  "selectedGroupId": "group-1"
+}

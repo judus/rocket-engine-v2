@@ -1,0 +1,34 @@
+{
+  "id": "gunship",
+  "bodyProfile": "hull-starter",
+  "powerProfile": "reactor-starter",
+  "engineProfile": "engine-starter",
+  "initialState": {
+    "energyJ": 20000000000000,
+    "velocityMps": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "engineTemperatureK": 293.15,
+    "damperTemperatureK": 293.15,
+    "reactorTemperatureK": 293.15,
+    "shieldTemperatureK": 293.15,
+    "engineHealthPoints": 100,
+    "reactorHealthPoints": 100,
+    "coolingHealthPoints": 100,
+    "damperHealthPoints": 100,
+    "shieldHealthPoints": 100,
+    "cargoPocketId": "science-pocket",
+    "cargoTemperatureK": 290,
+    "cargoHealthPoints": 100
+  },
+  "damperProfile": "dampers-starter",
+  "coolingProfile": "cooling-starter",
+  "shieldProfile": "shields-starter",
+  "hullProfile": "structure-starter",
+  "cargoProfile": "cargo-starter",
+  "mountsProfile": "mounts-gunship",
+  "internalsProfile": "internals-starter",
+  "productionProfile": "onboard-production"
+}

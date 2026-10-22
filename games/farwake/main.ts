@@ -1,3 +1,5 @@
+import { ShipGunfire } from './ShipGunfire.js';
+import { MouseSteering } from './MouseSteering.js';
 import { Rocket, Input, createVirtualCornerPreset } from '../../src/index.js';
 import type { ActionContext } from '../../src/index.js';
 import { Stage2D, SceneNavigator } from '../../src/experimental/index.js';
@@ -49,7 +51,7 @@ function fail(error: unknown): void {
 }
 async function start(): Promise<void> {
   const setup = await loadShipSetup(
-    new URL('../../../games/farwake/ships/science-ship.json', import.meta.url),
+    new URL('../../../games/farwake/ships/gunship.json', import.meta.url),
   );
   lifetime.signal.throwIfAborted();
   const engine = new Rocket({
@@ -60,8 +62,14 @@ async function start(): Promise<void> {
   let view: Awaited<ReturnType<typeof createCockpitView>> | undefined;
   let actions: ActionContext;
   let binding: ReturnType<ActionContext['bind']>;
-  let mouseYaw = 0,
-    mousePitch = 0;
+  const mouseSteering = new MouseSteering();
+  let mouseX = 0,
+    mouseY = 0;
+  const clearMouse = () => {
+    mouseX = mouseY = 0;
+    mouseSteering.reset();
+    view?.setMouseSteering(0, 0, false);
+  };
   const touchFirst = window.matchMedia('(pointer: coarse)').matches;
   let preferences = defaultControls();
   const activeVirtualMode = () => virtualMode(preferences, touchFirst);
@@ -88,15 +96,32 @@ async function start(): Promise<void> {
       const value = (name: string) =>
         actions.enabled ? actions.value(name) : 0;
       const clamp = (v: number) => Math.max(-1, Math.min(1, v));
+      const mouseActive =
+        actions.enabled &&
+        preferences.steering === 'mouse' &&
+        !mouseReleased &&
+        binding.capture?.active === true;
+      if (mouseActive) {
+        const canvas = view!.surface.canvas;
+        mouseSteering.move(
+          mouseX,
+          mouseY,
+          Math.min(canvas.clientWidth, canvas.clientHeight) * 0.25,
+          preferences.sensitivity,
+          preferences.invertPitch,
+        );
+        mouseX = mouseY = 0;
+      } else clearMouse();
+      const steering = mouseSteering.intent;
+      const deflection = mouseSteering.deflection;
+      view!.setMouseSteering(deflection.yaw, deflection.pitch, mouseActive);
       ship.control.thrust({
         x: value('right'),
         y: value('up'),
         z: value('forward'),
       });
-      ship.control.turn(clamp(value('yaw') + (actions.enabled ? mouseYaw : 0)));
-      ship.control.pitch(
-        clamp(value('pitch') + (actions.enabled ? mousePitch : 0)),
-      );
+      ship.control.turn(clamp(value('yaw') + steering.yaw));
+      ship.control.pitch(clamp(value('pitch') + steering.pitch));
       ship.control.roll(value('roll'));
       ship.mounts.requestFiring(value('fire') > 0);
       return undefined;
@@ -124,6 +149,14 @@ async function start(): Promise<void> {
     id: 'player-ship',
     tags: ['ship', 'player'],
   });
+  const gunfire = ship.attach(new ShipGunfire(ship));
+  for (const installation of setup.profile.mounts.loadout)
+    if (
+      setup.profile.mounts.equipment.find(
+        (e) => e.id === installation.equipmentId,
+      )!.kind === 'weapon'
+    )
+      ship.mounts.requestEnabled(installation.slotId, true);
   ship.dampers.requestEnabled(true);
   ship.cooling.requestEnabled(true);
   ship.cargo.requestEnabled(true);
@@ -150,7 +183,7 @@ async function start(): Promise<void> {
           if (!inFlight) {
             binding.capture?.release();
             view!.surface.canvas.blur();
-            mouseYaw = mousePitch = 0;
+            clearMouse();
             ship.control.clear();
             ship.mounts.requestFiring(false);
             if (navigator.current === 'settings') {
@@ -173,6 +206,7 @@ async function start(): Promise<void> {
     navigator,
     stage,
     ship,
+    gunfire,
     element('#viewport'),
     lifetime.signal,
     () => videoPreferences,
@@ -190,22 +224,15 @@ async function start(): Promise<void> {
   const configure = () => {
     actions?.dispose();
     actions = input.actions(stage).use(controlPreset(preferences, touchFirst));
-    mouseYaw = mousePitch = 0;
+    clearMouse();
     actions.on('lookX', (event) => {
-      mouseYaw = event.cancelled
-        ? 0
-        : (event.value / Math.max(event.dt, 1e-6)) *
-          0.1 *
-          preferences.sensitivity;
+      if (event.cancelled) clearMouse();
+      else mouseX += event.value;
       return undefined;
     });
     actions.on('lookY', (event) => {
-      mousePitch = event.cancelled
-        ? 0
-        : (-event.value / Math.max(event.dt, 1e-6)) *
-          0.1 *
-          preferences.sensitivity *
-          (preferences.invertPitch ? -1 : 1);
+      if (event.cancelled) clearMouse();
+      else mouseY += event.value;
       return undefined;
     });
     actions
@@ -214,6 +241,12 @@ async function start(): Promise<void> {
         return undefined;
       })
       .map('dampers', preferences.bindings.dampers!);
+    actions
+      .register('next-target', 'press', () => {
+        if (!usingSystems) gunfire.nextTarget();
+        return undefined;
+      })
+      .map('next-target', 'KeyT');
     for (let i = 1; i <= 6; i++)
       actions
         .register(`group${i}`, 'press', () => {
@@ -437,6 +470,14 @@ async function start(): Promise<void> {
     },
     { signal: lifetime.signal },
   );
+  window.addEventListener('blur', clearMouse, { signal: lifetime.signal });
+  document.addEventListener(
+    'visibilitychange',
+    () => {
+      if (document.visibilityState === 'hidden') clearMouse();
+    },
+    { signal: lifetime.signal },
+  );
   let hadMouseCapture = false;
   document.addEventListener(
     'pointerlockchange',
@@ -452,7 +493,10 @@ async function start(): Promise<void> {
       ) {
         if (!handledCaptureEscape) leaveCockpitPanel();
       }
-      if (released) handledCaptureEscape = false;
+      if (released) {
+        clearMouse();
+        handledCaptureEscape = false;
+      }
     },
     { signal: lifetime.signal },
   );

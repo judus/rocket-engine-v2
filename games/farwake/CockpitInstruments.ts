@@ -1,11 +1,12 @@
+import { instrumentPalette } from './InstrumentPalette.js';
 import { DynamicTextureImage } from '../../src/3d/index.js';
 import { updateTextureFromCanvas } from '../../src/webgl/index.js';
 import { cockpitReadings } from './CockpitReadings.js';
 import type { CockpitReading } from './CockpitReadings.js';
 import type { Ship } from './Ship.js';
 
-const cyan = '#86ead6',
-  muted = '#6a9691',
+const cyan = instrumentPalette.primary,
+  muted = instrumentPalette.muted,
   amber = '#edba76';
 function display(width = 512, height = 400) {
   const canvas = document.createElement('canvas');
@@ -51,9 +52,9 @@ export class CockpitInstruments {
       computer = this.ship.computer.telemetry;
     const all = [this.navigation, this.computer, ...this.overhead];
     for (const { ctx, canvas } of all) {
-      ctx.fillStyle = '#030b0e';
+      ctx.fillStyle = instrumentPalette.background;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = '#21423e';
+      ctx.strokeStyle = instrumentPalette.border;
       ctx.strokeRect(4, 4, canvas.width - 8, canvas.height - 8);
       ctx.fillStyle = cyan;
       ctx.textAlign = 'left';
@@ -66,7 +67,7 @@ export class CockpitInstruments {
       cy = 195,
       radius = 130,
       range = 10000;
-    ctx.strokeStyle = '#21423e';
+    ctx.strokeStyle = instrumentPalette.border;
     for (const r of [radius / 3, (radius * 2) / 3, radius]) {
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
@@ -124,7 +125,7 @@ export class CockpitInstruments {
         canvas.width - 18,
         30,
       );
-      ctx.fillStyle = '#15312e';
+      ctx.fillStyle = instrumentPalette.gaugeTrack;
       ctx.fillRect(18, 61, canvas.width - 36, 17);
       ctx.fillStyle = color;
       ctx.fillRect(18, 61, (canvas.width - 36) * reading.fraction, 17);
@@ -152,7 +153,7 @@ export class CockpitInstruments {
     );
     c.modules.slice(this.#page * 5, this.#page * 5 + 5).forEach((m, i) => {
       const y = 85 + i * 53;
-      ctx.strokeStyle = '#21423e';
+      ctx.strokeStyle = instrumentPalette.border;
       ctx.beginPath();
       ctx.moveTo(18, y + 36);
       ctx.lineTo(494, y + 36);
@@ -169,7 +170,9 @@ export class CockpitInstruments {
         350,
       );
       if (m.requested !== null) {
-        ctx.fillStyle = m.requested ? '#173d36' : '#122326';
+        ctx.fillStyle = m.requested
+          ? instrumentPalette.switchOn
+          : instrumentPalette.switchOff;
         ctx.fillRect(392, y - 12, 98, 34);
         ctx.fillStyle = m.requested ? cyan : muted;
         ctx.font = 'bold 16px monospace';

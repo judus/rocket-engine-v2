@@ -4,7 +4,7 @@ import { Node3D, matrixPoint } from '../src/3d/index.js';
 import {
   cockpitShadowFit,
   mergeShadowFits,
-} from '../examples/webgl/CockpitShadowFit.js';
+} from '../games/farwake/visuals/CockpitShadowFit.js';
 import { cockpitAsteroidField } from '../games/farwake/visuals/CockpitAsteroidField.js';
 
 void test('outside field stays in world space while the pilot rig moves and turns', () => {

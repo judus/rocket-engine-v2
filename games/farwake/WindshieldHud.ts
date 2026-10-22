@@ -1,3 +1,5 @@
+import type { TargetingReading } from './ShipTargeting.js';
+import { instrumentPalette } from './InstrumentPalette.js';
 import {
   Mesh3D,
   MeshGeometry,
@@ -144,6 +146,30 @@ export class WindshieldHud {
     this.stableReticle.visible = this.reticle.visible;
     this.stableReticle.opacity = this.root.opacity;
   }
+  updateTargeting(reading: TargetingReading): void {
+    const find = (name: string) =>
+      this.stableReticle.children.find((n) => n.name === name)!;
+    const open = find('projectile direction ring'),
+      closed = find('closed target ring');
+    const ready = reading.tracking && reading.inRange;
+    open.visible = reading.targetPoint !== null && !ready;
+    closed.visible = reading.targetPoint !== null && ready;
+    for (const node of [open, closed]) {
+      const point = reading.targetPoint ?? { x: 0, y: 0 };
+      const scale = ready ? 0.65 : 1;
+      node.transform = {
+        ...node.transform,
+        position: { ...point, z: 0 },
+        scale: { x: scale, y: scale, z: 1 },
+      };
+    }
+    const aim = find('context range ring');
+    aim.visible = reading.aimPoint !== null;
+    aim.transform = {
+      ...aim.transform,
+      position: { ...(reading.aimPoint ?? { x: 0, y: 0 }), z: 0 },
+    };
+  }
   setProjectionFade(alpha: number): void {
     this.root.opacity = alpha;
     this.stableReticle.opacity = alpha;
@@ -259,7 +285,7 @@ export class WindshieldHud {
             : '#edba76'
           : this.#displayMode
             ? '#dde3e7'
-            : '#86ead6';
+            : instrumentPalette.primary;
       if (text === line.text && color === line.color) continue;
       line.node.visible =
         !this.#displayMode && key !== 'heading' && text.length > 0;

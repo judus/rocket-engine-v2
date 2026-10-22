@@ -19,7 +19,7 @@ import { hi3dCockpitInstruments } from './Hi3dCockpitInstruments.js';
 import { CockpitMotion } from '../../games/farwake/visuals/CockpitMotion.js';
 import { CockpitFlight } from './CockpitFlight.js';
 import { cockpitAsteroidField } from '../../games/farwake/visuals/CockpitAsteroidField.js';
-import { cockpitScreenLights } from './CockpitScreenLights.js';
+import { cockpitScreenLights } from '../../games/farwake/visuals/CockpitScreenLights.js';
 import type {
   WebGLBloomPass,
   WebGLRenderTarget,
@@ -28,7 +28,10 @@ import type { BloomOptions } from '../../src/webgl/index.js';
 import { cockpitReticle } from '../../games/farwake/visuals/CockpitReticle.js';
 import { attachCockpitDisplays } from './CockpitDisplays.js';
 import { cockpitInstruments } from './CockpitInstruments.js';
-import { cockpitShadowFit, mergeShadowFits } from './CockpitShadowFit.js';
+import {
+  cockpitShadowFit,
+  mergeShadowFits,
+} from '../../games/farwake/visuals/CockpitShadowFit.js';
 import { directionalShadowMatrix } from '../../src/3d/index.js';
 import type { DirectionalShadow3D } from '../../src/3d/index.js';
 import { studioEnvironment, previewEnvironment } from './StudioEnvironment.js';

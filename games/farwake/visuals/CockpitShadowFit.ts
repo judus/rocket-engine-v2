@@ -1,5 +1,5 @@
-import { matrixPoint } from '../../src/3d/index.js';
-import type { Node3D, Vec3 } from '../../src/3d/index.js';
+import { matrixPoint } from '../../../src/3d/index.js';
+import type { Node3D, Vec3 } from '../../../src/3d/index.js';
 
 /** Application-owned rigid-model bound. Compute once before the inspection rig moves. */
 export function cockpitShadowFit(root: Node3D): {

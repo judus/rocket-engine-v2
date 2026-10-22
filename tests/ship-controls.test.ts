@@ -164,3 +164,11 @@ void test('C stays reserved independently of configurable cockpit display bindin
     /right mouse toggle mouse steering/,
   );
 });
+
+void test('Bare T is reserved for cycling combat targets while modified T remains bindable', () => {
+  const settings = defaultControls();
+  settings.bindings.forward = 'KeyT';
+  assert.throws(() => validateControls(settings), /T cycles targets/);
+  settings.bindings.forward = { code: 'KeyT', modifiers: ['Shift'] };
+  assert.doesNotThrow(() => validateControls(settings));
+});

@@ -1,13 +1,27 @@
+import { aimProjection } from './AimProjection.js';
+import { asteroidCombatWorld } from './AsteroidHits.js';
+import { gunfireView } from './visuals/GunfireView.js';
+import type { ShipGunfire } from './ShipGunfire.js';
+import { mouseSteeringCue } from './visuals/MouseSteeringCue.js';
 import {
   Node3D,
   PerspectiveCamera,
   matrixPoint,
+  directionalShadowMatrix,
   pickMesh3D,
 } from '../../src/3d/index.js';
 import type { Matrix4, Mesh3D, TextureImage } from '../../src/3d/index.js';
-import type { WebGLMeshRenderer3D } from '../../src/webgl/index.js';
+import type {
+  WebGLRenderTarget,
+  WebGLMeshRenderer3D,
+} from '../../src/webgl/index.js';
 import { hi3dCockpitDisplays } from './visuals/Hi3dCockpitDisplays.js';
 import { hi3dCockpitLamps } from './visuals/Hi3dCockpitLamps.js';
+import { cockpitScreenLights } from './visuals/CockpitScreenLights.js';
+import {
+  cockpitShadowFit,
+  mergeShadowFits,
+} from './visuals/CockpitShadowFit.js';
 import { mountCockpitModel } from './CockpitModel.js';
 import { CockpitResponse } from './CockpitResponse.js';
 import { WindshieldSurface } from './WindshieldSurface.js';
@@ -25,6 +39,7 @@ export function createCockpitScene(
   modelRoot: Node3D,
   variants: readonly (readonly Mesh3D[])[],
   app: WindshieldApp | null,
+  gunfire: ShipGunfire | null,
 ) {
   const root = new Node3D('flight world'),
     rig = new Node3D('ship cockpit');
@@ -32,6 +47,17 @@ export function createCockpitScene(
   const { assembly, fit } = mountCockpitModel(modelRoot);
   const field = originalAsteroidField(2126, 72, variants, true);
   root.add(field).add(rig);
+  const gunEffects = gunfire ? gunfireView() : null;
+  const asteroidWorld = gunfire
+    ? asteroidCombatWorld(field, () => {
+        ship.navigation.setContacts(
+          contacts.filter((c) => asteroidWorld!.isAlive(c.id)),
+        );
+      })
+    : null;
+  if (gunfire && gunEffects && asteroidWorld) {
+    root.add(gunEffects.root);
+  }
   rig.add(response.root);
   response.root.add(assembly);
   const instruments = new CockpitInstruments(ship);
@@ -69,6 +95,17 @@ export function createCockpitScene(
     };
   });
   fit.add(displays);
+  const screenLights = cockpitScreenLights(
+    displays,
+    [
+      'Hi3D radar',
+      'Hi3D flight',
+      'Hi3D attitude',
+      'Hi3D speed',
+      'Hi3D position',
+    ],
+    'soft-cyan',
+  );
   const lamps = hi3dCockpitLamps();
   lamps.root.transform = displays.transform;
   lamps.setCockpitScale(0.8, 0.93);
@@ -98,6 +135,13 @@ export function createCockpitScene(
   const hud = new WindshieldHud();
   const windshield = new WindshieldSurface(modelRoot, hud, pilotEye);
   hud.stabilizeInnerReticle(rig);
+  if (gunfire && asteroidWorld)
+    gunfire.setWorld(
+      asteroidWorld,
+      aimProjection(hud.stableReticle.matrix!, pilotEye),
+    );
+  const steeringCue = mouseSteeringCue();
+  hud.stableReticle.add(steeringCue.root);
   if (app) windshield.setDisplayImage(app.image);
   const camera = new PerspectiveCamera();
   camera.near = 0.05;
@@ -105,6 +149,8 @@ export function createCockpitScene(
   const sun = distantSun();
   root.add(sun.node);
   const sunDirection = { x: -0.6, y: 0.35, z: -0.72 };
+  const cabinShadowFit = cockpitShadowFit(assembly);
+  const fieldShadowFit = cockpitShadowFit(field);
   const contacts: NavigationContact[] = field.children
     .slice(0, 12)
     .map((n, i) => ({
@@ -121,14 +167,22 @@ export function createCockpitScene(
     hud,
     windshield,
     app,
+    setMouseSteering: steeringCue.update,
     update(dt: number) {
       response.update(dt);
+      if (gunfire && gunEffects && asteroidWorld) {
+        gunEffects.update(gunfire.telemetry);
+        field.children.forEach((node, index) => {
+          node.visible = asteroidWorld.isAlive(`rock-${index + 1}`);
+        });
+      }
     },
     draw(
       renderer: WebGLMeshRenderer3D,
       width: number,
       height: number,
       sky: TextureImage,
+      target?: WebGLRenderTarget,
     ) {
       const b = ship.telemetry.body,
         p = b.positionM;
@@ -174,18 +228,69 @@ export function createCockpitScene(
         5,
         ship.computer.telemetry.alerts.some((a) => a.severity === 'critical'),
       );
-      hud.update(instruments.status);
+      const targeting = gunfire?.telemetry.targeting;
+      hud.update(
+        targeting
+          ? {
+              ...instruments.status,
+              target: targeting.targetId
+                ? `Asteroid ${targeting.targetId.slice(5).padStart(2, '0')} · ${(targeting.distanceM / 1000).toFixed(2)} km · ${targeting.tracking ? 'TRACKING' : 'LOCKED'}`
+                : 'NO TARGET',
+            }
+          : instruments.status,
+      );
+      if (targeting) hud.updateTargeting(targeting);
+      const shadowFit = mergeShadowFits(
+        {
+          center: matrixPoint(
+            response.root.worldMatrix(),
+            cabinShadowFit.center,
+          ),
+          radius: cabinShadowFit.radius + 0.3,
+        },
+        fieldShadowFit,
+      );
       return renderer.render(root, camera, width, height, {
+        ...(target ? { target } : {}),
+        shadow: {
+          lightIndex: 1,
+          matrix: directionalShadowMatrix(
+            sunDirection,
+            shadowFit.center,
+            shadowFit.radius * 1.05,
+            shadowFit.radius * 2.2,
+          ),
+          resolution: 4096,
+          bias: 0.0003,
+          slopeBias: 0.001,
+          filter: 'pcf',
+        },
         clearColor: [0, 0, 0],
         background: { image: sky, yaw: Math.PI / 2 },
         lights: [
-          { kind: 'ambient', color: [1, 1, 1], intensity: 0.015 },
+          // A small shadow lift; the sky and emissive displays are unaffected.
+          { kind: 'ambient', color: [1, 1, 1], intensity: 0.025 },
           {
             kind: 'directional',
-            color: [1, 0.97, 0.9],
+            color: [1, 0.94, 0.82],
             intensity: 1.1,
             direction: sunDirection,
           },
+          // Soft warm ceiling fill counters the darkest cabin faces without changing sunlight.
+          {
+            kind: 'point',
+            position: matrixPoint(pose, {
+              x: pilotEye.x,
+              y: pilotEye.y + 0.35,
+              z: pilotEye.z - 0.4,
+            }),
+            color: [1, 0.9, 0.76],
+            intensity: 0.7,
+            minimumDistance: 1.5,
+          },
+          ...lamps.buttonLights(),
+          ...lamps.alertLights(),
+          ...screenLights(0.25, true),
         ],
         lightingEnabled: true,
         materialResponseEnabled: true,

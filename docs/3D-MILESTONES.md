@@ -369,7 +369,7 @@ conversion, then fits a spherical orthographic shadow volume around that bound.
 Its center follows the inspection rig and model yaw; its radius stays constant
 under those rigid movements. World-space directional yaw/elevation are independent
 of ship motion. The reference grid neither casts nor receives shadows. Fitting
-belongs to the example (`CockpitShadowFit`), not the backend or imported model.
+belongs to the application (`games/farwake/visuals/CockpitShadowFit`), not the backend or imported model.
 
 Controls expose shadow enable, PCF, visibility mask, 256..2048 resolution,
 constant/slope bias and incoming light yaw/elevation. Default: 1024², bias 0.0005,

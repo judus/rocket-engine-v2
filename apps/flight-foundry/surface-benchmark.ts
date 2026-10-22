@@ -66,7 +66,7 @@ async function start(): Promise<void> {
   const base = new URL('../../../', import.meta.url);
   const [model, sky, family, setup] = await Promise.all([
     assets.acquireModel(
-      new URL('examples/3d/assets/cockpit-hi3d-v3-gap-filled.glb', base).href,
+      new URL('examples/3d/assets/cockpit-hi3d-v3-smartglass.glb', base).href,
       { signal: lifetime.signal },
     ),
     assets.acquireTexture(
@@ -85,6 +85,7 @@ async function start(): Promise<void> {
     ship,
     model.value.instantiate().root,
     family.variants,
+    null,
     null,
   );
   ship.fixedUpdate(1 / 60, { dt: 1 / 60, tick: 1, time: 1 / 60 });
@@ -125,6 +126,7 @@ async function start(): Promise<void> {
     renderer = new WebGLMeshRenderer3D(surface.gl, {
       lighting: true,
       textures: true,
+      shadows: true,
       ...surfaceVariants[next],
     });
     inspect.value = next;

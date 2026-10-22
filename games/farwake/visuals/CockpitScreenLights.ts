@@ -1,5 +1,6 @@
-import { matrixPoint } from '../../src/3d/index.js';
-import type { Node3D, PointLight3D, Vec3 } from '../../src/3d/index.js';
+import { instrumentPalette } from '../InstrumentPalette.js';
+import { matrixPoint } from '../../../src/3d/index.js';
+import type { Node3D, PointLight3D, Vec3 } from '../../../src/3d/index.js';
 
 /** Asset-owned approximation: one existing point light just in front of each LCD.
  * Representative display colors and authored face area approximate backlight output.
@@ -56,9 +57,10 @@ export function cockpitScreenLights(
     value /= 255;
     return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
   };
-  const cool = (style === 'soft-cyan' ? [134, 234, 214] : [113, 229, 195]).map(
-    decode,
-  ) as [number, number, number];
+  const cool =
+    style === 'soft-cyan'
+      ? instrumentPalette.spill
+      : instrumentPalette.classicSpillLinear;
   const warm = [233, 189, 112].map(decode) as [number, number, number];
   return (strength, powered) => {
     if (!Number.isFinite(strength) || strength < 0 || strength > 8)

@@ -1,8 +1,10 @@
+import type { ShipGunfire } from './ShipGunfire.js';
 import { CrewCallVideo } from './CrewCallVideo.js';
 import {
   WebGLSurface,
   WebGLAssets,
   WebGLMeshRenderer3D,
+  WebGLBloomPipeline,
 } from '../../src/webgl/index.js';
 import { Assets } from '../../src/index.js';
 import type { ImageLease } from '../../src/Assets.js';
@@ -24,6 +26,7 @@ export async function createCockpitView(
   navigator: SceneNavigator,
   scene: Stage2D,
   ship: Ship,
+  gunfire: ShipGunfire,
   host: HTMLElement,
   signal: AbortSignal,
   video: () => VideoSettings,
@@ -112,6 +115,7 @@ export async function createCockpitView(
       model.value.instantiate().root,
       family.variants,
       app,
+      gunfire,
     );
     document.addEventListener(
       'visibilitychange',
@@ -132,17 +136,21 @@ export async function createCockpitView(
         new WebGLMeshRenderer3D(gl, {
           lighting: true,
           textures: true,
+          shadows: true,
           ...surfaceVariants[selected],
         });
       let renderer = createRenderer(detail);
+      let bloom: WebGLBloomPipeline;
       try {
         selectMaterials(detail);
+        bloom = new WebGLBloomPipeline(gl);
       } catch (error) {
         renderer.dispose();
         throw error;
       }
       return {
         value: {
+          bloom,
           select(selected: SurfaceDetail) {
             if (selected !== detail) {
               const next = createRenderer(selected);
@@ -161,6 +169,7 @@ export async function createCockpitView(
           },
         },
         dispose(): undefined {
+          bloom.dispose();
           renderer.dispose();
         },
       };
@@ -187,11 +196,29 @@ export async function createCockpitView(
           videoSurfaceScale(video(), window.devicePixelRatio || 1),
           host.clientWidth / Math.max(1, host.clientHeight),
         );
-        cockpit.draw(
-          renderer,
+        resource.bloom.render(
           surface.canvas.width,
           surface.canvas.height,
-          sky.value,
+          (target) =>
+            cockpit.draw(
+              renderer,
+              surface.canvas.width,
+              surface.canvas.height,
+              sky.value,
+              target,
+            ),
+          {
+            threshold: 0.7,
+            strength: 0.18,
+            radius: 1,
+            midtoneLift: 0.35,
+            colorGrade: {
+              shadows: [0.67, 0.79, 1],
+              midtones: [1, 0.88, 0.72],
+              highlights: [1, 0.98, 0.88],
+              strength: 0.25,
+            },
+          },
         );
         if (showFps) {
           const fps = frameRate.frame(performance.now());
@@ -211,6 +238,7 @@ export async function createCockpitView(
     return {
       surface,
       instruments: cockpit.instruments,
+      setMouseSteering: cockpit.setMouseSteering,
       backWindshield() {
         return app.back();
       },

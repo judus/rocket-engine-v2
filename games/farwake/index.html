@@ -110,10 +110,19 @@
                 <label
                   >Steering
                   <select id="steering">
-                    <option value="mouse">Mouse + keyboard</option>
+                    <option value="mouse">
+                      Mouse virtual stick + keyboard
+                    </option>
                     <option value="keyboard">Keyboard</option>
                   </select></label
                 >
+                <p class="hint">
+                  Move the mouse away from centre to keep turning; return the
+                  small HUD marker to centre to stop commanding a turn.
+                  Sensitivity changes the mouse travel needed. C/right mouse
+                  releases steering and recentres it. Ship acceleration and
+                  braking still apply.
+                </p>
                 <label
                   >Mouse sensitivity
                   <span class="range-line"
@@ -145,8 +154,8 @@
               <p class="muted">
                 Select a binding to replace it, or + to add an alternative.
                 Escape cancels a waiting binding; otherwise it returns to the
-                menu. C or right mouse toggles mouse steering; both are
-                reserved.
+                menu. C or right mouse toggles mouse steering; T cycles targets.
+                These controls are reserved.
               </p>
               <div id="bindings"></div>
             </section>
