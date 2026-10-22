@@ -1,8 +1,8 @@
 # Sprite and worker integration demos
 
-Run `npm start` and open [sprites](http://127.0.0.1:8092/sprites.html),
-[worker terrain](http://127.0.0.1:8092/terrain-workers.html?seed=42&scale=96) or
-[main-thread baseline](http://127.0.0.1:8092/terrain-streaming.html?seed=42&scale=96).
+Run `npm start` and open [sprites](http://127.0.0.1:8092/demos/sprites.html),
+[worker terrain](http://127.0.0.1:8092/demos/terrain-workers.html?seed=42&scale=96) or
+[main-thread baseline](http://127.0.0.1:8092/demos/terrain-streaming.html?seed=42&scale=96).
 These are Rocket consumer examples, not new engine subsystems or CFW dependencies.
 
 ## Sprites

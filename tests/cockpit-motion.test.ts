@@ -1,9 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {
-  CockpitMotion,
-  CockpitFlight,
-} from '../examples/webgl/CockpitMotion.js';
+import { CockpitMotion } from '../games/farwake/visuals/CockpitMotion.js';
+import { CockpitFlight } from '../examples/webgl/CockpitFlight.js';
 
 void test('cockpit movement leans slightly and settles exactly back to rest', () => {
   const motion = new CockpitMotion();

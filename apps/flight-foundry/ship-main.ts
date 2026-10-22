@@ -3,13 +3,13 @@ import { NavigationPanel } from './navigation-panel.js';
 import { navigationContacts } from './navigation-contacts.js';
 import { InternalsPanel } from './internals-panel.js';
 import { MountsPanel } from './mounts-panel.js';
-import type { HealthReading } from '../../games/ship/ModuleHealth.js';
+import type { HealthReading } from '../../games/farwake/ModuleHealth.js';
 import { Rocket } from '../../src/index.js';
 import { Stage2D } from '../../src/experimental/index.js';
-import { Ship } from '../../games/ship/Ship.js';
-import { loadShipSetup } from '../../games/ship/loadShipSetup.js';
-import type { ShipSetup } from '../../games/ship/ShipProfiles.js';
-import type { ShipTelemetry } from '../../games/ship/ShipMovement.js';
+import { Ship } from '../../games/farwake/Ship.js';
+import { loadShipSetup } from '../../games/farwake/loadShipSetup.js';
+import type { ShipSetup } from '../../games/farwake/ShipProfiles.js';
+import type { ShipTelemetry } from '../../games/farwake/ShipMovement.js';
 
 function find<T extends HTMLElement>(id: string): T {
   const node = document.querySelector<T>(id);
@@ -560,7 +560,7 @@ window.addEventListener(
 find('#message').textContent =
   'Loading ship definition and equipment profiles…';
 void loadShipSetup(
-  new URL('../../games/ship/ships/science-ship.json', window.location.href),
+  new URL('../../../games/farwake/ships/science-ship.json', import.meta.url),
 )
   .then((loaded) => {
     setup = loaded;

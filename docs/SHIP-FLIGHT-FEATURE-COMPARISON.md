@@ -139,7 +139,7 @@ Current Rocket:
 - [C2] — typed behavior attachment; see [fixed clock dispatch](/home/maduser/workspace/rocket-engine-v2/src/Rocket.ts:415), [app facade](/home/maduser/workspace/rocket-engine-v2/src/experimental/createApp.ts:1), and [Node3D presentation](/home/maduser/workspace/rocket-engine-v2/src/3d/Node3D.ts:11).
 - [C3] — cockpit cosmetic/eased motion; see [flight attitude](/home/maduser/workspace/rocket-engine-v2/examples/input/FlightOrientation.ts:17) and [input flight demo](/home/maduser/workspace/rocket-engine-v2/examples/input/FlightDemo.ts:30).
 - [C4] — application-owned reactor/reserve/load trial; see [partial-delivery test](/home/maduser/workspace/rocket-engine-v2/tests/ship-power.test.ts:56) and [trial scope](/home/maduser/workspace/rocket-engine-v2/docs/SHIP-POWER-ECS.md:1).
-- [C5] — cockpit assembly and fitting; see [preview-unit inserts](/home/maduser/workspace/rocket-engine-v2/examples/webgl/Hi3dCockpitDisplays.ts:4) and [system display](/home/maduser/workspace/rocket-engine-v2/examples/webgl/CockpitSystemsPanel.ts:1).
+- [C5] — cockpit assembly and fitting; see [preview-unit inserts](/home/maduser/workspace/rocket-engine-v2/games/farwake/visuals/Hi3dCockpitDisplays.ts:4) and [system display](/home/maduser/workspace/rocket-engine-v2/examples/webgl/CockpitSystemsPanel.ts:1).
 - [C6] — current seeded space field; see [tile streaming](/home/maduser/workspace/rocket-engine-v2/examples/streaming/ChunkStream.ts:1) and [persistent edits](/home/maduser/workspace/rocket-engine-v2/examples/streaming/PersistentEdits.ts:14) for separate world examples. These are not an integrated large-world ship coordinate system.
 - [C7] — game capability examples and their documented limits.
 - [C8] — existing flight-input tests; see [capability tests](/home/maduser/workspace/rocket-engine-v2/tests/capabilities.test.ts:1) and [power tests](/home/maduser/workspace/rocket-engine-v2/tests/ship-power.test.ts:1).
@@ -160,10 +160,10 @@ Current Rocket:
 [L13]: /home/maduser/workspace/rocket-engine/demo/src/physics/collisions/DefaultCollisionResponse.js:29
 [C1]: /home/maduser/workspace/rocket-engine-v2/src/InputPresets.ts:102
 [C2]: /home/maduser/workspace/rocket-engine-v2/src/Node2D.ts:134
-[C3]: /home/maduser/workspace/rocket-engine-v2/examples/webgl/CockpitMotion.ts:53
-[C4]: /home/maduser/workspace/rocket-engine-v2/examples/ship/ShipPower.ts:1
+[C3]: /home/maduser/workspace/rocket-engine-v2/examples/webgl/CockpitFlight.ts:1
+[C4]: /home/maduser/workspace/rocket-engine-v2/games/farwake/PowerLedger.ts:1
 [C5]: /home/maduser/workspace/rocket-engine-v2/examples/webgl/cockpit.ts:497
-[C6]: /home/maduser/workspace/rocket-engine-v2/examples/space/OriginalAsteroidField.ts:1
+[C6]: /home/maduser/workspace/rocket-engine-v2/games/farwake/visuals/OriginalAsteroidField.ts:1
 [C7]: /home/maduser/workspace/rocket-engine-v2/games/README.md:1
 [C8]: /home/maduser/workspace/rocket-engine-v2/tests/input-flight.test.ts:1
 [C10]: /home/maduser/workspace/rocket-engine-v2/src/physics/matter.ts:67

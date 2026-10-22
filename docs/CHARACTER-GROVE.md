@@ -1,6 +1,6 @@
 # Grove evidence and pickup
 
-Run `npm start` and open `/character-grove.html`. Focus the canvas for WASD/Shift.
+Run `npm start` and open `/demos/character-grove.html`. Focus the canvas for WASD/Shift.
 Arm the flow, walk into the green Old Grove, then press E or click the gold marker
 from within 24 pixels. The authored situation closes after the actual pickup event.
 The situation details Panel displays CFW's authored prose. No NPC, dialogue choice,

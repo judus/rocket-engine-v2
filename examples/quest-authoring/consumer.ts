@@ -98,8 +98,8 @@ async function start(prior = false) {
           this.own(index);
           const spec = (await json(
             new URL(
-              './examples/quest-authoring/village-world.json',
-              window.location.href,
+              '../../../examples/quest-authoring/village-world.json',
+              import.meta.url,
             ),
             signal,
           )) as WorldSpec;
@@ -116,7 +116,10 @@ async function start(prior = false) {
           });
           new ChatBox(panel, chat);
           const lease = await assets.acquireImage(
-            './examples/character-sprites/Female1.png',
+            new URL(
+              '../../../examples/character-sprites/Female1.png',
+              import.meta.url,
+            ).href,
             { signal },
           );
           if (signal.aborted) {

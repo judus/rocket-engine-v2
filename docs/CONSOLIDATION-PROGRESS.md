@@ -39,8 +39,8 @@ browser-copy script. No submodules or peer-source edits.
   Copied layer fixture/art/proof/control code; replaced its standalone RAF owner
   with the existing Rocket scene/presentation loop. Legacy 0.2.0 alias preserved.
 
-Demos: `/examples/inventory/context.html`, sibling inventory/operations pages, and
-`/sprite-layers.html`. Browser checked equipment swap/wrong-slot refusal/checkpoint
+Demos: `/demos/inventory/context.html`, sibling inventory/operations pages, and
+`/demos/sprite-layers.html`. Browser checked equipment swap/wrong-slot refusal/checkpoint
 restoration and paused shirt/weapon changes retaining exact phase. Added Rocket
 consumer tests for exact item/modifier ownership and one-master layered playback.
 Actual sprite-pack validation is left aside: no pack was selected for this task.

@@ -1,6 +1,6 @@
 # Work → takeover → resume
 
-Run `npm start` and open `/character-work.html`. Two characters automatically walk
+Run `npm start` and open `/demos/character-work.html`. Two characters automatically walk
 to a smelter and press. Click a sprite or choose A/B, then press **Take control**.
 Focus the canvas and use WASD; Shift increases movement to 136 px/s and walk playback
 to 1.5×. **Release control** resumes that worker's assignment. Merely selecting a

@@ -75,8 +75,8 @@ async function start(prior = false) {
         async prepare({ signal }) {
           this.own(index);
           const base = new URL(
-            './examples/character-encounter/session.json',
-            window.location.href,
+            '../../../examples/character-encounter/session.json',
+            import.meta.url,
           );
           const session = (await json(base, signal)) as {
             world: string;
@@ -103,7 +103,10 @@ async function start(prior = false) {
           });
           new ChatBox(panel, chat);
           const lease = await assets.acquireImage(
-            './examples/character-sprites/Female1.png',
+            new URL(
+              '../../../examples/character-sprites/Female1.png',
+              import.meta.url,
+            ).href,
             { signal },
           );
           if (signal.aborted) {

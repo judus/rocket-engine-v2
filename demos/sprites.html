@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket · Sprite animation</title>
+    <link rel="stylesheet" href="../examples/style.css" />
+    <link rel="stylesheet" href="../examples/demo-navigation.css?v=2" />
+    <script type="module" src="../dist/examples/demo-navigation.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "sprite-animation": "../dist/vendor/sprite-animation-0.3.0/index.js",
+          "sprite-animation/canvas2d": "../dist/vendor/sprite-animation-0.3.0/canvas2d.js"
+        }
+      }
+    </script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <h1>Two players, one atlas, two views.</h1>
+      <p>
+        Click either sprite in either view to select it. Gold rectangles follow
+        flipped bounds; cyan marks the off-center pivot. A uses nested
+        rotated/nonuniform transforms. B blinks independently. Animation
+        advances in scene updates, never in drawing.
+      </p>
+
+      <div class="toolbar">
+        <button id="sprite-pause">Pause / resume selected</button
+        ><button id="sprite-flip">Flip selected</button
+        ><button id="sprite-once">Play once</button
+        ><button id="sprite-loop">Loop</button
+        ><button id="sprite-remove">Remove selected</button
+        ><button id="sprite-close">Close detail view</button
+        ><button id="sprite-dispose">Dispose scene</button
+        ><button id="sprite-recreate">Recreate</button>
+        <button id="sprite-bad-image">Test preparation rollback</button>
+      </div>
+      <pre><output></output></pre>
+      <section class="views">
+        <article>
+          <h2>World</h2>
+          <div id="sprites-world"></div>
+        </article>
+        <article>
+          <h2>Detail · same players</h2>
+          <div id="sprites-detail"></div>
+        </article>
+      </section>
+    </main>
+    <script type="module" src="../dist/examples/sprites/demo.js"></script>
+  </body>
+</html>

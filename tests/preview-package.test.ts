@@ -17,12 +17,15 @@ void test('preview package preserves browser paths, verifies links and excludes 
     source = join(dir, 'source'),
     output = join(dir, 'output');
   const files = {
-    'index.html': '<a href="./games/ship/">Game</a>',
-    'games/ship/index.html':
-      '<script src="../../dist/games/ship/main.js"></script>',
-    'dist/games/ship/main.js': 'export {};',
+    'index.html':
+      '<a href="./games/farwake/">Game</a><a href="./demos/">Demos</a>',
+    'demos/index.html':
+      '<script src="../dist/examples/demo-navigation.js"></script>',
+    'games/farwake/index.html':
+      '<script src="../../dist/games/farwake/main.js"></script>',
+    'dist/games/farwake/main.js': 'export {};',
     'dist/examples/demo-navigation.js': 'export {};',
-    'games/ship/assets/comms/test.mp4': 'test video',
+    'games/farwake/assets/comms/test.mp4': 'test video',
     'examples/assets/licence.txt': 'notice',
     'src/input.css': 'body {}',
     'src/Rocket.ts': 'source',
@@ -39,12 +42,17 @@ void test('preview package preserves browser paths, verifies links and excludes 
     await packagePreview(source, output, revision);
     const release = JSON.parse(
       await readFile(join(output, 'release.json'), 'utf8'),
-    ) as { revision: string; files: { path: string; sha256: string }[] };
+    ) as {
+      revision: string;
+      entries: { farwake: string };
+      files: { path: string; sha256: string }[];
+    };
     assert.equal(release.revision, revision);
+    assert.equal(release.entries.farwake, 'games/farwake/index.html');
     assert.ok(
       release.files.some(
         (f) =>
-          f.path === 'games/ship/assets/comms/test.mp4' &&
+          f.path === 'games/farwake/assets/comms/test.mp4' &&
           f.sha256.length === 64,
       ),
     );
@@ -58,7 +66,7 @@ void test('preview package preserves browser paths, verifies links and excludes 
     );
     assert.equal(
       await readFile(
-        join(output, 'site/games/ship/assets/comms/test.mp4'),
+        join(output, 'site/games/farwake/assets/comms/test.mp4'),
         'utf8',
       ),
       'test video',
@@ -72,7 +80,7 @@ void test('preview package preserves browser paths, verifies links and excludes 
       /Broken packaged/,
     );
     await writeFile(join(source, 'index.html'), '');
-    await symlink(join(source, '.env'), join(source, 'games/ship/leak.txt'));
+    await symlink(join(source, '.env'), join(source, 'games/farwake/leak.txt'));
     await assert.rejects(packagePreview(source, output, revision), /symlink/);
     await assert.rejects(packagePreview(source, output, 'bad'), /commit SHA/);
     await assert.rejects(packagePreview(source, source, revision), /replace/);
@@ -94,7 +102,7 @@ void test('publish manifest has an explicit browser-file allowlist', () => {
   for (const path of [
     'dist/src/x.js',
     'src/virtual-controls.css',
-    'games/ship/characters/sera.json',
+    'games/farwake/characters/sera.json',
     'examples/assets/LICENSE',
   ])
     assert.equal(publishable(path), true, path);

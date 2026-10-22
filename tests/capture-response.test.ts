@@ -4,7 +4,7 @@ import {
   CapturePlan,
   exampleCaptureProfile,
   validateCaptureProfile,
-} from '../games/ship/CaptureResponse.js';
+} from '../games/farwake/CaptureResponse.js';
 import { standardGravity } from '../apps/flight-foundry/FlightCurves.js';
 const close = (a: number, b: number, tolerance = 1e-7) =>
   assert.ok(Math.abs(a - b) < tolerance, `${a} != ${b}`);

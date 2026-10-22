@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Ship } from '../games/ship/Ship.js';
-import { cockpitReadings } from '../games/ship/CockpitReadings.js';
+import { Ship } from '../games/farwake/Ship.js';
+import { cockpitReadings } from '../games/farwake/CockpitReadings.js';
 import { starterSetup } from './helpers/shipSetup.js';
 
 void test('Cockpit presents independent hull, stored shield charge and reserve without claiming an inactive field protects', () => {

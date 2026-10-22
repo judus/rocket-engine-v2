@@ -168,14 +168,26 @@ const scene = app.scene(
   new Scene2D({
     async prepare({ signal }) {
       terrainImage = this.own(
-        await assets.acquireImage('./examples/terrain/assets/terrain.png', {
-          signal,
-        }),
+        await assets.acquireImage(
+          new URL(
+            '../../../examples/terrain/assets/terrain.png',
+            import.meta.url,
+          ).href,
+          {
+            signal,
+          },
+        ),
       );
       vegetationImage = this.own(
-        await assets.acquireImage('./examples/terrain/assets/decorations.png', {
-          signal,
-        }),
+        await assets.acquireImage(
+          new URL(
+            '../../../examples/terrain/assets/decorations.png',
+            import.meta.url,
+          ).href,
+          {
+            signal,
+          },
+        ),
       );
       retainDecorations();
       retainGround();

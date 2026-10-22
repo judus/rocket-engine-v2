@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Node3D, matrixPoint } from '../src/3d/index.js';
-import { Ship } from '../games/ship/Ship.js';
-import { CockpitResponse } from '../games/ship/CockpitResponse.js';
+import { Ship } from '../games/farwake/Ship.js';
+import { CockpitResponse } from '../games/farwake/CockpitResponse.js';
 import { starterSetup } from './helpers/shipSetup.js';
 
 void test('Cockpit follows delivered motion while keeping every attached surface aligned and physics untouched', () => {

@@ -518,13 +518,22 @@ async function start() {
     new Scene2D({
       async prepare({ signal }) {
         const terrain = world.own(
-          await assets.acquireImage('./examples/terrain/assets/terrain.png', {
-            signal,
-          }),
+          await assets.acquireImage(
+            new URL(
+              '../../../examples/terrain/assets/terrain.png',
+              import.meta.url,
+            ).href,
+            {
+              signal,
+            },
+          ),
         );
         const decorations = world.own(
           await assets.acquireImage(
-            './examples/terrain/assets/decorations.png',
+            new URL(
+              '../../../examples/terrain/assets/decorations.png',
+              import.meta.url,
+            ).href,
             { signal },
           ),
         );

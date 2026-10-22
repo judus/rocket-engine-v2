@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#03090c" />
+    <title>FARWAKE · WASTEBOUND</title>
+    <link rel="stylesheet" href="../../src/virtual-controls.css" />
+    <link rel="stylesheet" href="./style.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "production-workshop": "../../dist/vendor/production-workshop-2.4.0/index.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main id="game" aria-label="Space flight">
+      <div id="viewport"></div>
+      <output id="fps-counter" aria-label="Frames per second" hidden
+        >FPS —</output
+      >
+      <div id="flight-feedback" role="status" aria-live="polite"></div>
+      <p id="screen-status" role="status" aria-live="polite" hidden></p>
+      <p id="rotate-hint" hidden>Rotate your phone to landscape to fly.</p>
+      <nav id="cockpit-controls" aria-label="Cockpit controls">
+        <button id="aboard" type="button" disabled>Aboard</button>
+        <button id="systems" type="button" disabled>
+          Systems <kbd>I</kbd>
+        </button>
+        <button id="menu-button" type="button" disabled>
+          Menu <kbd>Esc</kbd>
+        </button>
+      </nav>
+      <div id="touch-controls" hidden></div>
+      <section id="interior-scene" aria-labelledby="interior-title" hidden>
+        <div id="interior-viewport"></div>
+        <header class="interior-header">
+          <h1 id="interior-title">Infirmary</h1>
+          <button id="interior-cockpit" type="button">
+            Cockpit <kbd>Esc</kbd>
+          </button>
+        </header>
+        <nav id="interior-choices" aria-label="Ship compartments"></nav>
+      </section>
+      <section id="entry" class="scene-panel" aria-labelledby="entry-title">
+        <div class="entry-card">
+          <h1 id="entry-title" class="visually-hidden">FARWAKE: WASTEBOUND</h1>
+          <p id="loading" role="status">Bringing the ship online…</p>
+          <button id="fly" class="primary" type="button" disabled>
+            Launch
+          </button>
+          <button id="open-settings" type="button" disabled>Settings</button>
+          <p id="menu-note" class="muted">Your ship. Your way home.</p>
+        </div>
+      </section>
+      <section
+        id="settings-scene"
+        class="scene-panel"
+        aria-labelledby="settings-title"
+        hidden
+      >
+        <div class="settings-card">
+          <header>
+            <div>
+              <p class="eyebrow">FARWAKE / SETTINGS</p>
+              <h1 id="settings-title">Settings</h1>
+            </div>
+            <button id="settings-back" type="button">Back to menu</button>
+          </header>
+          <div
+            class="settings-tabs"
+            role="tablist"
+            aria-label="Settings category"
+          >
+            <button
+              id="controls-tab"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              aria-controls="controls-page"
+            >
+              Controls
+            </button>
+            <button
+              id="video-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="video-page"
+              tabindex="-1"
+            >
+              Video
+            </button>
+          </div>
+          <div class="settings-content">
+            <section
+              id="controls-page"
+              role="tabpanel"
+              aria-labelledby="controls-tab"
+            >
+              <p class="muted">
+                Flight is paused. Changes take effect when you apply them.
+              </p>
+              <div class="preferences">
+                <label
+                  >Steering
+                  <select id="steering">
+                    <option value="mouse">
+                      Mouse virtual stick + keyboard
+                    </option>
+                    <option value="keyboard">Keyboard</option>
+                  </select></label
+                >
+                <p class="hint">
+                  Move the mouse away from centre to keep turning; return the
+                  small HUD marker to centre to stop commanding a turn.
+                  Sensitivity changes the mouse travel needed. C/right mouse
+                  releases steering and recentres it. Ship acceleration and
+                  braking still apply.
+                </p>
+                <label
+                  >Mouse sensitivity
+                  <span class="range-line"
+                    ><input
+                      id="sensitivity"
+                      type="range"
+                      min="0.1"
+                      max="3"
+                      step="0.1"
+                      value="1"
+                    /><output for="sensitivity">1.0×</output></span
+                  ></label
+                >
+                <label class="check"
+                  ><input id="invert-pitch" type="checkbox" /> Invert mouse
+                  pitch</label
+                >
+                <label
+                  >Virtual controllers
+                  <select id="virtual-controls">
+                    <option value="auto">Automatic (touch devices)</option>
+                    <option value="off">Off</option>
+                    <option value="analog">Analog sticks</option>
+                    <option value="digital">Digital pads</option>
+                  </select></label
+                >
+              </div>
+              <h2>Bindings</h2>
+              <p class="muted">
+                Select a binding to replace it, or + to add an alternative.
+                Escape cancels a waiting binding; otherwise it returns to the
+                menu. C or right mouse toggles mouse steering; T cycles targets.
+                These controls are reserved.
+              </p>
+              <div id="bindings"></div>
+            </section>
+            <section
+              id="video-page"
+              role="tabpanel"
+              aria-labelledby="video-tab"
+              hidden
+            >
+              <h2>Rendering resolution</h2>
+              <p class="muted">
+                Lower resolution reduces GPU work. Menus stay sharp at every
+                setting.
+              </p>
+              <div class="preferences">
+                <label for="render-scale"
+                  >Render scale
+                  <span class="range-line"
+                    ><input
+                      id="render-scale"
+                      type="range"
+                      min="50"
+                      max="100"
+                      step="5"
+                      value="100"
+                    /><output id="render-scale-value" for="render-scale"
+                      >100%</output
+                    ></span
+                  >
+                </label>
+                <label for="pixel-density"
+                  >Pixel-density limit
+                  <select id="pixel-density">
+                    <option value="1">1×</option>
+                    <option value="1.5">1.5×</option>
+                    <option value="2" selected>2×</option>
+                    <option value="native">Native (no limit)</option>
+                  </select>
+                </label>
+              </div>
+              <p class="muted">
+                Render scale applies after the density limit. The limit prevents
+                high-density screens from rendering unnecessary pixels.
+              </p>
+              <p id="render-resolution" aria-live="polite"></p>
+              <label class="fps-option"
+                ><input id="show-fps" type="checkbox" /> Show FPS counter</label
+              >
+              <h2>Surface detail</h2>
+              <div class="preferences">
+                <label for="surface-detail"
+                  >Material quality
+                  <select id="surface-detail">
+                    <option value="full">Full</option>
+                    <option value="no-normal">No normal maps</option>
+                    <option value="scalar-pbr">Scalar PBR</option>
+                  </select>
+                </label>
+              </div>
+              <p class="muted">
+                Full preserves all surface detail. No normal maps removes fine
+                surface relief. Scalar PBR also replaces material maps with
+                representative values to reduce GPU memory use.
+              </p>
+              <p class="muted">
+                Applies when you resume flight. Switching may cause a brief
+                pause while graphics resources rebuild.
+              </p>
+              <p class="muted">
+                Flight behaviour, field of view and controls stay the same.
+                Hardware limits may further reduce the requested resolution.
+              </p>
+            </section>
+          </div>
+          <footer>
+            <p id="settings-status" role="status" aria-live="polite"></p>
+            <div id="controls-buttons">
+              <button id="reset-controls" type="button">
+                Restore defaults
+              </button>
+              <button id="apply-controls" class="primary" type="button">
+                Apply controls
+              </button>
+            </div>
+            <div id="video-buttons" hidden>
+              <button id="reset-video" type="button">Restore defaults</button
+              ><button id="apply-video" type="button" class="primary">
+                Apply video
+              </button>
+            </div>
+          </footer>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="../../dist/games/farwake/main.js"></script>
+  </body>
+</html>

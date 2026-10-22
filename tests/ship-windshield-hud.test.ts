@@ -4,10 +4,10 @@ import assert from 'node:assert/strict';
 import {
   WindshieldHud,
   hudGlyphGeometry,
-} from '../games/ship/WindshieldHud.js';
-import { cockpitReadings } from '../games/ship/CockpitReadings.js';
-import { surfaceVariantSwitcher } from '../games/ship/SurfaceVariants.js';
-import { Ship } from '../games/ship/Ship.js';
+} from '../games/farwake/WindshieldHud.js';
+import { cockpitReadings } from '../games/farwake/CockpitReadings.js';
+import { surfaceVariantSwitcher } from '../games/farwake/SurfaceVariants.js';
+import { Ship } from '../games/farwake/Ship.js';
 import { starterSetup } from './helpers/shipSetup.js';
 
 void test('HUD raster emits only glyph coverage with empty background and rejects broken rasters', () => {

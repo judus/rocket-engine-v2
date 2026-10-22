@@ -88,7 +88,8 @@ async function start(badImage = false) {
           );
           const a = await loadSprite(
             acquisition,
-            './examples/sprites/atlas.png',
+            new URL('../../../examples/sprites/atlas.png', import.meta.url)
+              .href,
             badImage ? wrongAtlas : atlas,
             badImage ? 'tiny' : 'walk',
             {
@@ -104,7 +105,8 @@ async function start(badImage = false) {
           parent.add(a.node);
           const b = await loadSprite(
             acquisition,
-            './examples/sprites/atlas.png',
+            new URL('../../../examples/sprites/atlas.png', import.meta.url)
+              .href,
             atlas,
             'blink',
             {

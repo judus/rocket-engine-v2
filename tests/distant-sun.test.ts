@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { distantSun } from '../examples/space/DistantSun.js';
+import { distantSun } from '../games/farwake/visuals/DistantSun.js';
 import { matrixPoint } from '../src/3d/index.js';
 
 void test('distant sun shares light direction without translation parallax and never casts shadows', () => {

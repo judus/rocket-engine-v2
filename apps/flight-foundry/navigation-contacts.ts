@@ -1,4 +1,4 @@
-import type { NavigationContact } from '../../games/ship/ShipNavigation.js';
+import type { NavigationContact } from '../../games/farwake/ShipNavigation.js';
 /** Scene-owned demonstration coordinates, in metres. No sensor detection implied. */
 export const navigationContacts: readonly NavigationContact[] = [
   {

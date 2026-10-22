@@ -6,7 +6,7 @@ The [Matter source](https://brm.io/matter-js/docs/files/src_core_Engine.js.html)
 
 ## Demo and flow
 
-Open `/physics.html`: five falling boxes and one blue keyboard-controlled box, three static platforms and one nonblocking sensor, plus an independent diagnostics canvas. Spawn up to 40 active boxes, remove the oldest, remove the sensor, move the artwork camera offscreen, or reset the whole application.
+Open `/demos/physics.html`: five falling boxes and one blue keyboard-controlled box, three static platforms and one nonblocking sensor, plus an independent diagnostics canvas. Spawn up to 40 active boxes, remove the oldest, remove the sensor, move the artwork camera offscreen, or reset the whole application.
 
 Click or tab into the world canvas: A/D or Left/Right commands horizontal velocity; each Space press supplies one upward boost, including short taps buffered across zero-step frames. This is a thruster, not a grounded platformer jump. Blur clears held movement. The injected controller reads only fixed actions and a body, without an engine/service locator.
 

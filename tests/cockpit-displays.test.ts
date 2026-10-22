@@ -1,4 +1,4 @@
-import { cockpitScreenLights } from '../examples/webgl/CockpitScreenLights.js';
+import { cockpitScreenLights } from '../games/farwake/visuals/CockpitScreenLights.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -106,7 +106,7 @@ for (const asset of [
 
 void test('reticle uses cockpit coordinates and ordinary depth-tested unlit geometry, excluding shadows', async () => {
   const { cockpitReticle } =
-    await import('../examples/webgl/CockpitReticle.js');
+    await import('../games/farwake/visuals/CockpitReticle.js');
   const { matrixPoint, transformMatrix } = await import('../src/3d/index.js');
   const assembly = new Node3D();
   assembly.matrix = transformMatrix({

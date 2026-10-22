@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { enterMobileScreen } from '../games/ship/MobileScreen.js';
+import { enterMobileScreen } from '../games/farwake/MobileScreen.js';
 
 void test('Mobile launch requests fullscreen in the gesture and locks landscape only after entry', async () => {
   const calls: string[] = [];

@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Ship } from '../games/ship/Ship.js';
+import { Ship } from '../games/farwake/Ship.js';
 import { starterSetup } from './helpers/shipSetup.js';
-import type { ShipProfile } from '../games/ship/ShipProfiles.js';
+import type { ShipProfile } from '../games/farwake/ShipProfiles.js';
 import { Stage2D } from '../src/experimental/index.js';
 
 const close = (a: number, b: number, tolerance = 1e-8) =>

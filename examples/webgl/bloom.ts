@@ -18,6 +18,14 @@ import { paintInstrument } from './InstrumentDisplay.js';
 
 const $ = (id: string) => document.getElementById(id)!;
 const input = (id: string) => $(id) as HTMLInputElement;
+const tint = (id: string): [number, number, number] => {
+  const hex = input(id).value;
+  return [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255) as [
+    number,
+    number,
+    number,
+  ];
+};
 const host = $('gpu-view');
 let app: Rocket | undefined,
   retired = 0;
@@ -187,6 +195,13 @@ async function start() {
           ? Number(input('strength').value)
           : 0,
         radius: Number(input('radius').value),
+        midtoneLift: Number(input('midtone-lift').value),
+        colorGrade: {
+          shadows: tint('shadow-tint'),
+          midtones: tint('midtone-tint'),
+          highlights: tint('highlight-tint'),
+          strength: Number(input('grade-strength').value),
+        },
         view: ($('bloom-view') as HTMLSelectElement).value as NonNullable<
           BloomOptions['view']
         >,
@@ -241,7 +256,14 @@ async function start() {
               : id === 'fps'
                 ? value.toFixed(1)
                 : `${value.toFixed(2)} ms`;
-      for (const id of ['threshold', 'strength', 'radius', 'render-scale'])
+      for (const id of [
+        'threshold',
+        'strength',
+        'radius',
+        'midtone-lift',
+        'grade-strength',
+        'render-scale',
+      ])
         $('' + id + '-value').textContent =
           input(id).value + (id === 'render-scale' ? '%' : '');
       $('perf-resolution').textContent =
@@ -297,7 +319,7 @@ async function start() {
 }
 function probe(gl: WebGL2RenderingContext, bloom: WebGLBloomPass): string {
   const target = new WebGLRenderTarget(gl, 32, 32, false);
-  const read = (sx: number, sy: number) => {
+  const readRgb = (sx: number, sy: number) => {
     const p = new Uint8Array(4);
     gl.readPixels(
       Math.floor(sx * gl.drawingBufferWidth),
@@ -308,8 +330,9 @@ function probe(gl: WebGL2RenderingContext, bloom: WebGLBloomPass): string {
       gl.UNSIGNED_BYTE,
       p,
     );
-    return p[0]!;
+    return [...p.slice(0, 3)];
   };
+  const read = (sx: number, sy: number) => readRgb(sx, sy)[0]!;
   try {
     target.bind(gl);
     gl.disable(gl.SCISSOR_TEST);
@@ -331,6 +354,51 @@ function probe(gl: WebGL2RenderingContext, bloom: WebGLBloomPass): string {
     const cutoff = read(22 / 32, 16 / 32);
     bloom.render(target, { threshold: 0.6, view: 'bright' });
     const outside = read(22 / 32, 16 / 32);
+    const graded: number[] = [];
+    let rawMid = 0;
+    for (const value of [0, 0.5, 1]) {
+      target.bind(gl);
+      gl.clearColor(value, value, value, 1);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      bloom.render(target, { strength: 0, midtoneLift: 0.2 });
+      graded.push(read(0.5, 0.5));
+      if (value === 0.5) {
+        bloom.render(target, { strength: 0, midtoneLift: 0.2, view: 'scene' });
+        rawMid = read(0.5, 0.5);
+      }
+    }
+    const splitGrade = {
+      shadows: [0.5, 0.7, 1],
+      midtones: [1, 0.7, 0.4],
+      highlights: [1, 1, 0.7],
+      strength: 0.5,
+    } as const;
+    const split: number[][] = [];
+    let rawGradeMid: number[] = [];
+    for (const value of [0, 0.1, 0.5, 0.9]) {
+      target.bind(gl);
+      gl.clearColor(value, value, value, 1);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      bloom.render(target, { strength: 0, colorGrade: splitGrade });
+      split.push(readRgb(0.5, 0.5));
+      if (value === 0.5) {
+        bloom.render(target, {
+          strength: 0,
+          colorGrade: splitGrade,
+          view: 'scene',
+        });
+        rawGradeMid = readRgb(0.5, 0.5);
+      }
+    }
+    const splitPass =
+      split[0]!.every((v) => v === 0) &&
+      split[1]![2]! > split[1]![1]! &&
+      split[1]![1]! > split[1]![0]! &&
+      split[2]![0]! > split[2]![1]! &&
+      split[2]![1]! > split[2]![2]! &&
+      split[3]![0]! > split[3]![2]! &&
+      split[3]![1]! > split[3]![2]! &&
+      rawGradeMid.every((v) => Math.abs(v - 128) <= 1);
     const error = gl.getError();
     const pass =
       halo > baseline + 2 &&
@@ -338,8 +406,13 @@ function probe(gl: WebGL2RenderingContext, bloom: WebGLBloomPass): string {
       sharp === 255 &&
       Math.abs(cutoff - baseline) <= 1 &&
       outside === 0 &&
+      graded[0] === 0 &&
+      Math.abs(graded[1]! - 140) <= 1 &&
+      graded[2] === 255 &&
+      Math.abs(rawMid - 128) <= 1 &&
+      splitPass &&
       error === 0;
-    return `${pass ? 'PASS' : 'FAIL'} · halo ${baseline} → ${halo} · sharp center ${center}/${sharp} · threshold 1 ${cutoff} · extraction outside ${outside} · GL error ${error}`;
+    return `${pass ? 'PASS' : 'FAIL'} · halo ${baseline} → ${halo} · sharp center ${center}/${sharp} · threshold 1 ${cutoff} · extraction outside ${outside} · midtone curve black/mid/white ${graded.join('/')} · raw mid ${rawMid} · split tones ${splitPass ? 'PASS' : 'FAIL'} ${JSON.stringify(split)} raw ${JSON.stringify(rawGradeMid)} · GL error ${error}`;
   } finally {
     target.dispose();
   }

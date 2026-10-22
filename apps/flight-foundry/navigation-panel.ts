@@ -1,5 +1,5 @@
-import type { Ship } from '../../games/ship/Ship.js';
-import type { NavigationReading } from '../../games/ship/ShipNavigation.js';
+import type { Ship } from '../../games/farwake/Ship.js';
+import type { NavigationReading } from '../../games/farwake/ShipNavigation.js';
 const fmt = (n: number) =>
   new Intl.NumberFormat('en', { maximumFractionDigits: 1 }).format(n);
 function element<K extends keyof HTMLElementTagNameMap>(

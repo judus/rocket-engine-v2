@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket v2 · Local physics</title>
+    <link rel="stylesheet" href="../examples/style.css" />
+    <link rel="stylesheet" href="../examples/demo-navigation.css?v=2" />
+    <script type="module" src="../dist/examples/demo-navigation.js"></script>
+    <script src="../dist/vendor/matter-js-0.20.0/matter.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": { "matter-js": "../dist/examples/physics/MatterBrowser.js" }
+      }
+    </script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <header>
+        <p class="eyebrow">ROCKET ENGINE / OPTIONAL PHYSICS</p>
+        <h1>Physics owns the motion.</h1>
+        <p>
+          Click the world canvas: A/D or arrows move the blue box, and Space
+          boosts it. Boxes fall onto static platforms and pass through the pink
+          sensor. The second canvas reads the same world. Contacts arrive after
+          the solver; nodes then copy physics poses for drawing.
+        </p>
+      </header>
+      <div class="toolbar">
+        <button id="physics-spawn" type="button">Spawn box</button>
+        <button id="physics-remove" type="button">Remove oldest box</button>
+        <button id="physics-sensor" type="button">Remove sensor</button>
+        <button id="physics-hide" type="button">Hide world artwork</button>
+        <button id="physics-reset" type="button">Reset world</button>
+        <output id="physics-status" aria-live="polite">Starting…</output>
+      </div>
+      <p>
+        Hide artwork moves the camera offscreen while physics continues. Remove
+        objects to release their bodies and subscriptions. Reset disposes the
+        previous world and both canvases. Up to 40 boxes can be active.
+      </p>
+      <p id="physics-cleanup">No previous world yet.</p>
+      <section class="views" aria-label="Physics sandbox">
+        <article>
+          <h2>World <span>dynamic boxes, static platforms, sensor</span></h2>
+          <div id="physics-world" class="canvas-host"></div>
+        </article>
+        <article>
+          <h2>Diagnostics <span>read-only world state</span></h2>
+          <div id="physics-diagnostics" class="canvas-host"></div>
+        </article>
+      </section>
+      <footer>
+        Optional scene-owned Matter.js service · One fixed clock · Velocity in
+        world units per second
+      </footer>
+    </main>
+    <script type="module" src="../dist/examples/physics/main.js"></script>
+  </body>
+</html>

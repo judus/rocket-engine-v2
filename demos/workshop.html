@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket v2 · Production Workshop</title>
+    <link rel="stylesheet" href="../examples/style.css" />
+    <link rel="stylesheet" href="../examples/demo-navigation.css?v=2" />
+    <script type="module" src="../dist/examples/demo-navigation.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "production-workshop": "../dist/vendor/production-workshop-2.4.0/index.js"
+        }
+      }
+    </script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <header>
+        <p class="eyebrow">ROCKET ENGINE / PRODUCTION WORKSHOP 1.0.0</p>
+        <h1>One factory. Two perspectives.</h1>
+        <p>
+          A resource source, smelter and press share one stockpile. One scene
+          advances Workshop; both views read the same simulation. Production
+          pauses while this page is hidden.
+        </p>
+      </header>
+      <div class="toolbar">
+        <button id="factory-pause" type="button">Pause production</button
+        ><button id="factory-smelter" type="button">Disable smelter</button
+        ><button id="factory-collect" type="button">
+          Collect finished parts</button
+        ><button id="factory-close" type="button">Close factory view</button
+        ><button id="factory-reset" type="button">Reset factory</button>
+      </div>
+      <output id="factory-status" class="terrain-details">Starting…</output>
+      <p>
+        Inventories are capped at 20 of each material. Full outputs block
+        production; collection removes finished parts from stock and lets it
+        resume. Disabling the smelter exposes waiting inputs downstream. Closing
+        the factory canvas leaves production running through the diagnostic
+        view.
+      </p>
+      <section class="views">
+        <article>
+          <h2>Factory floor <span>jobs and shared inventory</span></h2>
+          <div id="factory-floor" class="canvas-host"></div>
+        </article>
+        <article>
+          <h2>
+            Inventory and throughput
+            <span>same tick / independent presentation</span>
+          </h2>
+          <div id="factory-diagnostics" class="canvas-host"></div>
+        </article>
+      </section>
+      <footer>
+        No terrain, transport or physics in this slice · Frame delays are passed
+        to Workshop in full; paused and hidden time is excluded · Reset creates
+        a fresh simulation
+      </footer>
+    </main>
+    <script type="module" src="../dist/examples/workshop/main.js"></script>
+  </body>
+</html>

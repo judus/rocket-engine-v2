@@ -10,7 +10,7 @@ Rocket remains a multipurpose canvas renderer. These experiments use existing sc
 
 ## 01 — Grid and camera (implemented)
 
-Open `/3d-grid.html`. Source: `examples/3d/grid.ts`, shared `LineDemo.ts`, and `src/3d/PerspectiveCamera.ts`.
+Open `/demos/3d-grid.html`. Source: `examples/3d/grid.ts`, shared `LineDemo.ts`, and `src/3d/PerspectiveCamera.ts`.
 
 A finite 60 × 60 ground grid, three colored axes, perspective projection, movable camera, adjustable vertical field of view, and clipping against all six frustum planes before perspective division. Right-handed camera basis with +Y up and +Z forward. Positive yaw turns toward +X; positive pitch looks up. Movement uses world-horizontal forward/right; Q/E change world height. Diagonal movement is normalized. Dragging and keys use Rocket's focused input scope. Recreating the demo disposes the old view, input scope, resize observer and DOM listeners.
 
@@ -26,7 +26,7 @@ Compare with the same foreground tab, camera pose, FOV, viewport size and displa
 
 ## 02 — Wireframe cube (implemented)
 
-Open `/3d-cube.html`. Adds `cube.ts` and `Transform3D.ts`. The shared line-demo shell supplies the exact same grid, camera, performance monitor, focus routing and lifecycle as milestone 01.
+Open `/demos/3d-cube.html`. Adds `cube.ts` and `Transform3D.ts`. The shared line-demo shell supplies the exact same grid, camera, performance monitor, focus routing and lifecycle as milestone 01.
 
 Eight local vertices, twelve edges, and three local axes. Transform order: component-wise local scale, right-handed rotations around X then Y then Z (radians), then translation into world space. World points go through the existing camera and frustum clipping. The demo exposes uniform scale, independent base rotation and position. Optional Y animation adds 35° per simulation second to base rotation, retains its offset on pause, and resets with Reset cube. Recreate resets camera/object and retires all previous listeners. The grid/axes submit 125 lines; the cube and its local axes add 15.
 
@@ -34,13 +34,13 @@ This milestone still draws lines through one another; no depth buffer, hidden ed
 
 ## 03 — Solid cube (implemented)
 
-Open `/3d-solid.html`. `solid.ts` uses shared `CubeControls.ts` and `CubeGeometry.ts`; the earlier wireframe page uses the same geometry and controls. `src/3d/SolidFaces.ts` rejects back-facing faces by their outward normal and camera position. The camera clips convex polygons against all six frustum planes in camera space, then projects. Surviving faces are drawn far to near, using fixed per-face colors. Outlines are optional. The performance panel adds drawn/submitted face counts; face outlines are canvas polygon strokes, not counted as independently projected line segments.
+Open `/demos/3d-solid.html`. `solid.ts` uses shared `CubeControls.ts` and `CubeGeometry.ts`; the earlier wireframe page uses the same geometry and controls. `src/3d/SolidFaces.ts` rejects back-facing faces by their outward normal and camera position. The camera clips convex polygons against all six frustum planes in camera space, then projects. Surviving faces are drawn far to near, using fixed per-face colors. Outlines are optional. The performance panel adds drawn/submitted face counts; face outlines are canvas polygon strokes, not counted as independently projected line segments.
 
 The single convex cube is the deliberately bounded case: this is not a general painter-order solution for intersecting or cyclically overlapping polygons, and there is no depth buffer. Grid/world axes remain a reference layer drawn first, without depth testing. No collision, interior surfaces, near-plane caps, textures, lighting or WebGL. A camera inside sees no outward-facing surfaces. Numeric tests cover winding/culling from multiple viewpoints, inside-camera behavior, eye-plane crossing, all-vertices-outside viewport clipping, far rejection and far-to-near ordering. Earlier line projection remains unchanged.
 
 ## 04 — Cockpit frame (implemented)
 
-Open `/3d-cockpit.html`. `CockpitModel.ts` defines thirteen box parts (78 submitted faces): floor, dashboard, a simple display, side consoles and an open canopy frame. `BoxAssembly.ts` applies each part transform before the shared parent transform. `cockpit.ts` rebuilds world vertices only when assembly yaw changes, then projects and globally orders faces with the existing solid-face pipeline each frame.
+Open `/demos/3d-cockpit.html`. `CockpitModel.ts` defines thirteen box parts (78 submitted faces): floor, dashboard, a simple display, side consoles and an open canopy frame. `BoxAssembly.ts` applies each part transform before the shared parent transform. `cockpit.ts` rebuilds world vertices only when assembly yaw changes, then projects and globally orders faces with the existing solid-face pipeline each frame.
 
 The camera starts at seated eye height with a 50-degree vertical FOV. Seat view resets the camera; Inspect assembly supplies an exterior pose. Free movement and drag look remain available. Recreate retires the old listeners and view, resets assembly yaw and returns to the seat. Earlier pages retain their original camera defaults. The existing performance panel includes all 78 submitted faces and current surviving faces.
 
@@ -52,7 +52,7 @@ The readout labels the rate **Render FPS** because callback frequency does not p
 
 ## 05 — Cockpit overlay (implemented)
 
-Open `/3d-overlay.html`. `overlay.ts` loads `assets/cockpit-2126-v14-relic.png` once before starting the shared demo. v14-relic is the selected artwork after comparing v3, v4, v5, v7 and v9-dark. Superseded comparison canvases, frame-copy code and copied PNGs have been removed; originals remain in the artwork project.
+Open `/demos/3d-overlay.html`. `overlay.ts` loads `assets/cockpit-2126-v14-relic.png` once before starting the shared demo. v14-relic is the selected artwork after comparing v3, v4, v5, v7 and v9-dark. Superseded comparison canvases, frame-copy code and copied PNGs have been removed; originals remain in the artwork project.
 
 The outside remains the existing reference grid and camera, starting at the same seated pose as 04. One PNG is drawn last in screen space on one canvas, preserving its original alpha. A visibility checkbox compares the overlay against the grid alone. Resize scales the image to the 16:9 view; recreation reuses the decoded image and resets the view/checkbox. The shared grid caption is drawn before content so it cannot paint over the cockpit.
 
@@ -66,7 +66,7 @@ The original pixel buffer is read once. Source-resolution graded pixels are cach
 
 ## 06 — Reusable foundation (implemented)
 
-Open `/3d-foundation.html`. The optional `rocket-engine-v2/3d` entry point now owns camera projection/clipping, transforms and affine matrices, immutable indexed `MeshGeometry`, material-bound `Mesh3D`, `Node3D` hierarchy and the stateless `CanvasRenderer3D`. Two mesh nodes share one geometry with independent materials/local poses. Parent controls transform both children; detach/reattach removes/restores the amber child. Recreate resets hierarchy, controls and performance monitoring.
+Open `/demos/3d-foundation.html`. The optional `rocket-engine-v2/3d` entry point now owns camera projection/clipping, transforms and affine matrices, immutable indexed `MeshGeometry`, material-bound `Mesh3D`, `Node3D` hierarchy and the stateless `CanvasRenderer3D`. Two mesh nodes share one geometry with independent materials/local poses. Parent controls transform both children; detach/reattach removes/restores the amber child. Recreate resets hierarchy, controls and performance monitoring.
 
 Pages 01–05 migrate to the public module. The line-demo shell delegates line rendering; the wireframe uses indexed geometry and a node matrix; the solid cube delegates mesh rendering; cockpit parts become child mesh nodes sharing one geometry. The cockpit caches its world faces on yaw changes, preserving its static-assembly behavior. Demo-specific layout, fixed tints, controls and image grading stay outside the engine. No new clock, service container or dependency. The overlay image loader and grading cache remain as previously documented.
 
@@ -74,7 +74,7 @@ Pages 01–05 migrate to the public module. The line-demo shell delegates line r
 
 ## 07 — Visibility and a depth buffer (implemented)
 
-Open `/3d-visibility.html`. Two intersecting opaque panels use the public geometry/node/material/camera foundation. At the reset view, coral is nearer on the left and teal on the right. Painter ordering must place one whole face last, so it cannot resolve that overlap. The optional `SoftwareDepthRenderer3D` rasterizes pixels using interpolated reciprocal depth and resolves the crossing. Reverse submission order exposes the painter limitation while the depth image remains unchanged away from equal-depth ties.
+Open `/demos/3d-visibility.html`. Two intersecting opaque panels use the public geometry/node/material/camera foundation. At the reset view, coral is nearer on the left and teal on the right. Painter ordering must place one whole face last, so it cannot resolve that overlap. The optional `SoftwareDepthRenderer3D` rasterizes pixels using interpolated reciprocal depth and resolves the crossing. Reverse submission order exposes the painter limitation while the depth image remains unchanged away from equal-depth ties.
 
 Compare both paths, switch to either alone, choose 160/320/640 raster width, show the depth map, rotate/animate the panels and move the shared camera. A fixed 2–12 unit camera-Z range makes near samples bright and far samples dark in the depth preview. Both paths render at matching internal dimensions before presentation; the painter retains Canvas edge antialiasing while software rasterization uses one sample per pixel. This is intentionally an isolated visibility scene without the reference grid.
 
@@ -84,7 +84,7 @@ See [the optional depth API and boundaries](./3D-API.md#optional-cpu-depth-rende
 
 ## 08 · Model loading — complete
 
-[GLB cockpit inspection](../3d-model.html): optional GLB 2.0 decoder, reusable
+[GLB cockpit inspection](../demos/3d-model.html): optional GLB 2.0 decoder, reusable
 mesh data and fresh instance hierarchies, exact imported transforms, material
 metadata and camera presets. Cockpit v3 is copied unchanged, replacing no older
 demo. Local GLB file replacement exercises the same reusable loader path.
@@ -95,7 +95,7 @@ remain subsequent work; no software-renderer optimization added.
 
 ## 09 — Independent lighting (implemented)
 
-Open `/3d-lighting.html`. A neutral cube, warm octahedron and floor share
+Open `/demos/3d-lighting.html`. A neutral cube, warm octahedron and floor share
 scene-owned ambient and directional lights through `shadeFaces`. Compare the
 same camera and geometry lit/unlit, change light direction/color/strength,
 rotate the objects independently, orbit/pause the light and reset/recreate.
@@ -111,7 +111,7 @@ cockpit pages remain unlit until a separately agreed application step.
 
 ## 10 — Point lights (implemented)
 
-Open `/3d-point-light.html`. A scene-owned positional light illuminates the
+Open `/demos/3d-point-light.html`. A scene-owned positional light illuminates the
 shared reference shapes with flat diffuse incidence and inverse-square falloff.
 Move the lamp in XYZ, set strength/color/fill, orbit/pause it and rotate the
 objects independently. A small unlit marker visualizes the light's position.
@@ -126,7 +126,7 @@ invalid data, composition, transformed geometry and the depth backend seam.
 
 ## 11 — First WebGL triangle (implemented)
 
-Open `/webgl-triangle.html`. Optional WebGL2 pipeline, one immutable vertex buffer,
+Open `/demos/webgl-triangle.html`. Optional WebGL2 pipeline, one immutable vertex buffer,
 one VAO/program and one draw call. Linear vertex colors interpolate on the GPU;
 the fragment shader encodes sRGB. Rotation/scale/aspect use a matrix uniform.
 No third-party renderer, CPU rasterization, hidden Canvas 2D view or extra clock.
@@ -369,7 +369,7 @@ conversion, then fits a spherical orthographic shadow volume around that bound.
 Its center follows the inspection rig and model yaw; its radius stays constant
 under those rigid movements. World-space directional yaw/elevation are independent
 of ship motion. The reference grid neither casts nor receives shadows. Fitting
-belongs to the example (`CockpitShadowFit`), not the backend or imported model.
+belongs to the application (`games/farwake/visuals/CockpitShadowFit`), not the backend or imported model.
 
 Controls expose shadow enable, PCF, visibility mask, 256..2048 resolution,
 constant/slope bias and incoming light yaw/elevation. Default: 1024², bias 0.0005,
@@ -764,7 +764,7 @@ Each lens has distinct edge-heavy weathering.
 For now, opaque glass includes a 10% luminance imprint sampled from the GLB's
 original base-color texture beneath each accepted footprint. Reproduce it with
 `python3 scripts/sample-hi3d-lamp-underlay.py` (NumPy and Pillow), then format the
-generated `examples/webgl/Hi3dLampUnderlay.ts`. The generator records the GLB digest
+generated `games/farwake/visuals/Hi3dLampUnderlay.ts`. The generator records the GLB digest
 and samples every ray through its mesh/UVs. It does not edit the model. This is
 fixed texture detail, not live transparency: it does not transmit changing lights,
 objects or shadows behind the lenses, and changing the footprint/model requires
@@ -983,7 +983,7 @@ sorting (larger values draw later, not inherited), while opaque frame depth test
 remain active. This avoids a large UI plane darkening a smaller coplanar video.
 Canvas renderers retain their existing colour-only material contract.
 
-The [video comparison demo](../webgl-video-textures.html), linked from the canvas
+The [video comparison demo](../demos/webgl-video-textures.html), linked from the canvas
 dynamic-texture demo, compares a full 2048×1408 canvas snapshot with an independent
 512×512 video surface. CPU preparation, publication count, upload bytes and
 mipmap counts are exposed. Decode/upload driver time is not included in the CPU

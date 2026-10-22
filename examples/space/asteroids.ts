@@ -3,7 +3,7 @@ import { PerspectiveCamera } from '../../src/3d/index.js';
 import { WebGLMeshRenderer3D, WebGLGpuTimer } from '../../src/webgl/index.js';
 import { explorationInput } from '../webgl/ExplorationInput.js';
 import { WebGLSurface } from '../../src/webgl/index.js';
-import { asteroidField } from './AsteroidField.js';
+import { asteroidField } from '../../games/farwake/visuals/AsteroidField.js';
 
 const host = document.querySelector<HTMLElement>('#gpu-view')!;
 const status = document.querySelector<HTMLOutputElement>('#gpu-status')!;

@@ -140,7 +140,7 @@ await store.close();
 
 - `npm run check`: strict TypeScript/lint/format/build and the whole test suite.
 - `npm run proof:journal`: both blue→red and red→blue sequences, four completed episodes, durable close/reopen, matching checkpoint, actual Rocket MCP handler reads using the official SDK Client, reports/status/digest checks and cleanup. The custom in-process transport sends real HTTP Request/Response objects through McpService; this proves the handler integration, not a new TCP test. Output identifies retained temporary SQLite/result artifacts.
-- `npm start`, then `/journal.html`: native browser proof with explicit volatile memory, both branch orders, visible recording failure/retry, disposal and new timeline. Reload intentionally starts empty.
+- `npm start`, then `/demos/journal.html`: native browser proof with explicit volatile memory, both branch orders, visible recording failure/retry, disposal and new timeline. Reload intentionally starts empty.
 
 Focused tests cover SQLite transaction rollback/reopen, duplicate/conflict/capacity behavior, input copying and finite admission, cancellation/disposal boundaries, filtered/frozen/byte-limited pagination, explicit gaps/unavailable stores, binding-scoped MCP reads, both real-game episode orders/restart and reporting-failure recovery. Browser evidence and actual check counts are recorded in the completion handoff.
 

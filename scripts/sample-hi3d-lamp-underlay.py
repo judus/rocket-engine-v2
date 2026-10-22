@@ -91,4 +91,4 @@ header+='// Fixed accepted pilot fit and disc footprint; this is not real transp
 output=header+'const patches = '+json.dumps(samples,indent=2)+' as const;\n'
 output+='const pixels = Object.fromEntries(Object.entries(patches).map(([name, data]) => [name, Uint8Array.from(atob(data), (c) => c.charCodeAt(0))]));\n'
 output+='export function hi3dLampUnderlay(name: string, u: number, v: number): number {\n  const patch = pixels[name];\n  return patch ? patch[Math.min(31, Math.max(0, Math.floor(v * 32))) * 32 + Math.min(31, Math.max(0, Math.floor(u * 32)))]! / 255 : 1;\n}\n'
-Path('examples/webgl/Hi3dLampUnderlay.ts').write_text(output)
+Path('games/farwake/visuals/Hi3dLampUnderlay.ts').write_text(output)

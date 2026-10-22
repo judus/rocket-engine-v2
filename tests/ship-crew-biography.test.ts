@@ -5,10 +5,10 @@ import {
   biographyProse,
   initialCrewKnowledge,
   paginateBiography,
-} from '../games/ship/CrewBiography.js';
-import { loadCrewProfiles } from '../games/ship/CrewProfiles.js';
-import type { CrewProfile } from '../games/ship/CrewProfiles.js';
-import { crewControlAt } from '../games/ship/WindshieldApp.js';
+} from '../games/farwake/CrewBiography.js';
+import { loadCrewProfiles } from '../games/farwake/CrewProfiles.js';
+import type { CrewProfile } from '../games/farwake/CrewProfiles.js';
+import { crewControlAt } from '../games/farwake/WindshieldApp.js';
 
 const fixture: CrewProfile = {
   id: 'test',
@@ -82,7 +82,7 @@ void test('Biography prose removes author citations and navigation while retaini
 });
 void test('Initial knowledge points to real public sections in every imported profile', async () => {
   const crew = await loadCrewProfiles(
-    new URL('../../games/ship/characters/', import.meta.url),
+    new URL('../../games/farwake/characters/', import.meta.url),
     async (url) => new Response(await readFile(url, 'utf8')),
   );
   for (const profile of crew) {

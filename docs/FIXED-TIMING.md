@@ -56,7 +56,7 @@ Blur/focus transfer, pause, visibility changes, inactive scenes, scope disposal 
 
 ## Demo and checks
 
-`/fixed.html` shows a fixed-step dot and an independent diagnostics canvas. Click its motion canvas or focus it and press Space to reverse direction. “Test 250 ms stall” deliberately blocks one browser task to exercise overload dropping; Pause/Resume excludes suspended time. Arm and tile demos remain available and keep frame-domain updates.
+`/demos/fixed.html` shows a fixed-step dot and an independent diagnostics canvas. Click its motion canvas or focus it and press Space to reverse direction. “Test 250 ms stall” deliberately blocks one browser task to exercise overload dropping; Pause/Resume excludes suspended time. Arm and tile demos remain available and keep frame-domain updates.
 
 Strict TypeScript, lint, format, build and all 68 tests pass. Controlled clocks cover 60/144 Hz parity, service/fixed/frame/render ordering, catch-up limits/remainders, dropped time, pause/visibility baselines and stop/error guards. Input tests cover zero-step retention, keyboard/pointer short taps, held state, catch-up edge suppression, overload and blur/view/pause cleanup. These are timing contracts, not physics accuracy or cross-browser certification.
 

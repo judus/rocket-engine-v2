@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket v2 · Procedural terrain</title>
+    <link rel="stylesheet" href="../examples/style.css" />
+    <link rel="stylesheet" href="../examples/demo-navigation.css?v=2" />
+    <script type="module" src="../dist/examples/demo-navigation.js"></script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <header>
+        <p class="eyebrow">ROCKET ENGINE / PROCEDURAL GENERATOR · STEP ONE</p>
+        <h1>One seed. A continuous world.</h1>
+        <p>
+          Height, moisture and biomes come from world coordinates. Both canvases
+          read the same generated patch; canvas dimensions and generation order
+          never affect terrain.
+        </p>
+      </header>
+      <div class="toolbar">
+        <label
+          >Seed
+          <input
+            id="terrain-seed"
+            type="number"
+            min="0"
+            max="4294967295"
+            value="42"
+        /></label>
+        <label
+          >Scale
+          <input id="terrain-scale" type="number" min="1" max="8192" value="96"
+        /></label>
+        <button id="terrain-apply" type="button">Apply seed / scale</button>
+        <button id="terrain-regenerate" type="button">Regenerate</button>
+        <label
+          ><input id="terrain-reverse" type="checkbox" /> Reverse chunk
+          order</label
+        >
+      </div>
+      <div class="toolbar">
+        <button id="terrain-west" type="button">West</button
+        ><button id="terrain-east" type="button">East</button>
+        <button id="terrain-north" type="button">North</button
+        ><button id="terrain-south" type="button">South</button>
+        <output id="terrain-status" aria-live="polite">Generating…</output>
+      </div>
+      <p>
+        Click either canvas, then use WASD or arrow keys to pan both views. One
+        tile remains 5 pixels.
+      </p>
+      <output
+        id="terrain-meter"
+        class="terrain-details"
+        aria-label="Terrain performance statometer"
+      ></output>
+      <p id="terrain-details" class="terrain-details"></p>
+      <section
+        class="views"
+        aria-label="Two presentations of generated terrain"
+      >
+        <article>
+          <h2>
+            Biomes <span>water · shore · grass · forest · rock · snow</span>
+          </h2>
+          <div id="terrain-biomes" class="canvas-host"></div>
+        </article>
+        <article>
+          <h2>Elevation <span>same height field / brighter is higher</span></h2>
+          <div id="terrain-height" class="canvas-host"></div>
+        </article>
+      </section>
+      <footer>
+        Standalone seeded TypeScript generator · Finite preview of
+        world-coordinate data · Streaming integration follows separately
+      </footer>
+    </main>
+    <script type="module" src="../dist/examples/terrain/main.js"></script>
+  </body>
+</html>

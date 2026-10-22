@@ -1,7 +1,10 @@
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { ShipMounts, validateMountsProfile } from '../games/ship/ShipMounts.js';
-import { Ship } from '../games/ship/Ship.js';
+import {
+  ShipMounts,
+  validateMountsProfile,
+} from '../games/farwake/ShipMounts.js';
+import { Ship } from '../games/farwake/Ship.js';
 import { starterSetup } from './helpers/shipSetup.js';
 
 const profile = starterSetup.profile.mounts;

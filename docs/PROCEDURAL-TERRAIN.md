@@ -1,6 +1,6 @@
 # Procedural terrain generator: first rebuild step
 
-The new module is `examples/terrain/TerrainGenerator.ts`; `/terrain.html` is a separate demonstration. It is example-owned domain code with no Rocket, DOM, canvas, input, timer or package dependency. Existing demos, their three-state streaming world and its IndexedDB record remain unchanged. Production Workshop is a separate later integration.
+The new module is `examples/terrain/TerrainGenerator.ts`; `/demos/terrain.html` is a separate demonstration. It is example-owned domain code with no Rocket, DOM, canvas, input, timer or package dependency. Existing demos, their three-state streaming world and its IndexedDB record remain unchanged. Production Workshop is a separate later integration.
 
 The older project remains read-only. Its useful ideas were layered noise, height bands and terrain classification. The rebuilt generator avoids the old module-scoped mutable noise state, settings changed while sampling, negative-coordinate mirroring and viewport-dimension normalization.
 

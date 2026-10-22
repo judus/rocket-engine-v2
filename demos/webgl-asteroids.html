@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket · Asteroid field</title>
+    <link rel="stylesheet" href="../examples/style.css" />
+    <link rel="stylesheet" href="../examples/demo-navigation.css?v=2" />
+    <script
+      type="module"
+      src="../dist/examples/demo-navigation.js?v=28-asteroids"
+    ></script>
+    <link rel="stylesheet" href="../examples/3d/line-demo.css" />
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <div class="eyebrow">3D · MILESTONE 28</div>
+      <h1>A small patch of space</h1>
+      <p>
+        A finite, seeded field of faceted rocks. Eight shared meshes,
+        independent placements, and our existing WebGL renderer. Fly around to
+        see depth and parallax.
+      </p>
+      <section aria-labelledby="performance-title">
+        <h2 id="performance-title">Performance</h2>
+        <dl class="performance-grid">
+          <div>
+            <dt>Callback FPS</dt>
+            <dd id="perf-fps">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame interval</dt>
+            <dd id="perf-frame">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Peak frame interval</dt>
+            <dd id="perf-peak">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Shortest interval</dt>
+            <dd id="perf-minimum">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame jitter</dt>
+            <dd id="perf-jitter">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Update CPU</dt>
+            <dd id="perf-update">Warming up…</dd>
+          </div>
+          <div>
+            <dt id="perf-render-label">CPU submission</dt>
+            <dd id="perf-render">Warming up…</dd>
+          </div>
+          <div>
+            <dt>GPU draw average</dt>
+            <dd id="perf-gpu">Pending…</dd>
+          </div>
+          <div>
+            <dt>GPU draw peak</dt>
+            <dd id="perf-gpu-peak">—</dd>
+          </div>
+        </dl>
+        <p id="perf-gpu-samples">Waiting for GPU timing…</p>
+        <p>
+          Callback FPS counts animation callbacks, not confirmed screen
+          presentations. Uneven frame pacing can feel choppy despite a high
+          average.
+        </p>
+        <p id="perf-resolution">Measuring canvas size…</p>
+        <details>
+          <summary>Reading the metrics</summary>
+          <p>
+            FPS, frame intervals and CPU times come from Rocket’s rolling
+            half-second monitor. Peak is the longest frame interval in that
+            window. Frame jitter is the standard deviation of those intervals;
+            lower means more even pacing. A very short minimum alongside a much
+            longer peak indicates callbacks arriving in bursts. CPU timings
+            measure JavaScript work; they do not measure GPU execution or
+            browser compositing. GPU draw average and peak cover the last 32
+            valid asynchronous timer-query samples of the scene draw. Results
+            arrive on later frames; a maximum of four queries can be pending.
+            Invalid (disjoint) samples are discarded. Unsupported browsers show
+            “unsupported” rather than an estimated GPU time. These measurements
+            exclude display latency and compositing; CPU and GPU times overlap
+            and must not be added together.
+          </p>
+          <p>
+            For comparisons, keep the same canvas size, display scale, camera
+            pose and field of view, and keep this tab in the foreground. FPS is
+            capped by the browser/display refresh rate; CPU times can increase
+            before FPS drops. Recreate demo starts a fresh measurement window.
+          </p>
+        </details>
+      </section>
+      <div id="gpu-view" class="canvas-host"></div>
+      <p>
+        Click the canvas to focus. W/S forward/back · A/D strafe · Q/E down/up ·
+        Shift boost · drag or arrow keys to look · R home.
+      </p>
+      <div class="toolbar">
+        <label
+          >Seed
+          <input
+            id="seed"
+            type="number"
+            min="0"
+            max="4294967295"
+            step="1"
+            value="2126"
+            required
+        /></label>
+        <label
+          >Rocks
+          <select id="count">
+            <option>32</option>
+            <option selected>96</option>
+            <option>256</option>
+          </select></label
+        >
+        <button id="generate">Generate field</button
+        ><button id="home">Home camera</button>
+      </div>
+      <div class="toolbar">
+        <label><input id="cruise" type="checkbox" /> Cruise forward</label>
+        <label><input id="lit" type="checkbox" checked /> Lighting</label>
+        <label
+          >Render scale
+          <select id="resolution">
+            <option value="0.5">50%</option>
+            <option value="1" selected>100% (native)</option>
+            <option value="1.5">150%</option>
+          </select></label
+        >
+      </div>
+      <div class="toolbar">
+        <button id="restart">Recreate demo</button>
+        <button id="lose-context">Simulate context loss</button
+        ><button id="restore-context" disabled>Restore context</button>
+      </div>
+      <output id="gpu-status" aria-live="polite">Starting…</output>
+      <p id="mesh-stats"></p>
+      <p id="camera-status"></p>
+      <p>
+        128 triangles per rock, shared among eight shape variants. Static rocks;
+        the camera moves. Ambient fill and one directional light reveal the
+        facets. No textures, shadows, collisions, streaming, wrapping, LOD or
+        GPU instancing. You can fly through rocks and beyond the field. This is
+        a content and navigation milestone, not a stress benchmark.
+      </p>
+      <p><a href="../docs/3D-MILESTONES.md">Milestones and boundaries</a></p>
+    </main>
+    <script type="module" src="../dist/examples/space/asteroids.js"></script>
+  </body>
+</html>

@@ -12,7 +12,12 @@ const output = document.querySelector('output')!,
 const button = (id: string) =>
   document.querySelector<HTMLButtonElement>('#' + id)!;
 const input = async (name: string): Promise<unknown> => {
-  const r = await fetch('./examples/character-encounter/' + name + '.json');
+  const r = await fetch(
+    new URL(
+      `../../../examples/character-encounter/${name}.json`,
+      import.meta.url,
+    ).href,
+  );
   if (!r.ok) throw new Error('Cannot load ' + name);
   return r.json();
 };

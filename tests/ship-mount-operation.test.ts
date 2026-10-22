@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Ship } from '../games/ship/Ship.js';
-import { validateMountsProfile } from '../games/ship/ShipMounts.js';
+import { Ship } from '../games/farwake/Ship.js';
+import { validateMountsProfile } from '../games/farwake/ShipMounts.js';
 import { starterSetup } from './helpers/shipSetup.js';
 const equipment = starterSetup.profile.mounts.equipment.map((e) => ({
   ...e,

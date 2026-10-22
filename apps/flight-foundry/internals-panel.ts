@@ -1,5 +1,5 @@
-import type { Ship } from '../../games/ship/Ship.js';
-import type { InternalsReading } from '../../games/ship/ShipInternals.js';
+import type { Ship } from '../../games/farwake/Ship.js';
+import type { InternalsReading } from '../../games/farwake/ShipInternals.js';
 function node<K extends keyof HTMLElementTagNameMap>(
   tag: K,
   text?: string,

@@ -31,7 +31,7 @@ CSP is not established. No paid provider or MCP generation work was invoked.
 
 ## Run the Rocket demo
 
-`npm start`, then open `/character-situations.html`. Focus the canvas for WASD/Shift;
+`npm start`, then open `/demos/character-situations.html`. Focus the canvas for WASD/Shift;
 walk into the guide's 80-pixel interaction circle. Click the guide sprite, selected
 through Rocket SpatialIndex/pickTop plus sprite bounds, or open its panel. Choose an
 authored response. Three neutral choices and two paths converge on farewell. The

@@ -80,7 +80,10 @@ async function start() {
         async prepare({ signal }) {
           for (const name of characterNames) {
             const lease = await assets.acquireImage(
-              `./examples/character-sprites/${name}.png`,
+              new URL(
+                `../../../examples/character-sprites/${name}.png`,
+                import.meta.url,
+              ).href,
               { signal },
             );
             if (signal.aborted) {

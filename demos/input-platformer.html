@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Rocket · 2D platformer input</title>
+    <link rel="stylesheet" href="../examples/style.css" />
+    <link rel="stylesheet" href="../examples/demo-navigation.css?v=2" />
+    <link
+      rel="stylesheet"
+      href="../examples/input/demo.css?v=virtual-corners"
+    />
+    <link
+      rel="stylesheet"
+      href="../src/virtual-controls.css?v=virtual-corners"
+    />
+    <script type="importmap">
+      {
+        "imports": {
+          "../dist/src/ActionContext.js": "../dist/src/ActionContext.js?v=virtual-corners",
+          "../dist/src/InputActivation.js": "../dist/src/InputActivation.js?v=virtual-corners",
+          "../dist/src/VirtualController.js": "../dist/src/VirtualController.js?v=virtual-corners",
+          "../dist/src/index.js": "../dist/src/index.js?v=virtual-corners",
+          "../dist/src/InputPresets.js": "../dist/src/InputPresets.js?v=virtual-corners"
+        }
+      }
+    </script>
+    <script
+      type="module"
+      src="../dist/examples/demo-navigation.js?v=virtual-corners"
+    ></script>
+  </head>
+  <body class="demo-layout" data-input-demo="platformer">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <p class="eyebrow">ENGINE BASICS · INPUT ACTIONS</p>
+      <h1>2D platformer input</h1>
+      <p id="instructions"></p>
+      <p>
+        <a href="./input-first-person.html">3D first-person</a> ·
+        <a href="./input-top-down.html">2D top-down</a> ·
+        <a href="./input-platformer.html">2D platformer</a> ·
+        <a href="./input-belt-scroller.html">Belt-scroller</a> ·
+        <a href="./input-flight.html">Free flight</a> ·
+        <a href="../docs/INPUT-ACTIONS.md">API and behaviour</a>
+      </p>
+      <div class="toolbar">
+        <label
+          ><input id="touch-mode" type="checkbox" /> Virtual controls</label
+        >
+        <label
+          >Pad
+          <select id="touch-pad-mode">
+            <option value="preset">Preset</option>
+            <option value="analog">Analog</option>
+            <option value="digital">D-pad</option>
+          </select></label
+        >
+        <label
+          >Tint <input id="touch-color" type="color" value="#ffffff"
+        /></label>
+        <label
+          >Opacity
+          <input
+            id="touch-opacity"
+            type="range"
+            min="0.2"
+            max="1"
+            step="0.05"
+            value="0.75"
+        /></label>
+        <button id="restart">Recreate demo</button
+        ><button id="ui-toggle">Open UI context</button
+        ><button id="remap">Remap action to G</button
+        ><label id="capture-option"
+          ><input id="capture-mode" type="checkbox" checked /> Mouse capture
+          (default; uncheck for explicit keyboard-only mode)</label
+        >
+      </div>
+      <section id="ui-panel" hidden>
+        <h2>UI context</h2>
+        <p>
+          The world keeps ticking. Game actions are disabled; this text belongs
+          to the UI.
+        </p>
+        <label
+          >Type here
+          <input
+            id="ui-text"
+            type="text"
+            placeholder="Try WASD, R, E…" /></label
+        ><button id="ui-close">Return to game</button>
+      </section>
+      <div id="input-viewport"></div>
+      <output id="demo-status" role="status">Loading…</output>
+      <div class="input-inspection">
+        <section>
+          <h2>Registered actions</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Action</th>
+                <th>Type</th>
+                <th>Binding</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody id="action-values"></tbody>
+          </table>
+        </section>
+        <section>
+          <h2>Handler events</h2>
+          <pre id="event-log">No events yet</pre>
+        </section>
+      </div>
+      <p>
+        Side-view platformer: A/D or left/right to move, Shift to run, Space or
+        Up to jump. Ground depth stays fixed. Reach the flag to the east. Level
+        motion and collisions belong to this demo; the preset only maps actions.
+      </p>
+    </main>
+    <script
+      type="module"
+      src="../dist/examples/input/demo.js?v=virtual-corners"
+    ></script>
+  </body>
+</html>

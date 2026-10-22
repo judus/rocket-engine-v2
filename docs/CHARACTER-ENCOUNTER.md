@@ -1,6 +1,6 @@
 # Watchtower recovery: a playable JSON quest
 
-Open [the demo](../character-encounter.html) after `npm run build` and serve the repository with `npm start` (port 8092). Focus the canvas: WASD moves, Shift runs, E interacts with the nearest visible sentry/item within 42 pixels. Clicking a visible object uses Rocket's spatial index and the same range validation.
+Open [the demo](../demos/character-encounter.html) after `npm run build` and serve the repository with `npm start` (port 8092). Focus the canvas: WASD moves, Shift runs, E interacts with the nearest visible sentry/item within 42 pixels. Clicking a visible object uses Rocket's spatial index and the same range validation.
 
 Enter the courtyard and defeat three sentries, then approach the watchkeeper and press E, click the guide or use **Talk to watchkeeper**. The existing Panel/ChatBox displays “Do you want the blue seal or the red seal?” with two authored choices. Blue reveals the blue seal and leads to Beacon Ridge A (north); red reveals the red seal and leads to Beacon Ridge B (south). Collect the selected seal, stand within 42 pixels of its matching beacon and press E or click to deliver it. Only that beacon lights and the runtime closes the chosen branch. Arrival alone and delivery at the other beacon cannot complete the quest. The **Seals already carried** fixture skips only the pickup; a matching delivery is still required; one made before the dialogue choice also counts.
 

@@ -1,5 +1,7 @@
 # Roadmap
 
+For the current Farwake game sequence, use [Game plan](GAME-PLAN.md).
+
 Historical integration snapshot: 2026-10-14. Current execution is tracked in
 [Consolidation progress](CONSOLIDATION-PROGRESS.md) and [the current API](CONSOLIDATION-API.md).
 The 2026-10-16 priority is bugs, Workshop/Sprite imports, engine consolidation, then
@@ -121,13 +123,13 @@ CFW authored-situation API and browser package accepted on 2026-10-14. Rocket no
 pins private artifact `c55c62467cad`; the isolated candidate passes 185 CFW tests
 and the existing Rocket suite passes 277 tests. The queued publication/start input
 snapshot correction is included.
-The [authored guide demo](../character-situations.html) connects one sprite, spatial
+The [authored guide demo](../demos/character-situations.html) connects one sprite, spatial
 picking, actual proximity, a neutral JSON flow and existing Panel/ChatBox with
 pending/error/stop-waiting/retry and cleanup. No AI or game action grants are required.
 The browser packaging gap was resolved by CFW; [consumer evidence and limitations](CFW-SITUATIONS-REVIEW.md)
 include the retained Mara proof. Durable world mutations remain a separate gate.
 
-The [grove evidence & pickup demo](../character-grove.html) is delivered after explicit
+The [grove evidence & pickup demo](../demos/character-grove.html) is delivered after explicit
 approval: actual movement feeds authored fact/event visit conditions, CFW reveals one
 preexisting survey marker, and a new pickup event after the stage boundary closes the
 flow. Prior visits/pickups, unknown history and lost reveal replies are verified with
@@ -192,7 +194,7 @@ original assets have no verified run clip; label that choice in the demo.
 
 ### 3. Selectable autonomous characters and player takeover
 
-Delivered first slice: [work → takeover → resume](../character-work.html), using
+Delivered first slice: [work → takeover → resume](../demos/character-work.html), using
 existing finite navigation, two operators, Staffing and Workshop 2.0.0. Selection
 and takeover are separate; only one worker can be controlled. No CFW API is needed.
 
@@ -314,7 +316,7 @@ superseded by later deliveries; the current sections above are the status refere
 
 ## Playable authored watchtower quest (2026-10-14)
 
-The explicitly approved [watchtower demo](../character-encounter.html) auto-starts
+The explicitly approved [watchtower demo](../demos/character-encounter.html) auto-starts
 from a session JSON and runs seven authored situations without AI. World objects
 and ordinary interactions belong to Rocket's game host; CFW evaluates every
 condition/route and invokes reusable consequences. Clearing the encounter reveals
@@ -335,7 +337,7 @@ Julien approved both slices. The optional `/sprites` entry provides Sprite2D, pr
 
 ## Journal and current status (2026-10-14)
 
-Julien approved the journal/status system. Optional `/journal`, `/journal/sqlite` and `/journal/mcp` entries keep domain semantics, CFW and Workshop out of neutral storage. A game-owned watchtower reporter proves confirmed outcomes and two deterministic episodes through existing handlers, with durable matching checkpoint/restart and scoped MCP reads. The original quest/demo/pins remain unchanged. See [API, proof and limits](JOURNAL.md) and [volatile browser proof](../journal.html). Crash-atomic cross-domain saves and generated narrative quality are not claimed.
+Julien approved the journal/status system. Optional `/journal`, `/journal/sqlite` and `/journal/mcp` entries keep domain semantics, CFW and Workshop out of neutral storage. A game-owned watchtower reporter proves confirmed outcomes and two deterministic episodes through existing handlers, with durable matching checkpoint/restart and scoped MCP reads. The original quest/demo/pins remain unchanged. See [API, proof and limits](JOURNAL.md) and [volatile browser proof](../demos/journal.html). Crash-atomic cross-domain saves and generated narrative quality are not claimed.
 
 CFW206 registered quest builder is integrated in the optional combined development fixture only (historically25 tools; now32 with focused plain-text context). Real TCP reconstruction, exact publication/command replay after SQLite reopen, both ordinary gameplay branches and cleanup pass. CAI received the live local endpoint and actual startup binding descriptor in message524. The playable c55c pin and baseline remain unchanged. Journal reporter now validates attached content against the executed CFW definition by run owner/identity before deriving its digest; the same-ID mismatch regression passes. Evidence: `docs/evidence/builder206-2026-10-14/`.
 

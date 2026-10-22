@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Flight Foundry · Flight curves</title>
+    <link rel="stylesheet" href="../../../apps/flight-foundry/style.css" />
+    <link rel="stylesheet" href="../../../apps/flight-foundry/curves.css" />
+  </head>
+  <body>
+    <header>
+      <a href="../">ROCKET / APPS</a
+      ><span class="badge">02 · FLIGHT CURVES</span>
+      <h1>How should it feel?</h1>
+      <p>
+        Choose the timing. Shape the response. See what the ship—and its
+        dampers—would have to do.
+      </p>
+      <nav>
+        <a href="./">Force / motion bench</a
+        ><a class="selected" href="./curves.html" aria-current="page"
+          >Flight curves</a
+        >
+        <a href="./ship.html">Assembled ship</a>
+      </nav>
+    </header>
+    <main class="curve-layout">
+      <section class="panel controls" aria-labelledby="controls-title">
+        <div class="section-head">
+          <h2 id="controls-title">Your flight</h2>
+          <button id="restore" type="button">Reset example</button>
+        </div>
+        <div id="curve-controls"></div>
+        <details>
+          <summary>Starting conditions &amp; coasting</summary>
+          <div id="advanced-controls"></div>
+          <p class="muted">
+            Set the initial speed above cruise to explore high-speed capture.
+            Values are speeds along one straight path; no turn is modeled.
+          </p>
+        </details>
+        <p id="curve-error" role="alert"></p>
+        <p class="muted">
+          Everything updates immediately. No Run button or waiting. The crew
+          target is your fictional design goal, not a human safety
+          certification.
+        </p>
+      </section>
+      <section class="panel results" aria-labelledby="results-title">
+        <h2 id="results-title">What that asks of the ship</h2>
+        <div id="curve-summary" class="curve-summary" aria-live="polite"></div>
+        <p id="journey-context" class="context"></p>
+        <div class="phase-labels" id="phases"></div>
+        <div class="plot-head">
+          <h3>Speed</h3>
+          <output id="speed-scale"></output>
+        </div>
+        <svg
+          id="speed-plot"
+          viewBox="0 0 700 140"
+          role="img"
+          aria-label="Speed over time"
+        ></svg>
+        <div class="plot-head">
+          <h3>Ship acceleration / braking</h3>
+          <output id="ship-scale"></output>
+        </div>
+        <svg
+          id="ship-plot"
+          viewBox="0 0 700 140"
+          role="img"
+          aria-label="Signed ship acceleration in G over time"
+        ></svg>
+        <div class="plot-head">
+          <h3>Crew load · with ideal protection</h3>
+          <output id="crew-scale"></output>
+        </div>
+        <svg
+          id="crew-plot"
+          viewBox="0 0 700 140"
+          role="img"
+          aria-label="Ideal protected crew load in G over time"
+        ></svg>
+        <div class="plot-head">
+          <h3>Required ID suppression</h3>
+          <output id="protection-scale">0–100% of ship acceleration</output>
+        </div>
+        <svg
+          id="protection-plot"
+          viewBox="0 0 700 140"
+          role="img"
+          aria-label="Required suppression percentage over time"
+        ></svg>
+        <label class="inspect-label" for="inspect-time"
+          >Inspect the journey <output id="inspect-label"></output
+        ></label>
+        <input
+          id="inspect-time"
+          type="range"
+          min="0"
+          max="1000"
+          value="0"
+          aria-label="Inspect journey time"
+        />
+        <div id="point-readings" class="point-readings"></div>
+        <p class="muted">
+          All four graphs share time. G graphs have their own labelled scales.
+          Suppression is what ideal dampers would need to cancel—not a claim
+          that installed equipment can deliver it.
+        </p>
+      </section>
+    </main>
+    <footer>
+      <strong>Design view /</strong> Specified motion → required acceleration →
+      required interior protection. No power, heat, injury or equipment-capacity
+      simulation. Shape runs from strongest early through constant to strongest
+      late; phase boundaries can have abrupt acceleration changes. This does not
+      yet model jerk limits.
+      <a
+        href="../../../apps/flight-foundry/README.md#flight-curves-design-screen"
+        >Equations &amp; scope</a
+      >
+    </footer>
+    <script
+      type="module"
+      src="../../../dist/apps/flight-foundry/curves-main.js"
+    ></script>
+  </body>
+</html>

@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket · Cockpit frame</title>
+    <link rel="stylesheet" href="../examples/style.css" />
+    <link rel="stylesheet" href="../examples/demo-navigation.css?v=2" />
+    <script type="module" src="../dist/examples/demo-navigation.js"></script>
+    <link rel="stylesheet" href="../examples/3d/line-demo.css" />
+    <style>
+      .object-controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .object-controls fieldset {
+        border: 1px solid #33465d;
+        border-radius: 6px;
+        padding: 0.75rem;
+        min-width: 0;
+      }
+      .object-controls legend {
+        color: #f5d38b;
+        font-size: 14px;
+      }
+      .object-controls label {
+        margin: 0.7rem 0;
+      }
+      .object-controls input[type='range'] {
+        min-width: 0;
+        flex: 1;
+      }
+      .object-controls input[type='checkbox'] {
+        width: auto;
+      }
+      .object-controls output {
+        min-width: 3rem;
+        margin: 0;
+        text-align: right;
+      }
+      #assembly-status {
+        display: block;
+        margin: 1rem 0;
+        color: #f5d38b;
+        font-variant-numeric: tabular-nums;
+      }
+    </style>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <div class="eyebrow">3D · MILESTONE 04</div>
+      <h1>Take a seat.</h1>
+      <p>
+        Thirteen simple box parts form an open cockpit. Local transforms place
+        each piece; a shared parent moves the assembly as one.
+      </p>
+      <section aria-labelledby="performance-title">
+        <h2 id="performance-title">Performance</h2>
+        <dl class="performance-grid">
+          <div>
+            <dt>Render FPS</dt>
+            <dd id="perf-fps">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame interval</dt>
+            <dd id="perf-frame">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Peak frame interval</dt>
+            <dd id="perf-peak">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Shortest interval</dt>
+            <dd id="perf-minimum">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame jitter</dt>
+            <dd id="perf-jitter">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Update CPU</dt>
+            <dd id="perf-update">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Render CPU</dt>
+            <dd id="perf-render">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Lines drawn / submitted</dt>
+            <dd id="perf-lines">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Faces drawn / submitted</dt>
+            <dd id="perf-faces">Warming up…</dd>
+          </div>
+        </dl>
+        <p>
+          Render FPS counts animation callbacks, not confirmed screen
+          presentations. Uneven frame pacing can feel choppy despite a high
+          average.
+        </p>
+        <p id="perf-resolution">Measuring canvas size…</p>
+        <details>
+          <summary>Reading the metrics</summary>
+          <p>
+            FPS, frame intervals and CPU times come from Rocket’s rolling
+            half-second monitor. Peak is the longest frame interval in that
+            window. Frame jitter is the standard deviation of those intervals;
+            lower means more even pacing. A very short minimum alongside a much
+            longer peak indicates callbacks arriving in bursts. CPU timings
+            measure JavaScript work; they do not measure GPU execution or
+            browser compositing. Lines count the current frame after / before
+            clipping.
+          </p>
+          <p>
+            For comparisons, keep the same canvas size, display scale, camera
+            pose and field of view, and keep this tab in the foreground. FPS is
+            capped by the browser/display refresh rate; CPU times can increase
+            before FPS drops. Recreate demo starts a fresh measurement window.
+          </p>
+        </details>
+      </section>
+      <div id="grid-view" class="canvas-host"></div>
+      <div class="toolbar">
+        <button id="reset">Seat view</button>
+        <button id="inspect">Inspect assembly</button>
+        <label
+          >Vertical field of view
+          <input id="fov" type="range" min="35" max="100" value="50" /><output
+            id="fov-value"
+            for="fov"
+            >50°</output
+          ></label
+        >
+        <button id="restart">Recreate demo</button>
+      </div>
+      <div class="object-controls" aria-label="Assembly controls">
+        <fieldset>
+          <legend>Shared parent transform</legend>
+          <label
+            >Yaw
+            <input
+              id="assembly-yaw"
+              type="range"
+              min="-180"
+              max="180"
+              step="1"
+              value="0"
+            /><output id="assembly-yaw-value" for="assembly-yaw"
+              >0°</output
+            ></label
+          >
+          <label
+            ><input id="outlines" type="checkbox" checked /> Visible face
+            outlines</label
+          >
+        </fieldset>
+      </div>
+      <output id="camera-status" aria-label="Camera position and orientation"
+        >Starting…</output
+      >
+      <output id="assembly-status" aria-label="Assembly geometry"></output>
+      <p>
+        Click or Tab into the canvas. <strong>WASD</strong> moves across the
+        ground plane; <strong>Q / E</strong> lowers / raises the camera.
+        <strong>Drag or arrow keys</strong> to look,
+        <strong>Shift</strong> moves faster, <strong>R</strong> resets. Moving
+        focus out of the canvas releases keyboard control.
+      </p>
+      <p>
+        <span class="axis-x">X · coral</span> &nbsp;
+        <span class="axis-y">Y · green · up</span> &nbsp;
+        <span class="axis-z">Z · blue</span>. The grid is finite; you can fly
+        beyond its edge or below it.
+      </p>
+      <p>
+        Start at eye height inside the frame. Seat view returns here; Inspect
+        assembly steps outside. Movement is free, with no collision or flight
+        model. The display is a colored box, not a functioning instrument.
+        <a href="../docs/3D-MILESTONES.md">Milestones and boundaries</a>
+      </p>
+      <details>
+        <summary>What this milestone covers</summary>
+        <p>
+          Part transforms are composed with a shared parent transform. World
+          vertices are rebuilt when the assembly changes; camera projection and
+          culling happen each frame. Face tints are fixed, with no lighting.
+        </p>
+        <p>
+          Faces across all parts use average-depth painter ordering. This is
+          still not a depth buffer or a general intersection solver; joins and
+          overlapping surfaces can show ordering artifacts. The grid is a
+          reference layer drawn first. No glass, textures or near-plane caps.
+        </p>
+      </details>
+    </main>
+    <script type="module" src="../dist/examples/3d/cockpit.js"></script>
+  </body>
+</html>

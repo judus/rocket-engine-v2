@@ -3,8 +3,8 @@ import {
   ShipModule,
   Reactor,
   PowerLoad,
-} from '../ship/ShipPower.js';
-import type { PowerTrial } from '../ship/ShipPower.js';
+} from '../../games/farwake/PowerLedger.js';
+import type { PowerTrial } from '../ship/PowerTrial.js';
 /** Display state only. Requested switches are not claims of powered simulation. */
 export const cockpitSystemPages = [
   [

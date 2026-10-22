@@ -4,7 +4,7 @@ import { Mesh3D, MeshGeometry, Node3D, TextureImage } from '../src/3d/index.js';
 import {
   surfaceMesh,
   surfaceVariantSwitcher,
-} from '../games/ship/SurfaceVariants.js';
+} from '../games/farwake/SurfaceVariants.js';
 import { meshColorVertices } from '../src/webgl/MeshRenderer3D.js';
 
 function fixture() {

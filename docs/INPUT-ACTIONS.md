@@ -159,24 +159,24 @@ snapshot consumers; existing demos keep their previous capture policy.
 
 ## Demos
 
-- `/input-first-person.html`: simple 3D landmarks, frame-relative movement,
+- `/demos/input-first-person.html`: simple 3D landmarks, frame-relative movement,
   crouch/jump visualization, reload/fire counters and action log. Mouse capture is
   the default. Uncheck Mouse capture for deliberate keyboard-only inspection in
   browsers which reject Pointer Lock (including the tested Codex embedded browser).
-- `/input-top-down.html`: north/east movement, visible directional labels, hold
+- `/demos/input-top-down.html`: north/east movement, visible directional labels, hold
   and press actions. Both demos normalize diagonal movement, expose live remapping,
   an HTML text-entry context, a continuing world clock and recreation cleanup.
 
-- `/input-platformer.html`: a side-view scrolling level with walk/run, jumping,
+- `/demos/input-platformer.html`: a side-view scrolling level with walk/run, jumping,
   solid ledges and a finish flag. Includes the same action inspector, UI context,
   recreation and live remapping (jump to G and back). The UI disables controls
   while gravity and world time continue.
 
-- `/input-belt-scroller.html`: Golden Axe-style ground depth plus independent
+- `/demos/input-belt-scroller.html`: Golden Axe-style ground depth plus independent
   jumping, shadow, depth-sorted decorative actors, attack preview and eastward
   scrolling. Includes remapping jump to G, a UI context and recreation cleanup.
 
-- `/input-flight.html`: keyboard-first six-axis free flight, full pitch/yaw/roll,
+- `/demos/input-flight.html`: keyboard-first six-axis free flight, full pitch/yaw/roll,
   optional mouse look, gates and a world-axis orientation guide. Includes boost
   remapping, HTML UI isolation and recreation cleanup. The existing spaceship
   demo remains separate. Virtual controls can be enabled alongside keyboard controls.

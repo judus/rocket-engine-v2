@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket v2 · Fixed timing</title>
+    <link rel="stylesheet" href="../examples/style.css" />
+    <link rel="stylesheet" href="../examples/demo-navigation.css?v=2" />
+    <script type="module" src="../dist/examples/demo-navigation.js"></script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <header>
+        <p class="eyebrow">ROCKET ENGINE / FIXED TIMING</p>
+        <h1>One simulation. A steady step.</h1>
+        <p>
+          The dot advances at 60 Hz. The second canvas reads its state and
+          timing counters. Click the motion canvas or focus it and press Space
+          to reverse once per press.
+        </p>
+      </header>
+      <div class="toolbar">
+        <button id="fixed-pause" type="button">Pause</button>
+        <button id="fixed-stall" type="button">Test 250 ms stall</button>
+        <output id="fixed-status" aria-live="polite">Starting…</output>
+      </div>
+      <p>
+        The stall button deliberately blocks one browser task for 250 ms.
+        Catch-up is limited to five steps; excess whole steps are dropped.
+        Pause/resume excludes paused time.
+      </p>
+      <p id="timing-cadence">Measuring callback and presentation cadence…</p>
+      <label for="fixed-cap">Render cap</label>
+      <select id="fixed-cap">
+        <option value="0">Uncapped</option>
+        <option value="1">1 FPS</option>
+        <option value="5">5 FPS</option>
+        <option value="10">10 FPS</option>
+        <option value="30">30 FPS</option>
+        <option value="60">60 FPS</option>
+      </select>
+      <p>
+        The cap only gates drawing. Fixed simulation and input continue on
+        browser callbacks.
+      </p>
+      <section class="views" aria-label="Fixed simulation and diagnostics">
+        <article>
+          <h2>Motion <span>fixed-step state</span></h2>
+          <div id="fixed-motion" class="canvas-host"></div>
+        </article>
+        <article>
+          <h2>Diagnostics <span>independent presentation</span></h2>
+          <div id="fixed-diagnostics" class="canvas-host"></div>
+        </article>
+      </section>
+      <footer>
+        Optional fixed timing · Existing frame animations stay unchanged
+      </footer>
+    </main>
+    <script type="module" src="../dist/examples/fixed.js"></script>
+  </body>
+</html>

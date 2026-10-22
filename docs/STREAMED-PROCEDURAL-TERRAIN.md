@@ -1,6 +1,6 @@
 # Streamed procedural terrain adapter
 
-`/terrain-streaming.html` is a new page. The standalone generator and original tile/streaming/physics demos remain available. Production Workshop stays outside this step. All code remains example-owned; no new Rocket core API was required.
+`/demos/terrain-streaming.html` is a new page. The standalone generator and original tile/streaming/physics demos remain available. Production Workshop stays outside this step. All code remains example-owned; no new Rocket core API was required.
 
 ## Reused contracts
 

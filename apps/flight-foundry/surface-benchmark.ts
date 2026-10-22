@@ -6,15 +6,15 @@ import {
   WebGLMeshRenderer3D,
   WebGLGpuTimer,
 } from '../../src/webgl/index.js';
-import { loadAsteroidFamily } from '../../examples/space/AsteroidFamily.js';
-import { createCockpitScene } from '../../games/ship/CockpitScene.js';
+import { loadAsteroidFamily } from '../../games/farwake/visuals/AsteroidFamily.js';
+import { createCockpitScene } from '../../games/farwake/CockpitScene.js';
 import {
   surfaceVariants,
   surfaceVariantSwitcher,
-} from '../../games/ship/SurfaceVariants.js';
-import type { SurfaceVariant } from '../../games/ship/SurfaceVariants.js';
-import { Ship } from '../../games/ship/Ship.js';
-import { loadShipSetup } from '../../games/ship/loadShipSetup.js';
+} from '../../games/farwake/SurfaceVariants.js';
+import type { SurfaceVariant } from '../../games/farwake/SurfaceVariants.js';
+import { Ship } from '../../games/farwake/Ship.js';
+import { loadShipSetup } from '../../games/farwake/loadShipSetup.js';
 
 function node<T extends HTMLElement>(id: string): T {
   const result = document.querySelector<T>(id);
@@ -66,7 +66,7 @@ async function start(): Promise<void> {
   const base = new URL('../../../', import.meta.url);
   const [model, sky, family, setup] = await Promise.all([
     assets.acquireModel(
-      new URL('examples/3d/assets/cockpit-hi3d-v3-gap-filled.glb', base).href,
+      new URL('examples/3d/assets/cockpit-hi3d-v3-smartglass.glb', base).href,
       { signal: lifetime.signal },
     ),
     assets.acquireTexture(
@@ -75,7 +75,7 @@ async function start(): Promise<void> {
       { signal: lifetime.signal },
     ),
     loadAsteroidFamily(lifetime.signal),
-    loadShipSetup(new URL('games/ship/ships/science-ship.json', base)),
+    loadShipSetup(new URL('games/farwake/ships/science-ship.json', base)),
   ]);
   const ship = stage.entity(() => new Ship(setup.profile, setup.initialState));
   ship.dampers.requestEnabled(true);
@@ -85,6 +85,7 @@ async function start(): Promise<void> {
     ship,
     model.value.instantiate().root,
     family.variants,
+    null,
     null,
   );
   ship.fixedUpdate(1 / 60, { dt: 1 / 60, tick: 1, time: 1 / 60 });
@@ -125,6 +126,7 @@ async function start(): Promise<void> {
     renderer = new WebGLMeshRenderer3D(surface.gl, {
       lighting: true,
       textures: true,
+      shadows: true,
       ...surfaceVariants[next],
     });
     inspect.value = next;

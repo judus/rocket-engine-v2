@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
   demoGroups,
@@ -28,9 +28,9 @@ void test('all navigation destinations exist; pages awaiting review have their o
     assert.ok(existsSync(fileURLToPath(target)), page.href);
   }
   for (const hidden of [
-    'webgl-cockpit-hi3d.html',
-    'quest-consumer.html',
-    'apps/flight-foundry/',
+    'demos/webgl-cockpit-hi3d.html',
+    'demos/quest-consumer.html',
+    'demos/tools/flight-foundry/',
   ]) {
     assert.ok(!primaryUrls.some((url) => url.includes(hidden)), hidden);
     assert.ok(
@@ -50,8 +50,11 @@ void test('all navigation destinations exist; pages awaiting review have their o
     './webgl-cockpit-asteroids.html',
   ])
     assert.ok(!urls.includes(removed), removed);
-  assert.ok(urls.includes('./webgl-video-textures.html'));
-  for (const page of ['journal.html', 'webgl-video-textures.html']) {
+  assert.ok(urls.includes('./demos/webgl-video-textures.html'));
+  for (const page of [
+    'demos/journal.html',
+    'demos/webgl-video-textures.html',
+  ]) {
     const html = readFileSync(new URL(page, root), 'utf8');
     assert.ok(html.includes('id="demo-navigation"'));
     assert.ok(html.includes('dist/examples/demo-navigation.js'));
@@ -59,16 +62,20 @@ void test('all navigation destinations exist; pages awaiting review have their o
 });
 void test('navigation resolves from the site root and highlights directory/index aliases and factory variants', () => {
   assert.equal(
-    demoPageUrl('./physics.html', base).href,
-    'https://rocket.example/physics.html',
+    demoPageUrl('./demos/physics.html', base).href,
+    'https://rocket.example/demos/physics.html',
   );
-  const inventory = new URL('examples/inventory/operations.html', base);
+  const inventory = new URL('demos/inventory/operations.html', base);
   assert.equal(
-    isCurrentDemo('./examples/inventory/operations.html', inventory, base),
+    isCurrentDemo('./demos/inventory/operations.html', inventory, base),
     true,
   );
   assert.equal(
-    isCurrentDemo('./games/', new URL('games/index.html', base), base),
+    isCurrentDemo(
+      './demos/games/',
+      new URL('demos/games/index.html', base),
+      base,
+    ),
     true,
   );
   assert.equal(isCurrentDemo('./', new URL('index.html', base), base), true);
@@ -90,10 +97,44 @@ void test('navigation resolves from the site root and highlights directory/index
     for (const other of modes)
       assert.equal(
         isCurrentDemo(
-          './factory-terrain.html' + mode,
-          new URL('factory-terrain.html' + other, base),
+          './demos/factory-terrain.html' + mode,
+          new URL('demos/factory-terrain.html' + other, base),
           base,
         ),
         mode === other,
       );
+});
+
+void test('demo pages are grouped and their import maps and authored model URLs resolve at the new depth', () => {
+  assert.deepEqual(
+    readdirSync(root).filter((name) => name.endsWith('.html')),
+    ['index.html'],
+  );
+  assert.ok(existsSync(new URL('games/farwake/index.html', root)));
+  assert.ok(!existsSync(new URL('games/ship/', root)));
+  for (const group of demoGroups)
+    for (const page of group.pages)
+      assert.ok(page.href.startsWith('./demos/'), page.href);
+  const directory = new URL('demos/', root);
+  const files = readdirSync(directory, { recursive: true });
+  for (const file of files) {
+    if (typeof file !== 'string' || !file.endsWith('.html')) continue;
+    const url = new URL(file, directory);
+    const html = readFileSync(url, 'utf8');
+    assert.ok(!/<base\b/i.test(html), file);
+    const references: string[] = [];
+    for (const match of html.matchAll(/data-model=["']([^"']+)["']/g))
+      references.push(match[1]!);
+    for (const match of html.matchAll(
+      /<script type="importmap">([\s\S]*?)<\/script>/g,
+    )) {
+      const map = JSON.parse(match[1]!) as { imports: Record<string, string> };
+      references.push(...Object.values(map.imports));
+    }
+    for (const reference of references) {
+      const target = new URL(reference, url);
+      if (target.protocol !== 'file:') continue;
+      assert.ok(existsSync(fileURLToPath(target)), `${file}: ${reference}`);
+    }
+  }
 });

@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Ship } from '../games/ship/Ship.js';
-import type { ShipProfile } from '../games/ship/ShipProfiles.js';
+import { Ship } from '../games/farwake/Ship.js';
+import type { ShipProfile } from '../games/farwake/ShipProfiles.js';
 import {
   validateCoolingProfile,
   validateThermalProfile,
-} from '../games/ship/ShipProfiles.js';
+} from '../games/farwake/ShipProfiles.js';
 import { starterSetup } from './helpers/shipSetup.js';
 
 const close = (a: number, b: number, tolerance = 1e-8) =>

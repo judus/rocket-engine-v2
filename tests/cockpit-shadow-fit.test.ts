@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cockpitShadowFit } from '../examples/webgl/CockpitShadowFit.js';
+import { cockpitShadowFit } from '../games/farwake/visuals/CockpitShadowFit.js';
 import {
   Node3D,
   Mesh3D,

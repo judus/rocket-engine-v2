@@ -10,32 +10,41 @@ export const demoGroups: readonly {
   {
     title: '01 · Runtime & scenes',
     pages: [
-      { title: 'Input · 3D first-person', href: './input-first-person.html' },
-      { title: 'Input · 2D top-down', href: './input-top-down.html' },
-      { title: 'Input · 2D platformer', href: './input-platformer.html' },
-      { title: 'Input · Belt-scroller', href: './input-belt-scroller.html' },
-      { title: 'Input · Free flight', href: './input-flight.html' },
+      {
+        title: 'Input · 3D first-person',
+        href: './demos/input-first-person.html',
+      },
+      { title: 'Input · 2D top-down', href: './demos/input-top-down.html' },
+      { title: 'Input · 2D platformer', href: './demos/input-platformer.html' },
+      {
+        title: 'Input · Belt-scroller',
+        href: './demos/input-belt-scroller.html',
+      },
+      { title: 'Input · Free flight', href: './demos/input-flight.html' },
       {
         title: 'Arms & cameras',
-        href: './',
+        href: './demos/',
       },
       {
         title: 'Fixed timing',
-        href: './fixed.html',
+        href: './demos/fixed.html',
       },
-      { title: 'Particle emitters', href: './particles.html' },
-      { title: 'Swept projectiles & impacts', href: './projectiles.html' },
+      { title: 'Particle emitters', href: './demos/particles.html' },
+      {
+        title: 'Swept projectiles & impacts',
+        href: './demos/projectiles.html',
+      },
       {
         title: 'Physics sandbox',
-        href: './physics.html',
+        href: './demos/physics.html',
       },
       {
         title: 'Nodes, layers & camera follow',
-        href: './api-experiment.html',
+        href: './demos/api-experiment.html',
       },
       {
         title: 'Scene composition & navigation',
-        href: './scene-composition.html',
+        href: './demos/scene-composition.html',
       },
     ],
   },
@@ -44,31 +53,31 @@ export const demoGroups: readonly {
     pages: [
       {
         title: 'Tile board',
-        href: './tiles.html',
+        href: './demos/tiles.html',
       },
       {
         title: 'Chunk streaming',
-        href: './streaming.html',
+        href: './demos/streaming.html',
       },
       {
         title: 'Terrain fields',
-        href: './terrain.html',
+        href: './demos/terrain.html',
       },
       {
         title: 'Tiles & vegetation',
-        href: './terrain-tiles.html',
+        href: './demos/terrain-tiles.html',
       },
       {
         title: 'Streamed terrain',
-        href: './terrain-streaming.html',
+        href: './demos/terrain-streaming.html',
       },
       {
         title: 'Terrain camera controls',
-        href: './camera-terrain.html',
+        href: './demos/camera-terrain.html',
       },
       {
         title: 'Terrain worker comparison',
-        href: './terrain-workers.html',
+        href: './demos/terrain-workers.html',
       },
     ],
   },
@@ -77,19 +86,19 @@ export const demoGroups: readonly {
     pages: [
       {
         title: 'Sprite animation',
-        href: './sprites.html',
+        href: './demos/sprites.html',
       },
       {
         title: 'Synchronized sprite layers',
-        href: './sprite-layers.html',
+        href: './demos/sprite-layers.html',
       },
       {
         title: 'Finite navigation',
-        href: './navigation.html',
+        href: './demos/navigation.html',
       },
       {
         title: 'Actor streaming & corridors',
-        href: './navigation-streaming.html',
+        href: './demos/navigation-streaming.html',
       },
     ],
   },
@@ -98,11 +107,11 @@ export const demoGroups: readonly {
     pages: [
       {
         title: 'Panels',
-        href: './ui-panels.html',
+        href: './demos/ui-panels.html',
       },
       {
         title: 'Chat box',
-        href: './ui-chat.html',
+        href: './demos/ui-chat.html',
       },
     ],
   },
@@ -111,47 +120,47 @@ export const demoGroups: readonly {
     pages: [
       {
         title: 'Object inventories',
-        href: './examples/inventory/inventory.html',
+        href: './demos/inventory/inventory.html',
       },
       {
         title: 'Atomic inventory operations',
-        href: './examples/inventory/operations.html',
+        href: './demos/inventory/operations.html',
       },
       {
         title: 'Inventory & equipment',
-        href: './examples/inventory/context.html',
+        href: './demos/inventory/context.html',
       },
       {
         title: 'Workshop basics',
-        href: './workshop.html',
+        href: './demos/workshop.html',
       },
       {
         title: 'Streamed factory',
-        href: './factory-terrain.html',
+        href: './demos/factory-terrain.html',
       },
       {
         title: 'Factory transport',
-        href: './factory-terrain.html?transport=1',
+        href: './demos/factory-terrain.html?transport=1',
       },
       {
         title: 'Construction & staffing',
-        href: './factory-terrain.html?transport=1&workshop=1',
+        href: './demos/factory-terrain.html?transport=1&workshop=1',
       },
       {
         title: 'Workplace journeys',
-        href: './navigation-workshop.html',
+        href: './demos/navigation-workshop.html',
       },
       {
         title: 'Streamed workplaces',
-        href: './navigation-workshop-streaming.html',
+        href: './demos/navigation-workshop-streaming.html',
       },
       {
         title: 'Two-worker staffing',
-        href: './navigation-staffing.html',
+        href: './demos/navigation-staffing.html',
       },
       {
         title: '6,000-facility stress test',
-        href: './factory-terrain.html?stress=6000&range=128',
+        href: './demos/factory-terrain.html?stress=6000&range=128',
       },
     ],
   },
@@ -160,33 +169,33 @@ export const demoGroups: readonly {
     pages: [
       {
         title: 'Dialogue & spatial picking',
-        href: './character-dialogue.html',
+        href: './demos/character-dialogue.html',
       },
       {
         title: 'Character sprites (archive)',
-        href: './character-sprites.html',
+        href: './demos/character-sprites.html',
       },
       {
         title: 'Character control',
-        href: './character-control.html',
+        href: './demos/character-control.html',
       },
       {
         title: 'Work, takeover & resume',
-        href: './character-work.html',
+        href: './demos/character-work.html',
       },
       {
         title: 'Authored guide dialogue',
-        href: './character-situations.html',
+        href: './demos/character-situations.html',
       },
       {
         title: 'Grove evidence & pickup',
-        href: './character-grove.html',
+        href: './demos/character-grove.html',
       },
       {
         title: 'Watchtower quest',
-        href: './character-encounter.html',
+        href: './demos/character-encounter.html',
       },
-      { title: 'Journal & episode continuity', href: './journal.html' },
+      { title: 'Journal & episode continuity', href: './demos/journal.html' },
     ],
   },
   {
@@ -194,43 +203,43 @@ export const demoGroups: readonly {
     pages: [
       {
         title: 'Grid & camera',
-        href: './3d-grid.html',
+        href: './demos/3d-grid.html',
       },
       {
         title: 'Wireframe cube',
-        href: './3d-cube.html',
+        href: './demos/3d-cube.html',
       },
       {
         title: 'Solid cube',
-        href: './3d-solid.html',
+        href: './demos/3d-solid.html',
       },
       {
         title: 'Cockpit frame',
-        href: './3d-cockpit.html',
+        href: './demos/3d-cockpit.html',
       },
       {
         title: 'Cockpit overlay',
-        href: './3d-overlay.html',
+        href: './demos/3d-overlay.html',
       },
       {
         title: 'Reusable 3D foundation',
-        href: './3d-foundation.html',
+        href: './demos/3d-foundation.html',
       },
       {
         title: 'Visibility & depth buffer',
-        href: './3d-visibility.html',
+        href: './demos/3d-visibility.html',
       },
       {
         title: 'GLB model loading',
-        href: './3d-model.html',
+        href: './demos/3d-model.html',
       },
       {
         title: 'Independent lighting',
-        href: './3d-lighting.html',
+        href: './demos/3d-lighting.html',
       },
       {
         title: 'Point lights',
-        href: './3d-point-light.html',
+        href: './demos/3d-point-light.html',
       },
     ],
   },
@@ -239,31 +248,31 @@ export const demoGroups: readonly {
     pages: [
       {
         title: 'GPU triangle',
-        href: './webgl-triangle.html',
+        href: './demos/webgl-triangle.html',
       },
       {
         title: 'Meshes & depth',
-        href: './webgl-meshes.html',
+        href: './demos/webgl-meshes.html',
       },
       {
         title: 'Per-pixel lighting',
-        href: './webgl-lighting.html',
+        href: './demos/webgl-lighting.html',
       },
       {
         title: 'Base-color textures',
-        href: './webgl-textures.html',
+        href: './demos/webgl-textures.html',
       },
       {
         title: 'Metallic & roughness',
-        href: './webgl-materials.html',
+        href: './demos/webgl-materials.html',
       },
       {
         title: 'Packed material maps',
-        href: './webgl-material-maps.html',
+        href: './demos/webgl-material-maps.html',
       },
       {
         title: 'Normal mapping',
-        href: './webgl-normals.html',
+        href: './demos/webgl-normals.html',
       },
     ],
   },
@@ -272,24 +281,27 @@ export const demoGroups: readonly {
     pages: [
       {
         title: 'Environment reflections',
-        href: './webgl-environment.html',
+        href: './demos/webgl-environment.html',
       },
       {
         title: 'Directional shadows',
-        href: './webgl-shadows.html',
+        href: './demos/webgl-shadows.html',
       },
       {
         title: 'Dynamic textures',
-        href: './webgl-dynamic-textures.html',
+        href: './demos/webgl-dynamic-textures.html',
       },
-      { title: 'Video texture transport', href: './webgl-video-textures.html' },
+      {
+        title: 'Video texture transport',
+        href: './demos/webgl-video-textures.html',
+      },
       {
         title: 'Bloom',
-        href: './webgl-bloom.html',
+        href: './demos/webgl-bloom.html',
       },
       {
         title: 'Procedural asteroid field',
-        href: './webgl-asteroids.html',
+        href: './demos/webgl-asteroids.html',
       },
     ],
   },
@@ -298,31 +310,31 @@ export const demoGroups: readonly {
     pages: [
       {
         title: 'Hi3D cockpit · model fitting & lamps',
-        href: './webgl-cockpit-hi3d.html',
+        href: './demos/webgl-cockpit-hi3d.html',
       },
       {
         title: 'Flight Foundry · motion bench',
-        href: './apps/flight-foundry/',
+        href: './demos/tools/flight-foundry/',
       },
       {
         title: 'Flight Foundry · acceleration curves',
-        href: './apps/flight-foundry/curves.html',
+        href: './demos/tools/flight-foundry/curves.html',
       },
       {
         title: 'Flight Foundry · assembled ship',
-        href: './apps/flight-foundry/ship.html',
+        href: './demos/tools/flight-foundry/ship.html',
       },
       {
         title: 'Quest authoring · requires local API',
-        href: './quest-consumer.html',
+        href: './demos/quest-consumer.html',
       },
       {
         title: 'Environment reflections',
-        href: './webgl-cockpit-environment.html',
+        href: './demos/webgl-cockpit-environment.html',
       },
       {
         title: 'Directional shadows',
-        href: './webgl-cockpit-shadows.html',
+        href: './demos/webgl-cockpit-shadows.html',
       },
     ],
   },

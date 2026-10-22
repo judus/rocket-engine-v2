@@ -1,0 +1,1143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket · Hi3D heavy cockpit preview</title>
+    <link rel="stylesheet" href="../examples/style.css" />
+    <link rel="stylesheet" href="../examples/demo-navigation.css?v=2" />
+    <script
+      type="module"
+      src="../dist/examples/demo-navigation.js?v=18-cockpit"
+    ></script>
+    <link rel="stylesheet" href="../examples/3d/line-demo.css" />
+    <style>
+      #gpu-view {
+        position: relative;
+      }
+      .rocket-input-activation {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.5rem 0.75rem;
+        color: #b8f3df;
+        background: #071016;
+        font-size: 0.85rem;
+      }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "../dist/src/webgl/ShadowShader.js": "../dist/src/webgl/ShadowShader.js?v=receiver-plane-1",
+          "../dist/src/webgl/ColorRenderer.js": "../dist/src/webgl/ColorRenderer.js?v=opacity-1",
+          "../dist/src/webgl/MeshRenderer3D.js": "../dist/src/webgl/MeshRenderer3D.js?v=opacity-1",
+          "../dist/src/3d/Mesh3D.js": "../dist/src/3d/Mesh3D.js?v=opacity-1"
+        }
+      }
+    </script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <div class="eyebrow">3D · HEAVY MODEL PREVIEW</div>
+      <h1>Hi3D cockpit · full model</h1>
+      <p>
+        The revised Hi3D v3 export with our seeded asteroid field in the
+        existing cockpit viewport: 199,364 triangles, 106,947 vertices, six
+        embedded textures and an 11.4 MiB prepared GLB. The source geometry,
+        materials and embedded proportion corrections are preserved. The default
+        fit uses Julien's tuned proportions: 80% width, 93% height, Y offset
+        +0.03 and Z offset −0.44 scene units. The pilot camera stays at Y 1.48,
+        Z −3.37. Use the Cockpit fit sliders below to adjust further.
+      </p>
+      <section aria-labelledby="performance-title">
+        <h2 id="performance-title">Performance</h2>
+        <dl class="performance-grid">
+          <div>
+            <dt>Callback FPS</dt>
+            <dd id="perf-fps">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame interval</dt>
+            <dd id="perf-frame">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Peak frame interval</dt>
+            <dd id="perf-peak">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Shortest interval</dt>
+            <dd id="perf-minimum">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame jitter</dt>
+            <dd id="perf-jitter">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Update CPU</dt>
+            <dd id="perf-update">Warming up…</dd>
+          </div>
+          <div>
+            <dt id="perf-render-label">CPU submission</dt>
+            <dd id="perf-render">Warming up…</dd>
+          </div>
+          <div>
+            <dt>GPU draw average</dt>
+            <dd id="perf-gpu">Pending…</dd>
+          </div>
+          <div>
+            <dt>GPU draw peak</dt>
+            <dd id="perf-gpu-peak">—</dd>
+          </div>
+        </dl>
+        <p id="perf-gpu-samples">Waiting for GPU timing…</p>
+        <p>
+          Callback FPS counts animation callbacks, not confirmed screen
+          presentations. Uneven frame pacing can feel choppy despite a high
+          average.
+        </p>
+        <p id="perf-resolution">Measuring canvas size…</p>
+        <details>
+          <summary>Reading the metrics</summary>
+          <p>
+            FPS, frame intervals and CPU times come from Rocket’s rolling
+            half-second monitor. Peak is the longest frame interval in that
+            window. Frame jitter is the standard deviation of those intervals;
+            lower means more even pacing. A very short minimum alongside a much
+            longer peak indicates callbacks arriving in bursts. CPU timings
+            measure JavaScript work; they do not measure GPU execution or
+            browser compositing. GPU draw average and peak cover the last 32
+            valid asynchronous timer-query samples of the clear and triangle
+            draw. Results arrive on later frames; a maximum of four queries can
+            be pending. Invalid (disjoint) samples are discarded. Unsupported
+            browsers show “unsupported” rather than an estimated GPU time. These
+            measurements exclude display latency and compositing; CPU and GPU
+            times overlap and must not be added together.
+          </p>
+          <p>
+            For comparisons, keep the same canvas size, display scale, camera
+            pose and field of view, and keep this tab in the foreground. FPS is
+            capped by the browser/display refresh rate; CPU times can increase
+            before FPS drops. Recreate demo starts a fresh measurement window.
+          </p>
+        </details>
+      </section>
+      <fieldset id="lamp-controls">
+        <legend>Lamp fitting</legend>
+        <div id="lamp-tuning">
+          <p>
+            Each lamp has independent on/off and X/Y fitting controls. Positive
+            X moves right, positive Y moves up. Use arrow keys for fine
+            0.001-unit steps. Rectangular buttons keep a dark lens when off;
+            R1/R2 retain a faint 2% standby glow. R1 (left round) is orange for
+            warnings; R2 (right round) is red for critical alerts. Colors can
+            change live; these controls are manual previews, not connected to
+            gameplay conditions.
+          </p>
+          <div class="toolbar">
+            <label
+              ><input id="lamp-overhead-left" type="checkbox" checked />
+              Overhead left
+              <output id="lamp-overhead-left-status">On</output></label
+            ><label
+              >X
+              <input
+                id="lamp-overhead-left-x"
+                type="range"
+                min="-0.5"
+                max="0.5"
+                step="0.001"
+                value="0.008"
+              /><output id="lamp-overhead-left-x-value">0.008</output></label
+            ><label
+              >Y
+              <input
+                id="lamp-overhead-left-y"
+                type="range"
+                min="-0.5"
+                max="0.5"
+                step="0.001"
+                value="-0.015"
+              /><output id="lamp-overhead-left-y-value">-0.015</output></label
+            >
+          </div>
+          <div class="toolbar">
+            <label
+              ><input id="lamp-overhead-right" type="checkbox" checked />
+              Overhead right
+              <output id="lamp-overhead-right-status">On</output></label
+            ><label
+              >X
+              <input
+                id="lamp-overhead-right-x"
+                type="range"
+                min="-0.5"
+                max="0.5"
+                step="0.001"
+                value="-0.014"
+              /><output id="lamp-overhead-right-x-value">-0.014</output></label
+            ><label
+              >Y
+              <input
+                id="lamp-overhead-right-y"
+                type="range"
+                min="-0.5"
+                max="0.5"
+                step="0.001"
+                value="-0.012"
+              /><output id="lamp-overhead-right-y-value">-0.012</output></label
+            >
+          </div>
+          <div class="toolbar">
+            <label
+              ><input id="lamp-center-console" type="checkbox" checked /> Center
+              console <output id="lamp-center-console-status">On</output></label
+            ><label
+              >X
+              <input
+                id="lamp-center-console-x"
+                type="range"
+                min="-0.5"
+                max="0.5"
+                step="0.001"
+                value="0.003"
+              /><output id="lamp-center-console-x-value">0.003</output></label
+            ><label
+              >Y
+              <input
+                id="lamp-center-console-y"
+                type="range"
+                min="-0.5"
+                max="0.5"
+                step="0.001"
+                value="0.01"
+              /><output id="lamp-center-console-y-value">0.010</output></label
+            >
+          </div>
+          <div class="toolbar">
+            <label
+              ><input id="lamp-right-console" type="checkbox" checked /> Right
+              console <output id="lamp-right-console-status">On</output></label
+            ><label
+              >X
+              <input
+                id="lamp-right-console-x"
+                type="range"
+                min="-0.5"
+                max="0.5"
+                step="0.001"
+                value="-0.021"
+              /><output id="lamp-right-console-x-value">-0.021</output></label
+            ><label
+              >Y
+              <input
+                id="lamp-right-console-y"
+                type="range"
+                min="-0.5"
+                max="0.5"
+                step="0.001"
+                value="0.035"
+              /><output id="lamp-right-console-y-value">0.035</output></label
+            >
+          </div>
+          <div class="toolbar">
+            <label
+              ><input id="lamp-r1" type="checkbox" checked /> R1 · Warning
+              <output id="lamp-r1-status">On</output></label
+            ><label
+              >Color
+              <input id="lamp-r1-color" type="color" value="#ffcd55" /></label
+            ><label
+              >X
+              <input
+                id="lamp-r1-x"
+                type="range"
+                min="-0.5"
+                max="0.5"
+                step="0.001"
+                value="0.009"
+              /><output id="lamp-r1-x-value">0.009</output></label
+            ><label
+              >Y
+              <input
+                id="lamp-r1-y"
+                type="range"
+                min="-0.5"
+                max="0.5"
+                step="0.001"
+                value="-0.058"
+              /><output id="lamp-r1-y-value">-0.058</output></label
+            ><label
+              >Size
+              <input
+                id="lamp-r1-size"
+                type="range"
+                min="0.25"
+                max="1.5"
+                step="0.001"
+                value="0.686"
+              /><output id="lamp-r1-size-value">68.6%</output></label
+            >
+          </div>
+          <div class="toolbar">
+            <label
+              ><input id="lamp-r2" type="checkbox" checked /> R2 · Critical
+              <output id="lamp-r2-status">On</output></label
+            ><label
+              >Color
+              <input id="lamp-r2-color" type="color" value="#e65c3d" /></label
+            ><label
+              >X
+              <input
+                id="lamp-r2-x"
+                type="range"
+                min="-0.5"
+                max="0.5"
+                step="0.001"
+                value="-0.038"
+              /><output id="lamp-r2-x-value">-0.038</output></label
+            ><label
+              >Y
+              <input
+                id="lamp-r2-y"
+                type="range"
+                min="-0.5"
+                max="0.5"
+                step="0.001"
+                value="-0.058"
+              /><output id="lamp-r2-y-value">-0.058</output></label
+            ><label
+              >Size
+              <input
+                id="lamp-r2-size"
+                type="range"
+                min="0.25"
+                max="1.5"
+                step="0.001"
+                value="0.686"
+              /><output id="lamp-r2-size-value">68.6%</output></label
+            >
+          </div>
+          <button id="lamp-size-reset">Reset disc sizes</button>
+          <details>
+            <summary>Exact disc sizes</summary>
+            <pre id="lamp-size-values"></pre>
+          </details>
+          <button id="lamp-tuning-reset">Reset lamp offsets</button>
+          <output id="lamp-tuning-status"
+            >Offsets restore automatically in this browser.</output
+          >
+          <details>
+            <summary>Exact lamp adjustments</summary>
+            <pre id="lamp-tuning-values"></pre>
+          </details>
+        </div>
+      </fieldset>
+      <p id="button-light-status"></p>
+      <div
+        id="gpu-view"
+        class="canvas-host"
+        data-model="../examples/3d/assets/cockpit-hi3d-v3-gap-filled.glb"
+        data-model-label="Hi3D v3 gap-filled cockpit"
+        data-world="asteroids"
+        data-instruments="hi3d"
+        data-large-textures="false"
+        data-model-scale="94.70412249158481"
+        data-model-y="-0.8191118254985987"
+        data-model-yaw="0"
+        data-eye-y="1.48"
+        data-eye-z="-3.37"
+      ></div>
+      <button id="systems-console-toggle" type="button" aria-pressed="false">
+        Use systems display · I
+      </button>
+      <p id="power-trial-status">ECS power trial starting…</p>
+      <p class="systems-help">
+        Press I to use the right display with the mouse. Click ON/OFF to set a
+        requested state; click the page footer for more systems. Keyboard: 1–6
+        toggle rows, Page Up/Down changes page, I or Esc returns to flight. The
+        reactor produces 2 MW; ENGINE (TEST) draws 5 MW from a 100 MJ reserve,
+        initially 60 MJ. After depletion the load waits for 10 MJ before
+        resuming; toggling does not bypass recovery. Switch off the test load to
+        recharge, or the reactor to drain. This is demonstration tuning. Other
+        module switches remain requests only. Heat, cooling and flight coupling
+        come later.
+      </p>
+      <output id="flight-input-status">Flight actions ready.</output>
+      <label
+        ><input id="reticle-enabled" type="checkbox" checked /> Turquoise flight
+        reticle</label
+      >
+      <details>
+        <summary>Transparency diagnostic</summary>
+        <button id="check-opacity">Check alpha blending and occlusion</button
+        ><output id="opacity-status"
+          >Not run · pixel readback pauses the GPU briefly.</output
+        >
+      </details>
+      <fieldset>
+        <legend>Hi3D instruments</legend>
+        <p>
+          Overhead, left to right: heading/pitch (medium), speed (small), X/Y/Z
+          position (large). Lower left: heading-up radar of actual asteroid
+          centers within 7,680 units. Lower right: ship systems, requested
+          switches and live ECS power and pending thermal telemetry. Flight
+          values follow the current camera; collisions remain disabled.
+        </p>
+        <label
+          ><input id="screen-power" type="checkbox" checked /> Screen
+          power</label
+        >
+        <label
+          ><input id="instruments-running" type="checkbox" checked /> Run
+          displays</label
+        >
+        <label
+          >Display updates / second
+          <input id="instruments-rate" type="range" min="1" max="30" value="10"
+        /></label>
+        <button id="instruments-step">Advance displays once</button>
+        <output id="instruments-status" aria-live="polite"></output>
+      </fieldset>
+
+      <fieldset>
+        <legend>Screen illumination</legend>
+        <div class="toolbar">
+          <label
+            ><input id="screen-light-enabled" type="checkbox" checked /> Screen
+            light spill</label
+          >
+          <label
+            ><input id="screen-light-only" type="checkbox" /> Isolate screen
+            lighting</label
+          >
+          <label
+            >Strength
+            <input
+              id="screen-light-strength"
+              type="range"
+              min="0"
+              max="8"
+              step="0.1"
+              value="0.4" /><output id="screen-light-value"></output
+          ></label>
+        </div>
+        <p id="screen-light-status"></p>
+        <p>
+          Isolate removes ambient, studio fill and the existing
+          directional/point lamps. Toggle bloom separately to distinguish a
+          screen halo from illumination on the nearby frame. Existing emissive
+          materials remain visible. Scene light controls retain their values
+          while isolation is active.
+        </p>
+        <p>
+          This reuses existing inverse-square point lights, offset in front of
+          the five display meshes. Soft turquoise light and face areas
+          approximate backlight output. A broader falloff reduces center
+          hotspots. It does not sample the animated pixels or simulate area
+          lights. These lights have no shadows or occlusion, so they can leak
+          through cabin walls. Display power stops their contribution and blacks
+          out the five textures; pausing display updates simply freezes the
+          powered readouts.
+        </p>
+      </fieldset>
+      <fieldset>
+        <legend>Bloom</legend>
+        <div class="toolbar">
+          <label
+            ><input id="bloom-enabled" type="checkbox" checked /> Bloom</label
+          >
+          <label
+            >View
+            <select id="bloom-view">
+              <option value="composite">Composite</option>
+              <option value="scene">Sharp scene</option>
+              <option value="bright">Bright extraction</option>
+              <option value="bloom">Blurred glow</option>
+            </select></label
+          >
+          <label
+            >Threshold
+            <input
+              id="bloom-threshold"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.6" /><output id="bloom-threshold-value"></output
+          ></label>
+          <label
+            >Strength
+            <input
+              id="bloom-strength"
+              type="range"
+              min="0"
+              max="2"
+              step="0.05"
+              value="0.35" /><output id="bloom-strength-value"></output
+          ></label>
+          <label
+            >Radius
+            <input
+              id="bloom-radius"
+              type="range"
+              min="0"
+              max="8"
+              step="0.25"
+              value="1.5" /><output id="bloom-radius-value"></output
+          ></label>
+        </div>
+        <p id="bloom-status"></p>
+        <p>
+          The same reusable pass as milestone 25. All sufficiently bright
+          visible pixels can bloom: lamps, displays and reflections. It does not
+          illuminate nearby surfaces. Disable bloom in Composite view for a
+          comparison with identical scene resolution. Material, normal and
+          shadow diagnostic views automatically bypass bloom.
+        </p>
+        <p>
+          The scene uses an 8-bit offscreen target with depth and no multisample
+          antialiasing; native resolution and render scale still apply. Glow
+          buffers are half resolution. Existing scene highlights are already
+          clipped; no HDR or exposure yet. GPU timing includes the scene, shadow
+          pass and enabled post-processing.
+        </p>
+      </fieldset>
+      <fieldset id="display-tuning">
+        <legend>Temporary display fitting</legend>
+        <p>
+          Adjust each screen independently. Positive X moves right; positive Y
+          moves up. These offsets follow the cockpit fit and motion. Saved
+          automatically in this browser. Use arrow keys on a focused slider for
+          fine 0.001-unit steps.
+        </p>
+        <div class="toolbar">
+          <strong>Lower left · Radar</strong
+          ><label
+            >X
+            <input
+              id="display-radar-x"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="-0.01"
+            /><output id="display-radar-x-value">-0.010</output></label
+          ><label
+            >Y
+            <input
+              id="display-radar-y"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="0.011"
+            /><output id="display-radar-y-value">0.011</output></label
+          >
+        </div>
+        <div class="toolbar">
+          <strong>Lower right · Systems</strong
+          ><label
+            >X
+            <input
+              id="display-flight-x"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="-0.079"
+            /><output id="display-flight-x-value">-0.079</output></label
+          ><label
+            >Y
+            <input
+              id="display-flight-y"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="0.011"
+            /><output id="display-flight-y-value">0.011</output></label
+          >
+        </div>
+        <div class="toolbar">
+          <strong>Overhead left · Heading / pitch</strong
+          ><label
+            >X
+            <input
+              id="display-attitude-x"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="0"
+            /><output id="display-attitude-x-value">0.000</output></label
+          ><label
+            >Y
+            <input
+              id="display-attitude-y"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="-0.03"
+            /><output id="display-attitude-y-value">-0.030</output></label
+          >
+        </div>
+        <div class="toolbar">
+          <strong>Overhead center · Speed</strong
+          ><label
+            >X
+            <input
+              id="display-speed-x"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="0"
+            /><output id="display-speed-x-value">0.000</output></label
+          ><label
+            >Y
+            <input
+              id="display-speed-y"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="-0.03"
+            /><output id="display-speed-y-value">-0.030</output></label
+          >
+        </div>
+        <div class="toolbar">
+          <strong>Overhead right · Position</strong
+          ><label
+            >X
+            <input
+              id="display-position-x"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="-0.007"
+            /><output id="display-position-x-value">-0.007</output></label
+          ><label
+            >Y
+            <input
+              id="display-position-y"
+              type="range"
+              min="-0.5"
+              max="0.5"
+              step="0.001"
+              value="-0.03"
+            /><output id="display-position-y-value">-0.030</output></label
+          >
+        </div>
+        <button id="display-tuning-reset">Reset display offsets</button>
+        <p id="display-tuning-status">
+          Offsets restore automatically in this browser.
+        </p>
+        <details>
+          <summary>Exact display adjustments</summary>
+          <pre id="display-tuning-values"></pre>
+        </details>
+      </fieldset>
+      <div class="toolbar">
+        <label
+          ><input id="cockpit-motion" type="checkbox" checked /> Subtle cockpit
+          motion</label
+        >
+        <button id="cockpit-motion-bump">Preview small impact</button>
+        <output id="cockpit-motion-status">Movement response ready.</output>
+      </div>
+      <p>
+        Flight accelerates smoothly and coasts briefly when keys are released.
+        Acceleration, braking and turning give the cockpit a spring response
+        bounded to 0.15 scene units on each axis. The impact button previews a
+        future collision response; asteroid collisions are still disabled. Turn
+        off Move with cockpit for independent inspection.
+      </p>
+      <fieldset id="cockpit-tuning">
+        <legend>Cockpit fit</legend>
+        <p>
+          Adjust the model while the pilot camera stays put. Width and height
+          scale around the cockpit center. Positive Y moves up; positive Z moves
+          away from the pilot. Position values are offsets in scene units.
+        </p>
+        <div class="toolbar">
+          <label
+            >Width
+            <input
+              id="cockpit-width"
+              type="range"
+              min="0.5"
+              max="1.8"
+              step="0.01"
+              value="0.8"
+            />
+            <output id="cockpit-width-value" for="cockpit-width"
+              >0.80×</output
+            ></label
+          >
+          <label
+            >Height
+            <input
+              id="cockpit-height"
+              type="range"
+              min="0.5"
+              max="1.8"
+              step="0.01"
+              value="0.93"
+            />
+            <output id="cockpit-height-value" for="cockpit-height"
+              >0.93×</output
+            ></label
+          >
+          <label
+            >Cockpit Y
+            <input
+              id="cockpit-y"
+              type="range"
+              min="-3"
+              max="3"
+              step="0.01"
+              value="0.03"
+            />
+            <output id="cockpit-y-value" for="cockpit-y">0.03 U</output></label
+          >
+          <label
+            >Cockpit Z
+            <input
+              id="cockpit-z"
+              type="range"
+              min="-3"
+              max="3"
+              step="0.01"
+              value="-0.44"
+            />
+            <output id="cockpit-z-value" for="cockpit-z">-0.44 U</output></label
+          >
+          <button id="cockpit-tuning-reset">Reset cockpit fit</button>
+        </div>
+        <p id="cockpit-tuning-status">
+          Settings restore automatically in this browser. Pilot seat returns the
+          camera without changing your fit.
+        </p>
+        <details>
+          <summary>Exact adjustments</summary>
+          <pre
+            id="cockpit-tuning-values"
+            aria-label="Exact cockpit adjustments"
+          >
+Loading…</pre>
+        </details>
+      </fieldset>
+      <fieldset>
+        <legend>Outside world</legend>
+        <div class="toolbar">
+          <label
+            ><input id="field-enabled" type="checkbox" checked /> Asteroid
+            field</label
+          >
+          <label><input id="cruise" type="checkbox" /> Cruise forward</label>
+          <label
+            >Seed
+            <input
+              id="field-seed"
+              type="number"
+              min="0"
+              max="4294967295"
+              step="1"
+              value="2126"
+              required
+          /></label>
+          <label
+            >Rocks
+            <select id="field-count">
+              <option>32</option>
+              <option selected>96</option>
+              <option>256</option>
+            </select></label
+          >
+          <button id="field-generate">Generate field</button>
+          <button id="field-home" type="button">Return home</button>
+        </div>
+        <p id="field-status"></p>
+        <p>
+          Original asteroid shapes and uncompressed 2K textures, with
+          independently seeded shape, material and size (10–1,000 m); 96 rocks
+          submit 460,800 asteroid triangles. Seeded placement is spread 64 times
+          wider for the larger bodies. Shared geometry and textures are
+          retained; texture detail currently scales with each body. Distant
+          stars and nebulae beyond the field. The separate sun follows the
+          actual sun-light direction and stays at a constant apparent size as
+          you fly.
+        </p>
+        <label
+          ><input type="checkbox" id="sky-enabled" checked /> Starfield
+          background</label
+        >
+        <p id="sky-status"></p>
+        <p>
+          Galactic Plane 1 by
+          <a href="https://www.spacespheremaps.com/galactic-plane-spheremaps/"
+            >TonyS / Space Spheremaps</a
+          >
+          · original 10000 × 5000 panorama.
+        </p>
+        <button id="face-sun">Face the sun</button>
+        <p>
+          A finite field: no collisions, wrapping, streaming or asteroid motion.
+          You can fly through rocks and past the field. Turning off Move with
+          cockpit lets the camera inspect the scene independently.
+        </p>
+      </fieldset>
+      <div class="toolbar">
+        <label
+          >Render scale
+          <input
+            id="render-scale"
+            type="range"
+            min="50"
+            max="200"
+            step="25"
+            value="100"
+          />
+          <output id="render-scale-value">100%</output>
+        </label>
+      </div>
+      <p>
+        100% uses the viewport size × device pixel ratio. Lower the scale for
+        speed; raise it for supersampling. The viewport stays the same size. GPU
+        dimension limits are reported above. The six embedded textures remain
+        full resolution.
+      </p>
+      <p>
+        Click the viewport or Activate controls to connect keyboard and mouse
+        flight controls. Mouse capture is automatic after that click; Esc
+        releases it. Switching tabs/windows clears held input; the world
+        continues running.
+        <strong>W/S</strong> forward/back, <strong>A/D</strong> strafe,
+        <strong>Left Alt / Ctrl</strong> local up/down,
+        <strong>Q/E</strong> roll, <strong>arrows</strong> yaw/pitch,
+        <strong>Shift</strong> boost to 300 m/s (normal: 80 m/s).
+        <strong>Space / Left mouse</strong> fire, <strong>F</strong> interact,
+        <strong>Tab</strong> health/consume are mapped actions awaiting gameplay
+        systems. <strong>Ctrl+R</strong> returns to the pilot seat. Full loops
+        and rolls use ship-local axes.
+      </p>
+      <div class="toolbar">
+        <label
+          ><input id="reference-grid" type="checkbox" /> World reference
+          grid</label
+        >
+        <label
+          ><input id="pilot-rig" type="checkbox" checked /> Move with
+          cockpit</label
+        >
+      </div>
+      <p>
+        Move with cockpit keeps the current camera-to-model offset. Turn it off
+        to look around independently; Inspect exterior resets the cockpit at the
+        origin. Navigation uses smooth acceleration and braking; collisions
+        remain disabled.
+      </p>
+      <div class="toolbar">
+        <label
+          ><input id="environment-enabled" type="checkbox" /> Studio reflection
+          map (inspection only)</label
+        >
+        <label
+          >Environment strength
+          <input
+            id="environment-strength"
+            type="range"
+            min="0"
+            max="200"
+            value="0"
+        /></label>
+        <label
+          >Environment yaw
+          <input
+            id="environment-yaw"
+            type="range"
+            min="-180"
+            max="180"
+            value="0"
+        /></label>
+      </div>
+      <p id="environment-status"></p>
+      <p>
+        Space defaults use one fixed distant sun, 1% ambient fill and no studio
+        reflection or inspection point light. Cockpit screens and lamps provide
+        local light. The studio map is optional for inspection. This is distant
+        environment lighting: the cockpit and grid do not reflect each other,
+        and the cabin does not block incoming environment light. The map stays
+        fixed in world orientation as you turn the ship. Use the existing
+        direct-light controls independently.
+      </p>
+      <div class="toolbar">
+        <label
+          ><input id="shadows-enabled" type="checkbox" checked /> Directional
+          shadows</label
+        >
+        <label
+          ><input id="shadow-pcf" type="checkbox" checked /> 3 × 3 PCF</label
+        >
+        <label
+          ><input id="shadow-debug" type="checkbox" /> Shadow visibility
+          mask</label
+        >
+        <label
+          >Shadow resolution
+          <select id="shadow-resolution">
+            <option>256</option>
+            <option>512</option>
+            <option>1024</option>
+            <option>2048</option>
+            <option selected>4096</option>
+            <option>8192</option>
+          </select></label
+        >
+      </div>
+      <div class="toolbar">
+        <label
+          >Light yaw
+          <input id="light-yaw" type="range" min="-180" max="180" value="-140"
+        /></label>
+        <label
+          >Light elevation
+          <input
+            id="light-elevation"
+            type="range"
+            min="-80"
+            max="80"
+            value="20"
+        /></label>
+        <label
+          >Shadow bias
+          <input id="shadow-bias" type="range" min="0" max="100" value="3"
+        /></label>
+        <label
+          >Slope bias
+          <input id="shadow-slope" type="range" min="0" max="100" value="10"
+        /></label>
+      </div>
+      <p id="shadow-status"></p>
+      <p>
+        Every asteroid and the cockpit cast and receive sun shadows. One shadow
+        map covers the entire finite field and the moving cockpit. Higher
+        resolution improves detail but costs memory and GPU time (4096: 64 MiB,
+        8192: 256 MiB). The volume expands if you fly far beyond the field,
+        reducing detail. Sun shadows do not affect local lamp spill or glowing
+        lenses. Use the visibility mask to inspect actual shadow coverage.
+      </p>
+      <p id="model-details">Loading model…</p>
+      <div class="toolbar">
+        <button id="inspect-model">Inspect exterior</button>
+        <label
+          ><input id="normal-enabled" type="checkbox" checked /> Normal
+          mapping</label
+        >
+        <label
+          ><input id="normal-debug" type="checkbox" /> Show world normals</label
+        >
+        <label
+          ><input id="material-response" type="checkbox" checked /> GGX material
+          response</label
+        >
+        <label
+          >View
+          <select id="material-channel">
+            <option value="none">Shaded</option>
+            <option value="occlusion">Occlusion</option>
+            <option value="roughness">Roughness</option>
+            <option value="metallic">Metallic</option>
+          </select></label
+        >
+      </div>
+      <div class="toolbar">
+        <label
+          >Camera X <input id="camera-x" type="number" step="0.05" value="0"
+        /></label>
+        <label
+          >Camera Y <input id="camera-y" type="number" step="0.05" value="1.5"
+        /></label>
+        <label
+          >Camera Z <input id="camera-z" type="number" step="0.05" value="0"
+        /></label>
+      </div>
+      <div class="toolbar">
+        <label
+          ><input id="lighting-enabled" type="checkbox" checked /> Lighting
+          enabled</label
+        >
+        <label
+          ><input id="orbit-light" type="checkbox" /> Animate point light</label
+        >
+      </div>
+      <div class="toolbar">
+        <label
+          >Ambient
+          <input
+            id="ambient"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value="0.01"
+        /></label>
+        <label
+          >Sun intensity
+          <input
+            id="directional"
+            type="range"
+            min="0"
+            max="2"
+            step="0.01"
+            value="1.1"
+        /></label>
+        <label
+          >Inspector point strength
+          <input
+            id="point-strength"
+            type="range"
+            min="0"
+            max="20"
+            step="0.1"
+            value="0"
+        /></label>
+      </div>
+      <div class="toolbar">
+        <label
+          >Point X
+          <input
+            id="point-x"
+            type="range"
+            min="-30"
+            max="5"
+            step="0.1"
+            value="-1.5"
+        /></label>
+        <label
+          >Point Y
+          <input
+            id="point-y"
+            type="range"
+            min="-2"
+            max="5"
+            step="0.1"
+            value="2"
+        /></label>
+        <label
+          >Point Z
+          <input
+            id="point-z"
+            type="range"
+            min="-30"
+            max="5"
+            step="0.1"
+            value="-2"
+        /></label>
+      </div>
+      <p id="light-status">Preparing lights…</p>
+      <div class="toolbar">
+        <label
+          ><input id="depth-test" type="checkbox" checked /> Depth testing
+          (GPU)</label
+        >
+        <label
+          ><input id="reverse-order" type="checkbox" /> Reverse draw order
+          (GPU)</label
+        >
+      </div>
+      <div class="toolbar">
+        <label
+          >Camera yaw
+          <input id="camera-yaw" type="range" min="-180" max="180" value="-20"
+        /></label>
+        <label
+          >Camera pitch
+          <input id="camera-pitch" type="range" min="-75" max="75" value="-12"
+        /></label>
+      </div>
+      <div class="toolbar">
+        <button id="reset-triangle">Pilot seat</button
+        ><button id="restart">Recreate demo</button
+        ><label
+          ><input id="animate-triangle" type="checkbox" /> Animate
+          rotation</label
+        >
+      </div>
+      <div class="toolbar">
+        <label
+          >Rotation
+          <input
+            id="triangle-angle"
+            type="range"
+            min="-180"
+            max="180"
+            value="0"
+          /><output id="angle-value">0°</output></label
+        ><label
+          >Vertical FOV
+          <input
+            id="triangle-scale"
+            type="range"
+            min="35"
+            max="100"
+            value="60"
+          /><output id="scale-value">60°</output></label
+        >
+      </div>
+      <div class="toolbar">
+        <button id="lose-context">Simulate context loss</button
+        ><button id="restore-context" disabled>Restore context</button
+        ><button id="read-pixel">Check normal mapping</button>
+      </div>
+      <output id="gpu-status" aria-live="polite">Starting…</output>
+      <p>
+        Revised Hi3D v3 geometry and six textures. The lower coverage panel is
+        separate; instrument bezels remain part of the cockpit mesh, with no
+        pilot-camera metadata. UV-derived tangents were added for the normal
+        map; geometry, textures and embedded transforms are unchanged.
+      </p>
+      <p id="mesh-stats">Preparing meshes…</p>
+      <output id="gpu-diagnostic" aria-live="polite"></output>
+      <p>
+        Render CPU measures JavaScript submission time, not GPU execution. Pixel
+        readback can stall the GPU; use the diagnostic separately from
+        performance comparisons. This is an unoptimized asset preview; initial
+        loading and GPU upload are separate from steady-state timing.
+      </p>
+      <p>
+        Context-loss testing releases the drawing context temporarily; restore
+        rebuilds programs, mesh buffers, textures and samplers. Recreate retires
+        the previous canvas and GPU resources. No WebGL1 or Canvas fallback is
+        silently substituted.
+      </p>
+      <details>
+        <summary>Where the reflections come from</summary>
+        <p>
+          The same six-face studio as milestone 19: warm panel, cool panel,
+          ceiling and sky/ground fill. This preview stays unrotated. It supplies
+          diffuse and roughness-filtered specular lighting without adding room
+          geometry.
+        </p>
+        <div id="environment-preview" class="toolbar"></div>
+      </details>
+      <p>
+        This imported cockpit has a separate lower coverage panel and five
+        fitted live instrument inserts with new Hi3D artwork. This preview uses
+        its own material textures, the shared lighting/reflection controls and
+        native viewport resolution.
+        <a href="./webgl-dynamic-textures.html">Neutral dynamic-texture demo</a
+        >.
+      </p>
+      <p><a href="../docs/3D-MILESTONES.md">Milestones and boundaries</a></p>
+    </main>
+    <script
+      type="module"
+      src="../dist/examples/webgl/cockpit.js?v=ecs-power-11"
+    ></script>
+  </body>
+</html>

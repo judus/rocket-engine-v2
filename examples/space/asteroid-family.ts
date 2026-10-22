@@ -1,4 +1,4 @@
-import { loadAsteroidFamily } from './AsteroidFamily.js';
+import { loadAsteroidFamily } from '../../games/farwake/visuals/AsteroidFamily.js';
 import { Rocket, Scene2D } from '../../src/index.js';
 import { Node3D, PerspectiveCamera } from '../../src/3d/index.js';
 
