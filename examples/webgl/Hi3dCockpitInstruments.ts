@@ -1,4 +1,4 @@
-import type { PowerTrial } from '../ship/ShipPower.js';
+import type { PowerTrial } from '../ship/PowerTrial.js';
 import { CockpitSystemsPanel } from './CockpitSystemsPanel.js';
 import { DynamicTextureImage } from '../../src/3d/index.js';
 import type { Vec3 } from '../../src/3d/index.js';

@@ -7,7 +7,7 @@ import {
   matrixPoint,
 } from '../../src/3d/index.js';
 import type { GeometryFace, Vec3, ScreenDoor3D } from '../../src/3d/index.js';
-import { cockpitReticle } from '../../examples/webgl/CockpitReticle.js';
+import { cockpitReticle } from './visuals/CockpitReticle.js';
 import type { CockpitReading } from './CockpitReadings.js';
 
 /** Shared HUD appearance. Placement and tilt come from the imported glass node. */

@@ -5,9 +5,9 @@ roadmaps and consolidation logs are historical context, not this game's schedule
 
 | Order | Ticket                                                   | Scope                                                               | State              |
 | ----- | -------------------------------------------------------- | ------------------------------------------------------------------- | ------------------ |
-| 1     | [#4](https://github.com/judus/rocket-engine-v2/issues/4) | Move demo HTML into demos/, update routes/assets/package and verify | In progress        |
-| 2     | [#5](https://github.com/judus/rocket-engine-v2/issues/5) | Bounded code cleanup and current documentation                      | Next               |
-| 3     | [#6](https://github.com/judus/rocket-engine-v2/issues/6) | Improve the currently dark illumination                             | After cleanup      |
+| 1     | [#4](https://github.com/judus/rocket-engine-v2/issues/4) | Move demo HTML into demos/, update routes/assets/package and verify | Ready for review   |
+| 2     | [#5](https://github.com/judus/rocket-engine-v2/issues/5) | Bounded code cleanup and current documentation                      | Ready for review   |
+| 3     | [#6](https://github.com/judus/rocket-engine-v2/issues/6) | Improve the currently dark illumination                             | Next after cleanup |
 | 4     | [#7](https://github.com/judus/rocket-engine-v2/issues/7) | Rework mouse, keyboard, HOTAS and gamepad control concepts          | After illumination |
 | 5     | [#8](https://github.com/judus/rocket-engine-v2/issues/8) | Weapon systems and actual firing                                    | After controls     |
 
@@ -48,3 +48,8 @@ flight/cursor ownership and failure/disconnection behavior before implementation
 
 Tablet performance profiling, touch-layout redesign, deeper crew simulation and
 other expansion remain deferred unless explicitly brought into this sequence.
+
+Cleanup status: game-owned rendering and power helpers no longer depend on demo
+modules. Demo flight easing and power trial fixtures remain in examples/. The
+current game overview replaces incremental claims; detailed notes are archived.
+The complete gate passes 837 tests. PR #9 remains unmerged; redeployment is deferred.

@@ -764,7 +764,7 @@ Each lens has distinct edge-heavy weathering.
 For now, opaque glass includes a 10% luminance imprint sampled from the GLB's
 original base-color texture beneath each accepted footprint. Reproduce it with
 `python3 scripts/sample-hi3d-lamp-underlay.py` (NumPy and Pillow), then format the
-generated `examples/webgl/Hi3dLampUnderlay.ts`. The generator records the GLB digest
+generated `games/farwake/visuals/Hi3dLampUnderlay.ts`. The generator records the GLB digest
 and samples every ray through its mesh/UVs. It does not edit the model. This is
 fixed texture detail, not live transparency: it does not transmit changing lights,
 objects or shadows behind the lenses, and changing the footprint/model requires

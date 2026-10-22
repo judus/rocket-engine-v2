@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { Mesh3D, parseGlb } from '../src/3d/index.js';
-import { originalAsteroidField } from '../examples/space/OriginalAsteroidField.js';
+import { originalAsteroidField } from '../games/farwake/visuals/OriginalAsteroidField.js';
 
 void test('original field retains supplied geometry, stable random materials and 10–1,000 m sizes across regeneration', () => {
   const base = './examples/assets/asteroid-family-v1/';

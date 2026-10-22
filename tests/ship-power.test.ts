@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  createPowerTrial,
   shipPowerSystem,
   EnergyReserve,
   ShipModule,
   PowerLoad,
   ShipOwner,
   Reactor,
-} from '../examples/ship/ShipPower.js';
+} from '../games/farwake/PowerLedger.js';
+import { createPowerTrial } from '../examples/ship/PowerTrial.js';
 import { CockpitSystemsPanel } from '../examples/webgl/CockpitSystemsPanel.js';
 
 const close = (a: number, b: number, epsilon = 1e-6) =>

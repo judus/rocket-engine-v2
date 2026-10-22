@@ -1,7 +1,7 @@
-import { Mesh3D, MeshGeometry, Node3D } from '../../src/3d/index.js';
-import type { Vec3 } from '../../src/3d/index.js';
+import { Mesh3D, MeshGeometry, Node3D } from '../../../src/3d/index.js';
+import type { Vec3 } from '../../../src/3d/index.js';
 
-/** Example-owned seeded content. No clock, GPU handles or engine registration. */
+/** Game-owned seeded content, also consumed by renderer demos. No clock, GPU handles or engine registration. */
 export function asteroidField(seed: number, count = 96): Node3D {
   if (!Number.isInteger(seed) || seed < 0 || seed > 0xffffffff)
     throw new Error('Seed must be an unsigned 32-bit integer');

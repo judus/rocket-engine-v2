@@ -25,7 +25,7 @@ for (const entity of world.query(position, velocity)) {
 }
 ```
 
-Ship rules belong to `examples/ship/ShipPower.ts`, outside engine storage.
+Ship rules belong to `games/farwake/PowerLedger.ts`, outside engine storage.
 The ship entity owns `EnergyReserve`; modules carry `ShipOwner` and `ShipModule`,
 plus `Reactor` or `PowerLoad`. `shipPowerSystem(world, dt)` runs from the existing
 Rocket scene's fixedUpdate at 60 Hz. Render/update frequency, paused instrument

@@ -13,7 +13,7 @@ import {
   Reactor,
   PowerLoad,
   shipPowerSystem,
-} from '../../examples/ship/ShipPower.js';
+} from './PowerLedger.js';
 
 export interface PowerReading {
   readonly requested: boolean;

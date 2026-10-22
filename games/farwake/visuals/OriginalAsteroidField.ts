@@ -1,8 +1,8 @@
-import { Node3D } from '../../src/3d/index.js';
-import type { Mesh3D } from '../../src/3d/index.js';
+import { Node3D } from '../../../src/3d/index.js';
+import type { Mesh3D } from '../../../src/3d/index.js';
 import { cockpitAsteroidField } from './CockpitAsteroidField.js';
 
-/** Example-owned seeded choices, made once. Images and immutable geometry stay shared.
+/** Game-owned seeded choices, made once. Images and immutable geometry stay shared.
  * Scaling retains the supplied UVs: texture features grow with each scaled body.
  */
 export function originalAsteroidField(

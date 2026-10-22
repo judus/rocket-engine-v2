@@ -6,7 +6,7 @@ import {
   WebGLMeshRenderer3D,
   WebGLGpuTimer,
 } from '../../src/webgl/index.js';
-import { loadAsteroidFamily } from '../../examples/space/AsteroidFamily.js';
+import { loadAsteroidFamily } from '../../games/farwake/visuals/AsteroidFamily.js';
 import { createCockpitScene } from '../../games/farwake/CockpitScene.js';
 import {
   surfaceVariants,

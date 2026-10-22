@@ -5,7 +5,7 @@ import {
   cockpitShadowFit,
   mergeShadowFits,
 } from '../examples/webgl/CockpitShadowFit.js';
-import { cockpitAsteroidField } from '../examples/space/CockpitAsteroidField.js';
+import { cockpitAsteroidField } from '../games/farwake/visuals/CockpitAsteroidField.js';
 
 void test('outside field stays in world space while the pilot rig moves and turns', () => {
   const root = new Node3D('scene'),

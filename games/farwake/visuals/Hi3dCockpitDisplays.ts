@@ -1,5 +1,5 @@
-import { Mesh3D, MeshGeometry, Node3D } from '../../src/3d/index.js';
-import type { TextureBinding3D } from '../../src/3d/index.js';
+import { Mesh3D, MeshGeometry, Node3D } from '../../../src/3d/index.js';
+import type { TextureBinding3D } from '../../../src/3d/index.js';
 
 /** Hand-fitted glass inserts for the flattened Hi3D v3 facade, in preview units
  * before Julien's fit. Add beneath asset placement with its uniform scale undone.

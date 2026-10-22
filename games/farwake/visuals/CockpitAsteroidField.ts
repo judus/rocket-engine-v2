@@ -1,7 +1,7 @@
-import { Mesh3D } from '../../src/3d/index.js';
+import { Mesh3D } from '../../../src/3d/index.js';
 import { asteroidField } from './AsteroidField.js';
 
-/** Demo composition: world-owned rocks, independent of the moving pilot rig.
+/** World composition: world-owned rocks, independent of the moving pilot rig.
  * Shadow participation is opt-in; the host must fit its map to the full field.
  */
 export function cockpitAsteroidField(

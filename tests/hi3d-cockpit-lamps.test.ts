@@ -6,7 +6,7 @@ function pixelsOf(image: TextureSource3D) {
   assert.ok(image instanceof TextureImage);
   return image.copyPixels();
 }
-import { hi3dCockpitLamps } from '../examples/webgl/Hi3dCockpitLamps.js';
+import { hi3dCockpitLamps } from '../games/farwake/visuals/Hi3dCockpitLamps.js';
 
 void test('six opaque lamp lenses switch independently without removing coverage or reallocating geometry', () => {
   const lamps = hi3dCockpitLamps();

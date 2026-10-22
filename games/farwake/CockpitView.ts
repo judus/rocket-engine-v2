@@ -10,7 +10,7 @@ import { WindshieldApp } from './WindshieldApp.js';
 import { loadCrewProfiles } from './CrewProfiles.js';
 import type { Rocket } from '../../src/index.js';
 import type { Stage2D, SceneNavigator } from '../../src/experimental/index.js';
-import { loadAsteroidFamily } from '../../examples/space/AsteroidFamily.js';
+import { loadAsteroidFamily } from './visuals/AsteroidFamily.js';
 import { createCockpitScene } from './CockpitScene.js';
 import { surfaceVariants, surfaceVariantSwitcher } from './SurfaceVariants.js';
 import { FrameRate } from './FrameRate.js';

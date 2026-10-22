@@ -1,5 +1,5 @@
 import { Node3D } from '../../src/3d/index.js';
-import { CockpitMotion } from '../../examples/webgl/CockpitMotion.js';
+import { CockpitMotion } from './visuals/CockpitMotion.js';
 import type { Ship } from './Ship.js';
 
 /** Visual seat response only; the shared child keeps frame, panes and instruments aligned. */

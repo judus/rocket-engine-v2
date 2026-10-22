@@ -1,12 +1,12 @@
-import { Mesh3D, parseGlb } from '../../src/3d/index.js';
+import { Mesh3D, parseGlb } from '../../../src/3d/index.js';
 import type {
   MeshGeometry,
   Material3D,
   TextureBinding3D,
-} from '../../src/3d/index.js';
-import { loadTextureImage } from '../../src/webgl/index.js';
+} from '../../../src/3d/index.js';
+import { loadTextureImage } from '../../../src/webgl/index.js';
 const base = new URL(
-  '../../../examples/assets/asteroid-family-v1/',
+  '../../../../examples/assets/asteroid-family-v1/',
   import.meta.url,
 ).href;
 interface CatalogEntry {
@@ -30,7 +30,7 @@ interface Library {
     occlusionTexture: { index: number };
   }[];
 }
-/** Shared example adapter. One decode per image; geometry/material choices share immutable data. */
+/** Game-owned content loader. One decode per image; geometry/material choices share immutable data. */
 export async function loadAsteroidFamily(signal: AbortSignal) {
   const json = async (name: string) => {
     const res = await fetch(base + name, { signal });

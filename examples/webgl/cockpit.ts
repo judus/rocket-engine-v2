@@ -1,30 +1,31 @@
 import {
-  createPowerTrial,
   shipPowerSystem,
   EnergyReserve,
   ShipModule,
-} from '../ship/ShipPower.js';
+} from '../../games/farwake/PowerLedger.js';
+import { createPowerTrial } from '../ship/PowerTrial.js';
 import { cockpitScreenPoint } from './CockpitScreenPoint.js';
 import { FlightOrientation } from '../input/FlightOrientation.js';
 import { Input, flightInput } from '../../src/index.js';
 import { opacityProbe } from './OpacityProbe.js';
-import { loadAsteroidFamily } from '../space/AsteroidFamily.js';
-import { originalAsteroidField } from '../space/OriginalAsteroidField.js';
-import { distantSun } from '../space/DistantSun.js';
+import { loadAsteroidFamily } from '../../games/farwake/visuals/AsteroidFamily.js';
+import { originalAsteroidField } from '../../games/farwake/visuals/OriginalAsteroidField.js';
+import { distantSun } from '../../games/farwake/visuals/DistantSun.js';
 import { maxGpuLights } from '../../src/webgl/LightUniforms.js';
-import { hi3dCockpitLamps } from './Hi3dCockpitLamps.js';
+import { hi3dCockpitLamps } from '../../games/farwake/visuals/Hi3dCockpitLamps.js';
 import { hi3dDisplayTuning, hi3dLampSizeTuning } from './Hi3dDisplayTuning.js';
-import { hi3dCockpitDisplays } from './Hi3dCockpitDisplays.js';
+import { hi3dCockpitDisplays } from '../../games/farwake/visuals/Hi3dCockpitDisplays.js';
 import { hi3dCockpitInstruments } from './Hi3dCockpitInstruments.js';
-import { CockpitMotion, CockpitFlight } from './CockpitMotion.js';
-import { cockpitAsteroidField } from '../space/CockpitAsteroidField.js';
+import { CockpitMotion } from '../../games/farwake/visuals/CockpitMotion.js';
+import { CockpitFlight } from './CockpitFlight.js';
+import { cockpitAsteroidField } from '../../games/farwake/visuals/CockpitAsteroidField.js';
 import { cockpitScreenLights } from './CockpitScreenLights.js';
 import type {
   WebGLBloomPass,
   WebGLRenderTarget,
 } from '../../src/webgl/index.js';
 import type { BloomOptions } from '../../src/webgl/index.js';
-import { cockpitReticle } from './CockpitReticle.js';
+import { cockpitReticle } from '../../games/farwake/visuals/CockpitReticle.js';
 import { attachCockpitDisplays } from './CockpitDisplays.js';
 import { cockpitInstruments } from './CockpitInstruments.js';
 import { cockpitShadowFit, mergeShadowFits } from './CockpitShadowFit.js';

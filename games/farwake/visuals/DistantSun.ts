@@ -3,8 +3,8 @@ import {
   MeshGeometry,
   Node3D,
   TextureImage,
-} from '../../src/3d/index.js';
-import type { Vec3 } from '../../src/3d/index.js';
+} from '../../../src/3d/index.js';
+import type { Vec3 } from '../../../src/3d/index.js';
 
 /** Translation-free distant scenery; direction is shared with the actual sun light. */
 export function distantSun() {

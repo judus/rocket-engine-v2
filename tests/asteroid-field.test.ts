@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { asteroidField } from '../examples/space/AsteroidField.js';
+import { asteroidField } from '../games/farwake/visuals/AsteroidField.js';
 
 void test('seeded field reproduces geometry and placements, with stable count prefixes', () => {
   const a = asteroidField(2126, 32).children;

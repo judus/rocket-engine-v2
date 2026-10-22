@@ -1,5 +1,5 @@
-import { Mesh3D, MeshGeometry, Node3D } from '../../src/3d/index.js';
-import type { GeometryFace, Vec3 } from '../../src/3d/index.js';
+import { Mesh3D, MeshGeometry, Node3D } from '../../../src/3d/index.js';
+import type { GeometryFace, Vec3 } from '../../../src/3d/index.js';
 
 /** Cockpit-forward reference mark, built from ordinary unlit geometry.
  * Default placement uses source glTF axes (+Y up, forward -Z). The Hi3D host

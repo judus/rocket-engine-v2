@@ -5,8 +5,8 @@ import {
   MeshGeometry,
   Node3D,
   TextureImage,
-} from '../../src/3d/index.js';
-import type { PointLight3D } from '../../src/3d/index.js';
+} from '../../../src/3d/index.js';
+import type { PointLight3D } from '../../../src/3d/index.js';
 
 /** Four large generated lamp faces and two round alert lenses, fitted in the same pre-tuning preview units
  * as the LCD inserts. Opaque lenses cover the baked glow even when switched off.
