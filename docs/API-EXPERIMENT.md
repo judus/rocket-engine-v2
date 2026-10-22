@@ -1,6 +1,6 @@
 # Experimental API reference
 
-Branch: `experiment/api-ergonomics`. Demo: [API experiment](http://127.0.0.1:8092/api-experiment.html).
+Branch: `experiment/api-ergonomics`. Demo: [API experiment](http://127.0.0.1:8092/demos/api-experiment.html).
 This branch is a runnable design experiment. `main` retains the consolidated runtime.
 Import from `rocket-engine-v2/experimental`; existing root and optional module exports
 are available unchanged. The examples below use the same runtime objects as explicit

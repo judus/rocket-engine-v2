@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket · Generated quest consumer</title>
+    <link rel="stylesheet" href="../examples/style.css" />
+    <link rel="stylesheet" href="../examples/demo-navigation.css?v=2" />
+    <link rel="stylesheet" href="../src/ui/style.css" />
+    <link rel="stylesheet" href="../examples/ui/demo.css" />
+    <script type="module" src="../dist/examples/demo-navigation.js"></script>
+    <style>
+      output {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      #quest-objectives {
+        padding: 1rem;
+        margin: 1rem 0;
+        border: 1px solid #41655b;
+        background: #142c2a;
+      }
+      #quest-objectives h2 {
+        margin-top: 0;
+      }
+      #objective-list {
+        padding-left: 1.5rem;
+      }
+      #objective-list li {
+        margin: 0.5rem 0;
+      }
+      #quest-json {
+        overflow: auto;
+        max-height: 32rem;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: default;
+      }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "character-framework": "../dist/vendor/character-framework-0.1.0-6692be8fd4e3/index.js",
+          "sprite-animation": "../dist/vendor/sprite-animation-0.2.0/index.js",
+          "sprite-animation/canvas2d": "../dist/vendor/sprite-animation-0.2.0/canvas2d.js"
+        }
+      }
+    </script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <h1>Play a published quest candidate.</h1>
+      <section aria-labelledby="generation-title">
+        <h2 id="generation-title">Generate a quest</h2>
+        <p id="generation-settings">Generation server</p>
+        <p>The game supplies the authoring assignment and context.</p>
+        <div class="toolbar">
+          <button id="generation-connect">Refresh connection</button>
+          <button id="generate" disabled>Generate quest</button>
+          <button id="generation-retry" disabled>
+            Resume / retry same request
+          </button>
+          <button id="generation-stop" disabled>Stop watching</button>
+          <button id="generation-release" disabled>Release request</button>
+        </div>
+        <p>
+          Generate uses your configured AI provider. Stopping or closing this
+          page stops watching; a submitted server job continues. Loading a
+          published result starts it in a fresh world.
+        </p>
+        <pre><output id="generation-status" aria-live="polite"></output></pre>
+        <div id="generation-results"></div>
+      </section>
+      <label
+        >Published quest JSON
+        <input id="candidate" type="file" accept="application/json,.json"
+      /></label>
+      <p id="candidate-name">No candidate loaded.</p>
+      <p>
+        Load a separate published SituationDefinition JSON. Focus the canvas:
+        WASD moves, Shift runs, E interacts. Follow the candidate's dialogue and
+        objectives. Generation and gameplay use the existing game handlers.
+      </p>
+      <div class="toolbar">
+        <button id="fresh">Fresh world</button
+        ><button id="prior">Items already carried</button>
+        <button id="panel">Talk to nearby character</button
+        ><button id="history">Toggle event history</button>
+        <button id="lose">Lose next consequence reply</button
+        ><button id="retry" disabled>Retry starting</button
+        ><button id="dispose">Dispose</button>
+      </div>
+      <p>
+        <label
+          >Carried item
+          <select id="inventory">
+            <option value="">Empty hands — pick up / inspect</option>
+          </select></label
+        >
+        <button id="use-item">Use on nearby target</button>
+        <button id="give-item">Give to nearby character</button>
+      </p>
+      <section id="quest-objectives" aria-labelledby="objectives-title">
+        <h2 id="objectives-title">Current objectives</h2>
+        <div aria-live="polite" aria-atomic="true">
+          <p id="objective-status">No quest loaded.</p>
+          <ul id="objective-list"></ul>
+        </div>
+      </section>
+      <div class="ui-stage">
+        <div id="encounter-world"></div>
+        <div id="encounter-panel" class="ui-float"></div>
+      </div>
+      <details>
+        <summary>Runtime details</summary>
+        <pre><output id="game-status"></output></pre>
+      </details>
+      <p>
+        The loaded quest runs through the existing world, QuestHost and
+        QuestChat. Unknown references or unsupported graph behavior are reported
+        by the runtime. The corrected baseline remains on its
+        <a href="./character-encounter.html">original page</a>.
+      </p>
+      <p>
+        <a href="../examples/quest-authoring/village-world.json"
+          >World objects and spawn points</a
+        >
+        · <a href="../docs/GENERATED-QUEST-SCENE.md">Usage and limitations</a> ·
+        <a href="../examples/character-sprites/LICENSE.txt"
+          >SzadiArt asset licence</a
+        >
+      </p>
+      <details>
+        <summary>Show actual quest JSON</summary>
+        <pre id="quest-json"></pre>
+      </details>
+    </main>
+    <script
+      type="module"
+      src="../dist/examples/quest-authoring/consumer.js?scene=village"
+    ></script>
+  </body>
+</html>

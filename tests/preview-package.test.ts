@@ -17,7 +17,10 @@ void test('preview package preserves browser paths, verifies links and excludes 
     source = join(dir, 'source'),
     output = join(dir, 'output');
   const files = {
-    'index.html': '<a href="./games/ship/">Game</a>',
+    'index.html':
+      '<a href="./games/ship/">Game</a><a href="./demos/">Demos</a>',
+    'demos/index.html':
+      '<script src="../dist/examples/demo-navigation.js"></script>',
     'games/ship/index.html':
       '<script src="../../dist/games/ship/main.js"></script>',
     'dist/games/ship/main.js': 'export {};',

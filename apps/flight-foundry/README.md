@@ -30,7 +30,7 @@ No energy budget, damper/capture/protection, heat/cooling, cargo, collision, rot
 
 ## Flight Curves design screen
 
-Open <http://localhost:8092/apps/flight-foundry/curves.html>. This additional screen preserves the force/motion bench and does not change the cockpit. It is an analytical kinematic planner, not a simulation of installed propulsion or dampers. Choose speeds, transition durations, independent early/late acceleration shapes and an ideal crew-load target. It updates immediately without a Run button. Starting/arrival speeds and an optional coast interval are under the disclosure. Starting above cruise explores a capture rather than forward acceleration. Speeds are displayed in km/s, stored/calculated in m/s.
+Open <http://localhost:8092/demos/tools/flight-foundry/curves.html>. This additional screen preserves the force/motion bench and does not change the cockpit. It is an analytical kinematic planner, not a simulation of installed propulsion or dampers. Choose speeds, transition durations, independent early/late acceleration shapes and an ideal crew-load target. It updates immediately without a Run button. Starting/arrival speeds and an optional coast interval are under the disclosure. Starting above cruise explores a capture rather than forward acceleration. Speeds are displayed in km/s, stored/calculated in m/s.
 
 Four graphs share time: speed, signed ship acceleration, ideal remaining crew G, and required suppression percentage. Scales are labelled independently; the crew target is dashed. Boundary samples include both sides of acceleration jumps so peaks are not lost. The scrubber inspects a selected instant (at a boundary it selects the new phase). Summary peaks include the just-ended phase. Required suppression is zero for zero load; otherwise it is `max(0, 1 − targetG/shipG) × 100%`. This is the suppression required at each instant, not a fixed 5% transmission profile or an achievable equipment rating. A zero-G target requests ideal 100% cancellation whenever accelerating. No load is added to reach the target when motion is already gentler.
 
@@ -54,7 +54,7 @@ The next model slice is [documented separately](../../docs/SHIP-CAPTURE-MODEL.md
 
 ## Assembled ship telemetry
 
-Open <http://localhost:8092/apps/flight-foundry/ship.html> for the actual attached ship architecture, separate from the analytical curve tools. It runs game-owned control, engine, power and movement capabilities, with resource-limited Newtonian motion. See [the ship assembly documentation](../../games/ship/README.md).
+Open <http://localhost:8092/demos/tools/flight-foundry/ship.html> for the actual attached ship architecture, separate from the analytical curve tools. It runs game-owned control, engine, power and movement capabilities, with resource-limited Newtonian motion. See [the ship assembly documentation](../../games/ship/README.md).
 
 The assembled ship loads its equipment from `games/ship/profiles/*.json`, referenced by `games/ship/ships/science-ship.json`. Edit the JSON and reload to tune definitions; Reset repeats the loaded setup. Starting charge, velocity and reactor/engine/damper temperatures are separate initial-state data.
 

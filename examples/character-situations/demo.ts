@@ -63,7 +63,10 @@ async function start() {
         async prepare({ signal }) {
           this.own(index);
           const response = await fetch(
-            './examples/characters/situations/meeting.json',
+            new URL(
+              '../../../examples/characters/situations/meeting.json',
+              import.meta.url,
+            ).href,
             { signal },
           );
           if (!response.ok)
@@ -79,7 +82,10 @@ async function start() {
           box = new ChatBox(panel, port);
           for (const name of ['Female1', 'Male1']) {
             const lease = await assets.acquireImage(
-              `./examples/character-sprites/${name}.png`,
+              new URL(
+                `../../../examples/character-sprites/${name}.png`,
+                import.meta.url,
+              ).href,
               { signal },
             );
             if (signal.aborted) {

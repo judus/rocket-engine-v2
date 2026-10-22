@@ -1,6 +1,6 @@
 # Archived character sprite gallery
 
-Run `npm start` and open `http://127.0.0.1:8092/character-sprites.html`.
+Run `npm start` and open `http://127.0.0.1:8092/demos/character-sprites.html`.
 The navigation lists it under UI & characters. This additional gallery preserves
 the existing sprite and Mara demos. It uses Rocket's pinned Sprite-Animation 0.2.0;
 no CFW API is needed and no package upgrade is included.

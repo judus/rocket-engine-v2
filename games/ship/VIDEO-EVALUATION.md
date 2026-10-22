@@ -71,7 +71,7 @@ later evaluations. No reduction of gameplay objects is authorized by a quality p
 ## Explicit renderer variants: completed first comparison
 
 The next experiment now lives in
-[Flight Foundry](../../apps/flight-foundry/surface-benchmark.html), sharing the
+[Flight Foundry](../../demos/tools/flight-foundry/surface-benchmark.html), sharing the
 actual game cockpit assembly rather than the earlier 96-asteroid testbed.
 [Method and recorded results](../../apps/flight-foundry/SURFACE-BENCHMARK.md)
 include two warmed, interleaved RTX 5080 runs at 1920×1080. Proper no-normal and

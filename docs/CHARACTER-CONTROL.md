@@ -1,6 +1,6 @@
 # WASD character control
 
-Run `npm start`, then open `http://127.0.0.1:8092/character-control.html`.
+Run `npm start`, then open `http://127.0.0.1:8092/demos/character-control.html`.
 Click either canvas and use WASD; hold either Shift key to run. Choose any of the six
 original character sheets. Both views show the same actor, not separate controllers.
 The existing animation gallery remains at `character-sprites.html`.

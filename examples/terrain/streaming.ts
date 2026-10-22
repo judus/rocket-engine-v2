@@ -236,13 +236,22 @@ async function recreate(measure = false) {
         const view = entries.find((entry) => entry.mode === 'classic')?.view;
         if (!view) throw new Error('Missing classic view');
         const terrain = view.own(
-          await assets.acquireImage('./examples/terrain/assets/terrain.png', {
-            signal,
-          }),
+          await assets.acquireImage(
+            new URL(
+              '../../../examples/terrain/assets/terrain.png',
+              import.meta.url,
+            ).href,
+            {
+              signal,
+            },
+          ),
         );
         const decorations = view.own(
           await assets.acquireImage(
-            './examples/terrain/assets/decorations.png',
+            new URL(
+              '../../../examples/terrain/assets/decorations.png',
+              import.meta.url,
+            ).href,
             { signal },
           ),
         );

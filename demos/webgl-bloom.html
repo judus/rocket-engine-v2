@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket · Bloom</title>
+    <link rel="stylesheet" href="../examples/style.css" />
+    <link rel="stylesheet" href="../examples/demo-navigation.css?v=2" />
+    <script
+      type="module"
+      src="../dist/examples/demo-navigation.js?v=18-cockpit"
+    ></script>
+    <link rel="stylesheet" href="../examples/3d/line-demo.css" />
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <div class="eyebrow">3D · MILESTONE 25</div>
+      <h1>Let bright surfaces glow</h1>
+      <p>
+        The sharp scene stays intact. Bright pixels are extracted, blurred at
+        half resolution, and added back in linear color. Compare each stage
+        below.
+      </p>
+      <section aria-labelledby="performance-title">
+        <h2 id="performance-title">Performance</h2>
+        <dl class="performance-grid">
+          <div>
+            <dt>Callback FPS</dt>
+            <dd id="perf-fps">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame interval</dt>
+            <dd id="perf-frame">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Peak frame interval</dt>
+            <dd id="perf-peak">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Shortest interval</dt>
+            <dd id="perf-minimum">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Frame jitter</dt>
+            <dd id="perf-jitter">Warming up…</dd>
+          </div>
+          <div>
+            <dt>Update CPU</dt>
+            <dd id="perf-update">Warming up…</dd>
+          </div>
+          <div>
+            <dt id="perf-render-label">CPU submission</dt>
+            <dd id="perf-render">Warming up…</dd>
+          </div>
+          <div>
+            <dt>GPU draw average</dt>
+            <dd id="perf-gpu">Pending…</dd>
+          </div>
+          <div>
+            <dt>GPU draw peak</dt>
+            <dd id="perf-gpu-peak">—</dd>
+          </div>
+        </dl>
+        <p id="perf-gpu-samples">Waiting for GPU timing…</p>
+        <p>
+          Callback FPS counts animation callbacks, not confirmed screen
+          presentations. Uneven frame pacing can feel choppy despite a high
+          average.
+        </p>
+        <p id="perf-resolution">Measuring canvas size…</p>
+        <details>
+          <summary>Reading the metrics</summary>
+          <p>
+            FPS, frame intervals and CPU times come from Rocket’s rolling
+            half-second monitor. Peak is the longest frame interval in that
+            window. Frame jitter is the standard deviation of those intervals;
+            lower means more even pacing. A very short minimum alongside a much
+            longer peak indicates callbacks arriving in bursts. CPU timings
+            measure JavaScript work; they do not measure GPU execution or
+            browser compositing. GPU draw average and peak cover the last 32
+            valid asynchronous timer-query samples of the scene and enabled
+            post-process passes. Results arrive on later frames; a maximum of
+            four queries can be pending. Invalid (disjoint) samples are
+            discarded. Unsupported browsers show “unsupported” rather than an
+            estimated GPU time. These measurements exclude display latency and
+            compositing; CPU and GPU times overlap and must not be added
+            together.
+          </p>
+          <p>
+            For comparisons, keep the same canvas size, display scale, camera
+            pose and field of view, and keep this tab in the foreground. FPS is
+            capped by the browser/display refresh rate; CPU times can increase
+            before FPS drops. Recreate demo starts a fresh measurement window.
+          </p>
+        </details>
+      </section>
+      <div id="gpu-view" class="canvas-host"></div>
+      <div class="toolbar">
+        <label
+          ><input id="bloom-enabled" type="checkbox" checked /> Bloom</label
+        >
+        <label
+          ><input id="animate" type="checkbox" checked /> Animate scene</label
+        >
+        <label
+          >View
+          <select id="bloom-view">
+            <option value="composite">Composite</option>
+            <option value="scene">Sharp scene</option>
+            <option value="bright">Bright extraction</option>
+            <option value="bloom">Blurred glow</option>
+          </select></label
+        >
+      </div>
+      <div class="toolbar">
+        <label
+          >Threshold
+          <input
+            id="threshold"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value="0.6" /><output id="threshold-value"></output
+        ></label>
+        <label
+          >Strength
+          <input
+            id="strength"
+            type="range"
+            min="0"
+            max="2"
+            step="0.05"
+            value="0.65" /><output id="strength-value"></output
+        ></label>
+        <label
+          >Radius
+          <input
+            id="radius"
+            type="range"
+            min="0"
+            max="8"
+            step="0.25"
+            value="2" /><output id="radius-value"></output
+        ></label>
+        <label
+          >Render scale
+          <input
+            id="render-scale"
+            type="range"
+            min="50"
+            max="200"
+            step="25"
+            value="100" /><output id="render-scale-value"></output
+        ></label>
+      </div>
+      <p>
+        The left bars are bright white/cyan/amber; the right tile is dim and
+        should stay below the default threshold. The center uses the existing
+        instrument art. An opaque foreground strip blocks part of the display
+        before bloom is extracted. Bloom spreads across image edges; it does not
+        light the surrounding geometry.
+      </p>
+      <p id="pass-stats"></p>
+      <div class="toolbar">
+        <button id="read-pixel">Check bloom pixels</button
+        ><button id="lose-context">Simulate context loss</button
+        ><button id="restore-context" disabled>Restore context</button
+        ><button id="restart">Recreate demo</button>
+      </div>
+      <output id="gpu-status" aria-live="polite">Starting…</output>
+      <p><output id="gpu-diagnostic" aria-live="polite"></output></p>
+      <p>
+        This bounded milestone uses an opaque RGBA8 scene and two
+        half-resolution RGBA8 scratch targets. Brightness extraction, blur and
+        addition operate in linear color; the final output is sRGB. Existing
+        scene highlights are already clipped: no HDR, tone mapping or exposure
+        yet. Deep halos can show 8-bit quantization. The offscreen scene has
+        depth but no multisample antialiasing in this slice. Radius controls
+        Gaussian sample spacing in half-resolution texels; it is not a physical
+        lens size.
+      </p>
+      <p>
+        GPU timing covers the scene and all post-process passes. Readback
+        diagnostics run separately and can stall the GPU. Size changes replace
+        framebuffer storage; context restoration and recreation rebuild
+        context-local resources.
+      </p>
+      <p><a href="../docs/3D-MILESTONES.md">Milestones and boundaries</a></p>
+    </main>
+    <script type="module" src="../dist/examples/webgl/bloom.js"></script>
+  </body>
+</html>

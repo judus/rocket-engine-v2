@@ -2,7 +2,7 @@
 
 Branch: `experiment/api-ergonomics`. This changes experimental internals as well as
 convenience syntax. Main is untouched by this pass.
-Demo: [two interactive scenes](http://127.0.0.1:8092/scene-composition.html).
+Demo: [two interactive scenes](http://127.0.0.1:8092/demos/scene-composition.html).
 
 ## One activation contract
 

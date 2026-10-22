@@ -4,7 +4,10 @@ import { seatView } from './CockpitModel.js';
 
 const status = document.querySelector<HTMLOutputElement>('#overlay-status')!;
 const artwork = new Image();
-artwork.src = './examples/3d/assets/cockpit-2126-v14-relic.png';
+artwork.src = new URL(
+  '../../../examples/3d/assets/cockpit-2126-v14-relic.png',
+  import.meta.url,
+).href;
 try {
   await artwork.decode();
   const cache = document.createElement('canvas');

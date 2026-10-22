@@ -5,6 +5,7 @@ import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const roots = [
+  'demos',
   'examples',
   'games',
   'apps',

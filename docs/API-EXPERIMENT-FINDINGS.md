@@ -2,13 +2,13 @@
 
 Branch `experiment/api-ergonomics` is ready for design review, not merged into main.
 Implemented API: [API-EXPERIMENT.md](./API-EXPERIMENT.md).
-Runnable demo: [api-experiment.html](http://127.0.0.1:8092/api-experiment.html).
+Runnable demo: [api-experiment.html](http://127.0.0.1:8092/demos/api-experiment.html).
 
 ## Second-pass update
 
 Julien authorized the scene-composition pass after Steve’s review #681. It is now
 implemented: [contract, API and evidence](./SCENE-ACTIVATION.md), with the new
-[interactive two-scene demo](http://127.0.0.1:8092/scene-composition.html).
+[interactive two-scene demo](http://127.0.0.1:8092/demos/scene-composition.html).
 The route-service activation limitation discussed below describes the first-pass
 snapshot; it is addressed by activeChildren + synchronous service notification and
 facade-owned input bindings. No promotion/merge to main accompanies this experiment.

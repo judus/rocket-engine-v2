@@ -43,7 +43,10 @@ async function start(checkpoint?: WorkCheckpoint) {
           this.own(game);
           for (const [id, movement] of game.workers) {
             const lease = await assets.acquireImage(
-              `./examples/character-sprites/${id === 'A' ? 'Female1' : 'Male1'}.png`,
+              new URL(
+                `../../../examples/character-sprites/${id === 'A' ? 'Female1' : 'Male1'}.png`,
+                import.meta.url,
+              ).href,
               { signal },
             );
             if (signal.aborted) {

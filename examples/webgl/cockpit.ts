@@ -85,7 +85,11 @@ document
 const host = document.querySelector<HTMLElement>('#gpu-view')!;
 // Asset selection belongs to the demo; loader and rendering contracts are unchanged.
 const modelUrl =
-  host.dataset.model ?? './examples/3d/assets/cockpit-forward-v4-materials.glb';
+  host.dataset.model ??
+  new URL(
+    '../../../examples/3d/assets/cockpit-forward-v4-materials.glb',
+    import.meta.url,
+  ).href;
 const modelLabel = host.dataset.modelLabel ?? 'Cockpit v4';
 // Inspection pages may place an unfamiliar asset without modifying its source.
 function assetNumber(key: string, fallback: number): number {
@@ -459,7 +463,10 @@ async function start() {
     model = modelLease.value;
     if (hi3dDisplays) {
       skyLease = await assets.acquireTexture(
-        './examples/3d/assets/galactic-plane-1/galactic-plane-1.png',
+        new URL(
+          '../../../examples/3d/assets/galactic-plane-1/galactic-plane-1.png',
+          import.meta.url,
+        ).href,
         { signal },
       );
     }

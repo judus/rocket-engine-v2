@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Rocket · Journal and episode continuity</title>
+    <link rel="stylesheet" href="../examples/style.css" />
+    <style>
+      main {
+        max-width: 1100px;
+        margin: auto;
+        padding: 2rem;
+      }
+      button {
+        margin: 0.25rem;
+        padding: 0.6rem;
+      }
+      pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        max-height: 30rem;
+        overflow: auto;
+        background: #101823;
+        color: #d8e8f0;
+        padding: 1rem;
+      }
+      output {
+        display: block;
+        padding: 1rem;
+        border-left: 4px solid #ff8700;
+      }
+      details {
+        margin: 1rem 0;
+      }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "character-framework": "../dist/vendor/character-framework-0.1.0-6692be8fd4e3/index.js"
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="../examples/demo-navigation.css?v=2" />
+    <script type="module" src="../dist/examples/demo-navigation.js"></script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <p>ROCKET / GAME JOURNAL</p>
+      <h1>One history. Two episodes.</h1>
+      <p>
+        The original watchtower runs through its ordinary CFW and game handlers.
+        Its confirmed ending decides the second episode: restore the other
+        beacon.
+      </p>
+      <p>
+        <strong>This browser proof uses volatile memory.</strong> Reload starts
+        empty. The separate Node proof verifies durable SQLite reopen and a
+        matching world checkpoint. It runs without a model or paid provider.
+      </p>
+      <div>
+        <button id="blue">Episode A · choose blue</button
+        ><button id="red">Episode A · choose red</button
+        ><button id="next" disabled>Run episode B from the report</button
+        ><button id="failure">Test reporting failure</button
+        ><button id="retry" disabled>Retry reporting</button
+        ><button id="dispose">Dispose</button
+        ><button id="reset">New timeline</button>
+      </div>
+      <output aria-live="polite">Ready. Choose an episode A branch.</output>
+      <p id="summary" aria-live="polite">No confirmed mission reports yet.</p>
+      <h2>Current domain status</h2>
+      <pre id="status">No active world.</pre>
+      <h2>Confirmed journal events</h2>
+      <pre id="journal">[]</pre>
+      <details>
+        <summary>How to verify durability</summary>
+        <p>
+          Run <code>npm run proof:journal</code>. It executes both branch
+          orders, reopens a SQLite archive and matching world checkpoint,
+          completes episode B, and reads reports/status through the actual
+          Rocket MCP host using the official client. Browser persistence is a
+          separate adapter decision.
+        </p>
+      </details>
+      <p>
+        <a href="../docs/JOURNAL.md">API, ownership and limits</a> ·
+        <a href="./character-encounter.html">Original watchtower demo</a>
+      </p>
+    </main>
+    <script type="module" src="../dist/examples/journal/demo.js"></script>
+  </body>
+</html>

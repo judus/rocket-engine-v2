@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Flight Foundry · Rocket tools</title>
+    <link rel="stylesheet" href="../../../apps/flight-foundry/style.css" />
+  </head>
+  <body>
+    <header>
+      <a href="../">ROCKET / APPS</a
+      ><span class="badge">01 · MOTION BENCH</span>
+      <h1>
+        Flight Foundry<span>Find the numbers.<br />Then fly the ship.</span>
+      </h1>
+      <p>
+        One axis. One ship. Real force, mass and elapsed time. Tune a candidate,
+        apply it, and compare the same experiment.
+      </p>
+      <nav aria-label="Flight Foundry screens">
+        <a href="./curves.html"
+          >Try Flight Curves → timing, response and protection</a
+        >
+        <a href="./ship.html"
+          >Assembled ship → live components &amp; telemetry</a
+        >
+      </nav>
+    </header>
+    <main>
+      <section class="panel settings" aria-labelledby="profile-title">
+        <div class="section-head">
+          <h2 id="profile-title">01 / Candidate profile</h2>
+          <button id="baseline" type="button">Baseline</button>
+        </div>
+        <p class="muted">
+          Exact values accept scientific notation. Slider ranges are exploration
+          aids, not speed or equipment limits.
+        </p>
+        <form id="profile">
+          <div id="fields"></div>
+          <button class="primary" type="submit">Apply &amp; reset</button>
+        </form>
+        <p id="dirty" class="notice" role="status">
+          Candidate matches applied profile.
+        </p>
+      </section>
+      <section class="panel experiment" aria-labelledby="experiment-title">
+        <div class="section-head">
+          <h2 id="experiment-title">02 / Experiment</h2>
+          <span id="state" class="badge">READY</span>
+        </div>
+        <div class="sequence">
+          <span>+ THRUST</span><span>0 COAST</span><span>− COUNTER-THRUST</span>
+        </div>
+        <p class="muted">
+          Counter-thrust points in the negative direction; it can carry you
+          through zero into reverse. Coast switches thrust off instantly.
+        </p>
+        <div class="toolbar">
+          <button id="run" class="primary" type="button">Run</button
+          ><button id="step" type="button">Single step</button
+          ><button id="finish" type="button">Finish run</button
+          ><button id="reset" type="button">Reset</button>
+        </div>
+        <progress
+          id="progress"
+          max="1"
+          value="0"
+          aria-label="Experiment progress"
+        ></progress>
+        <div id="readings" class="readings" aria-live="off"></div>
+        <div class="section-head">
+          <h3>Velocity / simulation time</h3>
+          <span class="legend">— Current <span>┄ Previous</span></span>
+        </div>
+        <svg
+          id="trace"
+          viewBox="0 0 600 180"
+          role="img"
+          aria-label="Velocity against simulation time, current and previous run"
+        ></svg>
+        <p id="axis" class="muted"></p>
+        <p id="comparison" class="comparison">
+          Previous run will appear here after Apply &amp; reset or Reset.
+        </p>
+        <p id="applied" class="muted"></p>
+      </section>
+      <section class="panel history" aria-labelledby="history-title">
+        <h2 id="history-title">03 / Committed observations</h2>
+        <p class="muted">
+          Phase is the next command; force and G are averages over the completed
+          step. History is sampled; motion still advances every fixed tick.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Time (s)</th>
+                <th>Next phase</th>
+                <th>Position (m)</th>
+                <th>Velocity (m/s)</th>
+                <th>Force (N)</th>
+                <th>Ship G</th>
+              </tr>
+            </thead>
+            <tbody id="history"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="panel files" aria-labelledby="files-title">
+        <h2 id="files-title">Keep an experiment</h2>
+        <p class="muted">
+          Profiles include initial velocity, phase durations and timestep.
+          Load/import applies a fresh run. Save and export use the candidate
+          inputs.
+        </p>
+        <div class="toolbar">
+          <button id="save" type="button">Save in browser</button
+          ><button id="load" type="button">Load saved</button
+          ><button id="export" type="button">Export JSON</button
+          ><button id="import" type="button">Import JSON &amp; reset</button>
+        </div>
+        <label for="json">Experiment JSON</label
+        ><textarea
+          id="json"
+          spellcheck="false"
+          rows="5"
+          placeholder="Export here, or paste an experiment to import…"
+        ></textarea>
+      </section>
+    </main>
+    <p id="message" role="status"></p>
+    <footer>
+      <strong>Scope /</strong> Classical one-dimensional motion with constant
+      commanded thrust. No drag, gravity, power costs, heat, dampers, crew
+      protection or collisions. G is ship acceleration, not a crew injury
+      prediction. Kinetic energy is a measurement, not reactor consumption. No
+      relativistic physics.
+      <a href="../../../apps/flight-foundry/README.md">Model &amp; controls</a>
+    </footer>
+    <script
+      type="module"
+      src="../../../dist/apps/flight-foundry/main.js"
+    ></script>
+  </body>
+</html>

@@ -1,6 +1,6 @@
 # Second consumer: editable tile board
 
-Open `/tiles.html` from the existing development server. The arm demo links to it and remains available at `/`.
+Open `/demos/tiles.html` from the existing development server. The arm demo links to it and remains available at `/`.
 
 This checkpoint validates the existing composition/input/view contracts with finite spatial data before adding engine storage abstractions, indexing or rendering caches.
 

@@ -62,7 +62,10 @@ async function start(prior: 'fresh' | 'visit' | 'pickup' = 'fresh') {
         async prepare({ signal }) {
           this.own(index);
           const response = await fetch(
-            `./examples/character-grove/grove-${policy.value}.json`,
+            new URL(
+              `../../../examples/character-grove/grove-${policy.value}.json`,
+              import.meta.url,
+            ).href,
             { signal },
           );
           if (!response.ok) throw new Error('Authored grove flow unavailable');
@@ -71,7 +74,10 @@ async function start(prior: 'fresh' | 'visit' | 'pickup' = 'fresh') {
             new GroveHost(definition as SituationDefinition, prior),
           );
           const lease = await assets.acquireImage(
-            './examples/character-sprites/Female1.png',
+            new URL(
+              '../../../examples/character-sprites/Female1.png',
+              import.meta.url,
+            ).href,
             { signal },
           );
           if (signal.aborted) {

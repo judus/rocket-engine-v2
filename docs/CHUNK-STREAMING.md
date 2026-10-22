@@ -2,7 +2,7 @@
 
 The in-memory foundation described here is extended by [browser persistence](BROWSER-PERSISTENCE.md), [async loading](ASYNC-CHUNKS.md) and [multiple demand owners](MULTIPLE-DEMANDS.md) in the current demo.
 
-`examples/streaming/ChunkStream.ts` is demo-owned world data, independent of Rocket, Canvas and input. No new core API is needed yet. `/streaming.html` supplies one update controller and two different presentations: terrain and a read-only diagnostic canvas.
+`examples/streaming/ChunkStream.ts` is demo-owned world data, independent of Rocket, Canvas and input. No new core API is needed yet. `/demos/streaming.html` supplies one update controller and two different presentations: terrain and a read-only diagnostic canvas.
 
 ## Addressing and demand
 

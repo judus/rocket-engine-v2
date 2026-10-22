@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Rocket v2 · See the search area</title>
+    <link rel="stylesheet" href="../examples/style.css" />
+    <link rel="stylesheet" href="../examples/demo-navigation.css?v=2" />
+    <script type="module" src="../dist/examples/demo-navigation.js"></script>
+    <link rel="stylesheet" href="../examples/navigation/streaming.css" />
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <header>
+        <p class="eyebrow">ROCKET / STREAMED NAVIGATION</p>
+        <h1>See why the actor waits.</h1>
+        <p>
+          A “search area” is the terrain the planner may inspect, not a passage
+          through the wall. The actor only starts walking after it finds a
+          complete route.
+        </p>
+      </header>
+      <div class="walker-instructions">
+        <strong>Compare the same journey:</strong> Reset the example, choose
+        <strong>4 chunks</strong>, then Plan. The blue area excludes the opening
+        above the wall. Choose <strong>24 chunks</strong> and Plan again: the
+        area expands upward and the actor can find a detour.
+      </div>
+      <div class="toolbar">
+        <label
+          >Destination x
+          <input
+            id="walker-goal-x"
+            type="number"
+            value="816"
+            step="32" /></label
+        ><label
+          >y
+          <input id="walker-goal-y" type="number" value="48" step="32" /></label
+        ><label
+          >Search budget
+          <select id="walker-budget">
+            <option value="24">Larger — up to 24 chunks</option>
+            <option value="4">Small — up to 4 chunks</option>
+          </select></label
+        ><button id="walker-go">Plan journey</button
+        ><button id="walker-cancel">Cancel journey</button
+        ><button id="walker-reset">Reset example</button>
+      </div>
+      <output id="walker-status" aria-live="polite">Starting…</output>
+      <p id="walker-progress"></p>
+      <div class="walker-legend">
+        <span><i class="search"></i>Blue outline: allowed search area</span
+        ><span
+          ><i class="outside"></i>Shaded: outside this search, even if
+          loaded</span
+        ><span><i class="actor"></i>Actor</span
+        ><span><i class="target"></i>Target / planned route</span
+        ><span><i class="wall"></i>Grey: blocked</span
+        ><span><i class="cost"></i>Brown: walkable, higher cost</span>
+      </div>
+      <section class="views">
+        <article>
+          <h2>Journey view</h2>
+          <p class="walker-caption">
+            The opening is above the wall. The bottom dashed line is the edge of
+            this finite world; there is no route below it.
+          </p>
+          <div id="streamed-walker-near" class="canvas-host"></div>
+        </article>
+        <article>
+          <h2>Independent camera</h2>
+          <p class="walker-caption">
+            This camera may load other terrain. Loaded terrain outside the blue
+            search area is not considered by this journey.
+          </p>
+          <div id="streamed-walker-far" class="canvas-host"></div>
+        </article>
+      </section>
+      <details class="walker-details">
+        <summary>Movement shortcuts and view ownership proof</summary>
+        <div class="toolbar">
+          <button id="walker-east">Target one chunk east</button
+          ><button id="walker-west">Target one chunk west</button
+          ><button id="walker-return">Frame actor and target</button
+          ><button id="walker-away">Move cameras away</button
+          ><button id="walker-views">Close both terrain views</button>
+        </div>
+        <p>
+          Shortcuts update the destination fields and use the selected budget.
+          Move the cameras away or close both views during a journey: the
+          simulation continues. Reopen and frame the journey to see its current
+          state. Reset returns the actor to its starting position without
+          deleting terrain edits.
+        </p>
+      </details>
+      <details class="walker-details">
+        <summary>Loading and cleanup diagnostics</summary>
+        <pre id="walker-counters"></pre>
+        <div class="toolbar">
+          <button id="walker-fail">Fail next chunk load</button
+          ><button id="walker-retry">Retry failed loads</button
+          ><button id="walker-dispose">Dispose actor</button>
+        </div>
+        <p>
+          Dashed blue means the requested area is loading. Purple terrain is
+          pending; red is a failed load. Failed data stays unknown until retry
+          succeeds. Dispose releases actor demand; Reset creates a fresh actor.
+          The navigation domain is finite: x −1013 to 2037, y −245 to 245,
+          exclusive.
+        </p>
+      </details>
+      <footer>64 retained chunks · four load jobs · one movement owner</footer>
+    </main>
+    <script
+      type="module"
+      src="../dist/examples/navigation/streaming.js"
+    ></script>
+  </body>
+</html>

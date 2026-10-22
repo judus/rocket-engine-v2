@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Rocket · Video texture transport</title>
+    <style>
+      body {
+        background: #101720;
+        color: #dce8ef;
+        font: 16px system-ui;
+        margin: 0;
+      }
+      main {
+        max-width: 1100px;
+        padding: 2rem 1rem;
+      }
+      a {
+        color: #83ddd0;
+      }
+      canvas {
+        max-width: 100%;
+        width: 960px;
+      }
+      label,
+      button {
+        margin-right: 1rem;
+      }
+      video {
+        width: 200px;
+      }
+      output {
+        display: block;
+        white-space: pre-wrap;
+        margin: 1rem 0;
+      }
+    </style>
+    <link rel="stylesheet" href="../examples/demo-navigation.css?v=2" />
+    <script type="module" src="../dist/examples/demo-navigation.js"></script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <h1>Video texture transport</h1>
+      <p>
+        One 512×512, 24 fps clip. Compare the old full 2048×1408 UI canvas
+        snapshot with direct video upload. The static UI stays unchanged in
+        direct mode. Counters show base pixel submissions, not measured driver
+        bandwidth.
+      </p>
+      <button id="play">Play / pause</button
+      ><label
+        >Transport
+        <select id="transport">
+          <option value="direct">Direct video texture</option>
+          <option value="canvas">Full UI canvas readback</option>
+        </select></label
+      >
+      <label
+        >Saturation
+        <input
+          id="saturation"
+          type="range"
+          min="0"
+          max="1"
+          step="0.05"
+          value="0.25"
+      /></label>
+      <div id="view"></div>
+      <output id="stats">Press Play to start the comparison.</output
+      ><output id="error"></output>
+      <video
+        id="source"
+        muted
+        loop
+        playsinline
+        preload="metadata"
+        src="../games/ship/assets/comms/sera-512-24fps.mp4"
+        aria-label="Original call source"
+      ></video>
+      <p>
+        Pause freezes source publications. Switching transport resets
+        measurements. Scene updates publish decoded frames; rendering only
+        uploads unseen revisions. The renderer owns GPU allocations; the caller
+        owns playback and disposal. Both modes keep the same geometry and
+        appearance.
+      </p>
+      <p>
+        <a href="./webgl-dynamic-textures.html">Canvas dynamic texture demo</a>
+      </p>
+    </main>
+    <script
+      type="module"
+      src="../dist/examples/webgl/video-textures.js"
+    ></script>
+  </body>
+</html>

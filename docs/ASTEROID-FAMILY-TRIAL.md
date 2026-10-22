@@ -1,6 +1,6 @@
 # Original asteroid family trial
 
-Run the existing static demo server and open `/webgl-asteroid-family.html`.
+Run the existing static demo server and open `/demos/webgl-asteroid-family.html`.
 Select a shape and any of the three materials. The 10 m and 100 m bodies
 are entries 1 and 12. Distance and sun-angle sliders, normal-map toggle and
 rotation provide inspection controls. The gallery uses actual relative sizes.
@@ -31,7 +31,7 @@ on Julien's Chrome session remains for him to measure.
 
 ## Spaceship field
 
-Open `/webgl-cockpit-hi3d.html`. The default is 96 original asteroids;
+Open `/demos/webgl-cockpit-hi3d.html`. The default is 96 original asteroids;
 Outside world offers 32 / 96 / 256 and a seed. Shape, material and longest
 dimension (uniform random 10–1,000 metres) are selected independently once per
 object from the seed. Regenerating or increasing count preserves earlier choices.

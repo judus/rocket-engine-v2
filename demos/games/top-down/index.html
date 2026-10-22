@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket Games · Salvage courtyard</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: system-ui, sans-serif;
+        background: #0b171f;
+        color: #d4e8eb;
+      }
+      body {
+        max-width: 960px;
+        margin: 36px auto;
+        padding: 0 20px;
+      }
+      h1 {
+        font-size: 28px;
+        margin-bottom: 8px;
+      }
+      p,
+      output {
+        color: #a9c5cc;
+        line-height: 1.6;
+      }
+      a {
+        color: #8ce4cf;
+      }
+      #game {
+        border: 1px solid #36535c;
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 24px 0 16px;
+      }
+      canvas {
+        display: block;
+        width: 100% !important;
+        height: auto !important;
+      }
+      button {
+        background: #254653;
+        color: #d4e8eb;
+        border: 1px solid #50717a;
+        border-radius: 6px;
+        padding: 10px 16px;
+        cursor: pointer;
+      }
+      output {
+        display: block;
+        margin: 16px 0;
+        font: 14px monospace;
+      }
+      code {
+        color: #8ce4cf;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="../index.html">← Game examples</a>
+    <h1>Salvage courtyard</h1>
+    <p>
+      Move with WASD or arrows. Shift runs. F collects nearby supplies. Click
+      the viewport to activate controls.
+    </p>
+    <div id="game"></div>
+    <button id="collect" type="button">Collect nearby · F</button>
+    <button id="scout" type="button">Remove scout</button>
+    <button id="reset" type="button">Reset courtyard</button>
+    <output id="bags" aria-live="off"></output>
+    <output id="feedback" aria-live="polite"></output>
+    <p>
+      You and the scout share movement, body, inventory and interaction
+      capabilities. The scout supplies its own intent. Collect pale green supply
+      cells inside your dashed interaction ring. Walls block movement and
+      collection. Full bags leave supplies in place. Removing the scout retires
+      its bag; a new scout starts empty.
+    </p>
+    <script type="module" src="../../../dist/games/top-down/main.js"></script>
+  </body>
+</html>

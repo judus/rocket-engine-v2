@@ -2,7 +2,7 @@
 
 Rendering and feature probes stay in `examples/` and the existing root pages. Small assembled games live here. Build with `npm run build`, serve the repository on port 8092, then open `/games/`.
 
-The current games are [platformer](platformer/index.html) and [top-down salvage](top-down/index.html). The [assembled ship](ship/README.md) is an additional architecture proof with a live telemetry page.
+The current games are [platformer](../demos/games/platformer/index.html) and [top-down salvage](../demos/games/top-down/index.html). The [assembled ship](ship/README.md) is an additional architecture proof with a live telemetry page.
 
 ## First slice: attached capabilities
 
@@ -75,7 +75,7 @@ This slice adds no generic command bus, multirate scheduler, dependency graph, s
 
 ## Second game: top-down salvage
 
-Open `/games/top-down/index.html`. WASD/arrows move north/south/east/west; Shift runs; F or **Collect nearby** collects the nearest reachable supply. Mouse buttons are not bound to gameplay actions. The scout patrols and collects on its own. Bag capacity counts item units. A full bag leaves the entire pickup in place; there are no partial transfers. Reset courtyard starts a fresh run.
+Open `/demos/games/top-down/index.html`. WASD/arrows move north/south/east/west; Shift runs; F or **Collect nearby** collects the nearest reachable supply. Mouse buttons are not bound to gameplay actions. The scout patrols and collects on its own. Bag capacity counts item units. A full bag leaves the entire pickup in place; there are no partial transfers. Reset courtyard starts a fresh run.
 
 The same Rocket facades and typed property pattern assemble the game:
 

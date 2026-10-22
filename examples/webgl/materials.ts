@@ -59,9 +59,15 @@ async function start() {
   try {
     images = await Promise.all(
       names.map((name) =>
-        loadTextureImage(`./examples/assets/cockpit-materials/${name}.png`, {
-          signal,
-        }),
+        loadTextureImage(
+          new URL(
+            `../../../examples/assets/cockpit-materials/${name}.png`,
+            import.meta.url,
+          ).href,
+          {
+            signal,
+          },
+        ),
       ),
     );
   } catch (error) {

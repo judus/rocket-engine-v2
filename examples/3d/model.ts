@@ -92,9 +92,15 @@ await runLineDemo(() => {
         try {
           const model = local
             ? parseGlb(await local.arrayBuffer())
-            : await loadGlb('./examples/3d/assets/cockpit-forward-v3.glb', {
-                signal: controller.signal,
-              });
+            : await loadGlb(
+                new URL(
+                  '../../../examples/3d/assets/cockpit-forward-v3.glb',
+                  import.meta.url,
+                ).href,
+                {
+                  signal: controller.signal,
+                },
+              );
           if (controller.signal.aborted || signal.aborted || request !== serial)
             return;
           install(model, camera);

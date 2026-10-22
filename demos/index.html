@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket v2 · First light</title>
+    <link rel="stylesheet" href="../examples/style.css" />
+    <link rel="stylesheet" href="../examples/demo-navigation.css?v=2" />
+    <script type="module" src="../dist/examples/demo-navigation.js"></script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <header>
+        <p class="eyebrow">ROCKET ENGINE / 0.1</p>
+        <h1>One scene. Two perspectives.</h1>
+        <p>
+          A small canvas runtime. Two reusable articulated arms, seen through
+          independent cameras.
+        </p>
+      </header>
+      <div class="toolbar">
+        <button id="pause" type="button">Pause</button>
+        <button id="replace-arm" type="button">Replace first arm</button>
+        <button id="restart" type="button">Restart example</button>
+        <button id="asset-error" type="button">Test image error</button>
+        <label
+          >Detail zoom
+          <input id="zoom" type="range" min="1" max="3" step="0.1" value="1.8"
+        /></label>
+        <output id="status" aria-live="polite">Starting…</output>
+      </div>
+      <p>
+        Click or Tab into a view. Space toggles arm motion. WASD / arrows move
+        the selected arm; drag a base in either view to select and move it.
+      </p>
+      <p id="interaction-status" aria-live="polite">
+        Arm 1 selected · motion on
+      </p>
+      <p id="asset-status" aria-live="polite">Loading arm image…</p>
+      <p id="cleanup-status" aria-live="polite">0 arms cleaned up</p>
+      <section class="views" aria-label="Shared animation">
+        <article>
+          <h2>World view <span>640 × 360</span></h2>
+          <div id="world" class="canvas-host"></div>
+        </article>
+        <article>
+          <h2>Detail view <span>drag a base through this camera</span></h2>
+          <div id="detail" class="canvas-host"></div>
+        </article>
+      </section>
+      <section class="second">
+        <div>
+          <p class="eyebrow">JUST A DRAW CALLBACK</p>
+          <h2>A different kind of animation.</h2>
+          <p>
+            This wave uses elapsed time directly. No object tree, services, or
+            simulation setup.
+          </p>
+        </div>
+        <div id="wave" class="canvas-host"></div>
+      </section>
+      <footer>Native JavaScript · Canvas 2D · No runtime dependencies</footer>
+    </main>
+    <script type="module" src="../dist/examples/main.js"></script>
+  </body>
+</html>

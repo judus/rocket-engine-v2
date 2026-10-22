@@ -66,8 +66,9 @@ async function createExample(missingImage = false) {
       async prepare({ signal }) {
         const lease = await assets.acquireImage(
           missingImage
-            ? './examples/assets/missing.png'
-            : './examples/assets/arm-base.png',
+            ? new URL('../../examples/assets/missing.png', import.meta.url).href
+            : new URL('../../examples/assets/arm-base.png', import.meta.url)
+                .href,
           { signal },
         );
         // Cancellation may happen between promise resolution and this continuation.

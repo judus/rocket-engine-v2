@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="importmap">
+      {
+        "imports": {
+          "production-workshop": "../../../dist/vendor/production-workshop-2.4.0/index.js"
+        }
+      }
+    </script>
+    <title>Flight Foundry · Assembled ship</title>
+    <link rel="stylesheet" href="../../../apps/flight-foundry/style.css" />
+    <style>
+      main {
+        grid-template-columns: minmax(290px, 0.75fr) minmax(440px, 1.5fr);
+        align-items: start;
+      }
+      nav {
+        display: flex;
+        gap: 22px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+      .command {
+        display: block;
+        border-top: 1px solid var(--line);
+        padding-top: 14px;
+        margin-top: 14px;
+      }
+      .command span {
+        display: flex;
+        justify-content: space-between;
+      }
+      .switch {
+        display: block;
+        margin: 16px 0;
+      }
+      .switch input {
+        margin-right: 10px;
+      }
+      .reading strong {
+        font-size: 17px;
+      }
+      .architecture {
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        line-height: 1.8;
+        white-space: pre-wrap;
+        color: #a9d8cc;
+      }
+      .panel {
+        min-width: 0;
+      }
+      .module-matrix {
+        margin: 16px 0 20px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+      .module-matrix table {
+        min-width: 440px;
+        white-space: normal;
+        font-size: 12px;
+      }
+      .module-matrix th,
+      .module-matrix td {
+        text-align: left;
+        vertical-align: top;
+        padding: 12px 10px;
+        line-height: 1.5;
+      }
+      .module-matrix thead th {
+        background: #0d1720;
+      }
+      .module-matrix tbody th {
+        color: var(--accent);
+        width: 16%;
+      }
+      .module-matrix td {
+        width: 21%;
+      }
+      .module-matrix strong {
+        font-weight: 500;
+        color: #c7f2e7;
+      }
+      .module-matrix small {
+        display: block;
+        color: var(--muted);
+        font-size: 10px;
+        margin-top: 4px;
+      }
+      .module-matrix tfoot {
+        background: #0d1720;
+      }
+      .reserve-heading {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      #reserve-reading {
+        color: var(--accent);
+        font-family: ui-monospace, monospace;
+      }
+      .system-details {
+        margin: 20px 0;
+      }
+      .system-details summary {
+        cursor: pointer;
+        color: var(--accent);
+      }
+      .log {
+        grid-column: 1/-1;
+      }
+      @media (max-width: 900px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="../">ROCKET / APPS</a
+      ><span class="badge">LIVE SHIP · ARCHITECTURE PROOF</span>
+      <h1>One ship. Attached capabilities.</h1>
+      <p>
+        Commands become engine requests. Power determines delivered thrust. One
+        body advances; instruments read the completed step.
+      </p>
+      <nav>
+        <a href="./">Motion bench</a><a href="./curves.html">Flight curves</a
+        ><a href="./ship.html" aria-current="page">Assembled ship</a>
+      </nav>
+    </header>
+    <main id="ship-ui" inert>
+      <section class="panel">
+        <h2>Ship commands</h2>
+        <p class="muted">
+          Dampers off: commands request thrust and neutral coasts. Dampers on:
+          commands request assisted speed and angular rates; neutral brakes
+          drift.
+        </p>
+        <label class="command" for="forward"
+          ><span>Forward / reverse <output id="forward-value">0%</output></span
+          ><input id="forward" type="range" min="-100" max="100" value="0"
+        /></label>
+        <label class="command" for="strafe"
+          ><span>Right / left <output id="strafe-value">0%</output></span
+          ><input id="strafe" type="range" min="-100" max="100" value="0"
+        /></label>
+        <label class="command" for="vertical"
+          ><span>Up / down <output id="vertical-value">0%</output></span
+          ><input id="vertical" type="range" min="-100" max="100" value="0"
+        /></label>
+        <label class="command" for="yaw"
+          ><span>Yaw right / left <output id="yaw-value">0%</output></span
+          ><input id="yaw" type="range" min="-100" max="100" value="0"
+        /></label>
+        <label class="command" for="pitch"
+          ><span>Pitch up / down <output id="pitch-value">0%</output></span
+          ><input id="pitch" type="range" min="-100" max="100" value="0"
+        /></label>
+        <label class="command" for="roll"
+          ><span>Roll right / left <output id="roll-value">0%</output></span
+          ><input id="roll" type="range" min="-100" max="100" value="0"
+        /></label>
+        <div class="toolbar">
+          <button id="forward-full" type="button">Full forward</button
+          ><button id="reverse-full" type="button">Full reverse</button
+          ><button id="neutral" type="button">Neutral</button>
+        </div>
+        <label class="switch"
+          ><input id="reactor" type="checkbox" checked />Reactor requested
+          on</label
+        >
+        <label class="switch"
+          ><input id="engine" type="checkbox" checked />Engine requested
+          on</label
+        >
+        <label class="switch"
+          ><input id="dampers" type="checkbox" />Inertia dampers requested
+          on</label
+        >
+        <label class="switch"
+          ><input id="cooling" type="checkbox" />Module cooling requested
+          on</label
+        >
+        <label class="switch"
+          ><input id="shields" type="checkbox" />Shields requested on</label
+        >
+        <label class="switch"
+          ><input id="cargo" type="checkbox" />Cargo link requested on</label
+        >
+        <label class="command" for="entry-speed"
+          >Starting forward speed (m/s; applied by Reset ship)
+          <input
+            id="entry-speed"
+            type="number"
+            min="-100000000"
+            max="100000000"
+            step="any"
+            value="0"
+          />
+        </label>
+        <label class="command" for="entry-temperature"
+          >Starting engine temperature (°C; applied by Reset ship)
+          <input
+            id="entry-temperature"
+            type="number"
+            min="-273.15"
+            max="999726.85"
+            step="any"
+            value="20"
+          />
+        </label>
+        <label class="command" for="entry-damper-temperature"
+          >Starting damper temperature (°C; applied by Reset ship)
+          <input
+            id="entry-damper-temperature"
+            type="number"
+            min="-273.15"
+            max="999726.85"
+            step="any"
+            value="20"
+          />
+        </label>
+        <label class="command" for="entry-shield-temperature"
+          >Starting shield temperature (°C; applied by Reset ship)<input
+            id="entry-shield-temperature"
+            type="number"
+            min="-273.15"
+            max="999726.85"
+            step="any"
+            value="20"
+        /></label>
+        <label class="command" for="entry-reactor-temperature"
+          >Starting reactor temperature (°C; applied by Reset ship)
+          <input
+            id="entry-reactor-temperature"
+            type="number"
+            min="-273.15"
+            max="999726.85"
+            step="any"
+            value="20"
+          />
+        </label>
+        <label class="command" for="entry-charge"
+          >Starting reserve (%; applied by Reset ship)
+          <input
+            id="entry-charge"
+            type="number"
+            min="0"
+            max="100"
+            step="any"
+            value="50"
+          />
+        </label>
+        <div class="toolbar">
+          <button id="emergency-test" type="button">
+            Prepare emergency reboot test
+          </button>
+        </div>
+        <div class="toolbar">
+          <button id="run" class="primary" type="button">Run</button
+          ><button id="step" type="button">Single step</button
+          ><button id="reset" type="button">Reset ship</button>
+        </div>
+        <p class="muted">
+          Dampers off: rotation retains angular momentum. Pitch up and bank
+          right are positive. Attitude angles wrap; quaternion orientation
+          permits full loops. Try a starting speed of 12,300 m/s, Reset, then
+          enable dampers to inspect capture and its power limits. Capture first
+          reduces speed to the assisted limit along the entry trajectory;
+          afterward current commands take over. Reset creates a new ship;
+          ordinary control and module switches preserve the current ship and
+          reserve.
+        </p>
+      </section>
+      <section class="panel">
+        <div class="section-head">
+          <h2>Flight telemetry</h2>
+          <span id="state" class="badge">PAUSED</span>
+        </div>
+        <div id="ship-readings" class="readings"></div>
+        <p id="simulation-state" class="muted"></p>
+        <pre id="vectors" class="architecture"></pre>
+        <h2>Ship navigation</h2>
+        <p class="muted">
+          Known lab beacons in a fixed world frame, measured in metres. Select a
+          destination, then Run or Single step. The ship-forward scope covers 10
+          km; distant destinations remain selectable. Guidance only: sensor
+          detection, navigation power/health and autopilot are not modeled yet.
+        </p>
+        <div id="navigation-panel"></div>
+        <h2>Ship computer</h2>
+        <p class="muted">
+          One committed module overview and command router. Choose a module and
+          switch it on/off, then Run or Single step. Warnings show current
+          faults, reserve at or below 10%, power shortages and requested
+          factories without operators. Production state comes directly from
+          Workshop. The computer itself has no power or health simulation in
+          this first slice.
+        </p>
+        <div id="computer-panel"></div>
+        <h2>Modules</h2>
+        <div class="table-wrap module-matrix">
+          <table aria-label="Module telemetry">
+            <thead>
+              <tr>
+                <th scope="col">Module</th>
+                <th scope="col">State</th>
+                <th scope="col">Energy / power</th>
+                <th scope="col">Heat</th>
+                <th scope="col">Health</th>
+              </tr>
+            </thead>
+            <tbody id="module-readings"></tbody>
+            <tfoot id="module-totals"></tfoot>
+          </table>
+        </div>
+        <h3>External mounts &amp; fire groups</h3>
+        <p class="muted">
+          Seven configurable slots; weapons may belong to multiple groups.
+          Utilities have no fire-group assignments. Removing equipment clears
+          its assignments. Install/remove in this lab is free; changes commit on
+          Run or Single step. Power, output, heat and health are shown below.
+          Inventory transfers remain separate.
+        </p>
+        <label class="switch"
+          ><input id="mount-fire" type="checkbox" />Fire selected group</label
+        >
+        <p class="muted">
+          Only enabled weapons in the selected group operate. Enabled utilities
+          run independently. Output is continuous energy, with no projectiles or
+          hits yet. Disable and cool equipment before removal.
+        </p>
+        <div id="mounts-editor"></div>
+        <div id="mount-runtime" class="table-wrap module-matrix"></div>
+        <h3>Ship internals · production & crew facilities</h3>
+        <p class="muted">
+          Refinery: 2 ore → 1 alloy in 4 powered seconds. Fabricator: 2 alloy →
+          1 machine part in 3 seconds. Galley: 2 ingredients → 1 meal in 3
+          seconds. Science lab: 1 machine part → 1 science point in 6 powered
+          seconds. Infirmary: 2 medical supplies → 1 health pack in 4 seconds.
+          Quarters: powered accommodation; crew fatigue recovery comes later.
+          Fridge: 60 units of food storage; no spoilage model yet. Every factory
+          needs one operator. Any crew member works; matching specialists give
+          +25% productivity: engineer for refinery/fabricator, scientist for the
+          science lab, physician for infirmary, navigator for galley. Select a
+          slot, assign a worker, supply lab stock and enable it, then Run.
+          Transfer goods between buffers using the resource, quantity and
+          destination controls. Outages preserve active work. Drain to finish
+          without starting another batch; collect all stock, disable and cool
+          before removal. Lab installation and supply are free. Stock is in a
+          local buffer, independent of the interdimensional cargo link.
+          Occupancy and save/restore come later.
+        </p>
+        <div id="internals-editor"></div>
+        <h3>Engine condition · lab controls</h3>
+        <div class="toolbar">
+          <button id="damage-engine" type="button">Damage engine · 25 HP</button
+          ><button id="fail-engine" type="button">Fail engine</button
+          ><button id="repair-engine" type="button">
+            Repair engine · 25 HP</button
+          ><button id="restore-engine" type="button">
+            Repair engine fully
+          </button>
+        </div>
+        <p class="muted">
+          Applies on the next simulation step. These lab commands bypass shields
+          and hull; repair costs no resources. Damage reduces thrust and
+          rotational capacity. Zero health disables the engine; it still
+          remembers its requested switch. Reactor health is modeled below; other
+          module health comes later.
+        </p>
+        <h3>Reactor condition · lab controls</h3>
+        <div class="toolbar">
+          <button id="damage-reactor" type="button">
+            Damage reactor · 25 HP</button
+          ><button id="fail-reactor" type="button">Fail reactor</button
+          ><button id="repair-reactor" type="button">
+            Repair reactor · 25 HP</button
+          ><button id="restore-reactor" type="button">
+            Repair reactor fully
+          </button>
+        </div>
+        <p class="muted">
+          Reactor damage reduces generation. Failure stops generation and
+          starter draw, but preserves stored reserve energy. Repair needs a
+          restart and cannot bypass an existing thermal or emergency reboot.
+          These lab commands apply on the next step and cost no resources.
+        </p>
+        <h3>Cooling condition · lab controls</h3>
+        <div class="toolbar">
+          <button id="damage-cooling" type="button">
+            Damage cooling · 25 HP</button
+          ><button id="fail-cooling" type="button">Fail cooling</button
+          ><button id="repair-cooling" type="button">
+            Repair cooling · 25 HP</button
+          ><button id="restore-cooling" type="button">
+            Repair cooling fully
+          </button>
+        </div>
+        <p class="muted">
+          Damage reduces the shared circuit's removal capacity. Failure stops
+          pump demand and active cooling; reactor passive cooling continues.
+          Repair restores capacity on the next step when the pump is requested
+          on and funded. These lab repairs cost no resources.
+        </p>
+        <h3>Damper condition · lab controls</h3>
+        <div class="toolbar">
+          <button id="damage-dampers" type="button">
+            Damage dampers · 25 HP
+          </button>
+          <button id="fail-dampers" type="button">Fail dampers</button>
+          <button id="repair-dampers" type="button">
+            Repair dampers · 25 HP
+          </button>
+          <button id="restore-dampers" type="button">
+            Repair dampers fully
+          </button>
+        </div>
+        <p class="muted">
+          Damage weakens assistance and crew protection. Failure stops damper
+          power demand and leaves momentum intact. Repair respects startup and
+          thermal reboot; capture resumes from actual velocity. Lab repairs
+          apply on the next step and cost no resources.
+        </p>
+        <h3>Shield condition · lab controls</h3>
+        <div class="toolbar">
+          <button id="damage-shields" type="button">
+            Damage shields · 25 HP
+          </button>
+          <button id="fail-shields" type="button">Fail shields</button>
+          <button id="repair-shields" type="button">
+            Repair shields · 25 HP
+          </button>
+          <button id="restore-shields" type="button">
+            Repair shields fully
+          </button>
+        </div>
+        <p class="muted">
+          Damage reduces recharge efficiency and the fraction of each hit
+          absorbed; the remainder reaches the hull. Failure stops the field and
+          recharge, preserving stored energy for emergency diversion. Repair
+          respects startup and thermal reboot. These lab commands apply next
+          step and cost no resources.
+        </p>
+        <h3>Cargo link · lab controls</h3>
+        <p id="cargo-state" class="muted"></p>
+        <div class="toolbar">
+          <button id="damage-cargo" type="button">Damage cargo · 25 HP</button>
+          <button id="fail-cargo" type="button">Fail cargo</button>
+          <button id="repair-cargo" type="button">Repair cargo · 25 HP</button>
+          <button id="restore-cargo" type="button">Repair cargo fully</button>
+        </div>
+        <p class="muted">
+          Link failure or manual shutdown starts one recovery window. Restore
+          funded, cool operation and complete stable reconnection before expiry.
+          Brief power or switch toggles cannot reset the countdown. This lab
+          tracks a pocket reference, not an inventory or cargo mass.
+        </p>
+        <div class="reserve-heading">
+          <label for="reserve">Energy reserve</label
+          ><span id="reserve-reading"></span>
+        </div>
+        <progress id="reserve" max="1" value="0.5"></progress>
+        <h3>Shields &amp; hull</h3>
+        <label for="shield-charge">Shield energy</label
+        ><progress id="shield-charge" max="1" value="0"></progress>
+        <label for="hull-integrity">Hull integrity</label
+        ><progress id="hull-integrity" max="1" value="1"></progress>
+        <p id="shield-state" class="muted"></p>
+        <p id="damage-state" class="muted"></p>
+        <div class="toolbar">
+          <button id="divert-shields" type="button">Divert shield energy</button
+          ><button id="cancel-diversion" type="button">Cancel diversion</button>
+        </div>
+        <p id="diversion-state" class="muted"></p>
+        <p class="muted">
+          Diversion switches shields off and needs no reactor power. Run or
+          Single step to transfer stored energy. It stops when shields empty or
+          the reserve fills. Re-enable shields manually to restore protection;
+          enabling them also cancels diversion.
+        </p>
+        <div class="toolbar">
+          <button id="hit-small" type="button">Test hit · 2 GJ</button
+          ><button id="hit-large" type="button">Test hit · 12 GJ</button>
+        </div>
+        <p class="muted">
+          Hits apply on the next simulation step. Enable shields and Run to
+          charge them. Switching off preserves energy but removes protection.
+          Hull breach is reported; destruction rules come later.
+        </p>
+        <details class="system-details">
+          <summary>System diagnostics</summary>
+          <p id="power-state" class="muted"></p>
+          <p id="damper-state" class="muted"></p>
+          <p id="thermal-state" class="muted"></p>
+          <p id="damper-thermal-state" class="muted"></p>
+          <p id="reactor-state" class="muted"></p>
+        </details>
+        <h3>Assembly</h3>
+        <pre class="architecture">
+ship
+├─ body       owns position, velocity and quaternion orientation
+├─ control    accepts intent from any controller
+├─ navigation post-motion position fix and destination guidance
+├─ power      owns reserve and allocation
+├─ engine     requests power, delivers thrust/torque
+├─ dampers    powered assistance, capture and crew protection
+├─ cargo      powered pocket access with a fixed recovery deadline
+├─ mounts     external installation slots and fire-group matrix
+├─ internals  replaceable installations bound to Workshop facilities/inventories
+├─ cooling    one cooling budget across all thermal modules
+├─ shields    stored field energy and powered protection
+├─ hull       shield overflow becomes structural damage
+├─ movement   orders one fixed simulation step
+└─ computer   reads the committed frame and routes module commands</pre>
+        <p id="installed" class="muted"></p>
+        <p id="ship-specs" class="muted"></p>
+        <p id="damper-specs" class="muted"></p>
+        <p id="thermal-specs" class="muted"></p>
+        <p id="damper-thermal-specs" class="muted"></p>
+        <p id="shield-specs" class="muted"></p>
+        <p id="reactor-specs" class="muted"></p>
+      </section>
+      <section class="panel log">
+        <h2>Supply &amp; motion history</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Time (s)</th>
+                <th>Speed (m/s)</th>
+                <th>Reactor</th>
+                <th>Engine</th>
+                <th>Dampers</th>
+                <th>Crew (G)</th>
+                <th>Engine activity (%)</th>
+                <th>Reserve (GJ)</th>
+                <th>Draw (GW)</th>
+              </tr>
+            </thead>
+            <tbody id="ship-history"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <p id="message" role="status"></p>
+    <footer>
+      3D translation plus pitch, yaw and roll. Reactor, engine, damper, shield
+      and cargo heat with one shared cooling circuit, plus shield and hull test
+      damage. No collision, crew injury or relativistic model yet. Power costs
+      are explicit prototype profile values. Assisted velocity is a powered
+      force response, not a hard speed clamp. Crew G measures translation only.
+      Engine shortage scales operation after funding its baseline; reserve
+      recharge uses the existing demonstration hysteresis.
+      <a href="../../../games/ship/README.md"
+        >Source, ownership and limitations</a
+      >
+    </footer>
+    <script
+      type="module"
+      src="../../../dist/apps/flight-foundry/ship-main.js"
+    ></script>
+  </body>
+</html>

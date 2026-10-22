@@ -1,6 +1,8 @@
 # Assembled ship — architecture proof
 
-Open <http://localhost:8092/apps/flight-foundry/ship.html> after the usual `npm run start`. The game-owned ship source lives here; its HTML telemetry instrument lives under `apps/flight-foundry/`. Existing cockpit rendering, motion bench and curve planners are unchanged.
+Current work sequence: [Farwake game plan](../../docs/GAME-PLAN.md).
+
+Open <http://localhost:8092/demos/tools/flight-foundry/ship.html> after the usual `npm run start`. The game-owned ship source lives here; its HTML telemetry instrument lives under `apps/flight-foundry/`. Existing cockpit rendering, motion bench and curve planners are unchanged.
 
 ## First flight game
 
@@ -731,7 +733,7 @@ is unchanged by this Flight Foundry slice.
 
 ### Renderer experiment and intro artwork
 
-Flight Foundry's [surface comparison](../../apps/flight-foundry/surface-benchmark.html)
+Flight Foundry's [surface comparison](../../demos/tools/flight-foundry/surface-benchmark.html)
 uses the game's extracted `CockpitScene.ts` with real renderer/material variants,
 fixed dimensions and warmed GPU queries. See its
 [methodology](../../apps/flight-foundry/SURFACE-BENCHMARK.md). The playable game

@@ -129,9 +129,9 @@ Keep queries pure; any external query side effects are the host's responsibility
 
 ## Scope and demonstrations
 
-- [particles.html](../particles.html): sparks, plume, pointer bursts, bounded
+- [particles.html](../demos/particles.html): sparks, plume, pointer bursts, bounded
   100,000-attempt overload, pause, clear, dispose and seeded recreation.
-- [projectiles.html](../projectiles.html): 4-pixel static targets versus shots up to
+- [projectiles.html](../demos/projectiles.html): 4-pixel static targets versus shots up to
   20,000 pixels/second (333 pixels per 60 Hz step), earliest-hit records, separate
   trails/impact particles, pointer/Space firing and resource cleanup.
 

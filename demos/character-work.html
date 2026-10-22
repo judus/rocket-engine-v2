@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocket · Work and takeover</title>
+    <link rel="stylesheet" href="../examples/style.css" />
+    <link rel="stylesheet" href="../examples/demo-navigation.css?v=2" />
+    <link rel="stylesheet" href="../src/ui/style.css" />
+    <link rel="stylesheet" href="../examples/ui/demo.css" />
+    <script type="module" src="../dist/examples/demo-navigation.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "production-workshop": "../dist/vendor/production-workshop-2.4.0/index.js",
+          "sprite-animation": "../dist/vendor/sprite-animation-0.2.0/index.js",
+          "sprite-animation/canvas2d": "../dist/vendor/sprite-animation-0.2.0/canvas2d.js"
+        }
+      }
+    </script>
+  </head>
+  <body class="demo-layout">
+    <aside id="demo-navigation" aria-label="Rocket demos"></aside>
+    <main>
+      <h1>Work → takeover → resume</h1>
+      <p>
+        Two operators walk to their workplaces. Select a sprite or choose a
+        worker, then take control. Click the canvas and use WASD; hold Shift to
+        run. Selection alone never interrupts work. Release control to resume
+        the saved assignment.
+      </p>
+      <p>
+        Taking control immediately clears attendance and releases the slot.
+        Workshop owns production and timed deliveries; these characters are
+        operators, not physical cargo carriers. The press continues while it has
+        alloy available.
+      </p>
+      <div class="toolbar">
+        <label
+          >Selected worker
+          <select id="worker">
+            <option>A</option>
+            <option>B</option>
+          </select></label
+        >
+        <button id="takeover">Take control</button
+        ><button id="release">Release control</button>
+        <button id="gate">Toggle gate</button
+        ><button id="remove">Remove selected worker</button>
+        <button id="save">Save checkpoint</button
+        ><button id="restore">Restore checkpoint</button>
+        <button id="dispose">Dispose</button
+        ><button id="recreate">Recreate</button>
+      </div>
+      <p id="checkpoint">
+        No checkpoint saved. Restore resets keyboard control and replans work.
+      </p>
+      <pre><output>Preparing…</output></pre>
+      <div id="work-world"></div>
+      <p>
+        Closing the gate blocks routes across the board. Opening it replans
+        assignments. Removed workers stay removed in checkpoints. Art: SzadiArt
+        · <a href="../examples/character-sprites/LICENSE.txt">Asset licence</a>.
+      </p>
+    </main>
+    <script
+      type="module"
+      src="../dist/examples/character-work/demo.js"
+    ></script>
+  </body>
+</html>

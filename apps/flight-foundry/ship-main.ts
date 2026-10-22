@@ -560,7 +560,7 @@ window.addEventListener(
 find('#message').textContent =
   'Loading ship definition and equipment profiles…';
 void loadShipSetup(
-  new URL('../../games/ship/ships/science-ship.json', window.location.href),
+  new URL('../../../games/ship/ships/science-ship.json', import.meta.url),
 )
   .then((loaded) => {
     setup = loaded;

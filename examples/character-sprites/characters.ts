@@ -63,8 +63,14 @@ export async function prepareCharacters(
   for (const [index, name] of characterNames.entries()) {
     const lease = await assets.acquireImage(
       fail && index === 5
-        ? './examples/character-sprites/missing.png'
-        : `./examples/character-sprites/${name}.png`,
+        ? new URL(
+            '../../../examples/character-sprites/missing.png',
+            import.meta.url,
+          ).href
+        : new URL(
+            `../../../examples/character-sprites/${name}.png`,
+            import.meta.url,
+          ).href,
       { signal },
     );
     if (signal.aborted) {
