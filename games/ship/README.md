@@ -2,7 +2,7 @@
 
 Current work sequence: [Farwake game plan](../../docs/GAME-PLAN.md).
 
-Open <http://localhost:8092/demos/tools/flight-foundry/ship.html> after the usual `npm run start`. The game-owned ship source lives here; its HTML telemetry instrument lives under `apps/flight-foundry/`. Existing cockpit rendering, motion bench and curve planners are unchanged.
+Open <http://localhost:8092/demos/tools/flight-foundry/ship.html> after the usual `npm run start`. The game-owned ship source lives here; its HTML telemetry instrument lives under `demos/tools/flight-foundry/`. Existing cockpit rendering, motion bench and curve planners are unchanged.
 
 ## First flight game
 
