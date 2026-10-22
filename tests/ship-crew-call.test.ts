@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CrewCallVideo } from '../games/ship/CrewCallVideo.js';
-import { commsControlAt, crewControlAt } from '../games/ship/WindshieldApp.js';
+import { CrewCallVideo } from '../games/farwake/CrewCallVideo.js';
+import {
+  commsControlAt,
+  crewControlAt,
+} from '../games/farwake/WindshieldApp.js';
 
 void test('Call playback loads only the selected crew member and pauses when hidden', () => {
   let plays = 0,

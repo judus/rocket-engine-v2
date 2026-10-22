@@ -6,7 +6,7 @@ Open <http://localhost:8092/demos/tools/flight-foundry/ship.html> after the usua
 
 ## First flight game
 
-Open <http://localhost:8092/games/ship/> for the clean cockpit app. `index.html`
+Open <http://localhost:8092/games/farwake/> for the clean cockpit app. `index.html`
 owns the start menu and HTML Settings scene; `main.ts` assembles Rocket, a retained
 SceneNavigator and one fixed Stage2D with a typed Ship entity. `CockpitView.ts`
 owns presentation/assets/context resources; `CockpitInstruments.ts` paints committed
@@ -46,7 +46,7 @@ player preferences, not a ship save or Flight Foundry balancing profile.
 const runtime = new Rocket({ fixed: { step: 1 / 60, maxSteps: 12 } });
 const stage = runtime.scene(new Stage2D({ fixed: true }), { keepAlive: true });
 const setup = await loadShipSetup(
-  new URL('/games/ship/ships/science-ship.json', location.href),
+  new URL('/games/farwake/ships/science-ship.json', location.href),
 );
 const ship = stage.entity(() => new Ship(setup.profile, setup.initialState), {
   id: setup.profile.id,
@@ -95,7 +95,7 @@ All instruments read `ship.telemetry` after a completed step, including forces a
 
 Implemented: actual attached body/control/power/engine/dampers/cooling/shields/hull/movement, 3D translation, pitch/yaw/roll, commands, standby/activity costs, reserve generation/depletion, partial/zero delivery, inherited recharge eligibility and immutable telemetry. Runtime uses the existing headless Stage2D and Rocket clock; pause/single-step work on the same simulation path.
 
-Not implemented: crew injury, destruction rules, cargo-pocket item transfers, collision, general rigid-body contact dynamics, core-equipment runtime replacement, or the cockpit presentation adapter. The earlier capture calculation now lives in `games/ship/CaptureResponse.ts` and drives the powered damper component. It still describes nominal fully supplied response; power delivery determines actual motion and protection.
+Not implemented: crew injury, destruction rules, cargo-pocket item transfers, collision, general rigid-body contact dynamics, core-equipment runtime replacement, or the cockpit presentation adapter. The earlier capture calculation now lives in `games/farwake/CaptureResponse.ts` and drives the powered damper component. It still describes nominal fully supplied response; power delivery determines actual motion and protection.
 
 `npm run check` includes `tests/ship-architecture.test.ts`: actual engine/power/body outcomes, resource conservation, final partial versus zero supply, baseline admission/recharge, manual switches/coasting, yaw/thrust frames, normalized combined demand, independent ship lifetimes, coherent observations and fail-before-side-effect boundaries. Render-rate foundations are existing Rocket tests. Browser checks inspect the telemetry page; this is not a full game or real-device certification.
 
@@ -107,7 +107,7 @@ Starting charge, velocity and separate reactor/engine/damper/shield temperatures
 
 `loadShipSetup()` fetches the definition, loads all referenced profiles, strictly validates exact fields, JSON numeric types, ranges, ids and loadout constraints, then returns an immutable setup. Invalid/missing JSON fails before entity attachment. Default browser fetches revalidate profile files, so reloading after a JSON edit does not reuse stale equipment definitions. There is no fallback profile, silent clamping, schema alias or older-format reader. The telemetry controls remain unavailable until loading succeeds; errors are shown on the page. Its equipment IDs and displayed specifications come from the loaded profiles.
 
-To tune the demonstration, edit the relevant JSON and reload the telemetry page; `Reset ship` repeats the already loaded setup without fetching new data or pretending to install equipment in flight. JSON is served from the source `games/ship/` directory by the existing repository-root server; it is not copied into `dist`. Component code still owns calculations. Changing a coefficient changes the corresponding calculation input; a new mechanism still needs code.
+To tune the demonstration, edit the relevant JSON and reload the telemetry page; `Reset ship` repeats the already loaded setup without fetching new data or pretending to install equipment in flight. JSON is served from the source `games/farwake/` directory by the existing repository-root server; it is not copied into `dist`. Component code still owns calculations. Changing a coefficient changes the corresponding calculation input; a new mechanism still needs code.
 
 `tests/ship-profiles.test.ts` reads the actual checked-in JSON and tests invalid documents, missing files, wrong ids, incompatible restart/charge values, independent initial state and an edited engine profile producing different motion. The same JSON files feed the existing architecture tests.
 

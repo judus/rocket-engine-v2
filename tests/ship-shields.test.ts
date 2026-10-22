@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Ship } from '../games/ship/Ship.js';
+import { Ship } from '../games/farwake/Ship.js';
 import {
   validateShieldProfile,
   validateHullProfile,
-} from '../games/ship/ShipProfiles.js';
+} from '../games/farwake/ShipProfiles.js';
 import { starterSetup } from './helpers/shipSetup.js';
 
 function make(outputW = 100) {

@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ShipBody } from '../games/ship/ShipBody.js';
-import { Ship } from '../games/ship/Ship.js';
-import { ShipNavigation } from '../games/ship/ShipNavigation.js';
+import { ShipBody } from '../games/farwake/ShipBody.js';
+import { Ship } from '../games/farwake/Ship.js';
+import { ShipNavigation } from '../games/farwake/ShipNavigation.js';
 import {
   validateBodyProfile,
   validateEngineProfile,
   validateDamperProfile,
-} from '../games/ship/ShipProfiles.js';
+} from '../games/farwake/ShipProfiles.js';
 import { starterSetup } from './helpers/shipSetup.js';
 const zero = { x: 0, y: 0, z: 0 };
 const bodyProfile = {

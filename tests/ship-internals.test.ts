@@ -2,12 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Simulation } from 'production-workshop';
 import type { InventoryOptions } from 'production-workshop';
-import { Ship } from '../games/ship/Ship.js';
+import { Ship } from '../games/farwake/Ship.js';
 import {
   ShipInternals,
   validateInternalsProfile,
   validateProductionConfiguration,
-} from '../games/ship/ShipInternals.js';
+} from '../games/farwake/ShipInternals.js';
 import { starterSetup } from './helpers/shipSetup.js';
 const profile = {
   ...starterSetup.profile,

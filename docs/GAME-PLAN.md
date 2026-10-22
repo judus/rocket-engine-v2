@@ -29,7 +29,7 @@ changes are part of cleanup.
 HTML entry pages live in demos/, including nested inventory, capability examples
 and diagnostic tools. Their implementation/assets keep existing owners under
 examples/, games/ and apps/. The root index is a small directory entry; the real
-Farwake game stays at games/ship/. Update consumers to the new URLs together,
+Farwake game stays at games/farwake/. Update consumers to the new URLs together,
 without legacy duplicate pages or redirect aliases. Later, demos should become
 how-to pages with code examples; that content redesign is not the relocation.
 

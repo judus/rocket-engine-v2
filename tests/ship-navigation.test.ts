@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ShipBody } from '../games/ship/ShipBody.js';
-import { ShipNavigation } from '../games/ship/ShipNavigation.js';
-import { Ship } from '../games/ship/Ship.js';
+import { ShipBody } from '../games/farwake/ShipBody.js';
+import { ShipNavigation } from '../games/farwake/ShipNavigation.js';
+import { Ship } from '../games/farwake/Ship.js';
 import { starterSetup } from './helpers/shipSetup.js';
 const contact = {
   id: 'outpost',

@@ -3,7 +3,7 @@
 One checkout and build, two static site entry points; no source rearrangement.
 
 - `rocket.maduser.net/`: existing root index and engine-demo navigation.
-- `farwake.maduser.net/`: redirect to `/games/ship/`, the current game entry point.
+- `farwake.maduser.net/`: redirect to `/games/farwake/`, the current game entry point.
   Keep that path: its relative stylesheet, import-map and module URLs already work.
 - Both hosts can serve the same built static artifact. No SPA fallback is needed;
   ordinary files and directory index.html routes are used.

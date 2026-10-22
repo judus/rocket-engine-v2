@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { parseGlb, TextureImage } from '../../src/3d/index.js';
-import { mountCockpitModel } from '../../games/ship/CockpitModel.js';
+import { mountCockpitModel } from '../../games/farwake/CockpitModel.js';
 
 /** Real geometry/hierarchy; tiny decoded image fixtures keep CPU tests DOM-free. */
 export async function cockpitModel() {

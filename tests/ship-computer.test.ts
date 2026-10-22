@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Ship } from '../games/ship/Ship.js';
+import { Ship } from '../games/farwake/Ship.js';
 import { starterSetup } from './helpers/shipSetup.js';
 function step(ship: Ship, count = 1, dt = 1 / 60) {
   for (let i = 0; i < count; i++)

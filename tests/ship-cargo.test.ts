@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CargoLink } from '../games/ship/CargoLink.js';
-import { Ship } from '../games/ship/Ship.js';
-import { ShipCargo } from '../games/ship/ShipCargo.js';
-import { validateCargoProfile } from '../games/ship/ShipProfiles.js';
+import { CargoLink } from '../games/farwake/CargoLink.js';
+import { Ship } from '../games/farwake/Ship.js';
+import { ShipCargo } from '../games/farwake/ShipCargo.js';
+import { validateCargoProfile } from '../games/farwake/ShipProfiles.js';
 import { starterSetup } from './helpers/shipSetup.js';
 
 const profile = {

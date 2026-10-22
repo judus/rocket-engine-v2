@@ -1,7 +1,7 @@
 # Surface renderer comparison
 
 Open <http://localhost:8092/demos/tools/flight-foundry/surface-benchmark.html> after the
-normal build/server command. This experiment uses `games/ship/CockpitScene.ts`,
+normal build/server command. This experiment uses `games/farwake/CockpitScene.ts`,
 the same assembly/draw path as the game, with the original cockpit and 72 seeded
 asteroids. It does not introduce a second flight model or expose detail settings.
 

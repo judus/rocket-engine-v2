@@ -8,7 +8,7 @@ import {
   controlPreset,
   virtualMode,
   settingsKey,
-} from '../games/ship/ControlSettings.js';
+} from '../games/farwake/ControlSettings.js';
 import { ActionContext } from '../src/ActionContext.js';
 import { InputScope } from '../src/Input.js';
 
@@ -97,7 +97,7 @@ void test('Storage denial remains visible to the caller and defaults are indepen
 void test('Retained flight pauses the entire ship in Settings and resumes the same entity', async () => {
   const { Stage2D, SceneNavigator } =
     await import('../src/experimental/index.js');
-  const { Ship } = await import('../games/ship/Ship.js');
+  const { Ship } = await import('../games/farwake/Ship.js');
   const { starterSetup } = await import('./helpers/shipSetup.js');
   const flight = new Stage2D({ fixed: true });
   const ship = flight.entity(

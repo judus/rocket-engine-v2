@@ -6,8 +6,8 @@ import {
   installedCompartments,
   roomCrop,
   compartmentScene,
-} from '../games/ship/ShipInteriors.js';
-import { Ship } from '../games/ship/Ship.js';
+} from '../games/farwake/ShipInteriors.js';
+import { Ship } from '../games/farwake/Ship.js';
 import { starterSetup } from './helpers/shipSetup.js';
 
 void test('Seven installed internals have distinct inspection images, alongside the two core-system views', async () => {
@@ -31,7 +31,7 @@ void test('Seven installed internals have distinct inspection images, alongside 
     for (const room of rooms) {
       const image = await readFile(
         new URL(
-          `../../games/ship/assets/rooms/${room.id}.png`,
+          `../../games/farwake/assets/rooms/${room.id}.png`,
           import.meta.url,
         ),
       );

@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { crewIds } from '../games/ship/CrewProfiles.js';
+import { crewIds } from '../games/farwake/CrewProfiles.js';
 import {
   WindshieldPages,
   windshieldPages,
-} from '../games/ship/WindshieldApp.js';
+} from '../games/farwake/WindshieldApp.js';
 
 void test('Windshield navigation selects four pages and rejects invalid destinations', () => {
   const pages = new WindshieldPages();

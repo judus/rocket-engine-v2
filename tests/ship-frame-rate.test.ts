@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FrameRate } from '../games/ship/FrameRate.js';
+import { FrameRate } from '../games/farwake/FrameRate.js';
 void test('FPS measures completed frame intervals, smooths readings and resets across pauses', () => {
   const meter = new FrameRate();
   assert.equal(meter.frame(0), null);

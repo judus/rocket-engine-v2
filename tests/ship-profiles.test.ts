@@ -1,18 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { loadShipSetup } from '../games/ship/loadShipSetup.js';
-import type { ProfileFetch } from '../games/ship/loadShipSetup.js';
-import { Ship } from '../games/ship/Ship.js';
+import { loadShipSetup } from '../games/farwake/loadShipSetup.js';
+import type { ProfileFetch } from '../games/farwake/loadShipSetup.js';
+import { Ship } from '../games/farwake/Ship.js';
 import {
   validateBodyProfile,
   validateEngineProfile,
   validatePowerProfile,
-} from '../games/ship/ShipProfiles.js';
+} from '../games/farwake/ShipProfiles.js';
 import { starterSetup } from './helpers/shipSetup.js';
 
 const manifestUrl = new URL(
-  'https://ship.test/games/ship/ships/science-ship.json',
+  'https://ship.test/games/farwake/ships/science-ship.json',
 );
 function fixtures(): Map<string, unknown> {
   return new Map([
@@ -25,49 +25,49 @@ function fixtures(): Map<string, unknown> {
     ].map((id): [string, unknown] => [
       `profiles/${id}.json`,
       JSON.parse(
-        readFileSync(`games/ship/profiles/${id}.json`, 'utf8'),
+        readFileSync(`games/farwake/profiles/${id}.json`, 'utf8'),
       ) as unknown,
     ]),
     [
       'profiles/cargo-starter.json',
       JSON.parse(
-        readFileSync('games/ship/profiles/cargo-starter.json', 'utf8'),
+        readFileSync('games/farwake/profiles/cargo-starter.json', 'utf8'),
       ) as unknown,
     ],
     [
       'profiles/cooling-starter.json',
       JSON.parse(
-        readFileSync('games/ship/profiles/cooling-starter.json', 'utf8'),
+        readFileSync('games/farwake/profiles/cooling-starter.json', 'utf8'),
       ) as unknown,
     ],
     [
       'profiles/dampers-starter.json',
       JSON.parse(
-        readFileSync('games/ship/profiles/dampers-starter.json', 'utf8'),
+        readFileSync('games/farwake/profiles/dampers-starter.json', 'utf8'),
       ) as unknown,
     ],
     [
       'ships/science-ship.json',
       JSON.parse(
-        readFileSync('games/ship/ships/science-ship.json', 'utf8'),
+        readFileSync('games/farwake/ships/science-ship.json', 'utf8'),
       ) as unknown,
     ],
     [
       'profiles/hull-starter.json',
       JSON.parse(
-        readFileSync('games/ship/profiles/hull-starter.json', 'utf8'),
+        readFileSync('games/farwake/profiles/hull-starter.json', 'utf8'),
       ) as unknown,
     ],
     [
       'profiles/reactor-starter.json',
       JSON.parse(
-        readFileSync('games/ship/profiles/reactor-starter.json', 'utf8'),
+        readFileSync('games/farwake/profiles/reactor-starter.json', 'utf8'),
       ) as unknown,
     ],
     [
       'profiles/engine-starter.json',
       JSON.parse(
-        readFileSync('games/ship/profiles/engine-starter.json', 'utf8'),
+        readFileSync('games/farwake/profiles/engine-starter.json', 'utf8'),
       ) as unknown,
     ],
   ]);
@@ -78,7 +78,7 @@ function transport(
 ): ProfileFetch {
   return async (url) => {
     calls.push(url.pathname);
-    const key = url.pathname.replace('/games/ship/', '');
+    const key = url.pathname.replace('/games/farwake/', '');
     return files.has(key)
       ? new Response(JSON.stringify(files.get(key)))
       : new Response('', { status: 404 });

@@ -5,9 +5,9 @@ import {
   crewIds,
   loadCrewProfiles,
   validateCrewProfile,
-} from '../games/ship/CrewProfiles.js';
+} from '../games/farwake/CrewProfiles.js';
 
-const base = new URL('../../games/ship/characters/', import.meta.url);
+const base = new URL('../../games/farwake/characters/', import.meta.url);
 const fetcher = async (url: URL) => new Response(await readFile(url, 'utf8'));
 
 void test('Game crew definitions load in portrait order with names, functions and retained biography sections', async () => {

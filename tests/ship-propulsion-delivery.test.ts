@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { propulsionDelivery } from '../games/ship/PropulsionDelivery.js';
-import { Ship } from '../games/ship/Ship.js';
+import { propulsionDelivery } from '../games/farwake/PropulsionDelivery.js';
+import { Ship } from '../games/farwake/Ship.js';
 import { starterSetup } from './helpers/shipSetup.js';
 
 void test('Fully supplied propulsion retains exact assistance for sub-baseline rounding and small demands', () => {

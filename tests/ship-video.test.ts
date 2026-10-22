@@ -8,7 +8,7 @@ import {
   validateVideo,
   videoResolution,
   videoSurfaceScale,
-} from '../games/ship/VideoSettings.js';
+} from '../games/farwake/VideoSettings.js';
 
 void test('Video caps device density before applying scale without changing logical viewport size', () => {
   const settings = { renderScale: 0.75, pixelDensityLimit: 2 };

@@ -62,7 +62,7 @@ export function compartmentScene(
     async prepare({ signal }) {
       const lease = await assets.acquireImage(
         new URL(
-          `../../../games/ship/assets/rooms/${room.id}.png`,
+          `../../../games/farwake/assets/rooms/${room.id}.png`,
           import.meta.url,
         ),
         { signal },

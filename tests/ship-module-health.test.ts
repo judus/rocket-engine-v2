@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ModuleHealth } from '../games/ship/ModuleHealth.js';
-import { Ship } from '../games/ship/Ship.js';
-import type { ShipProfile } from '../games/ship/ShipProfiles.js';
+import { ModuleHealth } from '../games/farwake/ModuleHealth.js';
+import { Ship } from '../games/farwake/Ship.js';
+import type { ShipProfile } from '../games/farwake/ShipProfiles.js';
 import { starterSetup } from './helpers/shipSetup.js';
 
 const profile: ShipProfile = {

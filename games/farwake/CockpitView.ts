@@ -65,20 +65,20 @@ export async function createCockpitView(
   const base = new URL('../../../', import.meta.url);
   const imageLeases: ImageLease[] = [];
   const callVideo = new CrewCallVideo(
-    new URL('games/ship/assets/comms/', base),
+    new URL('games/farwake/assets/comms/', base),
     onError,
   );
   try {
     const images = runtime.use(Assets);
     const crewProfiles = await loadCrewProfiles(
-      new URL('games/ship/characters/', base),
+      new URL('games/farwake/characters/', base),
       (url) => fetch(url, { cache: 'no-cache', signal: assetSignal }),
     );
     const portraitResults = await Promise.allSettled(
       crewProfiles.map(async (profile) => {
         const lease = await images.acquireImage(
           new URL(
-            `games/ship/assets/crew/${profile.id}-reference-v1.png`,
+            `games/farwake/assets/crew/${profile.id}-reference-v1.png`,
             base,
           ),
           { signal: assetSignal },

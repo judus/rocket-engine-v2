@@ -110,7 +110,8 @@ void test('demo pages are grouped and their import maps and authored model URLs 
     readdirSync(root).filter((name) => name.endsWith('.html')),
     ['index.html'],
   );
-  assert.ok(existsSync(new URL('games/ship/index.html', root)));
+  assert.ok(existsSync(new URL('games/farwake/index.html', root)));
+  assert.ok(!existsSync(new URL('games/ship/', root)));
   for (const group of demoGroups)
     for (const page of group.pages)
       assert.ok(page.href.startsWith('./demos/'), page.href);

@@ -1,5 +1,5 @@
-import type { Ship } from '../../games/ship/Ship.js';
-import type { MountsReading } from '../../games/ship/ShipMounts.js';
+import type { Ship } from '../../games/farwake/Ship.js';
+import type { MountsReading } from '../../games/farwake/ShipMounts.js';
 
 function element<K extends keyof HTMLElementTagNameMap>(
   tag: K,

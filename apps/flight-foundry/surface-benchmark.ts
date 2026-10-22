@@ -7,14 +7,14 @@ import {
   WebGLGpuTimer,
 } from '../../src/webgl/index.js';
 import { loadAsteroidFamily } from '../../examples/space/AsteroidFamily.js';
-import { createCockpitScene } from '../../games/ship/CockpitScene.js';
+import { createCockpitScene } from '../../games/farwake/CockpitScene.js';
 import {
   surfaceVariants,
   surfaceVariantSwitcher,
-} from '../../games/ship/SurfaceVariants.js';
-import type { SurfaceVariant } from '../../games/ship/SurfaceVariants.js';
-import { Ship } from '../../games/ship/Ship.js';
-import { loadShipSetup } from '../../games/ship/loadShipSetup.js';
+} from '../../games/farwake/SurfaceVariants.js';
+import type { SurfaceVariant } from '../../games/farwake/SurfaceVariants.js';
+import { Ship } from '../../games/farwake/Ship.js';
+import { loadShipSetup } from '../../games/farwake/loadShipSetup.js';
 
 function node<T extends HTMLElement>(id: string): T {
   const result = document.querySelector<T>(id);
@@ -75,7 +75,7 @@ async function start(): Promise<void> {
       { signal: lifetime.signal },
     ),
     loadAsteroidFamily(lifetime.signal),
-    loadShipSetup(new URL('games/ship/ships/science-ship.json', base)),
+    loadShipSetup(new URL('games/farwake/ships/science-ship.json', base)),
   ]);
   const ship = stage.entity(() => new Ship(setup.profile, setup.initialState));
   ship.dampers.requestEnabled(true);

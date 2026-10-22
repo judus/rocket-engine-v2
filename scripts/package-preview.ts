@@ -115,8 +115,8 @@ export async function packagePreview(
   const paths = new Set(files.map((f) => f.path));
   for (const required of [
     'index.html',
-    'games/ship/index.html',
-    'dist/games/ship/main.js',
+    'games/farwake/index.html',
+    'dist/games/farwake/main.js',
     'dist/examples/demo-navigation.js',
   ])
     if (!paths.has(required))
@@ -147,7 +147,7 @@ export async function packagePreview(
       {
         schema: 1,
         revision,
-        entries: { rocket: 'index.html', farwake: 'games/ship/index.html' },
+        entries: { rocket: 'index.html', farwake: 'games/farwake/index.html' },
         files,
       },
       null,

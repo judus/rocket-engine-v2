@@ -1,11 +1,11 @@
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { crewIds, validateCrewProfile } from '../games/ship/CrewProfiles.js';
+import { crewIds, validateCrewProfile } from '../games/farwake/CrewProfiles.js';
 
 const source = resolve(
   process.argv[2] ?? '../madhouse/agents/luna/farwake/characters',
 );
-const target = resolve('games/ship/characters');
+const target = resolve('games/farwake/characters');
 // Validate every definition before changing any game copy.
 const definitions = await Promise.all(
   crewIds.map(async (id) => {

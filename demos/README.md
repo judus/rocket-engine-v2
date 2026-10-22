@@ -7,7 +7,7 @@ capability game examples in `games/`, and diagnostic tools in `tools/`.
 Implementation modules and assets keep their existing owners under `examples/`,
 `games/` and `apps/`; the browser build stays under `dist/`. Asset URLs resolve
 from the owning module, independent of the page's directory depth. Farwake's real
-entry point remains `/games/ship/`.
+entry point remains `/games/farwake/`.
 
 These are runnable examples today. How-to explanations and code examples can be
 added here after the structure and code cleanup are settled. The active work

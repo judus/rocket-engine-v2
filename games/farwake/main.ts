@@ -49,7 +49,7 @@ function fail(error: unknown): void {
 }
 async function start(): Promise<void> {
   const setup = await loadShipSetup(
-    new URL('../../../games/ship/ships/science-ship.json', import.meta.url),
+    new URL('../../../games/farwake/ships/science-ship.json', import.meta.url),
   );
   lifetime.signal.throwIfAborted();
   const engine = new Rocket({

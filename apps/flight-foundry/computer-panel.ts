@@ -1,5 +1,5 @@
-import type { Ship } from '../../games/ship/Ship.js';
-import type { ComputerReading } from '../../games/ship/ShipComputer.js';
+import type { Ship } from '../../games/farwake/Ship.js';
+import type { ComputerReading } from '../../games/farwake/ShipComputer.js';
 function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
   text?: string,

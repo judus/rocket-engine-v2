@@ -12,12 +12,12 @@ import {
   WindshieldSurface,
   cockpitPaneNames,
   frontWindshieldExtraTiltDegrees,
-} from '../games/ship/WindshieldSurface.js';
+} from '../games/farwake/WindshieldSurface.js';
 import {
   WindshieldHud,
   hudGlyphGeometry,
-} from '../games/ship/WindshieldHud.js';
-import { surfaceVariantSwitcher } from '../games/ship/SurfaceVariants.js';
+} from '../games/farwake/WindshieldHud.js';
+import { surfaceVariantSwitcher } from '../games/farwake/SurfaceVariants.js';
 import { cockpitModel } from './helpers/cockpitModel.js';
 
 const rasterize = () => hudGlyphGeometry(1, 1, new Uint8ClampedArray(4));
@@ -253,9 +253,10 @@ void test('Mesh fade reverses continuously and keeps glyph holes registered to t
   glass.update(1);
   hud.setOpacity(0.5);
   // Populate geometry using an existing committed reading.
-  const { Ship } = await import('../games/ship/Ship.js');
+  const { Ship } = await import('../games/farwake/Ship.js');
   const { starterSetup } = await import('./helpers/shipSetup.js');
-  const { cockpitReadings } = await import('../games/ship/CockpitReadings.js');
+  const { cockpitReadings } =
+    await import('../games/farwake/CockpitReadings.js');
   const ship = new Ship(starterSetup.profile, starterSetup.initialState);
   try {
     hud.update(cockpitReadings(ship.telemetry, ship.computer.telemetry));
